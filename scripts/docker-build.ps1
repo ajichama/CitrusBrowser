@@ -82,7 +82,8 @@ export PATH=`$JAVA_HOME/bin:`$PATH
 git config --global --add safe.directory /workspace
 sed -i 's/\r$//' ./gradlew
 chmod +x ./gradlew
-bash ./gradlew $Task --init-script /workspace/docker/init.gradle --no-daemon --stacktrace
+rm -rf /workspace/.gradle /workspace/buildSrc/.gradle /workspace/buildSrc/build
+bash ./gradlew $Task --project-cache-dir /build-cache/.gradle-project-cache --init-script /workspace/docker/init.gradle --no-daemon --stacktrace
 if [ -d /build-cache/app/outputs/apk ]; then
     mkdir -p /workspace/release
     find /build-cache/app/outputs/apk -name "*.apk" -exec cp -f {} /workspace/release/ \;

@@ -15,7 +15,7 @@
   -->
 
 <resources>
-    <string name="browser_app_name">柚子浏览器</string>
+    <string name="browser_app_name">CitrusBrowser</string>
     <string name="add">添加</string>
     <string name="cancel">取消</string>
     <string name="reset">重置</string>

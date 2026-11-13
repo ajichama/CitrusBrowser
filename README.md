@@ -1,80 +1,41 @@
-# Yuzu browser
-[![license](https://img.shields.io/github/license/hazuki0x0/YuzuBrowser.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-&nbsp;Stable: [![GitHub release](https://img.shields.io/github/release/hazuki0x0/YuzuBrowser.svg)](https://play.google.com/store/apps/details?id=jp.hazuki.yuzubrowser)
-&nbsp;Latest: [![GitHub release](https://img.shields.io/github/v/release/hazuki0x0/YuzuBrowser?include_prereleases)](https://github.com/hazuki0x0/YuzuBrowser/releases)
+# CitrusBrowser
+
+[![license](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 <img src="app/src/main/ic_launcher-web.png" width="192" height="192">
 
-Yuzu browser is an open source power full web browser.
+**CitrusBrowser** (`io.github.ajichama.citrusbrowser`) は、オープンソースのAndroid向け高機能・高カスタマイズWebブラウザ **[Yuzu Browser](https://github.com/hazuki0x0/YuzuBrowser)**（作者: Hazuki氏、Mikan Browser 派生）をベースに、最新のAndroid OS（Android 16 / 17）対応・モダンなUIデザイン・広告ブロック等の機能強化を行う後継ブラウザプロジェクトです。
 
-You can create your own browser using custom UI and custom buttons.
+---
 
-This browser based on Mikan Browser.
+## 主な特徴・開発方針
 
-## Download and install
-**Android 6.0 or higher is required.**
+- **高いカスタマイズ性の継承**: Yuzu Browser の強みであるカスタムUI・ツールバー・ジェスチャー・アクション設定を継承
+- **最新 Android OS 対応**: Android 16 (API 36) / Android 17 (API 37) 世代のシステム仕様（Edge-to-Edge、Predictive Back、最新権限モデル等）への対応
+- **モダンなUIと機能進化**: Material Design 3 (Material You) 対応および広告ブロック（AdBlock）機能の最新化
 
-<a href="https://play.google.com/store/apps/details?id=jp.hazuki.yuzubrowser">
-<img src="https://cloud.githubusercontent.com/assets/15681348/25552469/9d87214c-2cd5-11e7-8ada-6cf0c69df419.png" width="200px"></a>
+---
 
-Or prebuilt apk file is here
+## ビルド方法 (Docker 隔離ビルド)
 
-https://github.com/Hazuki0x0/YuzuBrowser/releases
+ホスト環境を汚さずに Docker コンテナ内でビルド・単体テストを実行できます。
 
-## Theme
-Yuzu Browser supports custom theme.
+```powershell
+pwsh -File scripts/docker-build.ps1
+```
 
-You can create custom theme with [theme creator app](https://play.google.com/store/apps/details?id=jp.hazuki.yuzubrowser.themecreator).
+ビルドが完了すると、`release/` ディレクトリに APK ファイルが出力されます。
 
-You can use it if you have the theme of Mikan Browser.
+---
 
-However, as the theme has been expanded, not all displays change.
+## クレジット・謝辞 (Credits)
 
-#### New theme pack sample
-for version 2.3 or later
+本プロジェクトは [Hazuki0x0/YuzuBrowser](https://github.com/hazuki0x0/YuzuBrowser) のソースコードおよびコミット履歴をベースに改変・開発されています。素晴らしいブラウザを開発・公開された Hazuki 氏およびコントリビューターの皆様に深く感謝いたします。
 
-Just download the theme pack and tap it to import!
+## ライセンス (License)
 
-You can unzip and edit this theme.
-
-[Theme material dark](https://github.com/hazuki0x0/YuzuBrowser/releases/download/v3.1.1/theme_material_dark.yuzutheme)
-(default theme)
-
-[Theme material light](https://github.com/hazuki0x0/YuzuBrowser/releases/download/v3.1.1/theme_material_light.yuzutheme)
-
-> Aug. 14, 2017 update for 3.1.1
-
-
-##### Classic theme sample
-For versions prior to version 2.3
-
-For installation method and specifications, please check the Readme.txt in the archive.
-
-You should use new theme pack if you are using version 2.3 or later
-
-[Theme material dark](https://github.com/Hazuki0x0/YuzuBrowser/releases/download/v1.1.0/yuzu_theme_material_dark.zip)
-
-[Theme material light](https://github.com/Hazuki0x0/YuzuBrowser/releases/download/v1.1.0/yuzu_theme_material_light.zip)
-
-## Contributing
-Contributions are always welcome
-
-TL;DR
-- Create an issue (except for minor fixes and additional translations/translation fixes).
-- Create a branch for your patch.
-- Create a pull request on the dev branch.
-
-Details are in [Contributing.md](https://github.com/hazuki0x0/YuzuBrowser/blob/dev/Contributing.md)
-
-## Build
-
-    $ git clone https://github.com/Hazuki0x0/YuzuBrowser.git
-    $ cd YuzuBrowser
-    $ ./gradlew build
-
-
-## License
     Copyright (C) 2017-2021 Hazuki
+    Copyright (C) 2026 CitrusBrowser Contributors
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

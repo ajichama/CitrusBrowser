@@ -61,7 +61,7 @@
         android:name="${applicationId}.permission.myapp.signature"
         android:protectionLevel="signature"/>
 
-    <uses-permission android:name="jp.hazuki.yuzubrowser.permission.myapp.signature"/>
+    <uses-permission android:name="${applicationId}.permission.myapp.signature"/>
 
     <application>
         <activity

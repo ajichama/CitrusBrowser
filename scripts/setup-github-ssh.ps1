@@ -8,7 +8,7 @@
     もしアカウント全体のSSH鍵としてGameの鍵を登録済みの場合は -UseGameKey スイッチで流用も可能です）
 .EXAMPLE
   pwsh -File scripts/setup-github-ssh.ps1 -PrepareOnly
-  pwsh -File scripts/setup-github-ssh.ps1 -Repo "isiakiaji/yuzu-successor" -Push
+  pwsh -File scripts/setup-github-ssh.ps1 -Repo "ajichama/yuzu-successor" -Push
 #>
 
 param(
@@ -141,7 +141,7 @@ if ([string]::IsNullOrWhiteSpace($Repo)) {
 if ($Repo -match "(?i)(?:github\.com[:/]|^)([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?)(?:\.git)?/?$") {
     $OwnerRepo = $Matches[1]
 } else {
-    throw "リポジトリ名の形式を認識できませんでした（例: https://github.com/isiakiaji/my-browser または isiakiaji/my-browser）: $Repo"
+    throw "リポジトリ名の形式を認識できませんでした（例: https://github.com/ajichama/my-browser または ajichama/my-browser）: $Repo"
 }
 
 $RemoteUrl = "git@${HostAlias}:${OwnerRepo}.git"
