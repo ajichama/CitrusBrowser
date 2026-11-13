@@ -1,111 +1,69 @@
-# Yuzu Browser. Contributor's guidelines
+# CitrusBrowser コントリビューションガイドライン
 
+**CitrusBrowser** ([ajichama/CitrusBrowser](https://github.com/ajichama/CitrusBrowser)) に関心をお寄せいただきありがとうございます。
+本ドキュメントでは、不具合報告（Bug Report）、機能要望（Feature Request）、およびプルリクエスト（Pull Request）の作成手順と開発ルールについて説明します。
 
-# How to contribute
-
-Great! Yuzu Browser continues to improve from the contributions of its users. This could include code contributions, feature requests, and bug fixes for [Yuzu Browser](https://github.com/hazuki0x0/YuzuBrowser). 
-Thank you for your interest in contributing to Yuzu Browser. I appreciate all help with finding and fixing bugs, making performance improvements, and other tasks. Every contribution is helpful and I thank you for your effort. To ensure the process of contributing is as smooth as possible, here are a few guidelines for you to follow.
-
-- Remember to Create an Issue before submitting any major changes like a new feature or UI changes etc. Changes like the addition of new language or spelling mistakes don't require issue creation.
 ---
 
+## 1. Issue（不具合報告・機能要望）の作成について
 
-# Creating an issue
+新しい Issue を作成する前に、[既存の Issue 一覧](https://github.com/ajichama/CitrusBrowser/issues)（Open および Closed）に同じ内容がすでに報告されていないか確認してください。
 
-There are several reasons to create a new issue. As always, make sure you search through open and **closed** 
-issues before opening a new one.
-There's a good chance that whatever reason you might be opening an issue for might already have been opened or closed by another user.
+### 不具合報告 (Bug Report)
+不具合を報告する際は、以下の情報を含めてください：
+- **再現手順**: 問題が発生するまでの具体的な操作手順（対象URL、設定状態など）
+- **期待される動作**: 本来どのように動作すべきか
+- **環境情報**:
+  - 端末名（例: Google Pixel 9 等）
+  - Android OS バージョン（例: Android 16 / Android 17）
+  - CitrusBrowser のバージョン（設定 ＞ ブラウザについて から確認・コピー可能）
+- **ログ・スクリーンショット**: クラッシュログ（logcat）や画面キャプチャがあれば添付してください。
 
-## New ideas, enhancements and feature requests
+### 機能要望・改善提案 (Feature Request)
+- 1つの Issue につき 1つの機能要望を記載してください（複数の要望を1つの Issue にまとめないでください）。
+- どのような場面で必要となるか（ユースケース）と、期待するUI・挙動を具体的に記述してください。
 
-Great! The developer loves new ideas and welcome opportunities for improvement.
+---
 
+## 2. 開発環境とビルド手順
 
-### I'm not a developer
+本プロジェクトでは、ホスト環境を汚さずに一貫した環境でビルド・テストを行うため、**Docker コンテナ (`yuzu-android-builder`)** による隔離ビルドを採用しています。
 
-Great. Feel free to open a new issue. Please describe the enhancement or feature you like and then be patient. The developer would certainly work on the request as soon as possible. Help can also be gotten from the opensource community. 
+### 必要環境
+- Docker Engine / Docker Desktop
+- PowerShell (`pwsh`)
 
-In order to help the developer understand the feature request;
+### ビルド・テストの実行
+```powershell
+# デバッグAPKのビルド（出力先: release/app-debug.apk）
+pwsh -File scripts/docker-build.ps1
 
-- Title of the issue should be explicit, giving insight into the content of the issue.
-- The area of the project where your feature would be applied or implemented should be properly stated. Add screenshots of mockup if possible.
-- It would be great if a detailed use case is included in your request.
+# 単体テストの実行
+pwsh -File scripts/docker-build.ps1 -Task "testDebugUnitTest"
 
-When submitting a feature request, please make a single issue for each feature request (i.e. don't submit an issue that contains a list of features). Such issues are hard to keep track of and often get lost.
+# Docker イメージの再構築を伴うビルド
+pwsh -File scripts/docker-build.ps1 -RebuildImage
+```
 
+---
 
-### I'm a developer (Code Contributions).
+## 3. コーディング・コミット規約
 
-Fantastic. It's very rare for us to deny pull requests. Open a ticket to let other's know what you are working on along with a description. Fork the repository which in this case is [Yuzu Browser](https://github.com/hazuki0x0/YuzuBrowser), make your desired changes, and send a pull request.
+- **言語・ドキュメント**: ドキュメント、Issue、PR、および新規追加するコード内コメントは日本語で記述してください。
+- **フォーマッティング**: 変更に関係のない箇所への無用なフォーマット変更やインデント変更は避けてください（差分のレビューを容易にするため）。
+- **コミットメッセージ**: Conventional Commits 形式を推奨します。
+  - `feat:` 新機能の追加
+  - `fix:` 不具合修正
+  - `build:` ビルド設定・依存関係の更新
+  - `refactor:` リファクタリング
+  - `docs:` ドキュメントの更新
+  - `chore:` その他の雑務・整理
+- **ライセンスヘッダ**: 既存ファイルの `Copyright (C) 2017-2021 Hazuki` および Apache License 2.0 ヘッダは削除せず維持してください。
 
-Please refrain from reformatting or rearranging the code. It makes it very hard to identify changes
-in pull requests. 
-If you're adding a new feature or function, please either incorporate a test or a sample that shows
-how your new function can be used. Oh, and please make sure it works.
+---
 
-## Commit Guidelines
+## 4. プルリクエスト (Pull Request) の手順
 
-The developer encourages more small commits over one large commit. Small, focused commits make the review process easier and are more likely to be accepted. It is also important to summarise the changes made with brief commit messages. If the commit fixes a specific issue, it is also good to note that in the commit message.
-
-The commit message should start with a single line that briefly describes the changes. That should be followed by a blank line and then a more detailed explanation. As a good practice, use commands when writing the message (instead of "I added ..." or "Adding ...", use "Add ...").
-
-Before committing check for unnecessary whitespace with `git diff --check`.
-
-For further recommendations, see [Pro Git Commit Guidelines](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines "Pro Git Commit Guidelines").
-
-## Submitting Changes
-
-### Pull Request Guidelines
-
-The following guidelines can increase the likelihood that your pull request will get accepted:
-
-* Work on topic branches.
-* Follow the commit guidelines.
-* Keep the patches on topic, focused, and atomic.
-* Try to avoid unnecessary formatting and clean-up where reasonable.
-
-A pull request should contain the following:
-
-* At least one commit (all of which should follow the Commit Guidelines)
-* Title that summarises the issue
-* Description that briefly summarises the changes
-
-After submitting a pull request, you should get a response within the next 7 days. If you do not, don't hesitate to ping the thread.
-
-## Creating a pull request
-
-If you don't know how to create a pull request, this section will help you to get started. 
-
-Here's a detailed content on how to [Create a pull request](https://help.github.com/articles/creating-a-pull-request)
-
-Simply put, the way to create a Pull request is first to; 
-
-1. Fork the repository of the project which in this case is [Yuzu Browser](https://github.com/hazuki0x0/YuzuBrowser)
-2. Commit modifications and changes to your fork
-3. Send a [pull request](https://help.github.com/articles/creating-a-pull-request) to the original repository you forked your repository from in step 1
-
-## Bug Reports
-
-Sorry to hear about your troubles. I try to make the app free of bugs and errors but, the app is not 100% bug proof. That's why bug reports are useful for this project when you encounter them. Before filing a bug report; check the issue tracker if the bug hasn't been reported by other users. If it has been reported before, it is likely to be in [opened issues](https://github.com/hazuki0x0/YuzuBrowser/issues?q=is%3Aopen+is%3Aissue).  You can also check out [closed issues](https://github.com/hazuki0x0/YuzuBrowser/issues?q=is%3Aissue+is%3Aclosed).
- 
-
-So, if it's a new issue; please include the following:
-
- * Steps to reproduce and/or sample code to recreate the problem.
- * I'll also need to know what version of Yuzu browser you're using and,
- * The version of Android in the device in question. Sometimes the manufacturer is helpful too. Since there can be variants of Android that may affect 
-   things (such as x86).
-
-Finally, please be patient. The developer has a lot of things to do. But, be assured that the bug report will receive adequate attention, and will consequently be fixed. If you are a
-developer,  you can fork Yuzu Browser and fix it yourself. 
-
-
-## Contact.
-
-For further inquiries, you can contact the developer by opening an issue on the repository.
-
-You can also check out the developer's profile [here](https://github.com/hazuki0x0).
-
-
-***Thank you for your interest in contributing to Yuzu Browser. I appreciate all the help with finding and fixing bugs, making performance improvements, and other tasks. Every contribution is helpful and I thank you for your effort.***
-
+1. [ajichama/CitrusBrowser](https://github.com/ajichama/CitrusBrowser) を Fork し、作業用のトピックブランチを作成します。
+2. 変更を実装し、`pwsh -File scripts/docker-build.ps1` でビルドが通ることを確認します。
+3. 変更内容と関連する Issue 番号を明記して Pull Request を送信してください。

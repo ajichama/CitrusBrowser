@@ -24,9 +24,6 @@ import android.os.Bundle
 import android.webkit.WebView
 import androidx.fragment.app.DialogFragment
 import androidx.preference.Preference
-import androidx.preference.SwitchPreferenceCompat
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import jp.hazuki.yuzubrowser.core.utility.extensions.getVersionName
 import jp.hazuki.yuzubrowser.legacy.Constants
 import jp.hazuki.yuzubrowser.legacy.R
@@ -60,19 +57,13 @@ class AboutFragment : YuzuPreferenceFragment() {
             true
         }
 
+        // CitrusBrowser リポジトリのプライバシーポリシー (Privacy.md) を表示
         findPreference<Preference>("privacy_policy")!!.setOnPreferenceClickListener {
             startActivity(Intent().apply {
                 setClassName(requireContext(), Constants.activity.MAIN_BROWSER)
                 action = Constants.intent.ACTION_OPEN_DEFAULT
-                data = Uri.parse("https://github.com/hazuki0x0/YuzuBrowser/wiki/Privacy-policy")
+                data = Uri.parse("https://github.com/ajichama/CitrusBrowser/blob/main/Privacy.md")
             })
-            true
-        }
-
-        findPreference<SwitchPreferenceCompat>("send_usage")!!.setOnPreferenceChangeListener { _, newValue ->
-            val isSwitched = newValue as Boolean
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(isSwitched)
-            FirebaseAnalytics.getInstance(requireContext()).setAnalyticsCollectionEnabled(isSwitched)
             true
         }
     }

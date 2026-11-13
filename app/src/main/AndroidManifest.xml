@@ -42,12 +42,6 @@
         <meta-data
             android:name="android.webkit.WebView.EnableSafeBrowsing"
             android:value="true" />
-        <meta-data
-            android:name="firebase_crashlytics_collection_enabled"
-            android:value="${crashlyticsCollectionEnabled}" />
-        <meta-data
-            android:name="google_analytics_adid_collection_enabled"
-            android:value="false" />
 
         <activity
             android:name="jp.hazuki.yuzubrowser.browser.BrowserActivity"
@@ -180,8 +174,8 @@
             android:authorities="${applicationId}.search.SuggestProvider"
             android:exported="false"
             android:permission="${applicationId}.permission.myapp.signature"
-            android:readPermission="jp.hazuki.yuzubrowser.permission.myapp.signature"
-            android:writePermission="jp.hazuki.yuzubrowser.permission.myapp.signature" />
+            android:readPermission="${applicationId}.permission.myapp.signature"
+            android:writePermission="${applicationId}.permission.myapp.signature" />
 
         <service
             android:name="jp.hazuki.yuzubrowser.download.service.DownloadService"

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// ビルドSDKバージョン定義
 object Build {
     const val compile_sdk_version = 30
     const val build_tools_version = "30.0.3"
@@ -21,11 +22,13 @@ object Build {
     const val target_sdk_version = 30
 }
 
+// アプリケーションバージョン定義
 object AppVersions {
     const val version_name = "6.0.2"
     const val version_code = 410021
 }
 
+// 依存ライブラリのバージョン一元管理
 object Versions {
     const val androidX = "1.0.0"
     const val appCompat = "1.2.0"
@@ -36,8 +39,8 @@ object Versions {
     const val androidxRoom = "2.2.6"
     const val lifeCycle = "2.3.0"
     const val material = "1.3.0"
-    const val support_fix_lib = "1.1.1"
-    const val support_constraint_lib = "2.0.4"
+    const val preference = "1.1.1"
+    const val constraintLayout = "2.0.4"
     const val documentFile = "1.0.1"
     const val print = "1.0.0"
     const val swipeRefreshLayout = "1.1.0"
@@ -60,13 +63,14 @@ object Versions {
     const val webkit = "1.4.0"
 }
 
+// AndroidX / Jetpack ライブラリ定義
 object AndroidX {
     const val annotations = "androidx.annotation:annotation:${Versions.androidX}"
     const val appcompat = "androidx.appcompat:appcompat:${Versions.appCompat}"
     const val design = "com.google.android.material:material:${Versions.material}"
     const val recyclerView = "androidx.recyclerview:recyclerview:${Versions.recyclerView}"
-    const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.support_constraint_lib}"
-    const val fix_preference = "androidx.preference:preference-ktx:${Versions.support_fix_lib}"
+    const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
+    const val fix_preference = "androidx.preference:preference-ktx:${Versions.preference}"
     const val KTX = "androidx.core:core-ktx:${Versions.androidKTX}"
     const val fragmentKtx = "androidx.fragment:fragment-ktx:${Versions.fragmentKtx}"
     const val activty = "androidx.activity:activity:${Versions.activityX}"
@@ -80,28 +84,21 @@ object AndroidX {
     const val webkit = "androidx.webkit:webkit:${Versions.webkit}"
 }
 
+// サードパーティおよびKotlin標準ライブラリ定義
 object Libs {
-    //androidx libraries
-    const val support_annotations = AndroidX.annotations
-    const val support_appcompat_v7 = AndroidX.appcompat
-    const val support_design = AndroidX.design
-    const val support_recyclerview = AndroidX.recyclerView
-    const val support_constraint_layout = AndroidX.constraintLayout
-    const val support_fix_preference = AndroidX.fix_preference
     const val androidKTX = AndroidX.KTX
 
-    //JSON
+    // JSON / IO
     const val moshi = "com.squareup.moshi:moshi:${Versions.moshi}"
     const val moshiCodeGen = "com.squareup.moshi:moshi-kotlin-codegen:${Versions.moshi}"
     const val okio = "com.squareup.okio:okio:${Versions.okio}"
 
-    //Kotlin
+    // Kotlin & Coroutines
     const val kotlin_stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
-    const val kotlin_android_extensions = "org.jetbrains.kotlin:kotlin-android-extensions:${Versions.kotlin}"
     const val kotlin_coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlin_coroutines}"
     const val kotlin_coroutines_android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlin_coroutines}"
 
-    //Test
+    // テスト用ライブラリ
     const val junit = "junit:junit:${Versions.junit}"
     const val espressoCore = "androidx.test.espresso:espresso-core:${Versions.espresso}"
     const val androidTestCore = "androidx.test:core:${Versions.testCore}"
@@ -111,7 +108,7 @@ object Libs {
     const val powerMockJunit = "org.powermock:powermock-module-junit4:${Versions.powermock}"
     const val powerMockMockito = "org.powermock:powermock-api-mockito2:${Versions.powermock}"
 
-    //Other
+    // HTTP / HTML / 正規表現 / UI補助
     const val okhttp = "com.squareup.okhttp3:okhttp:${Versions.okhttp}"
     const val header_decor = "ca.barrenechea.header-decor:header-decor:${Versions.header_decor}"
     const val materialProgressBar = "me.zhanghai.android.materialprogressbar:library:${Versions.materialprogressbar}"
@@ -119,10 +116,12 @@ object Libs {
     const val re2j = "com.google.re2j:re2j:${Versions.re2j}"
 }
 
+// Gradle プラグイン定義
 object Dependencies {
     const val kotlin_plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
 }
 
+// DI (Dagger Hilt) 定義
 object Dagger {
     private const val hiltVersion = "2.33-beta"
 

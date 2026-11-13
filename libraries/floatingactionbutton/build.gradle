@@ -1,14 +1,14 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion Integer.parseInt(project.android_compile_sdk_version)
-    buildToolsVersion project.android_build_tools_version
+    compileSdkVersion Build.compile_sdk_version
+    buildToolsVersion Build.build_tools_version
 
     defaultConfig {
-        minSdkVersion Integer.parseInt(project.android_min_sdk_version)
-        targetSdkVersion Integer.parseInt(project.android_target_sdk_version)
-        versionCode Integer.parseInt(project.VERSION_CODE)
-        versionName project.VERSION_NAME
+        minSdkVersion Build.min_sdk_version
+        targetSdkVersion Build.target_sdk_version
+        versionCode 10604
+        versionName "1.6.4"
     }
     buildTypes {
         release {
@@ -24,6 +24,6 @@ android {
 }
 
 dependencies {
-    implementation Libs.support_appcompat_v7
-    implementation Libs.support_design
+    implementation AndroidX.appcompat
+    implementation AndroidX.design
 }

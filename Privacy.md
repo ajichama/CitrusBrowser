@@ -1,105 +1,51 @@
-# Yuzu Browser Privacy Policy
+# CitrusBrowser プライバシーポリシー
 
-This privacy policy statement is created to clearly state the developer's policies with respect to data collection, usage, and security. These policies are stated to ensure you know what personal details you may or may not disclose when the software is being utilized, and the choices you have associated with that data. If you decide to continue using Yuzu Browser, it means you accept to adhere and abide by all the terms and conditions stated by the developer in this policy. 
-Kindly note that this Privacy Policy applies only to this software. The developer would not be held responsible for the content or privacy practices on any third party app not operated by the developer to which this software links, or that links to this software. Therefore, it is advisable to read up the privacy policies of third party services that may be linked to this software.
-
----
-
-## Permission and Access
-
-For a better experience, while using our Service, I may require you to provide us with certain personally identifiable information, and the enablement of certain device permissions. These permissions need to be enabled for the software to work properly on the device on which the software's services are intended. The information that the developer requests with regards to these permissions will be retained on your device and is not collected by the developer in any way. 
-
-
-Yuzu browser need permissions below;
-
-- Camera
-- Location
-- Microphone
-- Storage
-
-Here are what these permissions do in details; 
-
-**permission.INTERNET: Needed to access the internet for browsing.**
-
-**permission.WRITE_EXTERNAL_STORAGE: Needed for downloading files and backing up data.**
-
-**permission.READ_EXTERNAL_STORAGE: Needed for downloading files and restoring data.**
-
-**permission.ACCESS_LOCATION: Needed for sites that want your location (you can deny location access).**
-
-**permission.ACCESS_FINE_LOCATION: Needed for sites that want your location (you can deny location access).**
-
-**permission.WAKE_LOCK: Needed for playing video.**
-
-**permission.INSTALL_SHORTCUT: Needed for [add to home screen] action.**
-
-**permission.CAMERA: Needed to support WebRTC (you can deny camera access).**
-
-**permission.RECORD_AUDIO: Needed to support WebRTC (you can deny record audio).**
-
-**permission.MODIFY_AUDIO_SETTINGS: Needed to support WebRTC**
-
+本プライバシーポリシーは、**CitrusBrowser**（開発・管理: [ajichama](https://github.com/ajichama/CitrusBrowser)、以下「本アプリ」）における利用者情報の取り扱いおよび端末権限（パーミッション）の利用目的について定めるものです。
 
 ---
 
-## Information and data collection
+## 1. 利用者情報の収集・外部送信について（ゼロ・テレメトリ方針）
 
-Your personal information can be collected by the developer when the services of the software are utilized. But, the developer only collects crash logs and application health(number of users for calculating the number of crash-free users).
-When some actions are performed, some data(usage data) may be collected by the software but not shared. 
+**本アプリは、開発者による個人情報の収集、利用統計データの収集（Analytics）、およびクラッシュレポートの自動外部送信（Crashlytics 等）を一切行いません。**
 
----
-
-## Crash reports sending
-
-Yuzu Browser is stable and works fine but you may still experience few errors and crashes. The information about these crashes is important to us so the issues can be fixed immediately and the software is running efficiently again. Although the developer is able to get reports when the app crashes, you can also speed up the process by informing the developer. If you encounter a bug during the use of this software, please open an [issue](https://github.com/hazuki0x0/YuzuBrowser/issues/new) on GitHub and it will be fixed in due time. When submitting a crash report, please provide a logcat to help the developer pinpoint the cause of the crash quickly and fix it accordingly. 
+- 本アプリには広告トラッカーや解析用サードパーティSDK（Firebase Analytics / Crashlytics / Fabric 等）は一切組み込まれていません。
+- 閲覧履歴、ブックマーク、Cookie、保存された設定データ等はすべて**利用者の端末内（ローカルストレージ）にのみ保存**され、開発者のサーバーへ送信されることはありません。
 
 ---
 
-## Service Providers
+## 2. 端末権限（パーミッション）の利用目的
 
-Yuzu Browser depends on the services of third-party services to facilitate its operations and to perform service-related services or to assist in analyzing how the services of the software are used.
-These third-party tools may have access to your Personal Data only to perform these tasks on the developer's behalf and are obligated not to disclose or use it for any other purpose.
+本アプリは、Webブラウザとしての機能を提供するために以下の端末権限を使用します。これらの権限によって取得された情報は端末内でのブラウザ動作および利用者が明示的にアクセスしたWebサイトの機能提供にのみ使用され、開発者が収集することはありません。
 
-Link to the privacy policy of third party service providers used by the app;
-
-- [Fabric](https://fabric.io/privacy)
-
----
-
-
-## Transfer Of Data
-
-With these third-party libraries contained in the software, your information, including personal data, may be transferred to computers located outside of your state, province, country or other governmental jurisdiction where the data protection laws may differ than those from your jurisdiction. Your consent to this Privacy Policy followed by your submission of such information represents your agreement to that transfer. 
-
----
-
-## Links To Other Sites
-
-Yuzu Browser contains links to other services that are not directly operated by the developer. If you click on a third party library webpage or license URL, you will be directed to that third party's site.
-The developer has no control over and assumes no responsibility for the content, privacy policies or practices of any third party sites or services.
-There are also links within the app that redirects you to the project's repository on Github.
+- **`INTERNET` / `ACCESS_NETWORK_STATE`**:
+  - Webページの閲覧、検索、ファイルのダウンロード、および広告ブロックフィルタの更新に必要です。
+- **`READ_EXTERNAL_STORAGE` / `WRITE_EXTERNAL_STORAGE`**（対象OSバージョンのみ）:
+  - Web上のファイルや画像のダウンロード保存、および設定・ブックマークデータのバックアップ／復元に必要です。
+- **`ACCESS_COARSE_LOCATION` / `ACCESS_FINE_LOCATION`（位置情報）**:
+  - 地図サイト等、利用者が位置情報の利用を許可したWebサイトへ現在地を提供するために使用します（端末またはブラウザ設定からいつでも拒否可能です）。
+- **`CAMERA`（カメラ） / `RECORD_AUDIO`（マイク） / `MODIFY_AUDIO_SETTINGS`**:
+  - WebRTC 等を用いたビデオ通話・音声入力対応Webサイトで、利用者が明示的に許可した場合にのみ使用します（いつでも拒否可能です）。
+- **`WAKE_LOCK` / `FOREGROUND_SERVICE`**:
+  - 動画再生中の画面スリープ防止、およびバックグラウンドでのファイルダウンロード継続のために使用します。
+- **`INSTALL_SHORTCUT`**:
+  - Webページのショートカットをホーム画面に追加する機能のために使用します。
 
 ---
 
-## Security Of Data
+## 3. 外部Webサイトおよび検索エンジンへのアクセス
 
-The security of your data is important, but remember that no method of transmission over the Internet, or method of electronic storage is 100% secure therefore the developer doesn't guarantee its absolute security.
-
----
-
-## Changes To This Privacy Policy
-
-The developer may update this policy as there will be further development of the software and these developments will likely not be consistent with some statements and terms contained in this current policy.
-It is advisable to check this policy periodically for any changes. Minor changes to this Privacy Policy are effective when they are made on this document while heavy amendments to this policy statement will be effective thirty days (30 days) after it's been made 
-
-## Disclaimer
-
-Yuzu browser is created with the intention of providing a more efficient way of surfing the internet. There is no security threat associated with the operations and utilization of Yuzu Browser. You may, however, decide to surf through websites that are forbidden in your country or, locale and this may lead to legal cases. The developer will not be held accountable for how you decide to use this software and for contents you decide to browse using the software. 
+利用者が本アプリを通じて閲覧する外部Webサイト、検索エンジン（Google、Bing、DuckDuckGo 等）、またはサードパーティのフィルタ配信元（AdBlock リスト等）における個人情報の取り扱いについては、それぞれのサービス提供者のプライバシーポリシーが適用されます。本アプリの開発者は、移動先の外部サイトのコンテンツやプライバシー慣行について一切の責任を負いません。
 
 ---
 
+## 4. 免責事項
 
-## Contact
+本アプリは Apache License 2.0 のもと「現状有姿（AS IS）」で提供されます。本アプリの利用により生じたいかなる損害についても、開発者は法令上の義務がある場合を除き責任を負いません。
 
-Contributions to this project are welcomed. Contributions, suggestions or bug reports and fixes can be made by opening an issue or creating pull requests. Read the contributor's guidelines [here](https://github.com/hazuki0x0/YuzuBrowser/blob/dev/README.md#contributing) to get started.
-If you wish to contact the developer directly to share an idea, to request a feature or to make further inquiries about the functionalities and operations of the Yuzu Browser software or, you have any questions regarding this Privacy Policy or, the practices of this software, please contact the developer by opening an [issue](https://github.com/hazuki0x0/YuzuBrowser/issues/new) on Github.
+---
+
+## 5. プライバシーポリシーの変更およびお問い合わせ
+
+本ポリシーの内容は、法令の改正や本アプリの機能変更に応じて改定される場合があります。改定後のポリシーは本リポジトリ（[Privacy.md](https://github.com/ajichama/CitrusBrowser/blob/main/Privacy.md)）に掲載された時点で効力を生じます。
+
+本ポリシーまたは本アプリの動作に関するご質問・ご報告は、GitHub リポジトリの [Issues](https://github.com/ajichama/CitrusBrowser/issues) よりお願いいたします。

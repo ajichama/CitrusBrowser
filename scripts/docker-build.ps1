@@ -12,7 +12,7 @@
 
 param(
     [string]$Task = "assembleDebug",
-    [ValidateSet(11, 17)]
+    [ValidateSet(11, 17, 21)]
     [int]$JavaVersion = 11,
     [switch]$RebuildImage
 )
@@ -24,8 +24,11 @@ Set-Location -Path $WorkspaceRoot
 $ImageName = "yuzu-android-builder:latest"
 
 # 0. Docker デーモンの起動確認と自動起動（explorer.exe 経由でユーザーのデスクトップセッション上に起動）
-docker info *> $null
+$dockerInfoOut = docker info 2>&1 | Out-String
 if ($LASTEXITCODE -ne 0) {
+    if ($dockerInfoOut -match "Access is denied" -or $dockerInfoOut -match "permission denied") {
+        throw "サンドボックス制限により Docker Engine パイプへ接続できません。ホスト権限で再実行してください。"
+    }
     $DockerDesktopExe = "C:\Program Files\Docker\Docker\Docker Desktop.exe"
     if (Test-Path $DockerDesktopExe) {
         Write-Host "[0/3] Docker Engine が停止しているため Docker Desktop を起動しています..." -ForegroundColor Yellow
@@ -71,7 +74,11 @@ if (-not (Test-Path $ReleaseDir)) {
 pwsh -File scripts/setup-dropbox-ignore.ps1
 
 # 3. コンテナ内で Gradle タスクを実行（中間生成物は Docker Volume へ隔離）
-$JavaHome = if ($JavaVersion -eq 11) { "/usr/lib/jvm/java-11-openjdk-amd64" } else { "/usr/lib/jvm/java-17-openjdk-amd64" }
+$JavaHome = switch ($JavaVersion) {
+    11 { "/usr/lib/jvm/java-11-openjdk-amd64" }
+    17 { "/usr/lib/jvm/java-17-openjdk-amd64" }
+    21 { "/usr/lib/jvm/java-21-openjdk-amd64" }
+}
 
 Write-Host "[2/3] Docker コンテナ内で Gradle タスク ($Task, Java $JavaVersion) を実行しています..." -ForegroundColor Cyan
 
@@ -82,7 +89,6 @@ export PATH=`$JAVA_HOME/bin:`$PATH
 git config --global --add safe.directory /workspace
 sed -i 's/\r$//' ./gradlew
 chmod +x ./gradlew
-rm -rf /workspace/.gradle /workspace/buildSrc/.gradle /workspace/buildSrc/build
 bash ./gradlew $Task --project-cache-dir /build-cache/.gradle-project-cache --init-script /workspace/docker/init.gradle --no-daemon --stacktrace
 if [ -d /build-cache/app/outputs/apk ]; then
     mkdir -p /workspace/release
@@ -96,6 +102,7 @@ docker run --rm `
     -v "${WorkspaceRoot}:/workspace" `
     -v "yuzu-gradle-cache:/root/.gradle" `
     -v "yuzu-build-cache:/build-cache" `
+    -v "yuzu-buildsrc-gradle:/workspace/buildSrc/.gradle" `
     $ImageName `
     bash -c $ContainerCmd
 
