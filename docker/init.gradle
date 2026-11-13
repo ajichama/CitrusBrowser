@@ -1,0 +1,10 @@
+// Gradle Init Script for Docker Build Environment
+// Redirects all module intermediate build directories to a fast Linux volume (/build-cache)
+// so that tens of thousands of intermediate .class/.dex files never hit the Windows Dropbox folder.
+
+gradle.projectsLoaded {
+    rootProject.allprojects { proj ->
+        def safePath = proj.path == ":" ? "root" : proj.path.substring(1).replace(":", "_")
+        proj.buildDir = new File("/build-cache/${safePath}")
+    }
+}
