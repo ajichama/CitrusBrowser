@@ -9,6 +9,8 @@ param(
         ".idea",
         ".cxx",
         "build",
+        "buildSrc/.gradle",
+        "buildSrc/build",
         "app/build",
         "browser/build",
         "module/build",

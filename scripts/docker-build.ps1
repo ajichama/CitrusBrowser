@@ -23,6 +23,34 @@ Set-Location -Path $WorkspaceRoot
 
 $ImageName = "yuzu-android-builder:latest"
 
+# 0. Docker デーモンの起動確認と自動起動（explorer.exe 経由でユーザーのデスクトップセッション上に起動）
+docker info *> $null
+if ($LASTEXITCODE -ne 0) {
+    $DockerDesktopExe = "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+    if (Test-Path $DockerDesktopExe) {
+        Write-Host "[0/3] Docker Engine が停止しているため Docker Desktop を起動しています..." -ForegroundColor Yellow
+        Start-Process -FilePath "explorer.exe" -ArgumentList "`"$DockerDesktopExe`""
+        $MaxWaitSec = 90
+        $Elapsed = 0
+        while ($Elapsed -lt $MaxWaitSec) {
+            Start-Sleep -Seconds 3
+            $Elapsed += 3
+            docker info *> $null
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "  -> Docker Engine の起動を確認しました (${Elapsed}秒)" -ForegroundColor Green
+                break
+            }
+            Write-Host "  -> Docker Engine 起動待機中... (${Elapsed}/${MaxWaitSec}秒)" -ForegroundColor DarkGray
+        }
+        docker info *> $null
+        if ($LASTEXITCODE -ne 0) {
+            throw "Docker Engine が時間内に起動しませんでした。Docker Desktop の状態を確認してください。"
+        }
+    } else {
+        throw "Docker Engine が起動しておらず、Docker Desktop も見つかりません。"
+    }
+}
+
 # 1. Docker イメージの確認・ビルド
 $ImageExists = docker images -q $ImageName
 if (-not $ImageExists -or $RebuildImage) {
@@ -48,11 +76,13 @@ $JavaHome = if ($JavaVersion -eq 11) { "/usr/lib/jvm/java-11-openjdk-amd64" } el
 Write-Host "[2/3] Docker コンテナ内で Gradle タスク ($Task, Java $JavaVersion) を実行しています..." -ForegroundColor Cyan
 
 $ContainerCmd = @"
+set -e
 export JAVA_HOME=$JavaHome
 export PATH=`$JAVA_HOME/bin:`$PATH
 git config --global --add safe.directory /workspace
+sed -i 's/\r$//' ./gradlew
 chmod +x ./gradlew
-./gradlew $Task --init-script /workspace/docker/init.gradle --no-daemon --stacktrace
+bash ./gradlew $Task --init-script /workspace/docker/init.gradle --no-daemon --stacktrace
 if [ -d /build-cache/app/outputs/apk ]; then
     mkdir -p /workspace/release
     find /build-cache/app/outputs/apk -name "*.apk" -exec cp -f {} /workspace/release/ \;

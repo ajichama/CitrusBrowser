@@ -86,9 +86,6 @@ dependencies {
     implementation Dagger.hilt
     kapt Dagger.hiltCompiler
 
-    implementation Libs.kvs_schema
-    kapt Libs.kvs_schema_compiler
-
     implementation project(':module:core')
     implementation project(':module:ui')
     implementation project(':languages')
