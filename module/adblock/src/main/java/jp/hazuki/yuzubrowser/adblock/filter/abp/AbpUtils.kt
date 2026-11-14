@@ -41,17 +41,11 @@ internal fun File.getAbpElementListFile(entity: AbpEntity): File {
 }
 
 fun List<AbpEntity>.checkNeedUpdate(): Boolean {
-    val now = System.currentTimeMillis()
-    forEach {
-        if (it.isNeedUpdate()) return true
-        if (now - it.lastLocalUpdate >= (if (it.expires > 0) it.expires * AN_HOUR else A_DAY)) {
-            return true
-        }
-    }
-    return false
+    return any { it.enabled && it.isNeedUpdate() }
 }
 
 fun AbpEntity.isNeedUpdate(): Boolean {
+    if (!enabled) return false
     val now = System.currentTimeMillis()
     if (now - lastLocalUpdate >= (if (expires > 0) expires * AN_HOUR else A_DAY)) {
         return true
@@ -59,6 +53,6 @@ fun AbpEntity.isNeedUpdate(): Boolean {
     return false
 }
 
-private const val AN_HOUR = 60 * 60 * 1000
+private const val AN_HOUR = 60 * 60 * 1000L
 
 private const val A_DAY = 24 * AN_HOUR

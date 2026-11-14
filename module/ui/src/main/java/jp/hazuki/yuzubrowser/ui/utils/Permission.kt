@@ -85,6 +85,7 @@ fun Context.checkStoragePermission(): Boolean {
 }
 
 suspend fun AppCompatActivity.requestStoragePermission(asyncPermissions: AsyncPermissions) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) return
     handleResult(
         asyncPermissions,
         asyncPermissions.request(

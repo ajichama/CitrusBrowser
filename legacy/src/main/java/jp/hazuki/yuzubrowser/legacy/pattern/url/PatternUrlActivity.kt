@@ -410,7 +410,7 @@ class PatternUrlActivity : PatternActivity<PatternUrlChecker>() {
 
                 renderingModeCheckBox.setOnCheckedChangeListener { _, b -> renderingModeSpinner.isEnabled = b }
 
-                webThemeCheckBox.setOnFocusChangeListener { _, b -> webThemeSpinner.isEnabled = b }
+                webThemeCheckBox.setOnCheckedChangeListener { _, b -> webThemeSpinner.isEnabled = b }
             }
         }
     }

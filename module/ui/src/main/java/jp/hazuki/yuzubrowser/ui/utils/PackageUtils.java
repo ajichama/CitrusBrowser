@@ -19,19 +19,16 @@ package jp.hazuki.yuzubrowser.ui.utils;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.LabeledIntent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Parcelable;
+import android.os.Build;
 import android.text.TextUtils;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import androidx.core.content.pm.ShortcutInfoCompat;
@@ -61,32 +58,28 @@ public class PackageUtils {
         return createChooser(context, query, title);
     }
 
+    @SuppressWarnings("deprecation")
     public static Intent createChooser(Context context, Intent query, CharSequence title) {
         PackageManager manager = context.getPackageManager();
-
-        List<ResolveInfo> infoList = manager.queryIntentActivities(query, PackageManager.MATCH_ALL);
-        List<Intent> intents = new ArrayList<>();
-        String appId = context.getPackageName();
-
-        Collections.sort(infoList, new ResolveInfo.DisplayNameComparator(manager));
-
-        Intent appIntent;
-
-        for (ResolveInfo info : infoList) {
-            if (appId.equals(info.activityInfo.packageName)) {
-                continue;
-            }
-            ActivityInfo activityInfo = info.activityInfo;
-            appIntent = new Intent(query);
-            appIntent.setPackage(activityInfo.packageName);
-            appIntent.setComponent(new ComponentName(activityInfo.packageName, activityInfo.name));
-
-            LabeledIntent intent = new LabeledIntent(appIntent, activityInfo.packageName, info.labelRes, info.icon);
-            intents.add(intent);
+        List<ResolveInfo> infoList;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            infoList = manager.queryIntentActivities(query, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL));
+        } else {
+            infoList = manager.queryIntentActivities(query, PackageManager.MATCH_ALL);
         }
 
-        Intent chooser = Intent.createChooser(new Intent(), title);
-        chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents.toArray(new Parcelable[intents.size()]));
+        String appId = context.getPackageName();
+        List<ComponentName> excludeComponents = new ArrayList<>();
+        for (ResolveInfo info : infoList) {
+            if (appId.equals(info.activityInfo.packageName)) {
+                excludeComponents.add(new ComponentName(info.activityInfo.packageName, info.activityInfo.name));
+            }
+        }
+
+        Intent chooser = Intent.createChooser(query, title);
+        if (!excludeComponents.isEmpty()) {
+            chooser.putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, excludeComponents.toArray(new ComponentName[0]));
+        }
         return chooser;
     }
 

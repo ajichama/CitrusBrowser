@@ -87,6 +87,9 @@ fun Context.getStorages(): List<StorageVolume> {
 
 @RequiresApi(Build.VERSION_CODES.N)
 fun StorageVolume.resolvePath(): String? {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        return directory?.absolutePath
+    }
     if (isPrimary) {
         return Environment.getExternalStorageDirectory().absolutePath
     }

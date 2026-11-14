@@ -31,13 +31,10 @@ public class WebDownloadUtils {
     }
 
     public static boolean openFile(Context context, String url, String mimetype) {
-        if (url.startsWith("data:")) return false;
+        if (url.startsWith("data:") || url.startsWith("blob:")) return false;
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.parse(url), mimetype);
-
-        if (context.getPackageManager().queryIntentActivities(intent, 0).isEmpty())
-            return false;
 
         try {
             context.startActivity(intent);

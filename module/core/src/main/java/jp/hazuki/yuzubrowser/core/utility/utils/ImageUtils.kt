@@ -56,6 +56,7 @@ private fun ContentResolver.savePictureAsPngQ(fileName: String, bitmap: Bitmap):
         update(uri, values, null, null)
         true
     } catch (e: IOException) {
+        delete(uri, null, null)
         false
     }
 }
@@ -82,7 +83,6 @@ private fun ContentResolver.savePictureAsPngClassic(fileName: String, bitmap: Bi
     } catch (e: IOException) {
         false
     }
-
 }
 
 private fun createContentValues(fileName: String) = ContentValues().apply {

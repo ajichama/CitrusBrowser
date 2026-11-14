@@ -29,7 +29,7 @@ import java.io.File
 import java.net.IDN
 
 fun Uri.getWritableFileOrNull(): File? {
-    if (scheme == "file") return File(toString())
+    if (scheme == "file") return path?.let(::File)
 
     when {
         isExternalStorageDocument() -> {
@@ -108,7 +108,7 @@ fun Uri.resolvePath(context: Context): String? {
                 }
             }
             val contentUri = ContentUris.withAppendedId(
-                    Uri.parse("content://downloads/public_downloads"), id.toLong())
+                    Uri.parse("content://downloads/public_downloads"), id.removePrefix("msf:").toLongOrNull() ?: return null)
 
             return context.getDataColumn(contentUri, null, null)
 
@@ -296,7 +296,7 @@ fun Uri.toEncodePunyCodeUri(): Uri {
 }
 
 fun Uri.encodeAuthority(): String {
-    if (host.isNullOrEmpty()) return encodeAuthority()
+    if (host.isNullOrEmpty()) return encodedAuthority ?: ""
 
     val host = IDN.toASCII(host)
 
@@ -320,7 +320,7 @@ fun Uri.encodeAuthority(): String {
     if (port > -1) {
         builder.append(":").append(port)
     }
-    return authority ?: ""
+    return builder.toString()
 }
 
 private fun isValid(str: String?): Boolean {

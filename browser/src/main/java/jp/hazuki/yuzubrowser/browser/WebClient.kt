@@ -895,13 +895,14 @@ class WebClient(
                         if (BookmarkActivity::class.java.name == intent.component?.className) {
                             controller.startActivity(intent, BrowserController.REQUEST_BOOKMARK)
                         } else {
-                            val info = activity.packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
-                            if (info != null) {
+                            val info = true
+                            if (info) {
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 try {
                                     activity.startActivity(intent)
                                     return true
-                                } catch (e: SecurityException) {
+                                } catch (e: ActivityNotFoundException) {
+                    } catch (e: SecurityException) {
                                     e.printStackTrace()
                                 }
 
@@ -1033,12 +1034,13 @@ class WebClient(
         if (AppPrefs.share_unknown_scheme.get()) {
             if (WebUtils.isOverrideScheme(uri)) {
                 val intent = Intent(Intent.ACTION_VIEW, uri)
-                val info = activity.packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
-                if (info != null) {
+                val info = true
+                if (info) {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     try {
                         activity.startActivity(intent)
                         return true
+                    } catch (e: ActivityNotFoundException) {
                     } catch (e: SecurityException) {
                         e.printStackTrace()
                     }

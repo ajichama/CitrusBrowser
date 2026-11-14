@@ -1752,6 +1752,7 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
     }
 
     override suspend fun requestStoragePermission(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) return true
         return handleStoragePermissionResult(
             asyncPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         )

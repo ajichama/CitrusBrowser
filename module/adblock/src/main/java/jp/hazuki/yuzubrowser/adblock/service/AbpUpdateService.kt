@@ -253,7 +253,7 @@ class AbpUpdateService private constructor(
         private const val RESULT_CODE_FAILED = 2
         private const val RESULT_CODE_UPDATE_ALL = 3
 
-        private const val AN_HOUR = 60 * 60 * 1000
+        private const val AN_HOUR = 60 * 60 * 1000L
         private const val A_DAY = 24 * AN_HOUR
 
         private val updateScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -268,7 +268,7 @@ class AbpUpdateService private constructor(
         fun updateAll(context: Context, forceUpdate: Boolean = false, result: UpdateResult? = null) {
             if (!forceUpdate) {
                 val prefs = AdBlockPref.get(context.applicationContext)
-                if (prefs.abpNextUpdateTime < System.currentTimeMillis()) return
+                if (prefs.abpNextUpdateTime > System.currentTimeMillis()) return
 
                 if (AppPrefs.abpUpdateWifiOnly.get()) {
                     val cm = context.getSystemService<ConnectivityManager>()!!

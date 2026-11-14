@@ -70,9 +70,9 @@ class ReaderFragment : Fragment() {
         if (fontPath.isNotEmpty()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
                 && fontPath.startsWith("content")) {
-                val fd = requireContext().contentResolver.openFileDescriptor(Uri.parse(fontPath), "r")
+                val fd = runCatching { requireContext().contentResolver.openFileDescriptor(Uri.parse(fontPath), "r") }.getOrNull()
                 if (fd != null) {
-                    bodyTextView.typeface = Typeface.Builder(fd.fileDescriptor).build()
+                    fd.use { bodyTextView.typeface = Typeface.Builder(it.fileDescriptor).build() }
                 } else {
                     Toast.makeText(activity, R.string.font_not_found, Toast.LENGTH_SHORT).show()
                 }
@@ -86,7 +86,7 @@ class ReaderFragment : Fragment() {
                 val font = File(path)
                 if (font.exists() && font.isFile) {
                     try {
-                        bodyTextView.typeface = Typeface.createFromFile(fontPath)
+                        bodyTextView.typeface = Typeface.createFromFile(font)
                     } catch (e: RuntimeException) {
                         Toast.makeText(activity, R.string.font_error, Toast.LENGTH_SHORT).show()
                     }

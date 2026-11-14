@@ -28,7 +28,7 @@ import java.io.File
 const val DEFAULT_DOWNLOAD_PATH = "citrus://download"
 
 fun Uri.toDocumentFile(context: Context): DocumentFile {
-    if (toString() == DEFAULT_DOWNLOAD_PATH) {
+    if (toString() == DEFAULT_DOWNLOAD_PATH || toString() == "yuzu://download") {
         return DocumentFile.fromFile(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             File("/Downloads")
         } else {
