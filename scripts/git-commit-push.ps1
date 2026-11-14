@@ -24,7 +24,7 @@ if ($LASTEXITCODE -ne 0) {
     throw "Docker Engine が起動していません。"
 }
 
-Write-Host "[1/2] Docker コンテナ内で git add & commit を実行しています..." -ForegroundColor Cyan
+Write-Host "[1/2] Docker コンテナ内で git add & commit を確認・実行しています..." -ForegroundColor Cyan
 $EscapedMsg = $Message.Replace('"', '\"')
 $ContainerGitCmd = @"
 set -e
@@ -32,7 +32,11 @@ git config --global --add safe.directory /workspace
 git config --global user.name "ajichama"
 git config --global user.email "ajichama@users.noreply.github.com"
 git add -A
-git commit -m "$EscapedMsg"
+if ! git diff --cached --quiet; then
+    git commit -m "$EscapedMsg"
+else
+    echo "変更差分がないため新規コミットをスキップします。"
+fi
 "@ -replace "`r`n", "`n"
 
 docker run --rm -v "${WorkspaceRoot}:/workspace" yuzu-android-builder:latest bash -c $ContainerGitCmd
@@ -40,10 +44,22 @@ if ($LASTEXITCODE -ne 0) {
     throw "Docker コンテナ内での git commit に失敗しました。"
 }
 
-Write-Host "[2/2] GitHub (origin/$Branch) へ Push しています..." -ForegroundColor Cyan
-git -c safe.directory=* push origin $Branch
-if ($LASTEXITCODE -ne 0) {
-    throw "git push に失敗しました。"
+$LocalHead = (git -c safe.directory=* rev-parse HEAD).Trim()
+Write-Host "[2/2] GitHub (origin/$Branch, HEAD=$LocalHead) へ Push しています..." -ForegroundColor Cyan
+
+$MaxRetries = 3
+for ($i = 1; $i -le $MaxRetries; $i++) {
+    git -c safe.directory=* push origin "HEAD:refs/heads/$Branch"
+    $RemoteLine = git -c safe.directory=* ls-remote origin "refs/heads/$Branch"
+    if ($RemoteLine -match "^([0-9a-f]{40})") {
+        $RemoteHead = $Matches[1]
+        if ($RemoteHead -eq $LocalHead) {
+            Write-Host "リモート (origin/$Branch) への反映を確認しました: $RemoteHead" -ForegroundColor Green
+            exit 0
+        }
+    }
+    Write-Host "Push リトライ中 ($i/$MaxRetries)..." -ForegroundColor Yellow
+    Start-Sleep -Seconds 2
 }
 
-Write-Host "コミットおよび Push が完了しました！" -ForegroundColor Green
+throw "git push がリモートに反映されませんでした。"

@@ -37,7 +37,7 @@ class ShowSearchBoxActionTest {
         val reader = JsonReader.of(ByteArrayInputStream(fiftyJson.toByteArray()).source().buffer())
         val action = ShowSearchBoxAction(0, reader)
 
-        assertThat(action.isOpenNewTab).isEqualTo(true)
+        assertThat(action.openNewTabMode).isEqualTo(ShowSearchBoxAction.TAB_TYPE_NEW_TAB)
         assertThat(action.isReverse).isEqualTo(true)
         assertThat(reader.peek()).isEqualTo(JsonReader.Token.END_DOCUMENT)
 
@@ -47,7 +47,7 @@ class ShowSearchBoxActionTest {
         action.writeIdAndData(writer)
         writer.endArray()
         writer.flush()
-        assertThat(os.toString()).isEqualTo("""[0,{"0":true,"1":true}]""")
+        assertThat(os.toString()).isEqualTo("""[0,{"2":1,"1":true}]""")
     }
 
     @Test
@@ -58,7 +58,7 @@ class ShowSearchBoxActionTest {
         val reader = JsonReader.of(ByteArrayInputStream(fiftyJson.toByteArray()).source().buffer())
         val action = ShowSearchBoxAction(0, reader)
 
-        assertThat(action.isOpenNewTab).isEqualTo(false)
+        assertThat(action.openNewTabMode).isEqualTo(ShowSearchBoxAction.TAB_TYPE_CURRENT)
         assertThat(action.isReverse).isEqualTo(false)
         assertThat(reader.peek()).isEqualTo(JsonReader.Token.END_DOCUMENT)
 
@@ -68,6 +68,6 @@ class ShowSearchBoxActionTest {
         action.writeIdAndData(writer)
         writer.endArray()
         writer.flush()
-        assertThat(os.toString()).isEqualTo("""[0,{"0":false,"1":false}]""")
+        assertThat(os.toString()).isEqualTo("""[0,{"2":0,"1":false}]""")
     }
 }

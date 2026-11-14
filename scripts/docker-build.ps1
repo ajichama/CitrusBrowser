@@ -13,7 +13,7 @@
 param(
     [string]$Task = "assembleDebug",
     [ValidateSet(11, 17, 21)]
-    [int]$JavaVersion = 11,
+    [int]$JavaVersion = 17,
     [switch]$RebuildImage
 )
 

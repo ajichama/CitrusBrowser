@@ -28,7 +28,7 @@ class YuzuWebSettings(private val origin: WebSettings) {
 
     var appCacheEnabled = false
         set(flag) {
-            origin.setAppCacheEnabled(flag)
+            // HTML5 AppCache は Android API 33 以降で廃止・削除されたため処理を行わない
             field = flag
         }
     var geolocationEnabled = false
@@ -322,13 +322,13 @@ class YuzuWebSettings(private val origin: WebSettings) {
     }
 
     fun setAppCachePath(appCachePath: String) {
-        origin.setAppCachePath(appCachePath)
+        // HTML5 AppCache は Android API 33 以降で廃止・削除されたため互換用の空実装とする
     }
 
     @Suppress("DEPRECATION")
     @Deprecated("")
     fun setAppCacheMaxSize(appCacheMaxSize: Long) {
-        origin.setAppCacheMaxSize(appCacheMaxSize)
+        // HTML5 AppCache は Android API 33 以降で廃止・削除されたため互換用の空実装とする
     }
 
     fun setNeedInitialFocus(flag: Boolean) {

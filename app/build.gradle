@@ -16,20 +16,22 @@
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
-apply plugin: 'com.cookpad.android.plugin.license-tools'
 
 def gitHash = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
 def buildTime = new Date().format("yyyy-MM-dd'T'HH:mm:ssXXX")
 
 android {
-    compileSdkVersion Build.compile_sdk_version
+    namespace 'jp.hazuki.yuzubrowser'
+    compileSdk Build.compile_sdk_version
     buildToolsVersion Build.build_tools_version
+
     defaultConfig {
         applicationId "io.github.ajichama.citrusbrowser"
-        minSdkVersion Build.min_sdk_version
-        targetSdkVersion Build.target_sdk_version
+        minSdk Build.min_sdk_version
+        targetSdk Build.target_sdk_version
         versionCode AppVersions.version_code
         versionName AppVersions.version_name
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -42,19 +44,16 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            lintOptions {
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            lint {
                 disable 'MissingTranslation', 'GoogleAppIndexingWarning', 'ClickableViewAccessibility'
             }
         }
@@ -63,17 +62,16 @@ android {
             resValue "string", "package_name", "${defaultConfig.applicationId}.debug"
         }
     }
-    packagingOptions {
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/CHANGES'
-        exclude 'META-INF/README.md'
+    packaging {
+        resources {
+            excludes += ['META-INF/LICENSE', 'META-INF/CHANGES', 'META-INF/README.md']
+        }
     }
 
     applicationVariants.all { variant ->
         if (variant.buildType.name == "release") {
             variant.outputs.each { output ->
                 if (output.outputFileName.endsWith('.apk')) {
-                    // Rename APK
                     def applicationId = defaultConfig.applicationId
                     def versionCode = defaultConfig.versionCode
                     def versionName = defaultConfig.versionName
@@ -85,18 +83,7 @@ android {
 
     buildFeatures {
         dataBinding true
-    }
-}
-
-buildscript {
-    repositories {
-        maven { url "https://plugins.gradle.org/m2/" }
-        mavenCentral()
-        google()
-    }
-
-    dependencies {
-        classpath 'gradle.plugin.com.cookpad.android.plugin:plugin:1.2.6'
+        buildConfig true
     }
 }
 
@@ -111,7 +98,7 @@ dependencies {
     androidTestImplementation Libs.espressoCore
 
     implementation Libs.moshi
-    kapt Libs.moshiCodeGen
+    ksp Libs.moshiCodeGen
     implementation Libs.okhttp
 
     implementation AndroidX.appcompat
@@ -136,5 +123,5 @@ dependencies {
     implementation Libs.kotlin_stdlib
 
     implementation Dagger.hilt
-    kapt Dagger.hiltCompiler
+    ksp Dagger.hiltCompiler
 }

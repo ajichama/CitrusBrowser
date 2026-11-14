@@ -49,8 +49,8 @@ class StrToIntListPreference(context: Context, attrs: AttributeSet) : DialogPref
         return mEntryValues.indexOf(value)
     }
 
-    override fun onGetDefaultValue(a: TypedArray?, index: Int): Any {
-        return a!!.getInt(index, -1)
+    override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
+        return a.getInt(index, -1)
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
@@ -59,10 +59,10 @@ class StrToIntListPreference(context: Context, attrs: AttributeSet) : DialogPref
 
     class PreferenceDialog : YuzuPreferenceDialog() {
 
-        override fun onPrepareDialogBuilder(builder: androidx.appcompat.app.AlertDialog.Builder?) {
+        override fun onPrepareDialogBuilder(builder: androidx.appcompat.app.AlertDialog.Builder) {
             val preference = preference as StrToIntListPreference
             preference.mClickedItemIndex = preference.valueIndex
-            builder!!.setPositiveButton(null, null)
+            builder.setPositiveButton(null, null)
             builder.setSingleChoiceItems(preference.mEntriesId, preference.mClickedItemIndex) { dialog, which ->
                 preference.mClickedItemIndex = which
                 onClick(dialog, DialogInterface.BUTTON_POSITIVE)

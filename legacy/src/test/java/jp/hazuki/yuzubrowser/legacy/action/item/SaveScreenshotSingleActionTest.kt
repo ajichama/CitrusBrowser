@@ -16,41 +16,37 @@
 
 package jp.hazuki.yuzubrowser.legacy.action.item
 
-import android.os.Environment
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.squareup.moshi.JsonReader
+import com.squareup.moshi.JsonWriter
 import jp.hazuki.yuzubrowser.legacy.pickValue
 import okio.buffer
+import okio.sink
 import okio.source
-import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.powermock.api.mockito.PowerMockito
-import org.powermock.core.classloader.annotations.PrepareForTest
-import org.powermock.modules.junit4.PowerMockRunner
 import java.io.ByteArrayInputStream
-import java.io.File
+import java.io.ByteArrayOutputStream
 
-@RunWith(PowerMockRunner::class)
-@PrepareForTest(Environment::class)
 class SaveScreenshotSingleActionTest {
-    @Before
-    fun setUp() {
-        PowerMockito.mockStatic(Environment::class.java)
-    }
 
     @Test
-    fun testDecode() {
-        PowerMockito.`when`(Environment.getExternalStorageDirectory()).thenReturn(File(""))
+    fun testDecodeEncode() {
+        // 旧形式（保存フォルダキー "1" を含む）の JSON も最後までデコードできることを検証する
         val fiftyJson = """{"0":2,"1":"file"}"""
-
 
         val reader = JsonReader.of(ByteArrayInputStream(fiftyJson.toByteArray()).source().buffer())
         val action = SaveScreenshotSingleAction(0, reader)
 
         assertThat(action.pickValue<Int>("mSsType")).isEqualTo(2)
-        assertThat(action.folder.path).isEqualTo("file")
         assertThat(reader.peek()).isEqualTo(JsonReader.Token.END_DOCUMENT)
+
+        val os = ByteArrayOutputStream()
+        val writer = JsonWriter.of(os.sink().buffer())
+        writer.beginArray()
+        action.writeIdAndData(writer)
+        writer.endArray()
+        writer.flush()
+        assertThat(os.toString()).isEqualTo("""[0,{"0":2}]""")
     }
 }

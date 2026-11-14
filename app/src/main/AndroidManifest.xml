@@ -16,8 +16,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="jp.hazuki.yuzubrowser">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <supports-screens
         android:smallScreens="true"
@@ -47,6 +46,7 @@
             android:name="jp.hazuki.yuzubrowser.browser.BrowserActivity"
             android:alwaysRetainTaskState="true"
             android:configChanges="screenLayout|smallestScreenSize|keyboardHidden|orientation|screenSize"
+            android:exported="true"
             android:launchMode="singleInstance"
             android:theme="@style/BrowserThemeDayNight.Browser">
             <meta-data
@@ -63,6 +63,7 @@
         </activity>
         <activity
             android:name=".HandleIntentActivity"
+            android:exported="true"
             android:theme="@style/BrowserThemeDayNight.Transparent">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -114,6 +115,7 @@
         <activity-alias
             android:label="@string/open_in_browser"
             android:name=".ShareActivity"
+            android:exported="true"
             android:theme="@style/BrowserThemeDayNight.Transparent"
             android:targetActivity=".HandleIntentActivity">
             <intent-filter>
@@ -132,6 +134,7 @@
             android:theme="@style/BrowserThemeDayNight.Pref"/>
         <activity-alias
             android:name=".CreateSettingsShortCut"
+            android:exported="true"
             android:targetActivity="jp.hazuki.yuzubrowser.legacy.settings.activity.MainSettingsActivity"
             android:label="@string/browser_settings">
             <intent-filter>
@@ -265,6 +268,7 @@
             android:label="@string/pref_multi_finger_gesture_settings" />
         <activity
             android:name="jp.hazuki.yuzubrowser.legacy.theme.ThemeImportActivity"
+            android:exported="true"
             android:label="@string/theme_importer"
             android:theme="@style/BrowserThemeDayNight.Transparent"
             android:configChanges="keyboardHidden|orientation|screenSize">

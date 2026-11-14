@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+// プロジェクト全体のルートビルド設定
 apply plugin: 'com.github.ben-manes.versions'
 
 buildscript {
@@ -25,29 +25,11 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.2'
-        classpath Dependencies.kotlin_plugin
+        classpath "com.android.tools.build:gradle:${Versions.agp}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
+        classpath "com.google.devtools.ksp:symbol-processing-gradle-plugin:${Versions.ksp}"
         classpath Dagger.hiltPlugin
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.36.0'
-        classpath 'com.android.tools.build.jetifier:jetifier-processor:1.0.0-beta10'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-
-configurations {
-    dependencyUpdates.resolutionStrategy {
-        componentSelection { rules ->
-            rules.all { ComponentSelection selection ->
-                boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview'].any { qualifier ->
-                    selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
-                }
-                if (rejected) {
-                    selection.reject('Release candidate')
-                }
-            }
-        }
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.51.0'
     }
 }
 
@@ -56,8 +38,6 @@ static def isNonStable(v) {
 }
 
 tasks.named("dependencyUpdates").configure {
-
-    // Example 2: disallow release candidates as upgradable versions from stable versions
     rejectVersionIf {
         isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
     }
@@ -71,6 +51,13 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+// 全モジュールの Kotlin コンパイル対象を JVM 17 に統一（廃止された kotlinOptions の代替）
+subprojects {
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile).configureEach {
+        compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+tasks.register('clean', Delete) {
+    delete rootProject.layout.buildDirectory
 }

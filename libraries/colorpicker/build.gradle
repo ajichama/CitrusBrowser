@@ -17,11 +17,17 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion Build.compile_sdk_version
+    namespace 'com.android.colorpicker'
+    compileSdk Build.compile_sdk_version
     buildToolsVersion Build.build_tools_version
     defaultConfig {
-        minSdkVersion Build.min_sdk_version
-        targetSdkVersion Build.target_sdk_version
+        minSdk Build.min_sdk_version
+        targetSdk Build.target_sdk_version
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     sourceSets.main {

@@ -44,6 +44,8 @@ class SaveScreenshotSingleAction : SingleAction, Parcelable {
                     }
                     FIELD_NAME_SAVE_FOLDER -> {
                         if (reader.peek() != JsonReader.Token.STRING) return
+                        // 旧バージョンの保存フォルダ設定は廃止されたため値のみスキップする
+                        reader.skipValue()
                     }
                     else -> reader.skipValue()
                 }

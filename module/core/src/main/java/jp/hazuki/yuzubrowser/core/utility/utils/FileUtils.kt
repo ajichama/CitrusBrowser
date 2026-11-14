@@ -22,6 +22,7 @@ import androidx.documentfile.provider.DocumentFile
 import jp.hazuki.yuzubrowser.core.MIME_TYPE_UNKNOWN
 import jp.hazuki.yuzubrowser.core.utility.extensions.binarySearch
 import jp.hazuki.yuzubrowser.core.utility.extensions.toSortedList
+import java.util.Locale
 
 fun createUniqueFileName(root: DocumentFile, fileName: String, suffix: String): String {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && root.uri.scheme == "file") {
@@ -82,7 +83,7 @@ fun getParsedFileName(filename: String): ParsedFileName {
 fun getMimeType(fileName: String): String {
     val lastDot = fileName.lastIndexOf('.')
     if (lastDot >= 0) {
-        val extension = fileName.substring(lastDot + 1).toLowerCase()
+        val extension = fileName.substring(lastDot + 1).lowercase(Locale.ROOT)
         return getMimeTypeFromExtension(extension)
     }
     return "application/octet-stream"

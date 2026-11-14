@@ -29,8 +29,8 @@ import jp.hazuki.yuzubrowser.adblock.databinding.FragmentAdBlockImportBinding
 import jp.hazuki.yuzubrowser.adblock.filter.fastmatch.AdBlockDecoder
 import jp.hazuki.yuzubrowser.adblock.repository.original.AdBlock
 import jp.hazuki.yuzubrowser.core.utility.utils.ui
-import kotlinx.android.extensions.CacheImplementation
-import kotlinx.android.extensions.ContainerOptions
+
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
@@ -38,7 +38,7 @@ import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-@ContainerOptions(CacheImplementation.NO_CACHE)
+
 class AdBlockImportFragment : Fragment() {
 
     private var listener: OnImportListener? = null

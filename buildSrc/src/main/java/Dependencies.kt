@@ -16,10 +16,10 @@
 
 // ビルドSDKバージョン定義
 object Build {
-    const val compile_sdk_version = 30
-    const val build_tools_version = "30.0.3"
+    const val compile_sdk_version = 35
+    const val build_tools_version = "35.0.0"
     const val min_sdk_version = 23
-    const val target_sdk_version = 30
+    const val target_sdk_version = 35
 }
 
 // アプリケーションバージョン定義
@@ -30,37 +30,39 @@ object AppVersions {
 
 // 依存ライブラリのバージョン一元管理
 object Versions {
-    const val androidX = "1.0.0"
-    const val appCompat = "1.2.0"
-    const val activityX = "1.2.0"
-    const val androidKTX = "1.3.2"
-    const val fragmentKtx = "1.3.0"
-    const val recyclerView = "1.1.0"
-    const val androidxRoom = "2.2.6"
-    const val lifeCycle = "2.3.0"
-    const val material = "1.3.0"
-    const val preference = "1.1.1"
-    const val constraintLayout = "2.0.4"
+    const val agp = "8.13.2"
+    const val androidX = "1.8.2"
+    const val appCompat = "1.7.0"
+    const val activityX = "1.9.3"
+    const val androidKTX = "1.13.1"
+    const val fragmentKtx = "1.8.5"
+    const val recyclerView = "1.3.2"
+    const val androidxRoom = "2.8.5"
+    const val lifeCycle = "2.8.7"
+    const val material = "1.12.0"
+    const val preference = "1.2.1"
+    const val constraintLayout = "2.2.0"
     const val documentFile = "1.0.1"
     const val print = "1.0.0"
     const val swipeRefreshLayout = "1.1.0"
-    const val moshi = "1.11.0"
-    const val okhttp = "4.9.1"
-    const val okio = "2.10.0"
-    const val kotlin = "1.4.31"
-    const val kotlin_coroutines = "1.4.2"
+    const val moshi = "1.15.2"
+    const val okhttp = "4.12.0"
+    const val okio = "3.9.1"
+    const val kotlin = "2.3.21"
+    const val ksp = "2.3.12"
+    const val kotlin_coroutines = "1.10.2"
     const val junit = "4.13.2"
-    const val assertk = "0.23.1"
-    const val espresso = "3.3.0"
-    const val testCore = "1.3.0"
-    const val runner = "1.1.2"
+    const val assertk = "0.28.1"
+    const val espresso = "3.6.1"
+    const val testCore = "1.6.1"
+    const val runner = "1.2.1"
     const val header_decor = "0.2.8"
     const val materialprogressbar = "1.6.1"
     const val mockito = "3.8.0"
     const val powermock = "2.0.9"
-    const val jsoup = "1.13.1"
-    const val re2j = "1.5"
-    const val webkit = "1.4.0"
+    const val jsoup = "1.18.3"
+    const val re2j = "1.8"
+    const val webkit = "1.12.1"
 }
 
 // AndroidX / Jetpack ライブラリ定義
@@ -73,7 +75,7 @@ object AndroidX {
     const val fix_preference = "androidx.preference:preference-ktx:${Versions.preference}"
     const val KTX = "androidx.core:core-ktx:${Versions.androidKTX}"
     const val fragmentKtx = "androidx.fragment:fragment-ktx:${Versions.fragmentKtx}"
-    const val activty = "androidx.activity:activity:${Versions.activityX}"
+    const val activty = "androidx.activity:activity-ktx:${Versions.activityX}"
     const val room = "androidx.room:room-runtime:${Versions.androidxRoom}"
     const val roomKtx = "androidx.room:room-ktx:${Versions.androidxRoom}"
     const val roomCompiler = "androidx.room:room-compiler:${Versions.androidxRoom}"
@@ -94,7 +96,7 @@ object Libs {
     const val okio = "com.squareup.okio:okio:${Versions.okio}"
 
     // Kotlin & Coroutines
-    const val kotlin_stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
+    const val kotlin_stdlib = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin}"
     const val kotlin_coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlin_coroutines}"
     const val kotlin_coroutines_android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlin_coroutines}"
 
@@ -123,7 +125,7 @@ object Dependencies {
 
 // DI (Dagger Hilt) 定義
 object Dagger {
-    private const val hiltVersion = "2.33-beta"
+    private const val hiltVersion = "2.58"
 
     const val hiltPlugin = "com.google.dagger:hilt-android-gradle-plugin:$hiltVersion"
     const val hilt = "com.google.dagger:hilt-android:$hiltVersion"

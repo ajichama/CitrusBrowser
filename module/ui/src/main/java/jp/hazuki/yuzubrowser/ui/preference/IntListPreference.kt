@@ -34,8 +34,8 @@ class IntListPreference(context: Context, attrs: AttributeSet) : DialogPreferenc
     }
 
 
-    override fun onGetDefaultValue(a: TypedArray?, index: Int): Any {
-        return a!!.getInt(index, -1)
+    override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
+        return a.getInt(index, -1)
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
@@ -46,10 +46,10 @@ class IntListPreference(context: Context, attrs: AttributeSet) : DialogPreferenc
 
         private var mClickedItemIndex = -1
 
-        override fun onPrepareDialogBuilder(builder: androidx.appcompat.app.AlertDialog.Builder?) {
+        override fun onPrepareDialogBuilder(builder: androidx.appcompat.app.AlertDialog.Builder) {
             val pref = getParentPreference<IntListPreference>()
             mClickedItemIndex = pref.valueIndex
-            builder!!.setPositiveButton(null, null)
+            builder.setPositiveButton(null, null)
 
             val length = pref.mEntryValues.size
             val lists = arrayOfNulls<String>(length)

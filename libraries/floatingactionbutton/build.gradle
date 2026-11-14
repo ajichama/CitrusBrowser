@@ -1,24 +1,26 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion Build.compile_sdk_version
+    namespace 'com.github.clans.fab'
+    compileSdk Build.compile_sdk_version
     buildToolsVersion Build.build_tools_version
 
     defaultConfig {
-        minSdkVersion Build.min_sdk_version
-        targetSdkVersion Build.target_sdk_version
-        versionCode 10604
-        versionName "1.6.4"
+        minSdk Build.min_sdk_version
+        targetSdk Build.target_sdk_version
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
     buildTypes {
         release {
             minifyEnabled false
-            debuggable false
         }
-
         debug {
             minifyEnabled false
-            debuggable true
         }
     }
 }

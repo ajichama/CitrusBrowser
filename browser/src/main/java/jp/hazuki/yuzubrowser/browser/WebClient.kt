@@ -886,7 +886,7 @@ class WebClient(
     private fun checkUrl(data: MainTabData, url: String, uri: Uri): Boolean {
         val scheme = uri.scheme ?: return false
 
-        when (scheme.toLowerCase(Locale.ENGLISH)) {
+        when (scheme.lowercase(Locale.ENGLISH)) {
             "intent" -> {
                 try {
                     val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
@@ -927,7 +927,7 @@ class WebClient(
                     if (action.indexOf('/') > -1) {
                         action = action.substring(0, action.indexOf('/'))
                     }
-                when (action.toLowerCase(Locale.ENGLISH)) {
+                when (action.lowercase(Locale.ENGLISH)) {
                     "settings", "setting" -> intent = Intent(activity, MainSettingsActivity::class.java)
                     "histories", "history" -> {
                         intent = Intent(activity, BrowserHistoryActivity::class.java)
