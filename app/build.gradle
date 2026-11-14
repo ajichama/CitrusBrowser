@@ -98,7 +98,6 @@ dependencies {
     androidTestImplementation Libs.espressoCore
 
     implementation Libs.moshi
-    ksp Libs.moshiCodeGen
     implementation Libs.okhttp
 
     implementation AndroidX.appcompat

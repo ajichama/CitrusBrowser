@@ -16,10 +16,10 @@
 
 // ビルドSDKバージョン定義
 object Build {
-    const val compile_sdk_version = 35
-    const val build_tools_version = "35.0.0"
+    const val compile_sdk_version = 37
+    const val build_tools_version = "37.0.0"
     const val min_sdk_version = 23
-    const val target_sdk_version = 35
+    const val target_sdk_version = 37
 }
 
 // アプリケーションバージョン定義
@@ -59,7 +59,6 @@ object Versions {
     const val header_decor = "0.2.8"
     const val materialprogressbar = "1.6.1"
     const val mockito = "3.8.0"
-    const val powermock = "2.0.9"
     const val jsoup = "1.18.3"
     const val re2j = "1.8"
     const val webkit = "1.12.1"
@@ -107,8 +106,6 @@ object Libs {
     const val androidRunner = "androidx.test.ext:junit:${Versions.runner}"
     const val assertk = "com.willowtreeapps.assertk:assertk-jvm:${Versions.assertk}"
     const val mockito = "org.mockito:mockito-core:${Versions.mockito}"
-    const val powerMockJunit = "org.powermock:powermock-module-junit4:${Versions.powermock}"
-    const val powerMockMockito = "org.powermock:powermock-api-mockito2:${Versions.powermock}"
 
     // HTTP / HTML / 正規表現 / UI補助
     const val okhttp = "com.squareup.okhttp3:okhttp:${Versions.okhttp}"

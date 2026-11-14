@@ -182,7 +182,8 @@
 
         <service
             android:name="jp.hazuki.yuzubrowser.download.service.DownloadService"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <activity
             android:name="jp.hazuki.yuzubrowser.download.ui.FastDownloadActivity"

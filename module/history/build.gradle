@@ -58,8 +58,6 @@ dependencies {
     testImplementation Libs.junit
     testImplementation Libs.assertk
     testImplementation Libs.mockito
-    testImplementation Libs.powerMockJunit
-    testImplementation Libs.powerMockMockito
     androidTestImplementation Libs.espressoCore
     androidTestImplementation Libs.androidRunner
 
@@ -73,7 +71,6 @@ dependencies {
 
     implementation Libs.okio
     implementation Libs.moshi
-    ksp Libs.moshiCodeGen
 
     implementation project(':module:ui')
     implementation project(':module:core')

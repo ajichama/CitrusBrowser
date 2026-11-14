@@ -35,10 +35,14 @@ RUN yes | sdkmanager --licenses > /dev/null && \
         "platform-tools" \
         "platforms;android-30" \
         "build-tools;30.0.3" \
+        "build-tools;35.0.0" \
         "platforms;android-36" \
         "build-tools;36.0.0" \
         "platforms;android-37.0" \
         "platforms;android-37.2" \
-        "build-tools;37.0.0"
+        "build-tools;37.0.0" && \
+    cp -al ${ANDROID_HOME}/platforms/android-37.0 ${ANDROID_HOME}/platforms/android-37 && \
+    cp --remove-destination ${ANDROID_HOME}/platforms/android-37.0/source.properties ${ANDROID_HOME}/platforms/android-37/source.properties && \
+    sed -i 's/AndroidVersion.ApiLevel=37.0/AndroidVersion.ApiLevel=37/' ${ANDROID_HOME}/platforms/android-37/source.properties
 
 WORKDIR /workspace

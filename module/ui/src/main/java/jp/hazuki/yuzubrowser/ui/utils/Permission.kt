@@ -38,6 +38,9 @@ import jp.hazuki.yuzubrowser.ui.widget.longToast
 import java.lang.ref.SoftReference
 
 fun Activity.checkBrowserPermission(): Boolean {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        return !checkNeed() || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+    }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) return true
     if (checkNeed()) {
         return false
@@ -46,6 +49,15 @@ fun Activity.checkBrowserPermission(): Boolean {
 }
 
 suspend fun AppCompatActivity.requestBrowserPermissions(asyncPermissions: AsyncPermissions) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (checkNeed()) {
+            setNoNeed(true)
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                asyncPermissions.request(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+        return
+    }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) return
     if (checkNeed()) {
         setNoNeed(true)

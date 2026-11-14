@@ -60,8 +60,6 @@ dependencies {
     testImplementation Libs.junit
     testImplementation Libs.assertk
     testImplementation Libs.mockito
-    testImplementation Libs.powerMockJunit
-    testImplementation Libs.powerMockMockito
     androidTestImplementation Libs.espressoCore
     androidTestImplementation Libs.androidRunner
 
