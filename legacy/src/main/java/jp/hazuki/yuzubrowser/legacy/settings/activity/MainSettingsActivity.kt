@@ -82,7 +82,7 @@ class MainSettingsActivity : ThemeActivity(), PreferenceFragmentCompat.OnPrefere
     }
 
     override fun onPreferenceStartScreen(caller: PreferenceFragmentCompat, pref: PreferenceScreen): Boolean {
-        return if (caller is YuzuPreferenceFragment) {
+        return if (caller is CitrusPreferenceFragment) {
             if (!caller.onPreferenceStartScreen(pref)) {
                 replaceFragment(PreferenceScreenFragment.newInstance(caller.preferenceResId, pref.key), pref.key)
             }

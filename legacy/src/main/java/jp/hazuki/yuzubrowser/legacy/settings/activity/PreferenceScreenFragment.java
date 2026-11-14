@@ -21,11 +21,11 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceFragmentCompat;
 
-public class PreferenceScreenFragment extends YuzuPreferenceFragment {
+public class PreferenceScreenFragment extends CitrusPreferenceFragment {
     private static final String ARG_ID = "id";
 
     @Override
-    public void onCreateYuzuPreferences(@Nullable Bundle savedInstanceState, String rootKey) {
+    public void onCreateCitrusPreferences(@Nullable Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(getArguments().getInt(ARG_ID), rootKey);
     }
 

@@ -20,13 +20,13 @@ import android.content.Context
 import android.os.Bundle
 import androidx.preference.Preference
 import jp.hazuki.yuzubrowser.legacy.R
-import jp.hazuki.yuzubrowser.legacy.settings.activity.YuzuPreferenceFragment
+import jp.hazuki.yuzubrowser.legacy.settings.activity.CitrusPreferenceFragment
 
-class MfsFragment : YuzuPreferenceFragment() {
+class MfsFragment : CitrusPreferenceFragment() {
 
     private var listener: OnMfsFragmentListener? = null
 
-    override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_multi_finger_settings)
 
         retainInstance = true

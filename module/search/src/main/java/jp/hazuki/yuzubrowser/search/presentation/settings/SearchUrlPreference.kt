@@ -35,7 +35,7 @@ import jp.hazuki.yuzubrowser.search.R
 import jp.hazuki.yuzubrowser.search.domain.ISearchUrlRepository
 import jp.hazuki.yuzubrowser.search.model.provider.SearchSuggestProviders
 import jp.hazuki.yuzubrowser.search.presentation.widget.SearchSimpleIconView
-import jp.hazuki.yuzubrowser.ui.preference.YuzuPreferenceDialog
+import jp.hazuki.yuzubrowser.ui.preference.CitrusPreferenceDialog
 import jp.hazuki.yuzubrowser.ui.settings.AppPrefs
 import jp.hazuki.yuzubrowser.ui.widget.recycler.OnRecyclerListener
 import javax.inject.Inject
@@ -47,7 +47,7 @@ class SearchUrlPreference(context: Context, attrs: AttributeSet) : DialogPrefere
     }
 
     @AndroidEntryPoint
-    class PreferenceDialog : YuzuPreferenceDialog(), OnRecyclerListener {
+    class PreferenceDialog : CitrusPreferenceDialog(), OnRecyclerListener {
 
         @Inject
         lateinit var manager: ISearchUrlRepository
@@ -62,7 +62,7 @@ class SearchUrlPreference(context: Context, attrs: AttributeSet) : DialogPrefere
 
         companion object {
             @JvmStatic
-            fun newInstance(preference: Preference): YuzuPreferenceDialog {
+            fun newInstance(preference: Preference): CitrusPreferenceDialog {
                 return newInstance(PreferenceDialog(), preference)
             }
         }

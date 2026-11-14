@@ -44,7 +44,7 @@ class FloatSeekbarPreference(context: Context, attrs: AttributeSet) : DialogPref
         value = defaultValue as? Float ?: getPersistedFloat(value)
     }
 
-    class PreferenceDialog : YuzuPreferenceDialog() {
+    class PreferenceDialog : CitrusPreferenceDialog() {
 
         private var mTempValue: Int = 0
 
@@ -113,8 +113,8 @@ class FloatSeekbarPreference(context: Context, attrs: AttributeSet) : DialogPref
 
         companion object {
 
-            fun newInstance(preference: Preference): YuzuPreferenceDialog {
-                return YuzuPreferenceDialog.newInstance(PreferenceDialog(), preference)
+            fun newInstance(preference: Preference): CitrusPreferenceDialog {
+                return CitrusPreferenceDialog.newInstance(PreferenceDialog(), preference)
             }
         }
     }

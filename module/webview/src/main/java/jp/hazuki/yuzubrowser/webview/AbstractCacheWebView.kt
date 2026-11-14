@@ -233,7 +233,7 @@ internal abstract class AbstractCacheWebView(context: Context) : FrameLayout(con
     override val progress: Int
         get() = currentPage.webView.progress
 
-    override val webSettings: YuzuWebSettings
+    override val webSettings: CitrusWebSettings
         get() = currentPage.webView.webSettings
 
     override val title: String?

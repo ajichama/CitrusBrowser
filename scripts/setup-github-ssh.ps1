@@ -8,7 +8,7 @@
     もしアカウント全体のSSH鍵としてGameの鍵を登録済みの場合は -UseGameKey スイッチで流用も可能です）
 .EXAMPLE
   pwsh -File scripts/setup-github-ssh.ps1 -PrepareOnly
-  pwsh -File scripts/setup-github-ssh.ps1 -Repo "ajichama/yuzu-successor" -Push
+  pwsh -File scripts/setup-github-ssh.ps1 -Repo "ajichama/CitrusBrowser" -Push
 #>
 
 param(

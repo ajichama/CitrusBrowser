@@ -7,7 +7,7 @@
   "local_file_info_disable": "Letiltva",
   "local_file_info_disable_info": "A hozzáférés teljesen le van tiltva a fajlokhoz.",
   "local_file_info_sandbox": "Sandbox mód",
-  "local_file_info_sandbox_info": "Hozzáférés csak külső tárolóhoz és a /data/data/jp.hazuki.yuzubrowser/app_public_html útvonalhoz.",
+  "local_file_info_sandbox_info": "Hozzáférés csak külső tárolóhoz és a /data/data/io.github.ajichama.citrusbrowser/app_public_html útvonalhoz.",
   "local_file_info_enable": "Engedélyez",
   "local_file_info_enable_info": "Teljes hozzáférés minden elérhető útvonalhoz.",
   "insecure": "Nem biztonságos tartalmak https-en keresztül",

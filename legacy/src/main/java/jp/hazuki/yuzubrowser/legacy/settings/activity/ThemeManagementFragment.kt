@@ -39,9 +39,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class ThemeManagementFragment : YuzuPreferenceFragment(), ConfirmDialog.OnConfirmedListener {
+class ThemeManagementFragment : CitrusPreferenceFragment(), ConfirmDialog.OnConfirmedListener {
 
-    override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_theme_managment)
 
         findPreference<Preference>("import_theme")!!.setOnPreferenceClickListener {

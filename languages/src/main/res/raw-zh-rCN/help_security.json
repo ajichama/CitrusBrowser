@@ -7,7 +7,7 @@
   "local_file_info_disable": "禁用",
   "local_file_info_disable_info": "访问将被完全禁止。",
   "local_file_info_sandbox": "在沙箱中启用",
-  "local_file_info_sandbox_info": "仅允许访问外部存储和 /data/data/jp.hazuki.yuzubrowser/app_public_html。",
+  "local_file_info_sandbox_info": "仅允许访问外部存储和 /data/data/io.github.ajichama.citrusbrowser/app_public_html。",
   "local_file_info_enable": "启用",
   "local_file_info_enable_info": "允许访问所有可用路径。",
   "insecure": "Https 中的不安全内容设置",

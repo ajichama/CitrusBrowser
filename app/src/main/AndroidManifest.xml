@@ -25,7 +25,7 @@
         android:xlargeScreens="true" />
 
     <application
-        android:name=".YuzuBrowserApplication"
+        android:name=".CitrusBrowserApplication"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_settings"
         android:hardwareAccelerated="true"
@@ -279,7 +279,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data android:mimeType="*/*" />
-                <data android:pathPattern=".*\\.yuzutheme" />
+                <data android:pathPattern=".*\\.citrustheme" />
                 <data android:host="*" />
                 <data android:scheme="file" />
                 <data android:scheme="content" />

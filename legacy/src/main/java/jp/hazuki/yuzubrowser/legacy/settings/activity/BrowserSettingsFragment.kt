@@ -34,11 +34,11 @@ import jp.hazuki.yuzubrowser.ui.extensions.registerForStartActivityForResult
 import jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
 import jp.hazuki.yuzubrowser.ui.settings.AppPrefs
 
-class BrowserSettingsFragment : YuzuPreferenceFragment() {
+class BrowserSettingsFragment : CitrusPreferenceFragment() {
 
     private var replaceFragment: ReplaceFragmentListener? = null
 
-    override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_browser_settings)
 
         val pref = findPreference<StrToIntListPreference>("search_suggest")!!
@@ -135,13 +135,13 @@ class BrowserSettingsFragment : YuzuPreferenceFragment() {
         private const val REQUEST_FOLDER = 1
     }
 
-    class SuggestScreen : YuzuPreferenceFragment() {
+    class SuggestScreen : CitrusPreferenceFragment() {
 
         private lateinit var suggestEngine: Preference
         private lateinit var suggestHistory: Preference
         private lateinit var suggestBookmark: Preference
 
-        override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_browser_settings, "ps_search")
 
             val suggestMode = findPreference<StrToIntListPreference>("search_suggest")!!

@@ -26,7 +26,7 @@ import android.speech.RecognizerResultsIntent
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import jp.hazuki.yuzubrowser.browser.BrowserActivity
-import jp.hazuki.yuzubrowser.legacy.Constants.intent.EXTRA_OPEN_FROM_YUZU
+import jp.hazuki.yuzubrowser.legacy.Constants.intent.EXTRA_OPEN_FROM_CITRUS
 import jp.hazuki.yuzubrowser.legacy.utils.WebUtils
 import jp.hazuki.yuzubrowser.ui.settings.AppPrefs
 import jp.hazuki.yuzubrowser.ui.utils.isUrl
@@ -53,7 +53,7 @@ class HandleIntentActivity : FragmentActivity() {
                 url = intent.getStringExtra(Intent.EXTRA_TEXT)
             if (!url.isNullOrEmpty()) {
                 try {
-                    val openInNewTab = intent.getBooleanExtra(EXTRA_OPEN_FROM_YUZU, false)
+                    val openInNewTab = intent.getBooleanExtra(EXTRA_OPEN_FROM_CITRUS, false)
                     startBrowser(url, openInNewTab, openInNewTab)
                 } catch (e: BadParcelableException) {
                     startBrowser(url, window = false, openInNewTab = false)

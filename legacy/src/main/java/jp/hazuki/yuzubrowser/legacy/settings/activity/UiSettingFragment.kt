@@ -25,9 +25,9 @@ import jp.hazuki.yuzubrowser.legacy.settings.preference.ThemePreference
 import jp.hazuki.yuzubrowser.ui.RestartActivity
 import kotlinx.coroutines.delay
 
-class UiSettingFragment : YuzuPreferenceFragment() {
+class UiSettingFragment : CitrusPreferenceFragment() {
 
-    override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_ui_settings)
         findPreference<Preference>("theme_setting")!!.setOnPreferenceChangeListener { _, _ ->
             ui {

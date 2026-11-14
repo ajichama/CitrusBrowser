@@ -7,7 +7,7 @@
   "local_file_info_disable": "無効",
   "local_file_info_disable_info": "アクセスを完全に禁止する。",
   "local_file_info_sandbox": "サンドボックス内で有効",
-  "local_file_info_sandbox_info": "外部ストレージ内と/data/data/jp.hazuki.yuzubrowser/app_public_html内のアクセスのみ許可する。",
+  "local_file_info_sandbox_info": "外部ストレージ内と/data/data/io.github.ajichama.citrusbrowser/app_public_html内のアクセスのみ許可する。",
   "local_file_info_enable": "有効",
   "local_file_info_enable_info": "アクセス可能なパス全てにアクセス許可する。",
   "insecure": "https上の安全でないコンテンツ設定",

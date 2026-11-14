@@ -268,7 +268,7 @@
 
     <string name="not_bookmark_file">This file is not bookmark html file.</string>
 
-    <string name="open_in_browser">Open in Yuzu Browser</string>
+    <string name="open_in_browser">Open in CitrusBrowser</string>
     <string name="enable_share">Enable share from other app</string>
 
     <string name="closed_tab">Closed %1$s</string>
@@ -278,7 +278,7 @@
     <string name="theme_import">Import theme</string>
     <string name="theme_management">Theme management</string>
     <string name="delete_theme">Delete themes</string>
-    <string name="theme_importer">Yuzu Browser theme importer</string>
+    <string name="theme_importer">CitrusBrowser theme importer</string>
     <string name="theme_imported">%1$s is imported.</string>
     <string name="theme_installed_version">This version of theme is already installed.</string>
     <string name="theme_unknown_error">Unknown error</string>

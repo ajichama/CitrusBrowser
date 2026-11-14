@@ -27,7 +27,7 @@ import androidx.preference.DialogPreference;
 import androidx.preference.Preference;
 import jp.hazuki.yuzubrowser.core.utility.utils.ColorFilterUtils;
 import jp.hazuki.yuzubrowser.legacy.R;
-import jp.hazuki.yuzubrowser.ui.preference.YuzuPreferenceDialog;
+import jp.hazuki.yuzubrowser.ui.preference.CitrusPreferenceDialog;
 import jp.hazuki.yuzubrowser.ui.settings.AppPrefs;
 
 public class NightModePreference extends DialogPreference {
@@ -43,7 +43,7 @@ public class NightModePreference extends DialogPreference {
         setNegativeButtonText(android.R.string.cancel);
     }
 
-    public static class SettingDialog extends YuzuPreferenceDialog {
+    public static class SettingDialog extends CitrusPreferenceDialog {
 
         private SeekBar temperature;
         private SeekBar brightness;
@@ -102,7 +102,7 @@ public class NightModePreference extends DialogPreference {
             }
         }
 
-        public static YuzuPreferenceDialog newInstance(Preference preference) {
+        public static CitrusPreferenceDialog newInstance(Preference preference) {
             return newInstance(new SettingDialog(), preference);
         }
     }

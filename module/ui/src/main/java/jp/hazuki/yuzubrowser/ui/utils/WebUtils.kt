@@ -21,7 +21,7 @@ import android.webkit.URLUtil
 import java.util.*
 import java.util.regex.Pattern
 
-private val URI_SCHEMA = Pattern.compile("((?:http|https|file|market)://|(?:inline|data|about|content|javascript|mailto|view-source|yuzu|blob):)(.*)", Pattern.CASE_INSENSITIVE)
+private val URI_SCHEMA = Pattern.compile("((?:http|https|file|market)://|(?:inline|data|about|content|javascript|mailto|view-source|citrus|yuzu|blob):)(.*)", Pattern.CASE_INSENSITIVE)
 
 fun String.isUrl(): Boolean {
     val query = trim()

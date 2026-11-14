@@ -24,9 +24,9 @@ import jp.hazuki.yuzubrowser.legacy.Constants
 import jp.hazuki.yuzubrowser.legacy.R
 import jp.hazuki.yuzubrowser.legacy.help.BROWSER_HELP_URL
 
-class MainSettingsFragment : YuzuPreferenceFragment() {
+class MainSettingsFragment : CitrusPreferenceFragment() {
 
-    override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_main)
 
         findPreference<Preference>("fragment_browser")!!.setOnPreferenceClickListener {

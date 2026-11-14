@@ -30,7 +30,7 @@ fun initAbpFilter(context: Context, abpDatabase: AbpDatabase) = runBlocking {
                     .map { AbpEntity(url = it[2], title = it[1], enabled = it[0] == "1") })
 }
 
-fun disableYuzuList(abpDatabase: AbpDatabase) = runBlocking {
+fun disableCitrusList(abpDatabase: AbpDatabase) = runBlocking {
     val dao = abpDatabase.abpDao()
     val entity = dao.getAll()[0]
     entity.enabled = false

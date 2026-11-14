@@ -225,7 +225,7 @@ public class AppData {
             //version up code
             if (lastLaunch < 410010) {
                 AdBlockInitSupportKt.initAbpFilter(context, abpDatabase);
-                AdBlockInitSupportKt.disableYuzuList(abpDatabase);
+                AdBlockInitSupportKt.disableCitrusList(abpDatabase);
             }
 
             if (lastLaunch <= 410013) {

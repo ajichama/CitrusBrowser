@@ -24,7 +24,7 @@ import android.net.Uri
 import android.widget.Toast
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
-import jp.hazuki.yuzubrowser.legacy.Constants.intent.EXTRA_OPEN_FROM_YUZU
+import jp.hazuki.yuzubrowser.legacy.Constants.intent.EXTRA_OPEN_FROM_CITRUS
 import jp.hazuki.yuzubrowser.legacy.R
 import jp.hazuki.yuzubrowser.legacy.pattern.PatternAction
 import jp.hazuki.yuzubrowser.legacy.tab.manager.MainTabData
@@ -132,7 +132,7 @@ class OpenOthersPatternAction : PatternAction {
             else -> throw IllegalStateException()
         }
         try {
-            intent!!.putExtra(EXTRA_OPEN_FROM_YUZU, true)
+            intent!!.putExtra(EXTRA_OPEN_FROM_CITRUS, true)
             context.startActivity(intent)
             return true
         } catch (e: ActivityNotFoundException) {

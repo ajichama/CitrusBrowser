@@ -83,7 +83,7 @@ class DownloadService : Service(), ServiceClient.ServiceClientListener {
 
         val notify = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_DOWNLOAD_SERVICE)
             .setContentTitle(getText(R.string.download_service))
-            .setSmallIcon(R.drawable.ic_yuzubrowser_white)
+            .setSmallIcon(R.drawable.ic_citrusbrowser_white)
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .build()
 

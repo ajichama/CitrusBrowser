@@ -47,11 +47,11 @@ import java.io.IOException
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ImportExportFragment : YuzuPreferenceFragment() {
+class ImportExportFragment : CitrusPreferenceFragment() {
     @Inject
     internal lateinit var faviconManager: FaviconManager
 
-    override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_import_export)
 
         findPreference<Preference>("import_sd_bookmark")!!.setOnPreferenceClickListener {
@@ -116,7 +116,7 @@ class ImportExportFragment : YuzuPreferenceFragment() {
         findPreference<Preference>("backup_settings")!!.setOnPreferenceClickListener {
             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 type = "*/*"
-                putExtra(Intent.EXTRA_TITLE, "yuzu_backup_${FileUtils.getTimeFileName()}$EXT")
+                putExtra(Intent.EXTRA_TITLE, "citrus_backup_${FileUtils.getTimeFileName()}$EXT")
             }
             backupSettingsLauncher.launch(intent)
             false
@@ -290,8 +290,8 @@ class ImportExportFragment : YuzuPreferenceFragment() {
     }
 
     companion object {
-        private const val EXT = ".yuzubackup"
-        private const val EXT_SPEED_DIAL = ".yuzudial"
+        private const val EXT = ".citrusbackup"
+        private const val EXT_SPEED_DIAL = ".citrusdial"
     }
 
 }

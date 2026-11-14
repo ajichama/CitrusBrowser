@@ -34,7 +34,7 @@ public class WebUtils {
         throw new UnsupportedOperationException();
     }
 
-    private static final Pattern URL_EXTRACTION = Pattern.compile("((?:http|https|file|market)://|(?:inline|data|about|content|javascript|mailto|view-source|yuzu|blob):)(\\S*)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern URL_EXTRACTION = Pattern.compile("((?:http|https|file|market)://|(?:inline|data|about|content|javascript|mailto|view-source|citrus|yuzu|blob):)(\\S*)", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern URL_SUB_DOMAIN = Pattern.compile("://.*\\.", Pattern.LITERAL);
 

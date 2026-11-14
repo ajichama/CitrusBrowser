@@ -24,9 +24,9 @@ import jp.hazuki.yuzubrowser.legacy.R
 import jp.hazuki.yuzubrowser.legacy.webrtc.ui.WebPermissionActivity
 import jp.hazuki.yuzubrowser.ui.extensions.startActivity
 
-class PrivacyFragment : YuzuPreferenceFragment() {
+class PrivacyFragment : CitrusPreferenceFragment() {
 
-    override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_privacy)
 
         val privateMode: SwitchPreference = findPreference("private_mode")!!

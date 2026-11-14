@@ -31,10 +31,10 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-class ReaderSettingsFragment : YuzuPreferenceFragment() {
+class ReaderSettingsFragment : CitrusPreferenceFragment() {
     private lateinit var readerTextFont: Preference
 
-    override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_reader)
         readerTextFont = findPreference("reader_text_font")!!
         readerTextFont.setOnPreferenceClickListener {

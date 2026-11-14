@@ -26,11 +26,11 @@ import jp.hazuki.yuzubrowser.bookmark.overflow.view.BookmarkOverflowMenuActivity
 import jp.hazuki.yuzubrowser.legacy.R
 import jp.hazuki.yuzubrowser.legacy.gesture.multiFinger.MultiFingerSettingsActivity
 
-class ActionSettingsFragment : YuzuPreferenceFragment() {
+class ActionSettingsFragment : CitrusPreferenceFragment() {
 
     private var replaceFragment: ReplaceFragmentListener? = null
 
-    override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_action_settings)
 
         findPreference<Preference>("mf_gesture")!!.setOnPreferenceClickListener {
@@ -59,9 +59,9 @@ class ActionSettingsFragment : YuzuPreferenceFragment() {
         replaceFragment = null
     }
 
-    class BookmarkPreferenceScreen : YuzuPreferenceFragment() {
+    class BookmarkPreferenceScreen : CitrusPreferenceFragment() {
 
-        override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.pref_action_settings, "ps_bookmark")
 
             findPreference<Preference>("bookmark_option_site")!!.setOnPreferenceClickListener {

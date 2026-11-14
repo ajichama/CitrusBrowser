@@ -50,7 +50,7 @@ internal class NormalWebView @JvmOverloads constructor(
     override var swipeEnable = false
     private val webViewCallback = WebViewCallback(this)
     private var customWebViewClient: CustomWebViewClient? = null
-    override val webSettings = YuzuWebSettings(settings)
+    override val webSettings = CitrusWebSettings(settings)
     override var theme: CustomWebView.WebViewTheme? = null
         private set
 

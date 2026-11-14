@@ -22,9 +22,9 @@ import androidx.preference.Preference
 import jp.hazuki.yuzubrowser.legacy.R
 import jp.hazuki.yuzubrowser.legacy.webencode.WebTextEncodeSettingActivity
 
-class PageSettingFragment : YuzuPreferenceFragment() {
+class PageSettingFragment : CitrusPreferenceFragment() {
 
-    override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_page_settings)
 
         findPreference<Preference>("web_encode_list")!!.setOnPreferenceClickListener {

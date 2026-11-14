@@ -39,7 +39,7 @@ interface CustomWebView {
 
     val progress: Int
 
-    val webSettings: YuzuWebSettings
+    val webSettings: CitrusWebSettings
 
     val title: String?
 

@@ -112,7 +112,7 @@ class SuggestProvider : ContentProvider() {
 
                 suggestions.addAll(net)
 
-                for (prefix in yuzuPrefix) {
+                for (prefix in citrusPrefix) {
                     if (prefix.startsWith(query)) {
                         suggestions.add(SearchSuggestModel.SuggestModel(prefix))
                     }
@@ -135,7 +135,7 @@ class SuggestProvider : ContentProvider() {
         try {
             val list = getSuggests(query)
             if (list != null) {
-                for (prefix in yuzuPrefix) {
+                for (prefix in citrusPrefix) {
                     if (prefix.startsWith(query)) {
                         list.add(SearchSuggestModel.SuggestModel(prefix))
                     }
@@ -193,14 +193,14 @@ class SuggestProvider : ContentProvider() {
             wrapCursor(db.query(TABLE_NAME, null, null, null, null, null, BaseColumns._ID + " DESC"))
         else {
             val dbQuery = query!!.replace("%", "$%").replace("_", "\$_")
-            addYuzuPrefix(query, db.query(TABLE_NAME, null, SearchManager.SUGGEST_COLUMN_QUERY + " LIKE '%' || ? || '%' ESCAPE '$'", arrayOf(dbQuery), null, null, BaseColumns._ID + " DESC"))
+            addCitrusPrefix(query, db.query(TABLE_NAME, null, SearchManager.SUGGEST_COLUMN_QUERY + " LIKE '%' || ? || '%' ESCAPE '$'", arrayOf(dbQuery), null, null, BaseColumns._ID + " DESC"))
         }
     }
 
-    private fun addYuzuPrefix(query: String, c: Cursor?): Cursor {
+    private fun addCitrusPrefix(query: String, c: Cursor?): Cursor {
         val suggestions = ArrayList<SearchSuggestModel.SuggestModel>()
         if (!TextUtils.isEmpty(query)) {
-            for (prefix in yuzuPrefix) {
+            for (prefix in citrusPrefix) {
                 if (prefix.startsWith(query)) {
                     suggestions.add(SearchSuggestModel.SuggestModel(prefix))
                 }
@@ -366,7 +366,7 @@ class SuggestProvider : ContentProvider() {
             sUriMatcher.addURI(AUTHORITY, "normal/*", TYPE_NORMAL_ALL)
         }
 
-        private val yuzuPrefix = arrayOf("yuzu:bookmarks", "yuzu:debug", "yuzu:downloads", "yuzu:history", "yuzu:home", "yuzu:readItLater", "yuzu:resBlock", "yuzu:settings", "yuzu:speeddial")
+        private val citrusPrefix = arrayOf("citrus:bookmarks", "citrus:debug", "citrus:downloads", "citrus:history", "citrus:home", "citrus:readItLater", "citrus:resBlock", "citrus:settings", "citrus:speeddial")
 
         private const val COL_ID = 0
         //private static final int COL_TEXT_1 = 1;

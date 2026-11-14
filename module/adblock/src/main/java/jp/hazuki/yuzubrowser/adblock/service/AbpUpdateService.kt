@@ -110,7 +110,7 @@ class AbpUpdateService : JobIntentService() {
 
     private suspend fun updateInternal(entity: AbpEntity, forceUpdate: Boolean = false): Boolean {
         return when {
-            entity.url == "yuzu://adblock/filter" -> updateAssets(entity)
+            (entity.url == "citrus://adblock/filter" || entity.url == "yuzu://adblock/filter") -> updateAssets(entity)
             entity.url.startsWith("http") -> updateHttp(entity, forceUpdate)
             entity.url.startsWith("file") -> updateFile(entity)
             else -> false
@@ -188,7 +188,7 @@ class AbpUpdateService : JobIntentService() {
                 dir.getAbpWhitePageListFile(entity).exists()) return false
         }
 
-        assets.open("adblock/yuzu_filter.txt").bufferedReader().use {
+        assets.open("adblock/citrus_filter.txt").bufferedReader().use {
             return decode(it, Charsets.UTF_8, entity)
         }
     }

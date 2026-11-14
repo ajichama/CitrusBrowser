@@ -23,13 +23,13 @@ import androidx.preference.Preference
 import jp.hazuki.yuzubrowser.adblock.R
 import jp.hazuki.yuzubrowser.adblock.ui.abp.AbpActivity
 import jp.hazuki.yuzubrowser.ui.extensions.startActivity
-import jp.hazuki.yuzubrowser.ui.settings.fragment.YuzuBasePreferenceFragment
+import jp.hazuki.yuzubrowser.ui.settings.fragment.CitrusBasePreferenceFragment
 
-class AdBlockMainFragment : YuzuBasePreferenceFragment() {
+class AdBlockMainFragment : CitrusBasePreferenceFragment() {
 
     private var listener: OnAdBlockMainListener? = null
 
-    override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setHasOptionsMenu(true)
         addPreferencesFromResource(R.xml.pref_ad_block)
 

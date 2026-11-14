@@ -21,6 +21,13 @@
    - 後継アプリとして独自のアプリ名（**CitrusBrowser**）・パッケージID（`applicationId`）・アイコンを採用しつつ、Yuzu Browser（作者: Hazuki氏）をベースとしている旨を明記する。
 5. **Always Buildable & Testable (`main` ブランチの品質維持)**:
    - コミットおよび Push 前には、Docker ビルド (`pwsh -File scripts/docker-build.ps1`) および単体テストが通ることを確認する。
+6. **Multi-Agent Orchestration & Context Hygiene (サブエージェント分業体制とコンテキスト最適化)**:
+   - Gemini / Claude Code / ChatGPT (OpenAI Agents) で提唱される **Orchestrator-Specialist パターン**および **Progressive Disclosure** に従い、メインエージェント（Orchestrator）のコンテキストウィンドウ（トークン・メモリ）を常にクリーンに保つ。
+   - メインエージェントが直接大量のファイルを読み書きすることを禁止し、必ず以下の専門サブエージェント（`invoke_subagent`）へタスクを分割・委譲する：
+     - **`code-explorer` (調査・影響分析 / Read-Only)**: 広範なコード検索・依存調査を独立コンテキストで実行し、構造化サマリーのみを返す。
+     - **`module-implementer` (モジュール実装 / Write-Enabled)**: モジュール・機能単位の実装やリファクタリングを独立コンテキスト内で完結させ、複数モジュールにまたがる場合は並列起動してスループットとトークン効率を最大化する。
+     - **`code-reviewer` (品質監査 / Read-Only)**: 実装後の差分・規約遵守・参照漏れを監査する。
+   - 詳細な運用手順はワークスペーススキル [`.agents/skills/multi-agent-workflow/SKILL.md`](.agents/skills/multi-agent-workflow/SKILL.md) および [`.agents/skills/docker-build-verify/SKILL.md`](.agents/skills/docker-build-verify/SKILL.md) に定義し、オンデマンドで参照する。
 
 ---
 

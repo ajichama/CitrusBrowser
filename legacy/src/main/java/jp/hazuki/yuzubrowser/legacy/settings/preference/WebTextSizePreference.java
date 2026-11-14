@@ -26,7 +26,7 @@ import androidx.preference.DialogPreference;
 import androidx.preference.Preference;
 import jp.hazuki.yuzubrowser.legacy.R;
 import jp.hazuki.yuzubrowser.ui.preference.SeekBarPreferenceController;
-import jp.hazuki.yuzubrowser.ui.preference.YuzuPreferenceDialog;
+import jp.hazuki.yuzubrowser.ui.preference.CitrusPreferenceDialog;
 
 public class WebTextSizePreference extends DialogPreference {
     private int mValue;
@@ -50,11 +50,11 @@ public class WebTextSizePreference extends DialogPreference {
         persistInt(value);
     }
 
-    public static class SizeDialog extends YuzuPreferenceDialog {
+    public static class SizeDialog extends CitrusPreferenceDialog {
 
         private SeekBarPreferenceController mSeekbarController;
 
-        public static YuzuPreferenceDialog newInstance(Preference preference) {
+        public static CitrusPreferenceDialog newInstance(Preference preference) {
             return newInstance(new SizeDialog(), preference);
         }
 

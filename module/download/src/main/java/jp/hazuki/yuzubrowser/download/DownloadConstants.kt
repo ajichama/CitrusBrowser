@@ -19,7 +19,7 @@ package jp.hazuki.yuzubrowser.download
 import jp.hazuki.yuzubrowser.ui.INTENT_ACTION_PREFIX
 import jp.hazuki.yuzubrowser.ui.INTENT_EXTRA_PREFIX
 
-const val TMP_FILE_SUFFIX = ".yuzudownload"
+const val TMP_FILE_SUFFIX = ".citrusdownload"
 
 const val NOTIFICATION_CHANNEL_DOWNLOAD_SERVICE = "jp.hazuki.yuzubrowser.channel.dl.service"
 const val NOTIFICATION_CHANNEL_DOWNLOAD_NOTIFY = "jp.hazuki.yuzubrowser.channel.dl.notify2"

@@ -26,10 +26,10 @@ import androidx.annotation.Nullable;
 import androidx.preference.SwitchPreference;
 import jp.hazuki.yuzubrowser.legacy.R;
 
-public class ApplicationSettingsFragment extends YuzuPreferenceFragment {
+public class ApplicationSettingsFragment extends CitrusPreferenceFragment {
 
     @Override
-    public void onCreateYuzuPreferences(@Nullable Bundle savedInstanceState, String rootKey) {
+    public void onCreateCitrusPreferences(@Nullable Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.pref_app_settings);
 
         SwitchPreference pref = (SwitchPreference) findPreference("enable_share");

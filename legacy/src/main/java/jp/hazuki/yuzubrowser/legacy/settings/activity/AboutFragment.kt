@@ -32,9 +32,9 @@ import jp.hazuki.yuzubrowser.legacy.utils.AppUtils
 import jp.hazuki.yuzubrowser.legacy.utils.extensions.setClipboardWithToast
 import jp.hazuki.yuzubrowser.ui.extensions.intentFor
 
-class AboutFragment : YuzuPreferenceFragment() {
+class AboutFragment : CitrusPreferenceFragment() {
 
-    override fun onCreateYuzuPreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         val activity = activity ?: throw IllegalStateException()
         addPreferencesFromResource(R.xml.pref_about)
         findPreference<Preference>("version")!!.run {

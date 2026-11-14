@@ -55,7 +55,7 @@ class MultiListIntPreference(context: Context, attrs: AttributeSet) : DialogPref
         setValue(getPersistedInt(defaultValue as? Int ?: ArrayUtils.getBitsInt(mValue)))
     }
 
-    class PrefernceDialog : YuzuPreferenceDialog() {
+    class PrefernceDialog : CitrusPreferenceDialog() {
 
         override fun onPrepareDialogBuilder(builder: androidx.appcompat.app.AlertDialog.Builder) {
             val pref = getParentPreference<MultiListIntPreference>()
@@ -78,7 +78,7 @@ class MultiListIntPreference(context: Context, attrs: AttributeSet) : DialogPref
 
         companion object {
 
-            fun newInstance(preference: Preference): YuzuPreferenceDialog {
+            fun newInstance(preference: Preference): CitrusPreferenceDialog {
                 return newInstance(PrefernceDialog(), preference)
             }
         }
