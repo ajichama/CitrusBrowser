@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.adblock.ui.abp
 
+import androidx.core.os.BundleCompat
+
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
@@ -31,7 +33,7 @@ class AbpItemDeleteDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val arguments = arguments ?: throw IllegalArgumentException()
         val builder = AlertDialog.Builder(activity)
-        val entity = arguments.getParcelable<AbpEntity>(ARG_ENTITY)!!
+        val entity = BundleCompat.getParcelable(arguments, ARG_ENTITY, AbpEntity::class.java)!!
         builder.setTitle(R.string.pref_delete)
         val title = if (entity.title.isNullOrEmpty()) entity.url else entity.title
         builder.setMessage(getString(R.string.pref_ad_block_delete_confirm, title))

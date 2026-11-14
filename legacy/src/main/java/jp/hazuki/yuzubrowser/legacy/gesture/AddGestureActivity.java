@@ -16,6 +16,9 @@
 
 package jp.hazuki.yuzubrowser.legacy.gesture;
 
+import androidx.core.content.IntentCompat;
+import androidx.core.os.BundleCompat;
+
 import android.content.Intent;
 import android.gesture.Gesture;
 import android.gesture.GestureOverlayView;
@@ -46,7 +49,7 @@ public class AddGestureActivity extends ThemeActivity {
         if (title != null)
             setTitle(title);
 
-        mActionNameArray = intent.getParcelableExtra(ActionNameArray.INTENT_EXTRA);
+        mActionNameArray = IntentCompat.getParcelableExtra(intent, ActionNameArray.INTENT_EXTRA, ActionNameArray.class);
 
         int gesture_id = intent.getIntExtra(GestureManager.INTENT_EXTRA_GESTURE_ID, -1);
         if (gesture_id < 0)
@@ -82,7 +85,7 @@ public class AddGestureActivity extends ThemeActivity {
             case RESULT_REQUEST_ADD:
                 if (resultCode == RESULT_OK && data != null) {
                     Bundle bundle = ActionActivity.getReturnData(data);
-                    Gesture gesture = bundle.getParcelable(ITEM_GESTURE);
+                    Gesture gesture = BundleCompat.getParcelable(bundle, ITEM_GESTURE, Gesture.class);
                     Action action = ActionActivity.getActionFromIntent(data);
                     manager.add(gesture, action);
                     setResult(RESULT_OK);

@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.gesture
 
+import androidx.core.content.IntentCompat
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -38,7 +40,7 @@ class GestureListActivity : ThemeActivity() {
         if (title != null)
             setTitle(title)
 
-        val actionNameArray = intent.getParcelableExtra(ActionNameArray.INTENT_EXTRA) ?: ActionNameArray(applicationContext)
+        val actionNameArray = IntentCompat.getParcelableExtra(intent, ActionNameArray.INTENT_EXTRA, ActionNameArray::class.java) ?: ActionNameArray(applicationContext)
 
         mGestureId = intent.getIntExtra(GestureManager.INTENT_EXTRA_GESTURE_ID, -1)
         if (mGestureId < 0)

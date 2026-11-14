@@ -16,6 +16,9 @@
 
 package jp.hazuki.yuzubrowser.legacy.action.view
 
+import androidx.core.content.IntentCompat
+import androidx.core.os.BundleCompat
+
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -57,9 +60,9 @@ class CloseAutoSelectFragment : Fragment(), OnRecyclerListener {
         val activity = requireActivity()
         val arguments = arguments ?: throw IllegalArgumentException()
 
-        defaultAction = arguments.getParcelable(DEFAULT) ?: Action()
-        intentAction = arguments.getParcelable(INTENT) ?: Action()
-        windowAction = arguments.getParcelable(WINDOW) ?: Action()
+        defaultAction = BundleCompat.getParcelable(arguments, DEFAULT, Action::class.java) ?: Action()
+        intentAction = BundleCompat.getParcelable(arguments, INTENT, Action::class.java) ?: Action()
+        windowAction = BundleCompat.getParcelable(arguments, WINDOW, Action::class.java) ?: Action()
 
 
         binding.resetButton.visibility = View.INVISIBLE
@@ -121,9 +124,9 @@ class CloseAutoSelectFragment : Fragment(), OnRecyclerListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == AppCompatActivity.RESULT_OK && data != null) {
             when (requestCode) {
-                REQUEST_DEFAULT -> defaultAction = data.getParcelableExtra(ActionActivity.EXTRA_ACTION)!!
-                REQUEST_INTENT -> intentAction = data.getParcelableExtra(ActionActivity.EXTRA_ACTION)!!
-                REQUEST_WINDOW -> windowAction = data.getParcelableExtra(ActionActivity.EXTRA_ACTION)!!
+                REQUEST_DEFAULT -> defaultAction = IntentCompat.getParcelableExtra(data, ActionActivity.EXTRA_ACTION, Action::class.java)!!
+                REQUEST_INTENT -> intentAction = IntentCompat.getParcelableExtra(data, ActionActivity.EXTRA_ACTION, Action::class.java)!!
+                REQUEST_WINDOW -> windowAction = IntentCompat.getParcelableExtra(data, ActionActivity.EXTRA_ACTION, Action::class.java)!!
             }
         }
     }

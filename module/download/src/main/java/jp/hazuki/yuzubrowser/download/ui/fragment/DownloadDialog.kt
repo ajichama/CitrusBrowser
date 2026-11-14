@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.download.ui.fragment
 
+import androidx.core.os.BundleCompat
+
 import android.app.Activity
 import android.app.Dialog
 import android.content.ActivityNotFoundException
@@ -64,7 +66,7 @@ class DownloadDialog : DialogFragment() {
         filenameEditText = view.findViewById(R.id.filenameEditText)
         folderButton = view.findViewById(R.id.folderButton)
 
-        val request = arguments.getParcelable<DownloadDialogRequest>(ARG_REQUEST)!!
+        val request = BundleCompat.getParcelable(arguments, ARG_REQUEST, DownloadDialogRequest::class.java)!!
         ui {
             val name = withContext(Dispatchers.Default) {
                 val name: String

@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.resblock
 
+import androidx.core.os.BundleCompat
+
 import android.content.Context
 import android.os.Bundle
 import android.view.*
@@ -44,7 +46,7 @@ class ResourceBlockListFragment : RecyclerFabFragment(), OnRecyclerListener, Che
         adapter = ResBlockAdapter(activity, manager.list, this)
         setRecyclerViewAdapter(adapter)
 
-        val checker = arguments.getSerializable(CHECKER) as? NormalChecker
+        val checker = BundleCompat.getSerializable(arguments, CHECKER, NormalChecker::class.java)
 
         if (checker != null) {
             showEditDialog(-1, checker)

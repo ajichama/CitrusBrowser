@@ -1,5 +1,7 @@
 package jp.hazuki.yuzubrowser.legacy.gesture;
 
+import androidx.core.os.ParcelCompat;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -16,7 +18,7 @@ public class GestureScore implements Parcelable {
 
     public GestureScore(Parcel source) {
         score = source.readDouble();
-        action = source.readParcelable(Action.class.getClassLoader());
+        action = ParcelCompat.readParcelable(source, Action.class.getClassLoader(), Action.class);
     }
 
     @Override

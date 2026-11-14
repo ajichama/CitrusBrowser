@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.webencode;
 
+import androidx.core.os.BundleCompat;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -50,7 +52,7 @@ public class SelectActionDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final WebTextEncode ua = (WebTextEncode) getArguments().getSerializable(ENCODING);
+        final WebTextEncode ua = BundleCompat.getSerializable(getArguments(), ENCODING, WebTextEncode.class);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(ua.getEncoding())
                 .setItems(R.array.edit_user_agent, new DialogInterface.OnClickListener() {

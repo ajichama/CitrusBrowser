@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.action.item
 
+import androidx.core.os.BundleCompat
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -66,9 +68,9 @@ class CustomSingleActionFragment : Fragment(), OnRecyclerListener, RecyclerMenu.
         }
 
         val arguments = arguments ?: return
-        val actions = arguments.getParcelable(ARG_ACTION) ?: Action()
+        val actions = BundleCompat.getParcelable(arguments, ARG_ACTION, Action::class.java) ?: Action()
         val name = arguments.getString(ARG_NAME) ?: ""
-        actionNameArray = arguments.getParcelable(ActionNameArray.INTENT_EXTRA)
+        actionNameArray = BundleCompat.getParcelable(arguments, ActionNameArray.INTENT_EXTRA, ActionNameArray::class.java)
             ?: ActionNameArray(activity)
 
         adapter = ActionAdapter(activity, actions, actionNameArray, this, this).apply {

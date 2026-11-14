@@ -16,6 +16,9 @@
 
 package jp.hazuki.yuzubrowser.legacy.gesture
 
+import androidx.core.content.IntentCompat
+import androidx.core.os.BundleCompat
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -48,7 +51,7 @@ class GestureListFragment : RecyclerFabFragment(), OnRecyclerListener, DeleteDia
         val activity = activity ?: return
         val arguments = arguments ?: throw IllegalArgumentException()
 
-        val mActionNameArray = arguments.getParcelable<ActionNameArray>(ActionNameArray.INTENT_EXTRA) ?: throw IllegalArgumentException()
+        val mActionNameArray = BundleCompat.getParcelable(arguments, ActionNameArray.INTENT_EXTRA, ActionNameArray::class.java) ?: throw IllegalArgumentException()
         mGestureId = arguments.getInt(GestureManager.INTENT_EXTRA_GESTURE_ID)
         mManager = GestureManager.getInstance(activity.applicationContext, mGestureId)
         mManager.load()
@@ -100,7 +103,7 @@ class GestureListFragment : RecyclerFabFragment(), OnRecyclerListener, DeleteDia
                     if (data == null) return
 
                     val bundle = data.getBundleExtra(ActionActivity.EXTRA_RETURN)!!
-                    val action = data.getParcelableExtra<Action>(ActionActivity.EXTRA_ACTION)
+                    val action = IntentCompat.getParcelableExtra(data, ActionActivity.EXTRA_ACTION, Action::class.java)
                     mManager.updateAction(bundle.getLong(ITEM_ID), action)
                     reset()
                 }

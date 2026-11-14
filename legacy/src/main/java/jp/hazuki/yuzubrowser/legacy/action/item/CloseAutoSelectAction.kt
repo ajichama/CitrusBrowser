@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.action.item
 
+import androidx.core.os.ParcelCompat
+
 import android.os.Parcel
 import android.os.Parcelable
 import com.squareup.moshi.JsonReader
@@ -93,9 +95,9 @@ class CloseAutoSelectAction : SingleAction, Parcelable {
     }
 
     private constructor(source: Parcel) : super(source.readInt()) {
-        defaultAction = source.readParcelable(Action::class.java.classLoader)!!
-        intentAction = source.readParcelable(Action::class.java.classLoader)!!
-        windowAction = source.readParcelable(Action::class.java.classLoader)!!
+        defaultAction = ParcelCompat.readParcelable(source, Action::class.java.classLoader, Action::class.java)!!
+        intentAction = ParcelCompat.readParcelable(source, Action::class.java.classLoader, Action::class.java)!!
+        windowAction = ParcelCompat.readParcelable(source, Action::class.java.classLoader, Action::class.java)!!
     }
 
     override fun showSubPreference(context: ActionActivity): StartActivityInfo? {

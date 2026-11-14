@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.gesture.multiFinger.data
 
+import androidx.core.os.ParcelCompat
+
 import android.os.Parcel
 import android.os.Parcelable
 import jp.hazuki.yuzubrowser.legacy.action.Action
@@ -54,9 +56,9 @@ class MultiFingerGestureItem : Parcelable {
     }
 
     private constructor(parcel: Parcel) {
-        parcel.readList(traces, null)
+        ParcelCompat.readList(parcel, traces, Int::class.javaObjectType.classLoader, Int::class.javaObjectType)
         fingers = parcel.readInt()
-        action = parcel.readParcelable(Action::class.java.classLoader)!!
+        action = ParcelCompat.readParcelable(parcel, Action::class.java.classLoader, Action::class.java)!!
     }
 
     companion object {

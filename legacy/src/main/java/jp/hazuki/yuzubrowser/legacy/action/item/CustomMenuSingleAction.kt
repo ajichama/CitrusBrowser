@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.action.item
 
+import androidx.core.os.ParcelCompat
+
 import android.os.Parcel
 import android.os.Parcelable
 import com.squareup.moshi.JsonReader
@@ -70,7 +72,7 @@ class CustomMenuSingleAction : SingleAction, Parcelable {
     }
 
     private constructor(source: Parcel) : super(source.readInt()) {
-        actionList = source.readParcelable(ActionList::class.java.classLoader)!!
+        actionList = ParcelCompat.readParcelable(source, ActionList::class.java.classLoader, ActionList::class.java)!!
     }
 
     override fun showMainPreference(context: ActionActivity): StartActivityInfo? {

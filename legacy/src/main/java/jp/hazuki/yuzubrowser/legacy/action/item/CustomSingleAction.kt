@@ -16,6 +16,9 @@
 
 package jp.hazuki.yuzubrowser.legacy.action.item
 
+import androidx.core.content.IntentCompat
+import androidx.core.os.ParcelCompat
+
 import android.app.Activity
 import android.content.Intent
 import android.os.Parcel
@@ -86,7 +89,7 @@ class CustomSingleAction : SingleAction {
     }
 
     private constructor(source: Parcel) : super(source.readInt()) {
-        action = source.readParcelable(Action::class.java.classLoader)!!
+        action = ParcelCompat.readParcelable(source, Action::class.java.classLoader, Action::class.java)!!
         mName = source.readString()
     }
 
@@ -103,7 +106,7 @@ class CustomSingleAction : SingleAction {
         return StartActivityInfo(intent) { _, resultCode, data ->
             if (resultCode != Activity.RESULT_OK || data == null)
                 return@StartActivityInfo
-            action = data.getParcelableExtra(CustomSingleActionActivity.EXTRA_ACTION)!!
+            action = IntentCompat.getParcelableExtra(data, CustomSingleActionActivity.EXTRA_ACTION, Action::class.java)!!
             mName = data.getStringExtra(CustomSingleActionActivity.EXTRA_NAME)
         }
     }

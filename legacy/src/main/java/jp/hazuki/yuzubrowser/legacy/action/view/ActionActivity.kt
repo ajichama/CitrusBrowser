@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.action.view
 
+import androidx.core.content.IntentCompat
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -64,7 +66,7 @@ class ActionActivity : ThemeActivity(), OnRecyclerListener {
             requestedOrientation = orientation
         }
 
-        actionNameArray = intent.getParcelableExtra(ActionNameArray.INTENT_EXTRA)
+        actionNameArray = IntentCompat.getParcelableExtra(intent, ActionNameArray.INTENT_EXTRA, ActionNameArray::class.java)
             ?: ActionNameArray(this)
 
         adapter = ActionNameArrayAdapter(this, actionNameArray, this)
@@ -83,7 +85,7 @@ class ActionActivity : ThemeActivity(), OnRecyclerListener {
             }
         } else {
             mActionManager = null
-            mAction = intent.getParcelableExtra(EXTRA_ACTION) ?: Action()
+            mAction = IntentCompat.getParcelableExtra(intent, EXTRA_ACTION, Action::class.java) ?: Action()
         }
 
         title = intent.getStringExtra(Intent.EXTRA_TITLE)
@@ -204,7 +206,7 @@ class ActionActivity : ThemeActivity(), OnRecyclerListener {
                 mOnActivityResultListener = null
             }
             RESULT_REQUEST_JSON -> if (resultCode == Activity.RESULT_OK && data != null) {
-                val result = data.getParcelableExtra<Action>(ActionStringActivity.EXTRA_ACTION)!!
+                val result = IntentCompat.getParcelableExtra(data, ActionStringActivity.EXTRA_ACTION, Action::class.java)!!
                 mAction.clear()
                 mAction.addAll(result)
 
@@ -327,12 +329,12 @@ class ActionActivity : ThemeActivity(), OnRecyclerListener {
                 Logger.w(TAG, "resultCode != Activity.RESULT_OK || intent == null")
                 return null
             }
-            return intent.getParcelableExtra(EXTRA_ACTION)
+            return IntentCompat.getParcelableExtra(intent, EXTRA_ACTION, Action::class.java)
         }
 
         @JvmStatic
         fun getActionFromIntent(intent: Intent): Action {
-            return intent.getParcelableExtra(EXTRA_ACTION)!!
+            return IntentCompat.getParcelableExtra(intent, EXTRA_ACTION, Action::class.java)!!
         }
 
         @JvmStatic

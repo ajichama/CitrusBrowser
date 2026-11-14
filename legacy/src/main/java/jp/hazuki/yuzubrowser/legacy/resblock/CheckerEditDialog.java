@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.resblock;
 
+import androidx.core.os.BundleCompat;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -54,7 +56,7 @@ public class CheckerEditDialog extends DialogFragment {
         final EditText urlEditText = view.findViewById(R.id.urlEditText);
         final CheckBox whiteCheckBox = view.findViewById(R.id.whiteCheckBox);
 
-        NormalChecker checker = (NormalChecker) getArguments().getSerializable(CHECKER);
+        NormalChecker checker = BundleCompat.getSerializable(getArguments(), CHECKER, NormalChecker.class);
         if (checker != null) {
             resTypeSpinner.setSelection(checker.getAction().getTypeId());
             urlEditText.setText(checker.getUrl());

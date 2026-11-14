@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.debug
 
+import androidx.core.os.BundleCompat
+
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -31,7 +33,7 @@ class FileEditFragment : Fragment() {
     private lateinit var binding: FragmentDebugFileEditBinding
 
     private val viewModel by viewModels<FileEditViewModel> {
-        FileEditViewModel.Factory(requireArguments().getSerializable(ARG_FILE) as File)
+        FileEditViewModel.Factory(BundleCompat.getSerializable(requireArguments(), ARG_FILE, File::class.java)!!)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

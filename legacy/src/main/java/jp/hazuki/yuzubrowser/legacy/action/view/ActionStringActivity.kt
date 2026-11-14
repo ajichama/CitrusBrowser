@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.action.view
 
+import androidx.core.content.IntentCompat
+
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -49,9 +51,9 @@ class ActionStringActivity : ThemeActivity() {
 
         val intent = intent ?: throw NullPointerException("Intent is null")
 
-        mActionNameArray = intent.getParcelableExtra(ActionNameArray.INTENT_EXTRA)
+        mActionNameArray = IntentCompat.getParcelableExtra(intent, ActionNameArray.INTENT_EXTRA, ActionNameArray::class.java)
 
-        val action = intent.getParcelableExtra<Parcelable>(EXTRA_ACTION)
+        val action = IntentCompat.getParcelableExtra(intent, EXTRA_ACTION, Parcelable::class.java)
         if (action != null) {
             if (action is Action) {
                 mTarget = ACTION_ACTIVITY
@@ -127,13 +129,13 @@ class ActionStringActivity : ThemeActivity() {
             ACTION_ACTIVITY -> {
                 if (resultCode != Activity.RESULT_OK || data == null) return
 
-                val action = data.getParcelableExtra<Action>(ActionActivity.EXTRA_ACTION) ?: return
+                val action = IntentCompat.getParcelableExtra(data, ActionActivity.EXTRA_ACTION, Action::class.java) ?: return
                 viewModel.text.value = action.toJsonString()
             }
             ACTION_LIST_ACTIVITY -> {
                 if (resultCode != Activity.RESULT_OK || data == null) return
 
-                val action = data.getParcelableExtra<ActionList>(ActionListActivity.EXTRA_ACTION_LIST)
+                val action = IntentCompat.getParcelableExtra(data, ActionListActivity.EXTRA_ACTION_LIST, ActionList::class.java)
                     ?: return
                 viewModel.text.value = action.toJsonString()
             }

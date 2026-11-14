@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.debug
 
+import androidx.core.content.IntentCompat
+
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -30,7 +32,7 @@ class DebugFileListActivity : ThemeActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fragment_base)
 
-        val file = intent.getSerializableExtra(EXTRA_PATH) as File?
+        val file = IntentCompat.getSerializableExtra(intent, EXTRA_PATH, File::class.java)
 
         supportFragmentManager.commit {
             replace(R.id.container, FileBrowserFragment(file))

@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.gesture;
 
+import androidx.core.content.IntentCompat;
+
 import android.content.Intent;
 import android.gesture.GestureOverlayView;
 import android.os.Bundle;
@@ -50,7 +52,7 @@ public class GestureTestActivity extends ThemeActivity {
         GestureOverlayView gestureOverlayView = findViewById(R.id.gestureOverlayView);
         gestureOverlayView.setGestureStrokeType(manager.getGestureStrokeType());
 
-        mActionNameArray = intent.getParcelableExtra(ActionNameArray.INTENT_EXTRA);
+        mActionNameArray = IntentCompat.getParcelableExtra(intent, ActionNameArray.INTENT_EXTRA, ActionNameArray.class);
         if (mActionNameArray == null)
             mActionNameArray = new ActionNameArray(this);
 

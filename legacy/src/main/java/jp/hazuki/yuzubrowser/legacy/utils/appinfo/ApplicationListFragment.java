@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.os.BundleCompat;
 import androidx.fragment.app.ListFragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
@@ -22,34 +23,37 @@ public class ApplicationListFragment extends ListFragment implements LoaderManag
     private OnAppSelectListener mListener;
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(0, null, this);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        LoaderManager.getInstance(this).initLoader(0, null, this);
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        if (mListener != null) {
+    public void onListItemClick(@NonNull ListView l, @NonNull View v, int position, long id) {
+        if (mListener != null && getArguments() != null) {
             AppInfo appInfo = adapter.getItem(position);
             mListener.onAppSelected(getArguments().getInt(TYPE, -1), appInfo);
         }
     }
 
+    @NonNull
     @Override
-    public Loader<ArrayList<AppInfo>> onCreateLoader(int id, Bundle args) {
-        Intent target = getArguments().getParcelable(INTENT);
+    public Loader<ArrayList<AppInfo>> onCreateLoader(int id, @Nullable Bundle args) {
+        Intent target = getArguments() != null
+                ? BundleCompat.getParcelable(getArguments(), INTENT, Intent.class)
+                : null;
 
-        return new AppListTask(getActivity(), target, false);
+        return new AppListTask(requireContext(), target, false);
     }
 
     @Override
-    public void onLoadFinished(Loader<ArrayList<AppInfo>> loader, ArrayList<AppInfo> data) {
-        adapter = new AppInfoListAdapter(getActivity(), data);
+    public void onLoadFinished(@NonNull Loader<ArrayList<AppInfo>> loader, ArrayList<AppInfo> data) {
+        adapter = new AppInfoListAdapter(requireContext(), data);
         setListAdapter(adapter);
     }
 
     @Override
-    public void onLoaderReset(Loader<ArrayList<AppInfo>> loader) {
+    public void onLoaderReset(@NonNull Loader<ArrayList<AppInfo>> loader) {
 
     }
 
@@ -71,7 +75,7 @@ public class ApplicationListFragment extends ListFragment implements LoaderManag
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mListener = (OnAppSelectListener) getActivity();

@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.download.ui.fragment
 
+import androidx.core.os.BundleCompat
+
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
@@ -59,7 +61,7 @@ class SaveWebArchiveDialog : DialogFragment() {
 
         saveArchiveCheckBox.visibility = View.VISIBLE
 
-        val file = arguments.getParcelable<DownloadFile>(ARG_FILE)
+        val file = BundleCompat.getParcelable(arguments, ARG_FILE, DownloadFile::class.java)
             ?: throw IllegalArgumentException()
 
         root = activity.getDownloadDocumentFile()

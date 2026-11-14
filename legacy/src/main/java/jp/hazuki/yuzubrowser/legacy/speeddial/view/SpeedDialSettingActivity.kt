@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.speeddial.view
 
+import androidx.core.content.IntentCompat
+
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -57,7 +59,7 @@ class SpeedDialSettingActivity : ThemeActivity(), SpeedDialEditCallBack, android
             if (intent != null && ACTION_ADD_SPEED_DIAL == intent.action) {
                 val title = intent.getStringExtra(Intent.EXTRA_TITLE)
                 val url = intent.getStringExtra(Intent.EXTRA_TEXT)
-                val icon = intent.getParcelableExtra<Bitmap>(EXTRA_ICON)
+                val icon = IntentCompat.getParcelableExtra(intent, EXTRA_ICON, Bitmap::class.java)
                 speedDialStack.addItem(SpeedDial(url, title, WebIcon.createIconOrNull(icon), true))
             }
         }
@@ -105,11 +107,11 @@ class SpeedDialSettingActivity : ThemeActivity(), SpeedDialEditCallBack, android
     @Suppress("DEPRECATION")
     override fun onShortCutSelected(data: Intent) {
         goBack()
-        val intent = data.getParcelableExtra<Intent>(Intent.EXTRA_SHORTCUT_INTENT)!!
+        val intent = IntentCompat.getParcelableExtra(data, Intent.EXTRA_SHORTCUT_INTENT, Intent::class.java)!!
         val name = data.getStringExtra(Intent.EXTRA_SHORTCUT_NAME)
-        var icon: Bitmap? = data.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON)
+        var icon: Bitmap? = IntentCompat.getParcelableExtra(data, Intent.EXTRA_SHORTCUT_ICON, Bitmap::class.java)
         if (icon == null) {
-            val iconRes = data.getParcelableExtra<Intent.ShortcutIconResource>(Intent.EXTRA_SHORTCUT_ICON_RESOURCE)
+            val iconRes = IntentCompat.getParcelableExtra(data, Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource::class.java)
             if (iconRes != null) {
                 try {
                     val foreignResources = packageManager.getResourcesForApplication(iconRes.packageName)

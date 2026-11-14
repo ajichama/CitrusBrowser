@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.adblock.ui.abp
 
+import androidx.core.os.BundleCompat
+
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
@@ -33,7 +35,7 @@ class AbpMenuDialog : DialogFragment() {
         val builder = AlertDialog.Builder(activity)
         builder.setItems(R.array.pref_ad_block_abp_menu) { _, which ->
             val index = arguments.getInt(ARG_INDEX)
-            val entity: AbpEntity = arguments.getParcelable(ARG_ENTITY)!!
+            val entity: AbpEntity = BundleCompat.getParcelable(arguments, ARG_ENTITY, AbpEntity::class.java)!!
             when (which) {
                 0 -> listener!!.onEdit(index, entity)
                 1 -> listener!!.onAskDelete(index, entity)

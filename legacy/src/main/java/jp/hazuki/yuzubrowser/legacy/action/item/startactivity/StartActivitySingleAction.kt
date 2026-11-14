@@ -16,6 +16,9 @@
 
 package jp.hazuki.yuzubrowser.legacy.action.item.startactivity
 
+import androidx.core.content.IntentCompat
+import androidx.core.os.ParcelCompat
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -120,9 +123,9 @@ class StartActivitySingleAction : SingleAction, Parcelable {
     }
 
     private constructor(source: Parcel) : super(source.readInt()) {
-        mIntent = source.readParcelable(Intent::class.java.classLoader)
+        mIntent = ParcelCompat.readParcelable(source, Intent::class.java.classLoader, Intent::class.java)
         mName = source.readString()
-        mIcon = source.readParcelable(Bitmap::class.java.classLoader)
+        mIcon = ParcelCompat.readParcelable(source, Bitmap::class.java.classLoader, Bitmap::class.java)
     }
 
     override fun showMainPreference(context: ActionActivity): StartActivityInfo {
@@ -136,7 +139,7 @@ class StartActivitySingleAction : SingleAction, Parcelable {
             if (resultCode != Activity.RESULT_OK || data == null)
                 return@StartActivityInfo
 
-            val sIntent = data.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
+            val sIntent = IntentCompat.getParcelableExtra(data, Intent.EXTRA_INTENT, Intent::class.java)
                 ?: return@StartActivityInfo
             mIntent = sIntent
 
@@ -145,9 +148,9 @@ class StartActivitySingleAction : SingleAction, Parcelable {
             }
 
             val name = data.getStringExtra(Intent.EXTRA_SHORTCUT_NAME)
-            var icon: Bitmap? = data.getParcelableExtra(EXTRA_ICON)
+            var icon: Bitmap? = IntentCompat.getParcelableExtra(data, EXTRA_ICON, Bitmap::class.java)
             if (icon == null) {
-                val iconRes = data.getParcelableExtra<ShortcutIconResource>(Intent.EXTRA_SHORTCUT_ICON_RESOURCE)
+                val iconRes = IntentCompat.getParcelableExtra(data, Intent.EXTRA_SHORTCUT_ICON_RESOURCE, ShortcutIconResource::class.java)
                 if (iconRes != null) {
                     try {
                         val foreignResources = context.packageManager.getResourcesForApplication(iconRes.packageName)

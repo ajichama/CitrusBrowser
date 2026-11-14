@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.useragent;
 
+import androidx.core.os.BundleCompat;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -50,7 +52,7 @@ public class SelectActionDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final UserAgent ua = (UserAgent) getArguments().getSerializable(UA);
+        final UserAgent ua = BundleCompat.getSerializable(getArguments(), UA, UserAgent.class);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(ua.getName())
                 .setItems(R.array.edit_user_agent, new DialogInterface.OnClickListener() {

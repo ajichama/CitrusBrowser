@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.adblock.ui.abp
 
+import androidx.core.os.BundleCompat
+
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
@@ -39,7 +41,7 @@ class AddAbpDialog : DialogFragment() {
         editText.isSingleLine = true
         editText.inputType = EditorInfo.TYPE_TEXT_VARIATION_URI
 
-        val entity = arguments.getParcelable<AbpEntity?>(ARG_ENTITY)
+        val entity = BundleCompat.getParcelable(arguments, ARG_ENTITY, AbpEntity::class.java)
         entity?.let { editText.setText(it.url) }
 
         return AlertDialog.Builder(activity)

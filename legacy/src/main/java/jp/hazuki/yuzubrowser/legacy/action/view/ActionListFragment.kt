@@ -16,6 +16,9 @@
 
 package jp.hazuki.yuzubrowser.legacy.action.view
 
+import androidx.core.content.IntentCompat
+import androidx.core.os.BundleCompat
+
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
@@ -48,11 +51,11 @@ class ActionListFragment : RecyclerFabFragment(), OnRecyclerListener, DeleteDial
 
         val arguments = arguments ?: return
 
-        mActionNameArray = arguments.getParcelable(ActionNameArray.INTENT_EXTRA)!!
+        mActionNameArray = BundleCompat.getParcelable(arguments, ActionNameArray.INTENT_EXTRA, ActionNameArray::class.java)!!
         names = ActionNameMap(resources)
         icons = ActionIconMap(resources)
 
-        val actions = arguments.getParcelable<ActionList>(EXTRA_ACTION_LIST)
+        val actions = BundleCompat.getParcelable(arguments, EXTRA_ACTION_LIST, ActionList::class.java)
         setActionList(actions)
     }
 
@@ -173,11 +176,11 @@ class ActionListFragment : RecyclerFabFragment(), OnRecyclerListener, DeleteDial
 
             when (requestCode) {
                 RESULT_REQUEST_ADD -> {
-                    val action = data.getParcelableExtra<Action>(ActionActivity.EXTRA_ACTION)!!
+                    val action = IntentCompat.getParcelableExtra(data, ActionActivity.EXTRA_ACTION, Action::class.java)!!
                     mList.add(action)
                 }
                 RESULT_REQUEST_EDIT -> {
-                    val action = data.getParcelableExtra<Action>(ActionActivity.EXTRA_ACTION)!!
+                    val action = IntentCompat.getParcelableExtra(data, ActionActivity.EXTRA_ACTION, Action::class.java)!!
                     if (action.isEmpty()) {
                         Snackbar.make(rootView, R.string.action_cant_empty, Snackbar.LENGTH_SHORT).show()
                         return
@@ -186,13 +189,13 @@ class ActionListFragment : RecyclerFabFragment(), OnRecyclerListener, DeleteDial
                     mList[position] = action
                 }
                 RESULT_REQUEST_ADD_EASY -> {
-                    val action = data.getParcelableExtra<Action>(ActionActivity.EXTRA_ACTION)!!
+                    val action = IntentCompat.getParcelableExtra(data, ActionActivity.EXTRA_ACTION, Action::class.java)!!
                     action.forEach {
                         mList.add(Action(it))
                     }
                 }
                 RESULT_REQUEST_JSON -> {
-                    val actionList = data.getParcelableExtra<ActionList>(ActionStringActivity.EXTRA_ACTION)!!
+                    val actionList = IntentCompat.getParcelableExtra(data, ActionStringActivity.EXTRA_ACTION, ActionList::class.java)!!
                     mList.clear()
                     mList.addAll(actionList)
                 }

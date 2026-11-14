@@ -1,5 +1,7 @@
 package jp.hazuki.yuzubrowser.legacy.gesture;
 
+import androidx.core.os.ParcelCompat;
+
 import android.gesture.Gesture;
 import android.graphics.Bitmap;
 import android.os.Parcel;
@@ -21,8 +23,8 @@ public class GestureItem implements Parcelable {
 
     public GestureItem(Parcel source) {
         mId = source.readLong();
-        mGesture = source.readParcelable(Gesture.class.getClassLoader());
-        mAction = source.readParcelable(Action.class.getClassLoader());
+        mGesture = ParcelCompat.readParcelable(source, Gesture.class.getClassLoader(), Gesture.class);
+        mAction = ParcelCompat.readParcelable(source, Action.class.getClassLoader(), Action.class);
     }
 
     @Override

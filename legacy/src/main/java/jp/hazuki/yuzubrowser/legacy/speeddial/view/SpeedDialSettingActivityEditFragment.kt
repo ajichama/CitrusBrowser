@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.speeddial.view
 
+import androidx.core.os.BundleCompat
+
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -55,7 +57,7 @@ class SpeedDialSettingActivityEditFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val arguments = arguments ?: throw IllegalArgumentException()
 
-        speedDial = arguments.getSerializable(DATA) as? SpeedDial ?: SpeedDial()
+        speedDial = BundleCompat.getSerializable(arguments, DATA, SpeedDial::class.java) ?: SpeedDial()
 
         binding.apply {
             superFrameLayout.setOnImeShownListener { visible -> bottomBar.visibility = if (visible) View.GONE else View.VISIBLE }
@@ -132,7 +134,7 @@ class SpeedDialSettingActivityEditFragment : Fragment() {
 
             }
             REQUEST_CROP_IMAGE -> if (resultCode == Activity.RESULT_OK && data != null && data.extras != null) {
-                val bitmap = data.extras!!.getParcelable<Bitmap>("data")
+                val bitmap = BundleCompat.getParcelable(data.extras!!, "data", Bitmap::class.java)
                 speedDial.icon = WebIcon.createIconOrNull(bitmap)
                 binding.icon.setImageBitmap(bitmap)
             }

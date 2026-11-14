@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.browser
 
+import android.os.VibratorManager
+
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -971,7 +973,12 @@ class ActionExecutor(
                 run((action as CustomSingleAction).action)
             }
             SingleAction.VIBRATION -> {
-                val vibrator = controller.activity.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    (controller.activity.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+                } else {
+                    @Suppress("DEPRECATION")
+                    controller.activity.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     vibrator.vibrate(VibrationEffect.createOneShot(
                             (action as VibrationSingleAction).time.toLong(), VibrationEffect.DEFAULT_AMPLITUDE))

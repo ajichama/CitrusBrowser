@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.browser
 
+import androidx.core.content.IntentCompat
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -563,7 +565,7 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
             }
             BrowserController.REQUEST_BOOKMARK, BrowserController.REQUEST_HISTORY -> {
                 if (resultCode != RESULT_OK || data == null) return
-                val openable = data.getParcelableExtra<BrowserOpenable>(INTENT_EXTRA_OPENABLE)
+                val openable = IntentCompat.getParcelableExtra(data, INTENT_EXTRA_OPENABLE, BrowserOpenable::class.java)
                     ?: return
                 openable.forEach { loadUrl(it, openable.target) }
             }
@@ -620,7 +622,7 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
             }
             BrowserController.REQUEST_ACTION_LIST -> {
                 if (resultCode != RESULT_OK || data == null) return
-                val action = data.getParcelableExtra<Action>(ActionActivity.EXTRA_ACTION)
+                val action = IntentCompat.getParcelableExtra(data, ActionActivity.EXTRA_ACTION, Action::class.java)
                 if (action == null) {
                     Logger.w(TAG, "Action is null")
                     return

@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.download.service
 
+import androidx.core.content.IntentCompat
+
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -125,10 +127,10 @@ class DownloadService : Service(), ServiceClient.ServiceClientListener {
             var thread: DownloadThread? = null
             when (intent.action) {
                 INTENT_ACTION_START_DOWNLOAD -> {
-                    val root = intent.getParcelableExtra<Uri>(INTENT_EXTRA_DOWNLOAD_ROOT_URI)!!
+                    val root = IntentCompat.getParcelableExtra(intent, INTENT_EXTRA_DOWNLOAD_ROOT_URI, Uri::class.java)!!
                         .toDocumentFile(this@DownloadService)
-                    val file = intent.getParcelableExtra<DownloadFile>(INTENT_EXTRA_DOWNLOAD_REQUEST)
-                    val metadata = intent.getParcelableExtra<MetaData?>(INTENT_EXTRA_DOWNLOAD_METADATA)
+                    val file = IntentCompat.getParcelableExtra(intent, INTENT_EXTRA_DOWNLOAD_REQUEST, DownloadFile::class.java)
+                    val metadata = IntentCompat.getParcelableExtra(intent, INTENT_EXTRA_DOWNLOAD_METADATA, MetaData::class.java)
                     if (file != null) {
                         thread = FirstDownloadThread(root, file, metadata)
                     }

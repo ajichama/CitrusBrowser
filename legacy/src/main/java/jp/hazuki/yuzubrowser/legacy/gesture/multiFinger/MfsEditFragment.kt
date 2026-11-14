@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.gesture.multiFinger
 
+import androidx.core.os.BundleCompat
+
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -68,7 +70,7 @@ class MfsEditFragment : androidx.fragment.app.Fragment() {
         val fragmentManager = parentFragmentManager
         val arguments = arguments ?: throw IllegalArgumentException()
 
-        item = arguments.getParcelable(ARG_ITEM) ?: MultiFingerGestureItem()
+        item = BundleCompat.getParcelable(arguments, ARG_ITEM, MultiFingerGestureItem::class.java) ?: MultiFingerGestureItem()
         nameArray = ActionNameArray(activity)
 
         val text = item.action.toString(nameArray)

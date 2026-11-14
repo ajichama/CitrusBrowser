@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.debug
 
+import androidx.core.os.BundleCompat
+
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
@@ -50,7 +52,7 @@ class FileBrowserFragment : Fragment(), FileAdapter.OnFileClickListener,
     EditTextDialogFragment.OnTextChangeCallback {
 
     private val viewModel by viewModels<FileBrowserViewModel> {
-        val file = arguments?.getSerializable(ARG_FILE) as File?
+        val file = arguments?.let { BundleCompat.getSerializable(it, ARG_FILE, File::class.java) }
         FileBrowserViewModel.Factory(file ?: File(requireContext().applicationInfo.dataDir))
     }
 
@@ -257,7 +259,7 @@ class FileBrowserFragment : Fragment(), FileAdapter.OnFileClickListener,
 
     class LongPressFragment : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            val file = requireArguments().getSerializable(ARG_FILE) as File
+            val file = BundleCompat.getSerializable(requireArguments(), ARG_FILE, File::class.java)!!
             val items = if (file.isDirectory) {
                 arrayOf("Copy", "Delete", "Rename")
             } else {
@@ -294,7 +296,7 @@ class FileBrowserFragment : Fragment(), FileAdapter.OnFileClickListener,
 
     class RenameFragment : DialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            val file = requireArguments().getSerializable(ARG_FILE) as File
+            val file = BundleCompat.getSerializable(requireArguments(), ARG_FILE, File::class.java)!!
             val editText = AppCompatEditText(requireActivity())
             editText.setText(file.name)
 

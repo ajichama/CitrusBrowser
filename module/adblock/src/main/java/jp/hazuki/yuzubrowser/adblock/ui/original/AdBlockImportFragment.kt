@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.adblock.ui.original
 
+import androidx.core.os.BundleCompat
+
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
@@ -65,7 +67,7 @@ class AdBlockImportFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val activity = activity ?: return
         val fragmentManager = parentFragmentManager
-        val uri = arguments?.getParcelable<Uri>(ARG_URI) ?: throw IllegalArgumentException()
+        val uri = arguments?.let { BundleCompat.getParcelable(it, ARG_URI, Uri::class.java) } ?: throw IllegalArgumentException()
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel

@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.webrtc.ui
 
+import androidx.core.os.BundleCompat
+
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
@@ -39,7 +41,7 @@ class WebPermissionsEditDialog : androidx.fragment.app.DialogFragment() {
         val midi: Spinner = view.findViewById(R.id.midiSpinner)
         val mediaId: Spinner = view.findViewById(R.id.mediaIdSpinner)
 
-        val permissions = arguments.getSerializable(ARG_PERMISSION) as WebPermissions
+        val permissions = BundleCompat.getSerializable(arguments, ARG_PERMISSION, WebPermissions::class.java)!!
 
         camera.setSelection(permissions.camera.state)
         mic.setSelection(permissions.microphone.state)

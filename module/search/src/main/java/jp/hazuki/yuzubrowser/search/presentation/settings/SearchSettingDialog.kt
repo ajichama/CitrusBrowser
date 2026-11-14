@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.search.presentation.settings
 
+import androidx.core.os.BundleCompat
+
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
@@ -60,7 +62,7 @@ class SearchSettingDialog : DialogFragment(), ColorPickerSwatch.OnColorSelectedL
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val arguments = arguments ?: throw IllegalArgumentException()
 
-        val searchUrl = arguments.getSerializable(ARG_URL) as SearchUrl?
+        val searchUrl = BundleCompat.getSerializable(arguments, ARG_URL, SearchUrl::class.java)
         val view = View.inflate(activity, R.layout.search_url_edit, null)
         val titleEditText: EditText = view.findViewById(R.id.titleEditText)
         val urlEditText: EditText = view.findViewById(R.id.urlEditText)

@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Build;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,11 +44,17 @@ public class AppListTask extends AsyncTaskLoader<ArrayList<AppInfo>> {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public ArrayList<AppInfo> loadInBackground() {
         ArrayList<AppInfo> appInfoList = new ArrayList<>();
 
         if (allApp) {
-            List<PackageInfo> list = pm.getInstalledPackages(PackageManager.GET_META_DATA);
+            List<PackageInfo> list;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                list = pm.getInstalledPackages(PackageManager.PackageInfoFlags.of(PackageManager.GET_META_DATA));
+            } else {
+                list = pm.getInstalledPackages(PackageManager.GET_META_DATA);
+            }
             AppInfo appInfo;
             for (PackageInfo packageInfo : list) {
                 appInfo = new AppInfo();
@@ -58,7 +65,12 @@ public class AppListTask extends AsyncTaskLoader<ArrayList<AppInfo>> {
                 appInfoList.add(appInfo);
             }
         } else {
-            List<ResolveInfo> list = pm.queryIntentActivities(mIntent, PackageManager.MATCH_ALL);
+            List<ResolveInfo> list;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                list = pm.queryIntentActivities(mIntent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_ALL));
+            } else {
+                list = pm.queryIntentActivities(mIntent, PackageManager.MATCH_ALL);
+            }
 
             AppInfo appInfo;
             for (ResolveInfo info : list) {

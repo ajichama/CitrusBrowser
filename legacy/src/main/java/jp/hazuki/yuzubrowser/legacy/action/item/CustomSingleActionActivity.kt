@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.action.item
 
+import androidx.core.content.IntentCompat
+
 import android.os.Bundle
 import jp.hazuki.yuzubrowser.legacy.R
 import jp.hazuki.yuzubrowser.legacy.action.Action
@@ -31,9 +33,9 @@ class CustomSingleActionActivity : ThemeActivity() {
 
         if (savedInstanceState == null) {
             val intent = intent
-            val action = intent.getParcelableExtra<Action>(EXTRA_ACTION)
+            val action = IntentCompat.getParcelableExtra(intent, EXTRA_ACTION, Action::class.java)
             val name = intent.getStringExtra(EXTRA_NAME)
-            val actionNameArray = intent.getParcelableExtra<ActionNameArray>(ActionNameArray.INTENT_EXTRA)!!
+            val actionNameArray = IntentCompat.getParcelableExtra(intent, ActionNameArray.INTENT_EXTRA, ActionNameArray::class.java)!!
             supportFragmentManager.beginTransaction()
                     .replace(R.id.container, CustomSingleActionFragment.newInstance(action, name, actionNameArray))
                     .commit()

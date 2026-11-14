@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.action.item.startactivity
 
+import androidx.core.content.IntentCompat
+
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
@@ -42,7 +44,7 @@ class StartActivityPreferenceActivity : ThemeActivity(), StartActivityPreference
 
         val intent = intent
         if (intent != null) {
-            mCurrentIntent = intent.getParcelableExtra(Intent.EXTRA_INTENT)
+            mCurrentIntent = IntentCompat.getParcelableExtra(intent, Intent.EXTRA_INTENT, Intent::class.java)
         }
 
         supportFragmentManager.beginTransaction()

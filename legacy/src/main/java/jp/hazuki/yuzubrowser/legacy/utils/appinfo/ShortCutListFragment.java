@@ -1,6 +1,5 @@
 package jp.hazuki.yuzubrowser.legacy.utils.appinfo;
 
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +9,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
 import androidx.loader.app.LoaderManager;
@@ -22,13 +22,14 @@ public class ShortCutListFragment extends ListFragment implements LoaderManager.
     private AppInfoListAdapter adapter;
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(0, null, this);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        LoaderManager.getInstance(this).initLoader(0, null, this);
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
+    @SuppressWarnings("deprecation")
+    public void onListItemClick(@NonNull ListView l, @NonNull View v, int position, long id) {
         AppInfo appInfo = adapter.getItem(position);
         Intent intent = new Intent(Intent.ACTION_CREATE_SHORTCUT);
         intent.setClassName(appInfo.getPackageName(), appInfo.getClassName());
@@ -36,35 +37,37 @@ public class ShortCutListFragment extends ListFragment implements LoaderManager.
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_SHORTCUT:
-                if (resultCode == Activity.RESULT_OK) {
+                if (resultCode == Activity.RESULT_OK && data != null) {
                     if (mListener != null)
                         mListener.onShortCutSelected(data);
                 }
         }
     }
 
+    @NonNull
     @Override
-    public Loader<ArrayList<AppInfo>> onCreateLoader(int id, Bundle args) {
+    public Loader<ArrayList<AppInfo>> onCreateLoader(int id, @Nullable Bundle args) {
         Intent intent = new Intent(Intent.ACTION_CREATE_SHORTCUT);
-        return new AppListTask(getActivity(), intent, false);
+        return new AppListTask(requireContext(), intent, false);
     }
 
     @Override
-    public void onLoadFinished(Loader<ArrayList<AppInfo>> loader, ArrayList<AppInfo> data) {
-        adapter = new AppInfoListAdapter(getActivity(), data);
+    public void onLoadFinished(@NonNull Loader<ArrayList<AppInfo>> loader, ArrayList<AppInfo> data) {
+        adapter = new AppInfoListAdapter(requireContext(), data);
         setListAdapter(adapter);
     }
 
     @Override
-    public void onLoaderReset(Loader<ArrayList<AppInfo>> loader) {
+    public void onLoaderReset(@NonNull Loader<ArrayList<AppInfo>> loader) {
 
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             mListener = (OnShortCutSelectListener) getActivity();

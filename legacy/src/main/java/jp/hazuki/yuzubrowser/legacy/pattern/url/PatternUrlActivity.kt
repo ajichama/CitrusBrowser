@@ -16,6 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.pattern.url
 
+import androidx.core.os.BundleCompat
+
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
@@ -121,7 +123,7 @@ class PatternUrlActivity : PatternActivity<PatternUrlChecker>() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val arguments = arguments ?: throw IllegalArgumentException()
 
-            val checker = arguments.getSerializable(CHECKER) as? PatternUrlChecker
+            val checker = BundleCompat.getSerializable(arguments, CHECKER, PatternUrlChecker::class.java)
             val binding = PatternAddWebsettingBinding.inflate(requireActivity().layoutInflater)
             if (activity is PatternUrlActivity) {
                 header = (activity as PatternUrlActivity).makeHeaderView(checker)
@@ -423,7 +425,7 @@ class PatternUrlActivity : PatternActivity<PatternUrlChecker>() {
             val arguments = arguments ?: throw IllegalArgumentException()
 
             var url = arguments.getString(URL)
-            val checker = arguments.getSerializable(CHECKER) as? PatternUrlChecker
+            val checker = BundleCompat.getSerializable(arguments, CHECKER, PatternUrlChecker::class.java)
 
             val headerView = View.inflate(activity, R.layout.pattern_list_url, null)
             val urlEditText = headerView.findViewById<EditText>(R.id.urlEditText)
