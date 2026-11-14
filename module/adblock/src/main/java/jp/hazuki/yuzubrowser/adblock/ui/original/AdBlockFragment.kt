@@ -265,7 +265,7 @@ class AdBlockFragment : Fragment(), OnRecyclerListener, AdBlockEditDialog.AdBloc
         val activity = activity ?: return false
         when (item.itemId) {
             android.R.id.home -> {
-                activity.onBackPressed()
+                activity.onBackPressedDispatcher.onBackPressed()
                 return true
             }
             R.id.export -> {

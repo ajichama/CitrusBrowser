@@ -21,11 +21,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import androidx.activity.viewModels
-
 import jp.hazuki.yuzubrowser.legacy.R
 import jp.hazuki.yuzubrowser.legacy.databinding.ScrollEditTextModel
 import jp.hazuki.yuzubrowser.legacy.databinding.ScrollEdittextBinding
 import jp.hazuki.yuzubrowser.ui.app.ThemeActivity
+import jp.hazuki.yuzubrowser.ui.extensions.addCallback
 
 class UserScriptEditActivity : ThemeActivity() {
 
@@ -48,10 +48,10 @@ class UserScriptEditActivity : ThemeActivity() {
 
         title = intent.getStringExtra(Intent.EXTRA_TITLE) ?: ""
         viewModel.text.value = mUserScript.data
-    }
 
-    override fun onBackPressed() {
-        showSaveDialog(true)
+        onBackPressedDispatcher.addCallback(this) {
+            showSaveDialog(true)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

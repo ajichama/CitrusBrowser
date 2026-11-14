@@ -18,11 +18,15 @@ package jp.hazuki.yuzubrowser.search.presentation.search
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.speech.RecognizerIntent
-import android.view.*
+import android.view.ActionMode
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
 import androidx.activity.viewModels
+import androidx.core.view.WindowCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -66,12 +70,7 @@ class SearchActivity : ThemeActivity(), SearchButton.Callback, SearchSuggestAdap
 
         val fullscreen = intent.getBooleanExtra(INTENT_EXTRA_MODE_FULLSCREEN, AppPrefs.fullscreen.get())
         if (fullscreen) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                window.insetsController?.hide(WindowInsets.Type.statusBars())
-            } else {
-                @Suppress("DEPRECATION")
-                window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            }
+            setStatusBarHidden(true)
         }
 
         val bottomBoxMode = intent.getBooleanExtra(EXTRA_REVERSE, false)
@@ -111,24 +110,9 @@ class SearchActivity : ThemeActivity(), SearchButton.Callback, SearchSuggestAdap
                 searchButton.setColorFilter(themeData.toolbarImageColor)
             if (themeData.statusBarColor != 0) {
                 window.run {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        val wic = decorView.windowInsetsController!!
-                        val appearance = if (ThemeData.isUseLightStatusBar()) {
-                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-                        } else {
-                            0
-                        }
-                        wic.setSystemBarsAppearance(
-                            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
-                            appearance
-                        )
-                    } else {
-                        @Suppress("DEPRECATION")
-                        clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-                        @Suppress("DEPRECATION")
-                        decorView.systemUiVisibility = ThemeData.getSystemUiVisibilityFlag()
-                    }
-                    addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                    WindowCompat.getInsetsController(this, decorView).isAppearanceLightStatusBars =
+                        ThemeData.isUseLightStatusBar()
+                    @Suppress("DEPRECATION")
                     statusBarColor = themeData.statusBarColor
                 }
             }

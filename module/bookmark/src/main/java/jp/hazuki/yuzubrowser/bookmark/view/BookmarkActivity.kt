@@ -17,11 +17,8 @@
 package jp.hazuki.yuzubrowser.bookmark.view
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.WindowInsets
-import android.view.WindowManager
 import androidx.fragment.app.commit
 import dagger.hilt.android.AndroidEntryPoint
 import jp.hazuki.bookmark.R
@@ -51,12 +48,7 @@ class BookmarkActivity : LongPressFixActivity() {
         }
 
         if (fullscreen) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                window.insetsController?.hide(WindowInsets.Type.statusBars())
-            } else {
-                @Suppress("DEPRECATION")
-                window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            }
+            setStatusBarHidden(true)
         }
         requestedOrientation = orientation
 

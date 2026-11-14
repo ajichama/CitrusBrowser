@@ -20,8 +20,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.res.Configuration
+import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import jp.hazuki.yuzubrowser.core.utility.utils.createLanguageConfig
 import jp.hazuki.yuzubrowser.ui.settings.AppPrefs
 import jp.hazuki.yuzubrowser.ui.theme.ThemeData
@@ -42,6 +48,39 @@ open class ThemeActivity : AppCompatActivity() {
         config.updateTheme(isLightMode)
 
         super.attachBaseContext(ContextCompat(newBase.createConfigurationContext(config), newBase))
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        setupEdgeToEdgeInsets()
+    }
+
+    // Android 15〜17 (API 35〜37) の Edge-to-Edge 強制化に伴い、システムバー・ノッチ・IME の余白を適用する
+    private fun setupEdgeToEdgeInsets() {
+        val rootView = findViewById<View>(androidx.appcompat.R.id.action_bar_root)
+            ?: findViewById<View>(android.R.id.content)
+            ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, windowInsets ->
+            val insets = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or
+                    WindowInsetsCompat.Type.displayCutout() or
+                    WindowInsetsCompat.Type.ime()
+            )
+            view.setPadding(insets.left, insets.top, insets.right, insets.bottom)
+            windowInsets
+        }
+    }
+
+    // フルスクリーン設定に応じてステータスバーの表示・非表示を制御する
+    protected fun setStatusBarHidden(hidden: Boolean) {
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        if (hidden) {
+            controller.hide(WindowInsetsCompat.Type.statusBars())
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        } else {
+            controller.show(WindowInsetsCompat.Type.statusBars())
+        }
     }
 
     private fun applyThemeMode(isLightMode: Boolean) {

@@ -25,13 +25,14 @@ import android.view.ViewGroup.LayoutParams
 import android.view.WindowManager
 import android.webkit.WebChromeClient
 import android.widget.FrameLayout
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 
 class WebCustomViewHandler(private val fullscreenLayout: ViewGroup) {
     private var customView: View? = null
     private lateinit var customViewCallback: WebChromeClient.CustomViewCallback
     private var oldOrientation: Int = 0
-    private var oldFlag: Int = 0
-    private var oldUiVisibility: Int = 0
 
     val isCustomViewShowing: Boolean
         get() = customView != null
@@ -46,19 +47,16 @@ class WebCustomViewHandler(private val fullscreenLayout: ViewGroup) {
         activity.requestedOrientation = orientation
 
         val window = activity.window
-        oldUiVisibility = window.decorView.systemUiVisibility
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
-
-        val windowParams = window.attributes
-        oldFlag = windowParams.flags
-        windowParams.flags = windowParams.flags or ADD_FLAGS
-        window.attributes = windowParams
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            hide(WindowInsetsCompat.Type.systemBars())
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
 
         fullscreenLayout.setBackgroundColor(Color.BLACK)
         fullscreenLayout.visibility = View.VISIBLE
         fullscreenLayout.addView(view, FULLSCREEN_LP)
         fullscreenLayout.bringToFront()
-
 
         customView = view
         customViewCallback = callback
@@ -71,11 +69,9 @@ class WebCustomViewHandler(private val fullscreenLayout: ViewGroup) {
         activity.requestedOrientation = oldOrientation
 
         val window = activity.window
-        window.decorView.systemUiVisibility = oldUiVisibility
-
-        val windowParams = window.attributes
-        windowParams.flags = oldFlag
-        window.attributes = windowParams
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        WindowCompat.getInsetsController(window, window.decorView)
+            .show(WindowInsetsCompat.Type.systemBars())
 
         fullscreenLayout.visibility = View.GONE
         fullscreenLayout.removeView(customView)
@@ -86,6 +82,5 @@ class WebCustomViewHandler(private val fullscreenLayout: ViewGroup) {
 
     companion object {
         private val FULLSCREEN_LP = FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        private const val ADD_FLAGS = WindowManager.LayoutParams.FLAG_FULLSCREEN or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
     }
 }

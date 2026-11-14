@@ -335,8 +335,18 @@ class YuzuWebSettings(private val origin: WebSettings) {
         origin.setNeedInitialFocus(flag)
     }
 
+    @Suppress("DEPRECATION")
     @SuppressLint("RequiresFeature")
     private fun setWebTheme() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+                val allowAlgorithmic = webTheme == WEB_THEME_PREFER_WEB_OVER_FORCE_DARK ||
+                    webTheme == WEB_THEME_FORCE_DARK
+                WebSettingsCompat.setAlgorithmicDarkeningAllowed(origin, allowAlgorithmic)
+            }
+            return
+        }
+        @Suppress("DEPRECATION")
         if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK) &&
             WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK_STRATEGY)) {
 

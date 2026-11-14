@@ -16,11 +16,19 @@
 
 package jp.hazuki.yuzubrowser.legacy.menuwindow
 
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.view.*
-import android.widget.*
+import android.view.KeyEvent
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import android.widget.ScrollView
+import android.widget.TextView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import jp.hazuki.yuzubrowser.core.utility.extensions.convertDpToFloatPx
 import jp.hazuki.yuzubrowser.core.utility.extensions.convertDpToPx
 import jp.hazuki.yuzubrowser.core.utility.utils.FontUtils
@@ -85,17 +93,9 @@ class MenuWindow(context: ThemeActivity, actionList: ActionList, controller: Act
             layout.addView(child)
         }
         if (AppPrefs.fullscreen.get()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                window.contentView.windowInsetsController?.apply {
-                    hide(
-                        WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars()
-                    )
-                    systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                }
-            } else {
-                @Suppress("DEPRECATION")
-                setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+            WindowCompat.getInsetsController(context.window, window.contentView).apply {
+                hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
         }
     }
@@ -122,11 +122,6 @@ class MenuWindow(context: ThemeActivity, actionList: ActionList, controller: Act
             //Reset focusable
             window.isFocusable = true
         }
-    }
-
-    fun setSystemUiVisibility(flags: Int) {
-        @Suppress("DEPRECATION")
-        window.contentView.systemUiVisibility = flags
     }
 
     val isShowing: Boolean

@@ -21,6 +21,8 @@ import android.content.Context
 import android.graphics.Rect
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 fun Context.hideIme(editText: View) {
     (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
@@ -33,6 +35,9 @@ fun Context.showIme(editText: View) {
 }
 
 fun Activity.isImeShown(): Boolean {
+    ViewCompat.getRootWindowInsets(window.decorView)?.let {
+        return it.isVisible(WindowInsetsCompat.Type.ime())
+    }
     val rect = Rect()
     window.decorView.getWindowVisibleDisplayFrame(rect)
     if (rect.top != 0 || rect.bottom != 0) {

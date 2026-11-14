@@ -16,11 +16,8 @@
 
 package jp.hazuki.yuzubrowser.legacy.reader
 
-import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.WindowInsets
-import android.view.WindowManager
 import androidx.appcompat.app.AppCompatDelegate
 import dagger.hilt.android.AndroidEntryPoint
 import jp.hazuki.yuzubrowser.legacy.Constants
@@ -45,7 +42,6 @@ class ReaderActivity : ThemeActivity() {
         val actionBar = supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(true)
 
-
         val intent = intent
         if (intent != null) {
             var fullscreen = AppPrefs.fullscreen.get()
@@ -57,12 +53,7 @@ class ReaderActivity : ThemeActivity() {
             orientation = intent.getIntExtra(Constants.intent.EXTRA_MODE_ORIENTATION, orientation)
 
             if (fullscreen) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    window.insetsController?.hide(WindowInsets.Type.statusBars())
-                } else {
-                    @Suppress("DEPRECATION")
-                    window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-                }
+                setStatusBarHidden(true)
             }
             requestedOrientation = orientation
 
@@ -75,7 +66,6 @@ class ReaderActivity : ThemeActivity() {
             finish()
         }
     }
-
 
     override fun setTitle(title: CharSequence?) {
         val actionBar = supportActionBar

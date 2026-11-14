@@ -17,10 +17,12 @@
 package jp.hazuki.yuzubrowser.ui.app
 
 import android.annotation.SuppressLint
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.KeyEvent
 import android.view.ViewConfiguration
+import androidx.activity.OnBackPressedCallback
 
 @SuppressLint("Registered")
 open class LongPressFixActivity : ThemeActivity() {
@@ -31,6 +33,18 @@ open class LongPressFixActivity : ThemeActivity() {
     private var waiting: Boolean = false
 
     private val longPress = Runnable { onBackKeyLongPressed() }
+
+    // Predictive Back / ジェスチャーナビゲーション時に onBackKeyPressed() へ委譲するコールバック
+    private val backPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            onBackKeyPressed()
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        onBackPressedDispatcher.addCallback(this, backPressedCallback)
+    }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK) {
@@ -61,10 +75,10 @@ open class LongPressFixActivity : ThemeActivity() {
         handler.removeCallbacks(longPress)
     }
 
-    override fun onBackPressed() {}
-
     open fun onBackKeyPressed() {
-        super.onBackPressed()
+        backPressedCallback.isEnabled = false
+        onBackPressedDispatcher.onBackPressed()
+        backPressedCallback.isEnabled = true
     }
 
     open fun onBackKeyLongPressed() {
