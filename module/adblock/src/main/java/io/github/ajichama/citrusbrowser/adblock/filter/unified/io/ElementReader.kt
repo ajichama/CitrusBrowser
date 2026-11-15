@@ -18,29 +18,39 @@ package io.github.ajichama.citrusbrowser.adblock.filter.unified.io
 
 import io.github.ajichama.citrusbrowser.adblock.filter.toInt
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.ELEMENT_FILTER_CACHE_HEADER
+import io.github.ajichama.citrusbrowser.adblock.filter.unified.LEGACY_ELEMENT_FILTER_CACHE_HEADER
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.element.ElementFilter
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.element.PlaneElementFilter
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.element.TldRemovedElementFilter
+import io.github.ajichama.citrusbrowser.adblock.filter.unified.element.GroupElementFilter
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.readVariableInt
 import java.io.InputStream
+import java.io.DataInputStream
+import java.io.EOFException
+import java.io.IOException
 
 class ElementReader(private val input: InputStream) {
+    private var version = 0
 
     fun checkHeader(): Boolean {
-        val header = ELEMENT_FILTER_CACHE_HEADER.toByteArray()
-        val data = ByteArray(header.size)
-        input.read(data)
-        return header contentEquals data
+        val bytes = ByteArray(ELEMENT_FILTER_CACHE_HEADER.toByteArray().size)
+        try { DataInputStream(input).readFully(bytes) } catch (_: EOFException) { return false }
+        version = when {
+            bytes.contentEquals(ELEMENT_FILTER_CACHE_HEADER.toByteArray()) -> 2
+            bytes.contentEquals(LEGACY_ELEMENT_FILTER_CACHE_HEADER.toByteArray()) -> 1
+            else -> 0
+        }
+        return version != 0
     }
 
     fun readAll() = sequence {
+        if (version == 0) throw IOException("要素フィルタキャッシュのヘッダーを確認してください。")
         val intBuf = ByteArray(4)
         val shortBuf = ByteArray(2)
 
         input.read(intBuf)
 
         val size = intBuf.toInt()
-        val list = ArrayList<ElementFilter>(size)
         var patternBuffer = ByteArray(32)
 
         loop@ for (loop in 0 until size) {
@@ -88,6 +98,12 @@ class ElementReader(private val input: InputStream) {
                     isNot,
                     selector,
                 )
+                ElementFilter.TYPE_GROUP -> {
+                    if (version < 2 || isNot) throw IOException("未対応の行単位ドメイン条件です。")
+                    try { GroupElementFilter(pattern, isHide, selector) } catch (error: IllegalArgumentException) {
+                        throw IOException("行単位ドメイン条件が不正です。", error)
+                    }
+                }
                 else -> break@loop
             }
             yield(filter)

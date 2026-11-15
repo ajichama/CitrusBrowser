@@ -96,16 +96,8 @@ class AbpFilterDecoder {
                 .toList()
         } ?: emptyList()
 
-        if (domainList.size >= 2) {
-            domainList.forEach {
-                if (it.startsWith('~')) return
-            }
-        }
-
         if (domainList.isEmpty()) {
             domainList = listOf("")
-        } else {
-            domainList = domainList.map { if (it == "*") "" else it }
         }
 
         val isHide = when (type) {
@@ -114,8 +106,19 @@ class AbpFilterDecoder {
             else -> return
         }
 
+        if (domainList.any { token ->
+            val value = token.removePrefix("~")
+            (value.isEmpty() && !(domainList.size == 1 && token.isEmpty())) ||
+                value.any { it.isWhitespace() || it in "/|~" } ||
+                ('*' in value && value != "*" && !(value.endsWith(".*") && value.count { it == '*' } == 1))
+        }) return
+        if (domainList.size > 1) {
+            elementFilterList += GroupElementFilter(domainList.joinToString(","), isHide, body.sanitizeSelector())
+            return
+        }
+
         domainList.forEach {
-            var domain = it
+            var domain = if (it == "*") "" else it
             val isNot = domain.startsWith('~')
             if (isNot) {
                 domain = domain.substring(1)
@@ -155,7 +158,8 @@ class AbpFilterDecoder {
         var domain: String? = null
         var thirdParty = -1
         var filter = this
-        var elementFilter = false
+        var cosmeticType = 0
+        var hasNetworkType = false
         val blocking = if (filter.startsWith("@@")) {
             filter = substring(2)
             false
@@ -190,9 +194,12 @@ class AbpFilterDecoder {
 
                 when {
                     type > 0x00ff_ffff -> {
-                        elementFilter = true
+                        // 要素非表示の制御は例外専用。通常通信の許可へ拡大しない。
+                        if (blocking || inverse || value != null) return
+                        cosmeticType = cosmeticType or type
                     }
                     type > 0 -> {
+                        hasNetworkType = true
                         contentType = if (inverse) {
                             if (contentType == 0) contentType = 0xffff
                             contentType and (type.inv())
@@ -225,13 +232,9 @@ class AbpFilterDecoder {
         val domains = domain?.domainsToDomainMap('|')
         if (contentType == 0) contentType = 0xffff
 
-        if (elementFilter) {
-            return
-        }
-
-        val abpFilter =
+        fun createFilter(mask: Int): UnifiedFilter? =
             if (filter.length >= 2 && filter[0] == '/' && filter[filter.lastIndex] == '/') {
-                createRegexFilter(filter.substring(1, filter.lastIndex), contentType, ignoreCase, domains, thirdParty) ?: return
+                createRegexFilter(filter.substring(1, filter.lastIndex), mask, ignoreCase, domains, thirdParty)
             } else {
                 val isStartsWith = filter.startsWith("||")
                 val isEndWith = filter.endsWith('^')
@@ -244,24 +247,27 @@ class AbpFilterDecoder {
                     when {
                         isStartsWith && isEndWith -> StartEndFilter(
                             content,
-                            contentType,
+                            mask,
                             ignoreCase,
                             domains,
                             thirdParty
                         )
-                        isStartsWith -> StartsWithFilter(content, contentType, ignoreCase, domains, thirdParty)
-                        isEndWith -> EndWithFilter(content, contentType, domains, thirdParty, ignoreCase)
-                        else -> ContainsFilter(content, contentType, domains, thirdParty, ignoreCase)
+                        isStartsWith -> StartsWithFilter(content, mask, ignoreCase, domains, thirdParty)
+                        isEndWith -> EndWithFilter(content, mask, domains, thirdParty, ignoreCase)
+                        else -> ContainsFilter(content, mask, domains, thirdParty, ignoreCase)
                     }
                 } else {
-                    PatternMatchFilter(filter, contentType, ignoreCase, domains, thirdParty)
+                    PatternMatchFilter(filter, mask, ignoreCase, domains, thirdParty)
                 }
             }
 
-        when {
-            elementFilter -> elementFilterList += abpFilter
-            blocking -> blackList += abpFilter
-            else -> whiteList += abpFilter
+        if (cosmeticType == 0 || hasNetworkType) {
+            val networkFilter = createFilter(contentType) ?: return
+            if (blocking) blackList += networkFilter else whiteList += networkFilter
+        }
+        if (cosmeticType != 0) {
+            // next を共有すると別コンテナの連結を壊すため、カテゴリごとに別インスタンスを作る。
+            elementFilterList += createFilter(cosmeticType) ?: return
         }
     }
 
@@ -316,7 +322,7 @@ class AbpFilterDecoder {
             "object", "webrtc", "csp", "ping",
             "object-subrequest", "genericblock" -> -1
             "elemhide", "ehide" -> ContentRequest.TYPE_ELEMENT_HIDE
-            "generichide" -> ContentRequest.TYPE_ELEMENT_GENERIC_HIDE
+            "generichide", "ghide" -> ContentRequest.TYPE_ELEMENT_GENERIC_HIDE
             else -> 0
         }
     }

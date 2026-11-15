@@ -24,6 +24,9 @@ abstract class ElementFilter(
 ) {
     abstract val type: Int
 
+    open val isGeneric: Boolean
+        get() = isNot || domain.isEmpty()
+
     var next: ElementFilter? = null
 
     abstract fun isMatch(domain: String, tldRemoved: String?): Boolean
@@ -31,5 +34,6 @@ abstract class ElementFilter(
     companion object {
         const val TYPE_PLANE = 1
         const val TYPE_TLD_REMOVED = 2
+        const val TYPE_GROUP = 3
     }
 }

@@ -17,7 +17,6 @@
 package io.github.ajichama.citrusbrowser.adblock.filter.unified.io
 
 import io.github.ajichama.citrusbrowser.adblock.filter.toByteArray
-import io.github.ajichama.citrusbrowser.adblock.filter.toShortByteArray
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.FILTER_CACHE_HEADER
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.UnifiedFilter
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.writeVariableInt
@@ -42,7 +41,8 @@ class FilterWriter {
 
         filters.forEach {
             os.write(it.filterType and 0xff)
-            os.write(it.contentType.toShortByteArray(shortBuf))
+            // 要素非表示の例外は高位ビットを使うため、v2 では32bit全体を保存する。
+            os.write(it.contentType.toByteArray(intBuf))
             os.write(if (it.ignoreCase) 1 else 0)
             os.write(it.thirdParty and 0xff)
             val patternBytes = it.pattern.toByteArray()

@@ -25,18 +25,18 @@ class CosmeticFiltering(
 ) {
     private var cacheUrl: Uri? = null
     private var cache: String? = null
+    private var cacheIgnoreGeneric = false
 
-    fun loadScript(url: Uri): String? {
-        if (cacheUrl == url) return cache
+    fun loadScript(url: Uri, ignoreGeneric: Boolean = false): String? {
+        if (cacheUrl == url && cacheIgnoreGeneric == ignoreGeneric) return cache
+        cacheUrl = url
+        cacheIgnoreGeneric = ignoreGeneric
+        cache = null
 
-        val request = ContentRequest(url, url, TYPE, false)
-        val result = disables[request]
-
-        val isUseGeneric = when (result?.filterType ?: 0) {
-            ContentRequest.TYPE_ELEMENT_HIDE -> return null
-            ContentRequest.TYPE_ELEMENT_GENERIC_HIDE -> false
-            else -> true
-        }
+        // 種別番号ではなく contentType で照合する。別の generichide が先に登録されても elemhide を優先する。
+        if (disables[ContentRequest(url, url, ContentRequest.TYPE_ELEMENT_HIDE, false)] != null) return null
+        val isUseGeneric = !ignoreGeneric &&
+            disables[ContentRequest(url, url, ContentRequest.TYPE_ELEMENT_GENERIC_HIDE, false)] == null
 
         val results = filters[url, isUseGeneric]
         if (results.isEmpty()) return null
@@ -45,7 +45,8 @@ class CosmeticFiltering(
         // 新旧キャッシュで引用符の保存形式が異なっても、同じ CSS の例外を適用する。
         val plain = results.asSequence().filter { !it.isHide }.map { it.selector.escapeCachedSelector() }.toSet()
         val selector = results.asSequence().filter { it.isHide }
-            .map { it.selector.escapeCachedSelector() }.filterNot { it in plain }.toList()
+            .map { it.selector.escapeCachedSelector() }.filterNot { it in plain }.distinct().toList()
+        if (selector.isEmpty()) return null
 
         builder.append("(function(){const b=[")
         selector.forEach {
@@ -56,7 +57,6 @@ class CosmeticFiltering(
 
         val script = builder.toString()
 
-        cacheUrl = url
         cache = script
 
         return script
@@ -89,8 +89,4 @@ class CosmeticFiltering(
         if (escaped) append('\\')
     }
 
-    companion object {
-        private const val TYPE = ContentRequest.TYPE_ELEMENT_GENERIC_HIDE or
-            ContentRequest.TYPE_ELEMENT_HIDE
-    }
 }

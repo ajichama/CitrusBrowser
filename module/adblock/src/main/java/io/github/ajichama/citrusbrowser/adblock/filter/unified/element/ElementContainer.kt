@@ -23,9 +23,15 @@ import java.util.*
 
 class ElementContainer {
     private val filters = hashMapOf<String, ElementFilter>()
+    private val groups = hashMapOf<String, MutableList<GroupElementFilter>>()
 
     operator fun plusAssign(filter: ElementFilter) {
-        val key = Tag.createBest(filter.domain)
+        if (filter is GroupElementFilter) {
+            filter.indexTags.forEach { groups.getOrPut(it) { mutableListOf() } += filter }
+            return
+        }
+        // 否定のみの旧ルールは、除外ドメイン以外のホストでも候補へ入れる。
+        val key = if (filter.isNot) "" else Tag.createBest(filter.domain)
         this[key] = filter
     }
 
@@ -35,14 +41,20 @@ class ElementContainer {
     }
 
     operator fun get(url: Uri, isUseGeneric: Boolean): List<ElementFilter> {
-        val host = (url.host ?: return emptyList()).lowercase(Locale.ROOT)
+        val host = (url.host ?: return emptyList()).lowercase(Locale.ROOT).trimEnd('.')
         val tldRemoved = host.removeEffectiveTld()
 
         val list = mutableListOf<ElementFilter>()
-        Tag.create(host).forEach {
+        val seenGroups = hashSetOf<GroupElementFilter>()
+        Tag.create(host).distinct().forEach {
+            groups[it]?.forEach { group ->
+                if (seenGroups.add(group) && (isUseGeneric || !group.isHide || !group.isGeneric) && group.isMatch(host, tldRemoved)) {
+                    list += group
+                }
+            }
             var filter = filters[it]
             while (filter != null) {
-                if (isUseGeneric || filter.domain != "") {
+                if (isUseGeneric || !filter.isHide || !filter.isGeneric) {
                     if (filter.isNot) {
                         if (!filter.isMatch(host, tldRemoved)) {
                             list += filter

@@ -20,17 +20,27 @@ import io.github.ajichama.citrusbrowser.adblock.filter.toInt
 import io.github.ajichama.citrusbrowser.adblock.filter.toShortInt
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.*
 import java.io.InputStream
+import java.io.DataInputStream
+import java.io.EOFException
+import java.io.IOException
 
 class FilterReader(private val input: InputStream) {
+    private val dataInput = DataInputStream(input)
+    private var version = 0
 
     fun checkHeader(): Boolean {
-        val header = FILTER_CACHE_HEADER.toByteArray()
-        val data = ByteArray(header.size)
-        input.read(data)
-        return header contentEquals data
+        val bytes = ByteArray(FILTER_CACHE_HEADER.toByteArray().size)
+        try { dataInput.readFully(bytes) } catch (_: EOFException) { return false }
+        version = when {
+            bytes.contentEquals(FILTER_CACHE_HEADER.toByteArray()) -> 2
+            bytes.contentEquals(LEGACY_FILTER_CACHE_HEADER.toByteArray()) -> 1
+            else -> 0
+        }
+        return version != 0
     }
 
     fun readAll() = sequence {
+        if (version == 0) throw IOException("フィルタキャッシュのヘッダーを確認してください。")
         val intBuf = ByteArray(4)
         val shortBuf = ByteArray(2)
         input.read(intBuf)
@@ -41,8 +51,13 @@ class FilterReader(private val input: InputStream) {
             val type = input.read()
             if (type < 0) break
 
-            if (input.read(shortBuf) != 2) break
-            val contentType = shortBuf.toShortInt()
+            val contentType = if (version >= 2) {
+                dataInput.readFully(intBuf)
+                intBuf.toInt()
+            } else {
+                dataInput.readFully(shortBuf)
+                shortBuf.toShortInt()
+            }
 
             val ignoreCase = when (input.read()) {
                 0 -> false

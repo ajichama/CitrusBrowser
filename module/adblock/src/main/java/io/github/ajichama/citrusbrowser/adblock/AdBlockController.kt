@@ -46,7 +46,6 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
     private val manager: AdBlockManager = AdBlockManager(context)
     @Volatile private var adBlocker: Blocker? = null
     @Volatile private var elementBlocker: CosmeticFiltering? = null
-    private var isAbpIgnoreGenericElement = false
     private val loadGate = AdBlockLoadGate()
 
     init {
@@ -80,14 +79,12 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
                             }
                             CosmeticFiltering(disableCosmetic.await(), elementFilter.await())
                         } else null
-                        Triple(Blocker(allowPage.await(), allow.await(), deny.await()), cosmetic,
-                            AppPrefs.isAbpIgnoreGenericElement.get())
+                        Pair(Blocker(allowPage.await(), allow.await(), deny.await()), cosmetic)
                     }
                 }
                 loadGate.publish(ticket) {
                     adBlocker = loaded.first
                     elementBlocker = loaded.second
-                    isAbpIgnoreGenericElement = loaded.third
                 }
             } finally {
                 loadGate.finish(ticket)
@@ -136,6 +133,6 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
     fun loadScript(url: Uri): String? {
         val cosmetic = elementBlocker ?: return null
 
-        return cosmetic.loadScript(url)
+        return cosmetic.loadScript(url, AppPrefs.isAbpIgnoreGenericElement.get())
     }
 }

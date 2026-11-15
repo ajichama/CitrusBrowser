@@ -22,7 +22,9 @@ import io.github.ajichama.citrusbrowser.adblock.filter.unified.ELEMENT_FILTER_CA
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.FILTER_CACHE_HEADER
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.UnifiedFilterSet
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.io.ElementWriter
+import io.github.ajichama.citrusbrowser.adblock.filter.unified.io.ElementReader
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.io.FilterWriter
+import io.github.ajichama.citrusbrowser.adblock.filter.unified.io.FilterReader
 import java.io.Closeable
 import java.io.File
 import java.io.FileNotFoundException
@@ -93,9 +95,8 @@ internal class AbpFilterStore(
                     val entry = zip.getEntry(prefix)
                     if (entry.size < header.toByteArray().size + 4) throw IOException("フィルタキャッシュが途切れています。")
                     open(prefix).use { input ->
-                        val actualHeader = ByteArray(header.toByteArray().size)
-                        java.io.DataInputStream(input).readFully(actualHeader)
-                        if (!actualHeader.contentEquals(header.toByteArray())) throw IOException("フィルタヘッダーが不正です。")
+                        val supported = if (prefix == ABP_PREFIX_ELEMENT) ElementReader(input).checkHeader() else FilterReader(input).checkHeader()
+                        if (!supported) throw IOException("フィルタヘッダーが不正です。")
                     }
                 }
             } catch (error: Exception) {
@@ -176,7 +177,7 @@ internal class AbpFilterStore(
 
     companion object {
         // 解釈の変更時に更新する。旧キャッシュは新しい束の公開成功まで保持する。
-        const val PARSER_REVISION = 2
+        const val PARSER_REVISION = 3
         private const val MANIFEST = "manifest.properties"
         private val PREFIXES = listOf(ABP_PREFIX_DENY, ABP_PREFIX_ALLOW, ABP_PREFIX_DISABLE_ELEMENT_PAGE, ABP_PREFIX_ELEMENT)
         private val publicationLock = Any()

@@ -38,8 +38,10 @@ internal const val FILTER_TYPE_JVM_REGEX_HOST = 10
 internal const val FILTER_TYPE_PATTERN = 11
 
 internal const val FILTER_DIR = "adblock_filter"
-internal const val FILTER_CACHE_HEADER = "YZBABPFI\u0000\u0001\u0001"
-internal const val ELEMENT_FILTER_CACHE_HEADER = "YZBABPEF\u0000\u0001\u0001"
+internal const val LEGACY_FILTER_CACHE_HEADER = "YZBABPFI\u0000\u0001\u0001"
+internal const val FILTER_CACHE_HEADER = "YZBABPFI\u0000\u0001\u0002"
+internal const val LEGACY_ELEMENT_FILTER_CACHE_HEADER = "YZBABPEF\u0000\u0001\u0001"
+internal const val ELEMENT_FILTER_CACHE_HEADER = "YZBABPEF\u0000\u0001\u0002"
 
 fun createRegexFilter(filter: String, contentType: Int, ignoreCase: Boolean, domains: DomainMap?, thirdParty: Int): UnifiedFilter? {
     try {
