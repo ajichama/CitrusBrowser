@@ -30,6 +30,7 @@
         android:fullBackupContent="@xml/backup_settings"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/browser_app_name"
         tools:replace="android:label"
         android:supportsRtl="true"
