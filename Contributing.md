@@ -30,8 +30,11 @@
 本プロジェクトでは、ホスト環境を汚さずに一貫した環境でビルド・テストを行うため、**Docker コンテナ (`citrus-android-builder`)** による隔離ビルドを採用しています。
 
 ### 必要環境
+
 - Docker Engine / Docker Desktop
 - PowerShell (`pwsh`)
+
+ビルドの既定構成は JDK 21 / Gradle 9.3.1 / AGP 9.1.1 / Kotlin 2.4.21 / Hilt 2.60.1 / KSP 2.3.12、`compileSdk` / `targetSdk` は 37 です。JDK・SDK・Gradle をホストへ導入せず、Docker 内で実行してください。SDK の別名配置や非対応警告の抑止は使用しません。
 
 ### ビルド・テストの実行
 ```powershell
@@ -41,9 +44,35 @@ pwsh -File scripts/docker-build.ps1
 # 単体テストの実行
 pwsh -File scripts/docker-build.ps1 -Task "testDebugUnitTest"
 
+# 名前空間・計測テストを含む変更の検証（端末実行は別途必要）
+pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest assembleDebugAndroidTest"
+
+# buildSrc の変更に対応するテスト
+pwsh -File scripts/docker-build.ps1 -Task ":buildSrc:test"
+
 # Docker イメージの再構築を伴うビルド
 pwsh -File scripts/docker-build.ps1 -RebuildImage
 ```
+
+`build/`・`.gradle`・Kotlin 永続データは Volume 内へ隔離します。`citrus-android-home` はデバッグ署名鍵と adb 鍵の保存先です。鍵を Git 管理せず、Volume の再作成で既存 APK と署名が変わることに注意してください。
+
+APK の取り出しは root/app の `assemble*`・`package*`・`build` を明示した場合だけ行います。`help`、単体テスト、OSS 通知更新や module 単独のタスクは古い APK を再出力しません。`dependencyUpdates` はスクリプトが必要な `--no-parallel` を固定で追加します。`-Task` にはタスク名だけを指定し、任意の Gradle オプションを渡さないでください。
+
+### OSS 通知の変更
+
+通常ビルドは `app/oss/` と `app/html/license/` の固定入力だけから通知を生成します。通知本文をネット取得しませんが、Gradle の依存解決までオフラインになる意味ではありません。現在の固定入力は runtime の 99 依存・102 文書とソース由来 18 項目です。既存の帰属表示・NYSL 本文を保持してください。
+
+```powershell
+# runtime依存から更新候補を取得（固定入力は書き換えない）
+pwsh -File scripts/docker-build.ps1 -Task ":app:updateOssNotices"
+
+# レビュー反映済みの固定入力とruntime依存の整合を検証
+pwsh -File scripts/docker-build.ps1 -Task ":app:checkOssNotices"
+```
+
+候補は Volume 内の `/build-cache/app/oss-review/` に出力されます。依存座標・出典・本文をレビューしてから固定入力へ反映し、SHA-256 を更新してください。不足した通知や本文のハッシュ不一致は通常ビルドを失敗させます。APK 内の `assets/licenses.compressed` とアプリのライセンス画面も確認します。
+
+実装済み・自動検証済み・実機未検証の区別は [公開進捗](docs/PROGRESS.md) にまとめています。PR では実施した検証範囲を記載してください。
 
 ---
 
@@ -65,5 +94,5 @@ pwsh -File scripts/docker-build.ps1 -RebuildImage
 ## 4. プルリクエスト (Pull Request) の手順
 
 1. [ajichama/CitrusBrowser](https://github.com/ajichama/CitrusBrowser) を Fork し、作業用のトピックブランチを作成します。
-2. 変更を実装し、`pwsh -File scripts/docker-build.ps1` でビルドが通ることを確認します。
+2. 変更を実装し、`pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest"` の成功を確認します。buildSrc を変更した場合は `:buildSrc:test`、名前空間・計測テスト関連を変更した場合は `assembleDebugAndroidTest` も確認します。
 3. 変更内容と関連する Issue 番号を明記して Pull Request を送信してください。

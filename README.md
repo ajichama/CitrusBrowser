@@ -15,9 +15,17 @@
 - **完全トラッカーフリー（ゼロ・テレメトリ）**:
   - Firebase Analytics / Crashlytics 等の外部解析・追跡SDKを完全に排除。閲覧データや設定はすべて端末ローカルで完結します（詳細は [プライバシーポリシー (Privacy.md)](Privacy.md) を参照）。
 - **最新 Android OS（Android 16 / 17 = API 36 / 37）対応**:
-  - Edge-to-Edge（全画面インセット制御）、Predictive Back（予測型「戻る」ジェスチャー）、最新の権限・バックグラウンド実行仕様への準拠。
+  - `compileSdk` / `targetSdk` 37、Edge-to-Edge（全画面インセット制御）、Predictive Back（予測型「戻る」ジェスチャー）、権限・ストレージ互換の基盤を実装。各 OS での実機検証とページ配色の刷新は今後実施します。
 - **モダンな技術スタックへの段階的刷新**:
-  - Kotlin Coroutines / Flow、Dagger Hilt、Room、Jetpack WorkManager、Material Design 3 (Material You) への移行と、広告ブロック（AdBlock）エンジンの高速化。
+  - Kotlin Coroutines / Flow、Dagger Hilt、Room を使用。WorkManager による更新の永続化、Material Design 3 (Material You) への移行、広告ブロック（AdBlock）の性能改善は継続課題です。
+
+## 開発状況
+
+正式な API 37 対応構成として JDK 21 / Gradle 9.3.1 / AGP 9.1.1 / Kotlin 2.4.21 / Hilt 2.60.1 / KSP 2.3.12 を採用しています。SDK の別名配置や非対応警告の抑止を使わずビルドします。
+
+2026-11-15 の実装スナップショットは、本体・計測テスト APK のビルドと通常モジュールの単体テスト 128 件が成功しました。buildSrc の単体テスト 15 件も別途成功しています。AdBlock のキャッシュ互換・ドメイン条件・要素非表示例外と、固定入力からの OSS 通知生成を改善済みです。独自アイコンと新しい OSS 通知は APK 内の梱包を照合済みで、通知の通信なしでの再生成も確認しています。
+
+実機でのテスト、ページ配色の新実装、更新ジョブの永続化などは未完了です。[公開進捗と検証範囲](docs/PROGRESS.md) に、完了した実装と残タスクを記載しています。
 
 ---
 
@@ -47,15 +55,24 @@ pwsh -File scripts/docker-build.ps1
 # 単体テストの実行
 pwsh -File scripts/docker-build.ps1 -Task "testDebugUnitTest"
 
+# 本体・単体テスト・計測テストAPKをまとめて検証（実機実行は含まない）
+pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest assembleDebugAndroidTest"
+
+# OSS通知生成処理など、buildSrc の単体テスト
+pwsh -File scripts/docker-build.ps1 -Task ":buildSrc:test"
+
 # Docker イメージの再構築を伴うビルド
 pwsh -File scripts/docker-build.ps1 -RebuildImage
 ```
+
+テスト・`help`・OSS 通知更新のみの実行では、キャッシュ内の古い APK を `release/` へコピーしません。デバッグ署名鍵と adb 鍵は Docker Named Volume `citrus-android-home` に保持します。
 
 ---
 
 ## ドキュメント・リンク
 
 - [開発規約・ロードマップ (AGENTS.md)](AGENTS.md)
+- [公開進捗・検証範囲 (docs/PROGRESS.md)](docs/PROGRESS.md)
 - [コントリビューションガイドライン (Contributing.md)](Contributing.md)
 - [プライバシーポリシー (Privacy.md)](Privacy.md)
 

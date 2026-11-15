@@ -30,7 +30,7 @@ object AppVersions {
 
 // 依存ライブラリのバージョン一元管理
 object Versions {
-    const val agp = "8.13.2"
+    const val agp = "9.1.1"
     const val androidX = "1.8.2"
     const val appCompat = "1.7.0"
     const val activityX = "1.9.3"
@@ -48,7 +48,7 @@ object Versions {
     const val moshi = "1.15.2"
     const val okhttp = "4.12.0"
     const val okio = "3.9.1"
-    const val kotlin = "2.3.21"
+    const val kotlin = "2.4.21"
     const val ksp = "2.3.12"
     const val kotlin_coroutines = "1.10.2"
     const val junit = "4.13.2"
@@ -123,7 +123,7 @@ object Dependencies {
 
 // DI (Dagger Hilt) 定義
 object Dagger {
-    private const val hiltVersion = "2.58"
+    private const val hiltVersion = "2.60.1"
 
     const val hiltPlugin = "com.google.dagger:hilt-android-gradle-plugin:$hiltVersion"
     const val hilt = "com.google.dagger:hilt-android:$hiltVersion"

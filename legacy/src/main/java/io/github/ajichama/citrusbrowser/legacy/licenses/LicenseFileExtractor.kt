@@ -25,9 +25,10 @@ class LicenseFileExtractor(context: Context) {
     private val assetManager = context.resources.assets
 
     fun extract(): String {
-        val input = assetManager.open(FILE)
-        GZIPInputStream(BufferedInputStream(input)).use {
-            return IOUtils.readString(it)
+        assetManager.open(FILE).use { input ->
+            GZIPInputStream(BufferedInputStream(input)).use {
+                return IOUtils.readString(it)
+            }
         }
     }
 

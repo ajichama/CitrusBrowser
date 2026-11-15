@@ -15,7 +15,6 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 
 android {
     namespace 'jp.hazuki.asyncpermissions'
@@ -24,7 +23,10 @@ android {
 
     defaultConfig {
         minSdk Build.min_sdk_version
-        targetSdk Build.target_sdk_version
+    }
+
+    testOptions {
+        targetSdk = Build.target_sdk_version
     }
 
     compileOptions {

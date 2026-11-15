@@ -22,7 +22,10 @@ android {
 
     defaultConfig {
         minSdk Build.min_sdk_version
-        targetSdk Build.target_sdk_version
+    }
+
+    testOptions {
+        targetSdk = Build.target_sdk_version
     }
 
     buildTypes {

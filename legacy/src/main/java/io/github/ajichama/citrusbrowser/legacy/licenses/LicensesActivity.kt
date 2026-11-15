@@ -52,6 +52,6 @@ class LicensesActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
-        webView.loadDataWithBaseURL("file:///android_asset/", extractor.extract(), "text/html", "utf−8", null)
+        webView.loadDataWithBaseURL("file:///android_asset/", extractor.extract(), "text/html", "utf-8", null)
     }
 }

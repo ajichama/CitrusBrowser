@@ -9,3 +9,7 @@ if (File("/build-cache").exists()) {
 repositories {
     mavenCentral()
 }
+
+dependencies {
+    testImplementation("junit:junit:4.13.2")
+}

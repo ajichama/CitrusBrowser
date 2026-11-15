@@ -15,7 +15,6 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 
 android {
     namespace 'io.github.ajichama.citrusbrowser.core'
@@ -24,9 +23,12 @@ android {
 
     defaultConfig {
         minSdk Build.min_sdk_version
-        targetSdk Build.target_sdk_version
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    testOptions {
+        targetSdk = Build.target_sdk_version
     }
 
     compileOptions {

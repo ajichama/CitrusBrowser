@@ -15,7 +15,6 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 
 android {
@@ -25,9 +24,12 @@ android {
 
     defaultConfig {
         minSdk Build.min_sdk_version
-        targetSdk Build.target_sdk_version
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    testOptions {
+        targetSdk = Build.target_sdk_version
     }
 
     compileOptions {

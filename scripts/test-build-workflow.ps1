@@ -65,10 +65,32 @@ $buildRun = @($DockerCalls | Where-Object { $_.Arguments[0] -eq 'run' })[-1]
 $buildArgs = $buildRun.Arguments
 Assert-Condition ($buildArgs[-2] -eq 'assembleDebug') '最初のタスクが独立引数であること'
 Assert-Condition ($buildArgs[-1] -eq ':module:adblock:testDebugUnitTest') 'モジュール指定タスクが独立引数であること'
+Assert-Condition ($buildArgs -contains 'citrus-android-home:/root/.android') 'デバッグ署名鍵と adb 鍵をコンテナ終了後も保持すること'
+Assert-Condition ($buildArgs -contains 'CITRUS_EXPORT_APK=1') 'root の assemble では APK 出力を有効にすること'
+Assert-Condition (@($buildArgs | Where-Object { $_ -match '^CITRUS_RELEASE_APK_NAME=[A-Za-z0-9._+-]+\.apk$' }).Count -eq 1) '公開用 APK 名を検証して環境変数で渡すこと'
 $buildCommand = $buildArgs[[array]::IndexOf($buildArgs, '-c') + 1]
 Assert-Condition ($buildCommand.Contains('"$@"')) 'タスクのシェル展開を避けること'
+Assert-Condition ($buildCommand.Contains('--no-problems-report')) '問題レポートの HTML をホストへ生成しないこと'
+Assert-Condition ($buildCommand.Contains('--warning-mode all')) '問題の診断をコンソールに保持すること'
+Assert-Condition ($buildCommand.Contains('if [ "$CITRUS_EXPORT_APK" = 1 ] && [ -d /build-cache/app/outputs/apk ]; then')) 'APK コピー処理を固定の出力フラグで制御すること'
 Assert-Condition (-not $buildCommand.Contains('sed -i')) 'gradlew を直接書き換えないこと'
 Assert-Condition ($WrapperHash -eq (Get-FileHash (Join-Path $WorkspaceRoot 'gradlew')).Hash) 'gradlew の内容を保持すること'
+Assert-Condition (-not ($buildArgs -contains '--no-parallel')) '通常タスクの並列設定を維持すること'
+
+foreach ($nonApkTask in @('help testDebugUnitTest', ':module:adblock:assembleDebug', ':buildSrc:test', ':app:updateDebugOssNotices')) {
+    & $BuildScript -Task $nonApkTask
+    $nonApkArgs = @($DockerCalls | Where-Object { $_.Arguments[0] -eq 'run' })[-1].Arguments
+    Assert-Condition ($nonApkArgs -contains 'CITRUS_EXPORT_APK=0') "APK を生成しないタスクでは既存成果物をコピーしないこと: $nonApkTask"
+}
+
+& $BuildScript -Task ':app:assembleDebug'
+$appAssembleArgs = @($DockerCalls | Where-Object { $_.Arguments[0] -eq 'run' })[-1].Arguments
+Assert-Condition ($appAssembleArgs -contains 'CITRUS_EXPORT_APK=1') 'app の assemble では APK 出力を有効にすること'
+
+& $BuildScript -Task ':app:dependencyUpdates'
+$updatesArgs = @($DockerCalls | Where-Object { $_.Arguments[0] -eq 'run' })[-1].Arguments
+Assert-Condition ($updatesArgs[-2] -eq ':app:dependencyUpdates') '接頭付き更新確認タスクを独立引数で渡すこと'
+Assert-Condition ($updatesArgs[-1] -eq '--no-parallel') '更新確認だけ固定の並列実行禁止オプションを追加すること'
 
 foreach ($invalidTask in @('assembleDebug; touch marker', '$(touch marker)', 'assembleDebug --init-script bad', "assembleDebug`nhelp", '')) {
     $callCount = $DockerCalls.Count

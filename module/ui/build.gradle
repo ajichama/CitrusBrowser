@@ -15,8 +15,7 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+apply plugin: 'com.android.legacy-kapt'
 
 android {
     namespace 'io.github.ajichama.citrusbrowser.ui'
@@ -25,9 +24,12 @@ android {
 
     defaultConfig {
         minSdk Build.min_sdk_version
-        targetSdk Build.target_sdk_version
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    testOptions {
+        targetSdk = Build.target_sdk_version
     }
 
     compileOptions {

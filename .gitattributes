@@ -1,0 +1,2 @@
+# 取得した OSS 本文の末尾改行は、原文および SHA-256 との照合に使うため保持する。
+app/oss/texts/*.txt whitespace=-blank-at-eof

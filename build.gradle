@@ -26,10 +26,13 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:${Versions.agp}"
+        // legacy-kapt は AGP 本体と別の実装を持つため、同じ版の公式マーカーを解決する。
+        classpath "com.android.legacy-kapt:com.android.legacy-kapt.gradle.plugin:${Versions.agp}"
+        // built-in Kotlin の実行依存を、公式対応表内の KGP へ引き上げる。
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
         classpath "com.google.devtools.ksp:symbol-processing-gradle-plugin:${Versions.ksp}"
         classpath Dagger.hiltPlugin
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.51.0'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.54.0'
     }
 }
 
@@ -48,13 +51,6 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
-    }
-}
-
-// 全モジュールの Kotlin コンパイル対象を JVM 17 に統一（廃止された kotlinOptions の代替）
-subprojects {
-    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile).configureEach {
-        compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 

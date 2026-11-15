@@ -24,6 +24,18 @@ Set-Location -Path $WorkspaceRoot
 
 $ImageName = "citrus-android-builder:latest"
 
+# APK の名前は生成物を取り出す段階で付け、廃止された AGP Variant API に依存しない。
+$VersionDefinitions = [System.IO.File]::ReadAllText((Join-Path $WorkspaceRoot 'buildSrc/src/main/java/Dependencies.kt'))
+$AppBuildDefinition = [System.IO.File]::ReadAllText((Join-Path $WorkspaceRoot 'app/build.gradle'))
+$VersionName = [regex]::Match($VersionDefinitions, 'const val version_name\s*=\s*"([^"]+)"').Groups[1].Value
+$VersionCode = [regex]::Match($VersionDefinitions, 'const val version_code\s*=\s*([0-9]+)').Groups[1].Value
+$ApplicationId = [regex]::Match($AppBuildDefinition, '(?m)^\s*applicationId\s+"([^"]+)"').Groups[1].Value
+if ($VersionName -notmatch '\A[A-Za-z0-9._+-]+\z' -or $VersionCode -notmatch '\A[0-9]+\z' -or
+    $ApplicationId -notmatch '\A[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)+\z') {
+    throw "APK 出力名に使うアプリ識別子またはバージョンを読み取れません。"
+}
+$ReleaseApkName = "${ApplicationId}_v${VersionName}_${VersionCode}.apk"
+
 # 0. Docker デーモンの起動確認とバックグラウンド起動
 $dockerInfoOut = docker info 2>&1 | Out-String
 if ($LASTEXITCODE -ne 0) {
@@ -87,17 +99,37 @@ $JavaHome = switch ($JavaVersion) {
 Write-Host "[2/3] Docker コンテナ内で Gradle タスク ($Task, Java $JavaVersion) を実行しています..." -ForegroundColor Cyan
 
 $TaskNames = $Task -split '[ \t]+'
+# APK を生成する root/app の明示タスクだけを出力対象にする。検証・更新では古い APK を再出力しない。
+$ExportApk = @($TaskNames | Where-Object {
+    $_ -cmatch '\A:?(?:app:)?(?:assemble[A-Za-z0-9_]*|package[A-Za-z0-9_]*|build)\z'
+}).Count -gt 0
+$ExportApkValue = if ($ExportApk) { '1' } else { '0' }
+$GradleTaskArguments = @($TaskNames)
+# versions-plugin の更新確認タスクだけ、公式要件の並列実行禁止を固定引数で付ける。
+if (@($TaskNames | Where-Object { $_ -cmatch '(^|:)dependencyUpdates$' }).Count -gt 0) {
+    $GradleTaskArguments += '--no-parallel'
+}
 
 # タスク名はシェル文字列へ埋め込まず、独立した引数として渡します。
 # gradlew の改行は読み込み時だけ変換し、$0 を維持してラッパーの配置先を解決します。
+# 構成失敗時の問題レポートが指定外へ出力されたため、HTML 生成だけ止めて診断はログへ残します。
 $ContainerCmd = @'
-set -e
+set -euo pipefail
 export PATH="$JAVA_HOME/bin:$PATH"
 git config --global --add safe.directory /workspace
-bash -c "$(sed 's/\r$//' ./gradlew)" ./gradlew "$@" --project-cache-dir /build-cache/.gradle-project-cache --init-script /workspace/docker/init.gradle --no-daemon --stacktrace
-if [ -d /build-cache/app/outputs/apk ]; then
+bash -c "$(sed 's/\r$//' ./gradlew)" ./gradlew "$@" --project-cache-dir /build-cache/.gradle-project-cache --init-script /workspace/docker/init.gradle --no-problems-report --warning-mode all --no-daemon --stacktrace
+if [ "$CITRUS_EXPORT_APK" = 1 ] && [ -d /build-cache/app/outputs/apk ]; then
     mkdir -p /workspace/release
-    find /build-cache/app/outputs/apk -name "*.apk" -exec cp -f {} /workspace/release/ \;
+    find /build-cache/app/outputs/apk -type f -name "*.apk" -print0 |
+    while IFS= read -r -d '' apk; do
+        filename=$(basename "$apk")
+        case "$apk" in
+            */release/app-release.apk|*/release/app-release-unsigned.apk)
+                filename="$CITRUS_RELEASE_APK_NAME"
+                ;;
+        esac
+        cp -f -- "$apk" "/workspace/release/$filename"
+    done
     echo "Copied APK(s) to release/:"
     ls -lh /workspace/release/*.apk
 fi
@@ -106,14 +138,21 @@ fi
 docker run --rm `
     -v "${WorkspaceRoot}:/workspace" `
     -v "citrus-gradle-cache:/root/.gradle" `
+    -v "citrus-android-home:/root/.android" `
     -v "citrus-build-cache:/build-cache" `
     -v "citrus-buildsrc-gradle:/workspace/buildSrc/.gradle" `
     -e "JAVA_HOME=$JavaHome" `
+    -e "CITRUS_RELEASE_APK_NAME=$ReleaseApkName" `
+    -e "CITRUS_EXPORT_APK=$ExportApkValue" `
     $ImageName `
-    bash -c $ContainerCmd -- @TaskNames
+    bash -c $ContainerCmd -- @GradleTaskArguments
 
 if ($LASTEXITCODE -ne 0) {
     throw "Gradle build failed inside Docker container."
 }
 
-Write-Host "[3/3] ビルドが完了しました！出力先: $ReleaseDir" -ForegroundColor Green
+if ($ExportApk) {
+    Write-Host "[3/3] Gradle タスクが完了しました。APK 出力先: $ReleaseDir" -ForegroundColor Green
+} else {
+    Write-Host '[3/3] Gradle タスクが完了しました。APK 出力対象外のため、既存 APK はコピーしていません。' -ForegroundColor Green
+}

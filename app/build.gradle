@@ -15,10 +15,43 @@
  */
 
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 apply plugin: 'com.google.devtools.ksp'
-apply plugin: 'kotlin-kapt'
+apply plugin: 'com.android.legacy-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
+
+// 公開Android Components APIでvariantの生成assetsを登録する。
+// 通常ビルドは固定通知だけを読み、更新候補の取得は明示タスクに限定する。
+def checkAllOss = tasks.register('checkOssNotices')
+def updateAllOss = tasks.register('updateOssNotices')
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        def variantTitle = variant.name.capitalize()
+        def runtime = variant.runtimeConfiguration
+        // プロジェクトの資産はソース由来通知へ分離し、AGPの副次artifactを無指定選択しない。
+        def externalArtifacts = runtime.incoming.artifactView {
+            componentFilter { it instanceof org.gradle.api.artifacts.component.ModuleComponentIdentifier }
+        }.artifacts
+        def notices = tasks.register("generate${variantTitle}OssNotices", GenerateOssNotices) {
+            runtimeComponents.set(externalArtifacts.resolvedArtifacts.map { OssRuntimeGraph.coordinates(it) })
+            inputRoot.set(layout.projectDirectory)
+            fixedInputs.from(fileTree('oss'), fileTree('html/license'))
+            outputDirectory.set(layout.buildDirectory.dir("generated/oss/${variant.name}/assets"))
+            reportDirectory.set(layout.buildDirectory.dir("reports/oss/${variant.name}"))
+        }
+        variant.sources.assets?.addGeneratedSourceDirectory(notices, { it.outputDirectory })
+        def checkNotices = tasks.register("check${variantTitle}OssNotices", CheckOssNotices) {
+            reports.from(notices.flatMap { it.reportDirectory.file('missing.txt') })
+        }
+        def updateNotices = tasks.register("update${variantTitle}OssNotices", UpdateOssNotices) {
+            runtimeArtifacts = externalArtifacts
+            dependencies = project.dependencies
+            offline.set(gradle.startParameter.offline)
+            outputDirectory.set(layout.buildDirectory.dir("oss-review/${variant.name}"))
+        }
+        checkAllOss.configure { dependsOn(checkNotices) }
+        updateAllOss.configure { dependsOn(updateNotices) }
+    }
+}
 
 def gitHash = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
 def buildTime = new Date().format("yyyy-MM-dd'T'HH:mm:ssXXX")
@@ -68,22 +101,10 @@ android {
         }
     }
 
-    applicationVariants.all { variant ->
-        if (variant.buildType.name == "release") {
-            variant.outputs.each { output ->
-                if (output.outputFileName.endsWith('.apk')) {
-                    def applicationId = defaultConfig.applicationId
-                    def versionCode = defaultConfig.versionCode
-                    def versionName = defaultConfig.versionName
-                    output.outputFileName = "${applicationId}_v${versionName}_${versionCode}.apk"
-                }
-            }
-        }
-    }
-
     buildFeatures {
         dataBinding true
         buildConfig true
+        resValues true
     }
 }
 
