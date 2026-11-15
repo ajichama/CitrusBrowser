@@ -21,6 +21,7 @@
 | 検証 | 再現コマンド | 2026-11-15 の結果 |
 | --- | --- | --- |
 | 本体 APK・通常単体テスト・計測テスト APK | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest assembleDebugAndroidTest"` | 3タスク成功。通常モジュールの単体テスト128件成功。計測テストは APK 生成まで |
+| リリース構成・縮小・出力名 | `pwsh -File scripts/docker-build.ps1 -Task "assembleRelease"` | R8 とリリースチェックを含め成功。バージョン名付きの未署名 APK を生成。本番配布用署名は行っていない |
 | ビルド処理の単体テスト | `pwsh -File scripts/docker-build.ps1 -Task ":buildSrc:test"` | buildSrc の15件成功。通常モジュール128件とは別集計 |
 | 識別子・パッケージ配置 | `pwsh -File scripts/verify-citrus-identifiers.ps1` | テキスト1,355件、package/物理パス799件で問題0。原典帰属と明示的な移行互換を許可 |
 | ビルド・コミット補助処理 | `pwsh -File scripts/test-build-workflow.ps1` | モック検証成功。引数・APK 出力対象・明示 Push を検証し、実ビルド・公開操作は行わない |
@@ -28,6 +29,8 @@
 | APK の梱包 | APK 内の画像・Manifest 参照・`assets/licenses.compressed` を生成元と照合 | アイコン一致、生成 GZIP 一致、runtime 99依存・ソース18項目・NYSL保持・旧Firebase通知0を確認 |
 
 端末・エミュレータ上の計測テストや操作確認は実施していません。単体テストや計測テスト APK の生成成功から、ページ表示・ダウンロード・バックグラウンド更新・ジェスチャー等の端末上の動作成功は判断しません。
+
+リリース APK の生成確認と、本番配布用の署名・公開は別の作業です。現在のリリース成果物は未署名であり、端末での確認にはデバッグ APK を使用します。
 
 ## ビルドと OSS 通知の運用
 
