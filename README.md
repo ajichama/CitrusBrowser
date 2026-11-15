@@ -38,7 +38,7 @@
 
 ## ビルド方法（Docker 隔離ビルド）
 
-Windows ホスト環境に JDK や Android SDK を直接インストールすることなく、Docker コンテナ (`yuzu-android-builder`) 内でクリーンにビルドおよび単体テストを実行できます。中間生成物（`build/` や `.gradle`）はすべて Docker Volume 内に隔離されます。
+Windows ホスト環境に JDK や Android SDK を直接インストールすることなく、Docker コンテナ (`citrus-android-builder`) 内でクリーンにビルドおよび単体テストを実行できます。中間生成物（`build/` や `.gradle`）はすべて Docker Volume 内に隔離されます。
 
 ```powershell
 # デバッグAPKのビルド（出力先: release/app-debug.apk）

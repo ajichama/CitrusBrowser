@@ -17,7 +17,7 @@
 apply plugin: 'com.android.library'
 
 android {
-    namespace 'jp.hazuki.yuzubrowser.languages'
+    namespace 'io.github.ajichama.citrusbrowser.languages'
     compileSdk Build.compile_sdk_version
 
     defaultConfig {

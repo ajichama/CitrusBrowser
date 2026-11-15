@@ -22,7 +22,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
-    namespace 'jp.hazuki.yuzubrowser.download'
+    namespace 'io.github.ajichama.citrusbrowser.download'
     compileSdk Build.compile_sdk_version
 
     defaultConfig {

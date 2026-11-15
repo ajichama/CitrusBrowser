@@ -40,3 +40,8 @@ captures/
 *.log
 proguard/
 /reference
+
+# マルチAIエージェント 動的引き継ぎ状態・個人ローカル設定（GitHubには上げない）
+.agents/handoff/
+.codex/
+AGENTS.override.md

@@ -34,5 +34,10 @@ Gemini (Antigravity) / Claude Code / ChatGPT (OpenAI Agents) で提唱されて�
 
 ## 3. コンテキスト衛生管理（Context Compaction & Externalization）
 
-- **進捗の外部化**: ロードマップやタスク状態は常にアーティファクト（`modernization_plan.md`）に記録し、会話履歴への依存度を下げる。
+- **進捗の外部化**: ロードマップやタスク状態は常にローカル引き継ぎ台帳（`.agents/handoff/HANDOFF.md` / `state.json`）および必要に応じてアーティファクトへ記録し、会話履歴への依存度を下げる。
 - **サブエージェント再利用**: 同一モジュールに対する追加修正が発生した場合は、新規サブエージェントを乱立させず `send_message` で既存の担当サブエージェント（`conversationId`）に継続指示を送る。
+
+## 4. 異種AIエージェント連携（Antigravity ↔ OpenAI Codex ハイブリッド運用）
+
+- 同一モデル内のサブエージェント分業に加え、クオータ節約・長文コンテキスト（Antigravity/Gemini）と局所実装・コードレビュー（OpenAI Codex）の得意領域を活かした相互引き継ぎを行う。
+- 詳細な引き継ぎプロトコル・排他ロック（`citrus-collab` MCP）・`codex-delegate.ps1` の使用手順は [`.agents/skills/agent-handoff/SKILL.md`](../agent-handoff/SKILL.md) を参照する。

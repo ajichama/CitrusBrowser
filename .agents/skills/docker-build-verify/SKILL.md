@@ -14,7 +14,7 @@ Windows ホスト環境を汚さず、Dropbox のファイルロック競合を�
 ```powershell
 pwsh -File scripts/docker-build.ps1
 ```
-- デフォルトで **Java 21** および **Android 17 (API 37)** SDK を使用し、ビルド中間生成物は Docker Named Volume (`yuzu-build-cache`, `yuzu-gradle-cache`) に隔離される。
+- デフォルトで **Java 21** および **Android 17 (API 37)** SDK を使用し、ビルド中間生成物は Docker Named Volume (`citrus-build-cache`, `citrus-gradle-cache`) に隔離される。
 - 成功すると `release/app-debug.apk` が生成される。
 
 ## 2. 全モジュール単体テスト検証 (`testDebugUnitTest`)
@@ -34,8 +34,16 @@ pwsh -File scripts/docker-build.ps1 -RebuildImage
 
 ## 4. Git Commit & Push
 
-Dropbox のファイルロックを避けるため、コンテナ内 `git commit` とホスト側 SSH Push を自動連携するスクリプトを使用する：
+Dropbox のファイルロックを避けるため、コンテナ内でコミットするスクリプトを使用する。先に公開対象のファイルだけを明示してステージし、`git diff --cached` で確認する。スクリプトは自動で `git add` しない。
 
 ```powershell
-pwsh -File scripts/git-commit-push.ps1 -Message "<Conventional Commit Message>"
+git add -- <確認済みの対象パス>
+git diff --cached
+pwsh -File scripts/git-commit-push.ps1 -Message 'fix: 修正内容'
+```
+
+コミットと同時に Push することが依頼されている場合だけ `-Push` を明示する。未指定ではローカルコミットのみ実施する。
+
+```powershell
+pwsh -File scripts/git-commit-push.ps1 -Message 'fix: 修正内容' -Push
 ```

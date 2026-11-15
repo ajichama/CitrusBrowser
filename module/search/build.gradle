@@ -21,7 +21,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
-    namespace 'jp.hazuki.yuzubrowser.search'
+    namespace 'io.github.ajichama.citrusbrowser.search'
     compileSdk Build.compile_sdk_version
     buildToolsVersion Build.build_tools_version
 

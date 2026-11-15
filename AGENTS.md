@@ -13,8 +13,8 @@
 2. **Always Verify Latest Versions via Web Search (前提知識に頼らない最新仕様の裏付け調査)**:
    - OSバージョン（Android 16 = API 36 / **Android 17 = API 37**）、ビルドツール（AGP 9.x / Gradle 9.x）、言語・ライブラリ（Kotlin 2.4.x / Hilt 2.60.x / Room / OkHttp 等）の選定・移行にあたっては、モデルの古い内部知識で決めつけず、必ず **Web検索（`search_web`）および公式SDKリポジトリ（`sdkmanager --list`）で現時点（2026年）の最新安定版と破壊的変更を確認してから設計・実装する**。
 3. **Clean Host & Zero Dropbox Pollution (Docker隔離ビルド & Dropbox衛生管理)**:
-   - Windowsホスト環境を汚さないため、JDK・Android SDK・Gradleはすべて **Dockerコンテナ (`yuzu-android-builder`)** 内で実行する。
-   - 本ワークスペースは Dropbox 配下にあるため、各モジュールの `build/` 中間生成物および `.gradle` キャッシュはすべて Docker Named Volume (`yuzu-build-cache`, `yuzu-gradle-cache`) に隔離し、完成した `.apk` のみを `release/` に出力する（[docker/init.gradle](docker/init.gradle) および [scripts/docker-build.ps1](scripts/docker-build.ps1)）。
+   - Windowsホスト環境を汚さないため、JDK・Android SDK・Gradleはすべて **Dockerコンテナ (`citrus-android-builder`)** 内で実行する。
+   - 本ワークスペースは Dropbox 配下にあるため、各モジュールの `build/` 中間生成物および `.gradle` キャッシュはすべて Docker Named Volume (`citrus-build-cache`, `citrus-gradle-cache`) に隔離し、完成した `.apk` のみを `release/` に出力する（[docker/init.gradle](docker/init.gradle) および [scripts/docker-build.ps1](scripts/docker-build.ps1)）。
    - `.git` や `release/` 等のディレクトリには必ず `pwsh -File scripts/setup-dropbox-ignore.ps1` を適用して Dropbox 同期対象から除外する。
 4. **Apache License 2.0 Compliance (ライセンス遵守)**:
    - 既存ソースコード内の `Copyright (C) 2017-2021 Hazuki` および Apache License 2.0 ヘッダはそのまま保持する。
@@ -37,7 +37,7 @@
 .
 ├── AGENTS.md                 # プロジェクト全体の憲法・開発規約（本ファイル）
 ├── docker/
-│   ├── Dockerfile            # Android SDK (API 30/35) + JDK 11/17 ビルド環境定義
+│   ├── Dockerfile            # Android SDK (API 30/36/37) + JDK 11/17/21 ビルド環境定義
 │   └── init.gradle           # ビルド中間生成物を Docker Volume (/build-cache) へ隔離する設定
 ├── scripts/
 │   ├── docker-build.ps1      # Docker コンテナ内でのビルド＆APK抽出スクリプト
@@ -59,21 +59,16 @@
 - **Phase 1: Repository & Docker Build Infrastructure (リポジトリ＆Dockerビルド基盤構築)** — *Completed*
   - `hazuki0x0/YuzuBrowser` の全履歴取り込み、`ajichama/CitrusBrowser` への初回Push完了。
   - Docker ビルド環境の構築と、閉鎖済みリポジトリ (`jcenter`, `maven.fabric.io`)・`kvs-schema` の整理によるベースライン APK ビルドの確立。
-- **Phase 2: Rebranding & Identity Setup (アプリ名・パッケージ名の早期刷新)** ← *Current*
-  - アプリ表示名を **CitrusBrowser** に変更。
-  - パッケージID（`applicationId`）および関連する独自権限（`permission.myapp.signature`）・ショートカット定義の刷新。
-- **Phase 3: Build System & Dependency Modernization (2026年最新ビルド基盤への刷新)**
-  - Docker 環境への JDK 21 および **Android 17 (API 37) / Android 16 (API 36)** SDK の導入。
-  - Gradle 9.x / Android Gradle Plugin (AGP) 9.x（または段階的に 8.x → 9.x） / Kotlin 2.4.x / Dagger Hilt 2.60.x / Room 2.8.x (または 3.x) へのアップデート。
-  - 廃止された `kotlinx.android.parcel` 等から最新の `kotlinx.parcelize` / ViewBinding / KSP への移行。
-- **Phase 4: Android 16 / 17 (API 36 / 37) OS Compatibility & UI Modernization (最新OS仕様対応・デザイン刷新)**
-  - `compileSdk 37` / `targetSdk 37`（**Android 17: Cinnamon Bun**）への引き上げ。
-  - **Edge-to-Edge 完全強制化（API 36+ で opt-out 廃止）** への対応（`enableEdgeToEdge()` と `WindowInsetsCompat` によるステータスバー・ナビゲーションバー・IME 余白制御）。
-  - **Predictive Back（予測型「戻る」ジェスチャー、API 36+ 標準化）** 対応（旧 `onBackPressed()` から `OnBackPressedDispatcher` / `OnBackInvokedCallback` への移行）。
-  - **大画面・折りたたみ端末での向き制限撤廃（API 36+）**、**バックグラウンド音声・ForegroundService・通知/ストレージ権限（API 33〜37）** への対応。
-  - Material Design 3 (Material You) テーマ・ダイナミックカラー対応。
-- **Phase 5: AdBlock & Feature Evolution (広告ブロック等の機能強化)**
-  - AdBlock フィルタエンジン（ABP / uBlock 互換ルール、Cosmetic Filtering、スクリプトインジェクション等）の最新化と高速化。
+- **Phase 2: Rebranding & Identity Setup (アプリ名・パッケージ名の早期刷新)** — *Completed*
+  - アプリ表示名・内部命名資産（`Citrus*`）・`citrus:` スキーム・独自権限等を刷新。ソースのパッケージと物理ディレクトリも `io.github.ajichama.citrusbrowser` へ移行済み。独自ランチャーアイコンへの置換は未完了。
+- **Phase 3: Build System & Dependency Modernization (最新ビルド基盤への刷新)** — *Completed*
+  - Docker 環境への JDK 21 および **Android 17 (API 37) / Android 16 (API 36)** SDK 導入、Gradle 8.13 / AGP 8.13.2 / Kotlin 2.3.21 / Hilt 2.58 / KSP 2.3.12 への刷新完了（Firebase トラッカー削除・`kotlinx.parcelize` 移行含む）。
+  - 現構成は API 37 SDK の互換ディレクトリ作成と AGP の非対応警告抑止を含む。ビルド成功を公式サポート・全OSでの動作検証と同一視しない。依存刷新後の OSS 通知更新は未完了。
+- **Phase 4: Android 16 / 17 (API 36 / 37) OS Compatibility (最新OS仕様対応・非推奨API刷新)** — *基盤実装済み・互換検証とページ配色対応を継続*
+  - `compileSdk 37` / `targetSdk 37` 引き上げ、Edge-to-Edge (`WindowInsetsCompat`)、Predictive Back (`OnBackPressedDispatcher`)、`WebSettingsCompat.setAlgorithmicDarkeningAllowed`、`JobIntentService` 廃止、`IntentCompat`/`BundleCompat`/`ParcelCompat`、Android 11〜17 パッケージ可視性・Scoped Storage 互換対応完了。
+  - 基盤移行の実装完了を示す。ページ配色の既存4設定と現行 WebView API の整合、Edge-to-Edge の旧OS・IMEを含む実機検証は継続課題。
+- **Phase 5: AdBlock & Feature Evolution (広告ブロック等の機能強化)** ← *Current*
+  - AdBlock フィルタエンジン（ABP / uBlock 互換ルール、Cosmetic Filtering、デフォルトフィルタリスト最新化等）の強化。
 
 ---
 
@@ -84,3 +79,26 @@
   - `upstream`: `https://github.com/hazuki0x0/YuzuBrowser.git`
 - **Commit Convention**:
   - Conventional Commits 形式（`feat:`, `fix:`, `build:`, `refactor:`, `docs:`, `chore:`）を使用する。
+
+---
+
+## 6. Dual-Agent Collaboration & Handoff (Antigravity ↔ Codex 協調運用)
+
+本リポジトリは **Antigravity (Gemini)** と **OpenAI Codex** の両エージェントが同一コードベース・MCP・スキルを共有して作業を引き継げる設計になっています。
+
+1. **セッション開始時の引き継ぎ確認**:
+   - 作業着手前に MCP `citrus-collab` の `handoff_read` を呼び出すか、`.agents/handoff/HANDOFF.md`（Git管理外のローカル引き継ぎ台帳）を確認して現在の担当タスク・制約を把握する。
+2. **排他ロックによる二重編集防止**:
+   - 大規模な変更に着手する際は `task_claim` でタスクロックを取得し、交代・完了時に `task_release` で解放する。
+3. **セッション終了・交代時の構造化引き継ぎ**:
+   - エージェントを切り替える際は必ず `handoff_update`（または [`.agents/skills/agent-handoff/SKILL.md`](.agents/skills/agent-handoff/SKILL.md) の手順）で進捗サマリー・次目標・受け入れ条件・関連ファイルを記録する。
+4. **ハイブリッド委譲と共通検証**:
+   - Antigravity からの Codex 委譲には `codex_delegate` MCP または `pwsh -File scripts/codex-delegate.ps1` を使用する。
+   - どのエージェントが変更を加えた場合でも、最終検証には必ず `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest"` を使用する。
+
+## 7. 共有ファイルとローカル状態の管理
+
+- `AGENTS.md`、`.agents/skills/`、`.agents/plugins/citrus-collab/`、`tools/citrus-mcp/`、再利用可能な `scripts/` は Git 管理する。接続テンプレートに個人の絶対パス・認証情報を入れない。
+- `.agents/handoff/`（台帳・ロック・レポート）、`.codex/`、`AGENTS.override.md` は全員に共通するローカル状態として `.gitignore` で除外する。
+- 個人だけのメモや補助ファイルは `.git/info/exclude` に記載する。ホーム配下のアプリ設定・秘密鍵は共有しない。
+- 公開範囲を差分で確認してから対象を明示してステージする。未コミット全件の自動追加を行わない。

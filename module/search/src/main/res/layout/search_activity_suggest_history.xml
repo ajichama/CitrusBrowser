@@ -22,7 +22,7 @@
 
         <variable
             name="model"
-            type="jp.hazuki.yuzubrowser.search.model.SearchSuggestModel.HistoryModel"/>
+            type="io.github.ajichama.citrusbrowser.search.model.SearchSuggestModel.HistoryModel"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

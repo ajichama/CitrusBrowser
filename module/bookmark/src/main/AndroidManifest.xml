@@ -18,7 +18,7 @@
 
     <application>
         <activity
-            android:name="jp.hazuki.yuzubrowser.bookmark.overflow.view.BookmarkOverflowMenuActivity"
+            android:name="io.github.ajichama.citrusbrowser.bookmark.overflow.view.BookmarkOverflowMenuActivity"
             android:label="@string/pref_action_settings"/>
     </application>
 </manifest>

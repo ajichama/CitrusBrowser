@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "citrus-collab": {
+      "command": "node",
+      "args": [
+        "${PLUGIN_ROOT}/../../../tools/citrus-mcp/server.mjs",
+        "--workspace",
+        "${PLUGIN_ROOT}/../../.."
+      ]
+    }
+  }
+}

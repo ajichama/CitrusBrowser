@@ -15,7 +15,9 @@ param(
         "browser/build",
         "module/build",
         "out",
-        "release"
+        "release",
+        ".agents/handoff/locks",
+        ".agents/handoff/reports"
     )
 )
 

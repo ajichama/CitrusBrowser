@@ -111,6 +111,7 @@ object Libs {
     const val okhttp = "com.squareup.okhttp3:okhttp:${Versions.okhttp}"
     const val header_decor = "ca.barrenechea.header-decor:header-decor:${Versions.header_decor}"
     const val materialProgressBar = "me.zhanghai.android.materialprogressbar:library:${Versions.materialprogressbar}"
+    const val materialScrollBar = "com.github.turing-tech:MaterialScrollBar:13.3.4"
     const val jsoup = "org.jsoup:jsoup:${Versions.jsoup}"
     const val re2j = "com.google.re2j:re2j:${Versions.re2j}"
 }

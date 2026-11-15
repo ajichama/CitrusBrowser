@@ -21,7 +21,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
-    namespace 'jp.hazuki.bookmark'
+    namespace 'io.github.ajichama.citrusbrowser.bookmark'
     compileSdk Build.compile_sdk_version
 
     defaultConfig {

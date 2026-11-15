@@ -22,11 +22,11 @@
 
         <variable
             name="callback"
-            type="jp.hazuki.yuzubrowser.search.presentation.widget.SearchButton.Callback"/>
+            type="io.github.ajichama.citrusbrowser.search.presentation.widget.SearchButton.Callback"/>
 
         <variable
             name="viewModel"
-            type="jp.hazuki.yuzubrowser.search.presentation.search.SearchViewModel"/>
+            type="io.github.ajichama.citrusbrowser.search.presentation.search.SearchViewModel"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -66,7 +66,7 @@
             <requestFocus/>
         </EditText>
 
-        <jp.hazuki.yuzubrowser.search.presentation.widget.SearchButton
+        <io.github.ajichama.citrusbrowser.search.presentation.widget.SearchButton
             android:id="@+id/searchButton"
             style="@style/ToolbarImageButton"
             android:layout_width="@dimen/general_default_size"

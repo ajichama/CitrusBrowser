@@ -1,0 +1,6 @@
+{
+  "name": "citrus-collab",
+  "version": "1.0.0",
+  "disabled": true,
+  "description": "CitrusBrowser Dual-AI (Antigravity x Codex) 引き継ぎ・排他ロック・検証連携 MCP プラグイン（既定無効：グローバル mcp_config.json と重複回避）"
+}

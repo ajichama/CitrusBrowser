@@ -18,7 +18,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    namespace 'jp.hazuki.yuzubrowser.favicon'
+    namespace 'io.github.ajichama.citrusbrowser.favicon'
     compileSdk Build.compile_sdk_version
     buildToolsVersion Build.build_tools_version
 

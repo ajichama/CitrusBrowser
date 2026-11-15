@@ -19,7 +19,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.google.devtools.ksp'
 
 android {
-    namespace 'jp.hazuki.yuzubrowser.webview'
+    namespace 'io.github.ajichama.citrusbrowser.webview'
     compileSdk Build.compile_sdk_version
 
     defaultConfig {

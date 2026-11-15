@@ -21,11 +21,11 @@
 
         <variable
             name="adapter"
-            type="jp.hazuki.yuzubrowser.search.presentation.settings.SearchUrlAdapter"/>
+            type="io.github.ajichama.citrusbrowser.search.presentation.settings.SearchUrlAdapter"/>
 
         <variable
             name="model"
-            type="jp.hazuki.yuzubrowser.search.presentation.settings.SearchSettingsViewModel"/>
+            type="io.github.ajichama.citrusbrowser.search.presentation.settings.SearchSettingsViewModel"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"

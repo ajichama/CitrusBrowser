@@ -38,5 +38,7 @@ android {
 }
 
 dependencies {
+    // Java 専用モジュールの計測テストでも、推移的な標準ライブラリの世代をそろえる。
+    androidTestImplementation platform("org.jetbrains.kotlin:kotlin-bom:${Versions.kotlin}")
     implementation AndroidX.appcompat
 }

@@ -5,11 +5,11 @@
 
         <variable
             name="script"
-            type="jp.hazuki.yuzubrowser.legacy.userjs.UserScript" />
+            type="io.github.ajichama.citrusbrowser.legacy.userjs.UserScript" />
 
         <variable
             name="viewHolder"
-            type="jp.hazuki.yuzubrowser.legacy.userjs.UserScriptListFragment.UserJsAdapter.ViewHolder" />
+            type="io.github.ajichama.citrusbrowser.legacy.userjs.UserScriptListFragment.UserJsAdapter.ViewHolder" />
     </data>
 
     <LinearLayout

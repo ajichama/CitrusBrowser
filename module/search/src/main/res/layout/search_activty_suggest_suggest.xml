@@ -21,7 +21,7 @@
 
         <variable
             name="model"
-            type="jp.hazuki.yuzubrowser.search.model.SearchSuggestModel.SuggestModel"/>
+            type="io.github.ajichama.citrusbrowser.search.model.SearchSuggestModel.SuggestModel"/>
     </data>
 
     <LinearLayout

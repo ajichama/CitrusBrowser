@@ -23,11 +23,11 @@
 
         <variable
             name="adapter"
-            type="jp.hazuki.yuzubrowser.bookmark.overflow.view.OverflowMenuAdapter"/>
+            type="io.github.ajichama.citrusbrowser.bookmark.overflow.view.OverflowMenuAdapter"/>
 
         <variable
             name="viewModel"
-            type="jp.hazuki.yuzubrowser.bookmark.overflow.viewmodel.OverflowMenuViewModel"/>
+            type="io.github.ajichama.citrusbrowser.bookmark.overflow.viewmodel.OverflowMenuViewModel"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

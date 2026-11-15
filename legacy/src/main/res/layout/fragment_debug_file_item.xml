@@ -21,11 +21,11 @@
 
         <variable
             name="item"
-            type="jp.hazuki.yuzubrowser.legacy.debug.file.FileItem" />
+            type="io.github.ajichama.citrusbrowser.legacy.debug.file.FileItem" />
 
         <variable
             name="listener"
-            type="jp.hazuki.yuzubrowser.legacy.debug.file.FileAdapter.OnFileClickListener" />
+            type="io.github.ajichama.citrusbrowser.legacy.debug.file.FileAdapter.OnFileClickListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

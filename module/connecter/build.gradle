@@ -19,7 +19,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 
 android {
-    namespace 'jp.hazuki.yuzubrowser.browser.connecter'
+    namespace 'io.github.ajichama.citrusbrowser.browser.connecter'
     compileSdk Build.compile_sdk_version
     buildToolsVersion Build.build_tools_version
 

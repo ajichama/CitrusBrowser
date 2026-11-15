@@ -11,6 +11,7 @@
 #>
 
 param(
+    [ValidatePattern('\A:?[A-Za-z0-9_][A-Za-z0-9_:-]*(?:[ \t]+:?[A-Za-z0-9_][A-Za-z0-9_:-]*)*\z')]
     [string]$Task = "assembleDebug",
     [ValidateSet(11, 17, 21)]
     [int]$JavaVersion = 21,
@@ -21,9 +22,9 @@ $ErrorActionPreference = "Stop"
 $WorkspaceRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -Path $WorkspaceRoot
 
-$ImageName = "yuzu-android-builder:latest"
+$ImageName = "citrus-android-builder:latest"
 
-# 0. Docker デーモンの起動確認と自動起動（explorer.exe 経由でユーザーのデスクトップセッション上に起動）
+# 0. Docker デーモンの起動確認とバックグラウンド起動
 $dockerInfoOut = docker info 2>&1 | Out-String
 if ($LASTEXITCODE -ne 0) {
     if ($dockerInfoOut -match "Access is denied" -or $dockerInfoOut -match "permission denied") {
@@ -32,7 +33,7 @@ if ($LASTEXITCODE -ne 0) {
     $DockerDesktopExe = "C:\Program Files\Docker\Docker\Docker Desktop.exe"
     if (Test-Path $DockerDesktopExe) {
         Write-Host "[0/3] Docker Engine が停止しているため Docker Desktop を起動しています..." -ForegroundColor Yellow
-        Start-Process -FilePath "explorer.exe" -ArgumentList "`"$DockerDesktopExe`""
+        Start-Process -FilePath $DockerDesktopExe -WindowStyle Hidden
         $MaxWaitSec = 90
         $Elapsed = 0
         while ($Elapsed -lt $MaxWaitSec) {
@@ -72,6 +73,9 @@ if (-not (Test-Path $ReleaseDir)) {
     New-Item -ItemType Directory -Path $ReleaseDir -Force | Out-Null
 }
 pwsh -File scripts/setup-dropbox-ignore.ps1
+if ($LASTEXITCODE -ne 0) {
+    throw "Dropbox 同期除外の設定に失敗しました。"
+}
 
 # 3. コンテナ内で Gradle タスクを実行（中間生成物は Docker Volume へ隔離）
 $JavaHome = switch ($JavaVersion) {
@@ -82,29 +86,31 @@ $JavaHome = switch ($JavaVersion) {
 
 Write-Host "[2/3] Docker コンテナ内で Gradle タスク ($Task, Java $JavaVersion) を実行しています..." -ForegroundColor Cyan
 
-$ContainerCmd = @"
+$TaskNames = $Task -split '[ \t]+'
+
+# タスク名はシェル文字列へ埋め込まず、独立した引数として渡します。
+# gradlew の改行は読み込み時だけ変換し、$0 を維持してラッパーの配置先を解決します。
+$ContainerCmd = @'
 set -e
-export JAVA_HOME=$JavaHome
-export PATH=`$JAVA_HOME/bin:`$PATH
+export PATH="$JAVA_HOME/bin:$PATH"
 git config --global --add safe.directory /workspace
-sed -i 's/\r$//' ./gradlew
-chmod +x ./gradlew
-bash ./gradlew $Task --project-cache-dir /build-cache/.gradle-project-cache --init-script /workspace/docker/init.gradle --no-daemon --stacktrace
+bash -c "$(sed 's/\r$//' ./gradlew)" ./gradlew "$@" --project-cache-dir /build-cache/.gradle-project-cache --init-script /workspace/docker/init.gradle --no-daemon --stacktrace
 if [ -d /build-cache/app/outputs/apk ]; then
     mkdir -p /workspace/release
     find /build-cache/app/outputs/apk -name "*.apk" -exec cp -f {} /workspace/release/ \;
     echo "Copied APK(s) to release/:"
     ls -lh /workspace/release/*.apk
 fi
-"@ -replace "`r`n", "`n"
+'@ -replace "`r`n", "`n"
 
 docker run --rm `
     -v "${WorkspaceRoot}:/workspace" `
-    -v "yuzu-gradle-cache:/root/.gradle" `
-    -v "yuzu-build-cache:/build-cache" `
-    -v "yuzu-buildsrc-gradle:/workspace/buildSrc/.gradle" `
+    -v "citrus-gradle-cache:/root/.gradle" `
+    -v "citrus-build-cache:/build-cache" `
+    -v "citrus-buildsrc-gradle:/workspace/buildSrc/.gradle" `
+    -e "JAVA_HOME=$JavaHome" `
     $ImageName `
-    bash -c $ContainerCmd
+    bash -c $ContainerCmd -- @TaskNames
 
 if ($LASTEXITCODE -ne 0) {
     throw "Gradle build failed inside Docker container."

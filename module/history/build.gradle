@@ -21,7 +21,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
-    namespace 'jp.hazuki.yuzubrowser.historyModel'
+    namespace 'io.github.ajichama.citrusbrowser.historyModel'
     compileSdk Build.compile_sdk_version
 
     defaultConfig {
@@ -87,5 +87,5 @@ dependencies {
     ksp Dagger.hiltCompiler
 
     implementation Libs.header_decor
-    implementation 'com.github.turing-tech:MaterialScrollBar:13.3.4'
+    implementation Libs.materialScrollBar
 }

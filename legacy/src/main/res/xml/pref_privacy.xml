@@ -19,11 +19,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:title="@string/pref_privacy_settings">
 
-    <jp.hazuki.yuzubrowser.legacy.settings.preference.ClearBrowserDataAlertDialog
+    <io.github.ajichama.citrusbrowser.legacy.settings.preference.ClearBrowserDataAlertDialog
         android:title="@string/pref_clear_browser_data"
         app:iconSpaceReserved="false" />
 
-    <jp.hazuki.yuzubrowser.legacy.browser.FinishAlertDialog
+    <io.github.ajichama.citrusbrowser.legacy.browser.FinishAlertDialog
         android:title="@string/pref_clear_data_at_finish"
         app:iconSpaceReserved="false" />
 
@@ -86,7 +86,7 @@
         android:title="@string/pref_content_settings"
         app:iconSpaceReserved="false" />
 
-    <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+    <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
         android:entries="@array/pref_web_cache_list"
         android:entryValues="@array/pref_web_cache_values"
         android:key="web_cache"
@@ -102,13 +102,13 @@
             android:title="@string/pref_save_history"
             app:iconSpaceReserved="false" />
 
-        <jp.hazuki.yuzubrowser.ui.preference.SeekbarPreference
+        <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
             android:key="history_max_day"
             android:title="@string/pref_history_max_day"
             app:seekMax="3652"
             app:seekMin="0"
             app:iconSpaceReserved="false" />
-        <jp.hazuki.yuzubrowser.ui.preference.SeekbarPreference
+        <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
             android:key="history_max_count"
             android:title="@string/pref_history_max_count"
             app:seekMax="9999"
@@ -125,7 +125,7 @@
             android:title="@string/pref_allow_content_access"
             app:iconSpaceReserved="false" />
 
-        <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+        <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
             android:entries="@array/pref_mixed_content_list"
             android:entryValues="@array/pref_mixed_contents_values"
             android:key="mixed_content"

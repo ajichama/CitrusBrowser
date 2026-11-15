@@ -22,7 +22,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
-    namespace 'jp.hazuki.yuzubrowser.adblock'
+    namespace 'io.github.ajichama.citrusbrowser.adblock'
     compileSdk Build.compile_sdk_version
     buildToolsVersion Build.build_tools_version
 
@@ -86,6 +86,9 @@ dependencies {
     implementation project(':module:ui')
     implementation project(':languages')
     implementation project(':libraries:floatingactionbutton')
+
+    // XML で TouchScrollBar と msb_* 属性を直接使うため、このモジュール自身にも宣言する。
+    implementation Libs.materialScrollBar
 
     implementation Libs.re2j
     implementation Libs.okhttp

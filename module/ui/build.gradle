@@ -19,7 +19,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-    namespace 'jp.hazuki.yuzubrowser.ui'
+    namespace 'io.github.ajichama.citrusbrowser.ui'
     compileSdk Build.compile_sdk_version
     buildToolsVersion Build.build_tools_version
 

@@ -6,7 +6,7 @@
 
         <variable
             name="adapter"
-            type="jp.hazuki.yuzubrowser.legacy.action.view.SoftButtonDetailAdapter" />
+            type="io.github.ajichama.citrusbrowser.legacy.action.view.SoftButtonDetailAdapter" />
 
         <variable
             name="layoutManager"
