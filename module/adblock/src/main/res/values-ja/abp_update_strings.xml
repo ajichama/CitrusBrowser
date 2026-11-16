@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 CitrusBrowser contributors. Apache License 2.0. -->
+<resources>
+    <string name="abp_update_completed">フィルタの更新が完了しました。</string>
+    <string name="abp_update_failed">フィルタを更新できませんでした。時間をおいて再度お試しください。</string>
+    <string name="abp_update_skipped">購読が削除または無効化されたため、更新を中止しました。</string>
+    <string name="abp_update_expired">以前の更新記録は保存期限を過ぎています。</string>
+</resources>

@@ -36,6 +36,15 @@ interface AbpDao {
     @Update
     suspend fun update(abpEntity: AbpEntity)
 
+    @Query("UPDATE abp SET enabled = :enabled WHERE entityId = :id")
+    suspend fun setEnabled(id: Int, enabled: Boolean): Int
+
+    // URL 編集で、通信中に更新された metadata や現在の enabled を古い画面値へ戻さない。
+    @Query("""UPDATE abp SET url = :url, title = NULL, lastUpdate = NULL,
+        lastLocalUpdate = 0, expires = -1, version = NULL, homePage = NULL, lastModified = NULL
+        WHERE entityId = :id AND url != :url""")
+    suspend fun updateUrl(id: Int, url: String): Int
+
     @Query("SELECT * FROM abp WHERE entityId = :id")
     suspend fun getById(id: Int): AbpEntity?
 
@@ -43,11 +52,11 @@ interface AbpDao {
     @Query("""UPDATE abp SET title = :title, lastUpdate = :lastUpdate,
         lastLocalUpdate = :lastLocalUpdate, expires = :expires, version = :version,
         homePage = :homePage, lastModified = :lastModified
-        WHERE entityId = :id AND url = :expectedUrl""")
+        WHERE entityId = :id AND url = :expectedUrl AND enabled = 1""")
     suspend fun updateMetadata(id: Int, expectedUrl: String, title: String?, lastUpdate: String?,
                                lastLocalUpdate: Long, expires: Int, version: String?,
                                homePage: String?, lastModified: String?): Int
 
-    @Query("UPDATE abp SET lastLocalUpdate = :time WHERE entityId = :id AND url = :expectedUrl")
+    @Query("UPDATE abp SET lastLocalUpdate = :time WHERE entityId = :id AND url = :expectedUrl AND enabled = 1")
     suspend fun markChecked(id: Int, expectedUrl: String, time: Long): Int
 }

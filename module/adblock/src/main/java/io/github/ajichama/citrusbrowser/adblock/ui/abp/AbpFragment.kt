@@ -17,12 +17,17 @@
 package io.github.ajichama.citrusbrowser.adblock.ui.abp
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.ajichama.citrusbrowser.adblock.R
@@ -31,11 +36,15 @@ import io.github.ajichama.citrusbrowser.adblock.filter.unified.getFilterDir
 import io.github.ajichama.citrusbrowser.adblock.repository.abp.AbpDatabase
 import io.github.ajichama.citrusbrowser.adblock.repository.abp.AbpEntity
 import io.github.ajichama.citrusbrowser.adblock.repository.abp.AbpFilterStore
-import io.github.ajichama.citrusbrowser.adblock.service.AbpUpdateService
-import io.github.ajichama.citrusbrowser.core.utility.utils.ui
+import io.github.ajichama.citrusbrowser.adblock.service.AbpUpdateScheduler
 import io.github.ajichama.citrusbrowser.ui.extensions.applyIconColor
 import io.github.ajichama.citrusbrowser.ui.widget.recycler.OnRecyclerListener
 import javax.inject.Inject
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import java.util.UUID
 
 @AndroidEntryPoint
 class AbpFragment : Fragment(), OnRecyclerListener, AddAbpDialog.OnAddItemListener, AbpMenuDialog.OnAbpMenuListener, AbpItemDeleteDialog.OnAbpItemDeleteListener {
@@ -45,6 +54,7 @@ class AbpFragment : Fragment(), OnRecyclerListener, AddAbpDialog.OnAddItemListen
 
     private lateinit var adapter: AbpEntityAdapter
     private var reloadGeneration = 0
+    private val workModel: AbpWorkViewModel by viewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_abp_list, container, false)
@@ -64,6 +74,42 @@ class AbpFragment : Fragment(), OnRecyclerListener, AddAbpDialog.OnAddItemListen
             AddAbpDialog.create(null)
                     .show(childFragmentManager, "edit")
         }
+        val workManager = WorkManager.getInstance(requireContext().applicationContext)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // view が作り直されても、SavedState の実 ID から終端の観測を再接続する。
+                reloadFromDatabase()
+                launch { workModel.errors.collect { Toast.makeText(requireContext(), R.string.abp_update_failed, Toast.LENGTH_SHORT).show() } }
+                launch {
+                    // enqueue 完了と SavedState 保存の間に終了した場合も、永続タグから再接続する。
+                    workManager.getWorkInfosByTagFlow(AbpUpdateScheduler.MANUAL_TAG).collect { infos ->
+                        infos.filterNot { it.state.isFinished }.forEach { info ->
+                            val scope = info.tags.firstOrNull { it.startsWith(AbpUpdateScheduler.SCOPE_TAG) }
+                                ?.removePrefix(AbpUpdateScheduler.SCOPE_TAG)?.toIntOrNull()
+                            if (scope != null) workModel.adopt(scope, info.id)
+                        }
+                    }
+                }
+                workModel.pending.collectLatest { pending ->
+                    coroutineScope {
+                        pending.forEach { token -> launch {
+                            val id = UUID.fromString(token.substringAfter(':'))
+                            val info = workManager.getWorkInfoByIdFlow(id).first { it == null || it.state.isFinished }
+                            if (workModel.finish(token)) {
+                                reloadFromDatabase()
+                                val message = when {
+                                    info == null -> R.string.abp_update_expired
+                                    info.state != WorkInfo.State.SUCCEEDED -> R.string.abp_update_failed
+                                    info.outputData.getString(AbpUpdateScheduler.KEY_OUTCOME) == "Skipped" -> R.string.abp_update_skipped
+                                    else -> R.string.abp_update_completed
+                                }
+                                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                            }
+                        } }
+                    }
+                }
+            }
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -81,11 +127,11 @@ class AbpFragment : Fragment(), OnRecyclerListener, AddAbpDialog.OnAddItemListen
         reloadGeneration++
         val entity = adapter.items[position]
         entity.enabled = !entity.enabled
-        ui {
-            abpDatabase.abpDao().update(entity)
+        lifecycleScope.launch {
+            abpDatabase.abpDao().setEnabled(entity.entityId, entity.enabled)
             reloadFromDatabase()
             if (entity.enabled && entity.isNeedUpdate()) {
-                AbpUpdateService.update(appContext, entity, result)
+                enqueueUpdate(appContext, entity.entityId)
             }
         }
         adapter.notifyItemChanged(position)
@@ -100,14 +146,18 @@ class AbpFragment : Fragment(), OnRecyclerListener, AddAbpDialog.OnAddItemListen
     override fun onAddEntity(entity: AbpEntity) {
         val appContext = context?.applicationContext ?: return
         reloadGeneration++
-        ui {
+        lifecycleScope.launch {
             if (entity.entityId > 0) {
-                abpDatabase.abpDao().update(entity)
+                val previousUrl = abpDatabase.abpDao().getById(entity.entityId)?.url
+                if (abpDatabase.abpDao().updateUrl(entity.entityId, entity.url) > 0) {
+                    // 旧 root 形式には sourceUrl が無いため、URL 編集時は残存 cache も無効化する。
+                    if (previousUrl != null) AbpFilterStore(appContext.getFilterDir()).invalidatePreviousSource(entity.entityId, previousUrl)
+                }
             } else {
                 entity.entityId = abpDatabase.abpDao().inset(entity).toInt()
             }
             reloadFromDatabase()
-            AbpUpdateService.update(appContext, entity, result)
+            enqueueUpdate(appContext, entity.entityId)
         }
     }
 
@@ -120,13 +170,13 @@ class AbpFragment : Fragment(), OnRecyclerListener, AddAbpDialog.OnAddItemListen
     }
 
     override fun onRefresh(index: Int, entity: AbpEntity) {
-        AbpUpdateService.update(requireContext(), entity, result)
+        enqueueUpdate(requireContext().applicationContext, entity.entityId)
     }
 
     override fun onDelete(index: Int, entity: AbpEntity) {
         val appContext = context?.applicationContext ?: return
         reloadGeneration++
-        ui {
+        lifecycleScope.launch {
             abpDatabase.abpDao().delete(entity)
             val dir = appContext.getFilterDir()
             AbpFilterStore(dir).delete(entity.entityId)
@@ -142,33 +192,23 @@ class AbpFragment : Fragment(), OnRecyclerListener, AddAbpDialog.OnAddItemListen
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.update -> {
-                AbpUpdateService.updateAll(requireContext(), true, result)
+                enqueueUpdate(requireContext().applicationContext, AbpUpdateScheduler.ALL)
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private val result = object : AbpUpdateService.UpdateResult(Handler(Looper.getMainLooper())) {
-        override fun onUpdated(entity: AbpEntity) {
-            reloadFromDatabase()
-        }
-
-        override fun onFailedUpdate(entity: AbpEntity) {
-            reloadFromDatabase()
-        }
-
-        override fun onUpdateAll() {
-            reloadFromDatabase()
-        }
+    private fun enqueueUpdate(context: android.content.Context, entityId: Int) {
+        workModel.enqueue(entityId) { AbpUpdateScheduler.manualAwait(context, entityId) }
     }
 
     private fun reloadFromDatabase() {
         val generation = ++reloadGeneration
         if (!isAdded || view == null) return
-        ui {
+        viewLifecycleOwner.lifecycleScope.launch {
             val current = abpDatabase.abpDao().getAll()
-            if (generation != reloadGeneration || !isAdded || view == null) return@ui
+            if (generation != reloadGeneration || !isAdded || view == null) return@launch
             // 通信開始時の古い entity を差し戻さず、削除・URL 編集・無効化の現在値を表示する。
             adapter.items.clear()
             adapter.items.addAll(current)

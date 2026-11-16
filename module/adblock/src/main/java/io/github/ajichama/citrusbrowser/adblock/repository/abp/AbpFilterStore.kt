@@ -129,10 +129,18 @@ internal class AbpFilterStore(
         false
     }
 
-    fun write(entityId: Int, sourceUrl: String, set: UnifiedFilterSet, assetVersion: String? = null) {
+    fun write(entityId: Int, sourceUrl: String, set: UnifiedFilterSet, assetVersion: String? = null): String =
+        publish(entityId, sourceUrl, set, assetVersion, keepPrevious = false).use { it.commitId }
+
+    fun beginUpdate(entityId: Int, sourceUrl: String, set: UnifiedFilterSet, assetVersion: String? = null): PendingUpdate =
+        publish(entityId, sourceUrl, set, assetVersion, keepPrevious = true)
+
+    private fun publish(entityId: Int, sourceUrl: String, set: UnifiedFilterSet, assetVersion: String?, keepPrevious: Boolean): PendingUpdate {
         if (!directory.isDirectory && !directory.mkdirs()) throw IOException("フィルタ保存先を作成できません。")
         val staged = File.createTempFile("abp-$entityId-", ".tmp", directory)
         val commitId = UUID.randomUUID().toString()
+        var previous: File? = null
+        var published = false
         try {
             ZipOutputStream(staged.outputStream().buffered()).use { zip ->
                 val writer = FilterWriter()
@@ -157,19 +165,69 @@ internal class AbpFilterStore(
             }
             Snapshot(ZipFile(staged)).use { }
             synchronized(publicationLock) {
+                if (keepPrevious) publication.recover(bundleFile(entityId))?.let { current ->
+                    previous = File.createTempFile("abp-$entityId-", ".rollback", directory)
+                    current.copyTo(previous!!, overwrite = true)
+                }
                 publication.commit(staged, bundleFile(entityId))
                 // AtomicFile の finishWrite は公開失敗を返さない実装もあるため、識別子まで照合する。
                 open(entityId)?.use {
                     if (it.commitId != commitId) throw IOException("フィルタ束を公開できませんでした。")
                 } ?: throw IOException("公開後のフィルタ束がありません。")
             }
+            published = true
+            return PendingUpdate(entityId, commitId, previous)
         } finally {
             staged.delete()
+            if (!published) previous?.delete()
+        }
+    }
+
+    /** DB 更新が失敗した場合も、自分より新しい公開を巻き戻さない。 */
+    inner class PendingUpdate internal constructor(
+        private val entityId: Int,
+        val commitId: String,
+        private val previous: File?,
+    ) : Closeable {
+        private var rollbackFailed = false
+
+        fun rollback() = synchronized(publicationLock) {
+            try {
+                if (open(entityId)?.use { it.commitId == commitId } != true) return@synchronized
+                if (previous != null) {
+                    val previousId = Snapshot(ZipFile(previous)).use { it.commitId }
+                    publication.commit(previous, bundleFile(entityId))
+                    if (open(entityId)?.use { it.commitId == previousId } != true) throw IOException("旧フィルタ束を復旧できませんでした。")
+                } else {
+                    publication.delete(bundleFile(entityId))
+                    if (open(entityId)?.use { true } == true) throw IOException("未確定フィルタ束を破棄できませんでした。")
+                }
+                rollbackFailed = false
+            } catch (error: Exception) {
+                // 復旧自体が失敗した場合だけ、手動復旧用に元の束を残す。
+                rollbackFailed = true
+                throw error
+            }
+        }
+
+        fun discard() = synchronized(publicationLock) {
+            if (open(entityId)?.use { it.commitId == commitId } == true) publication.delete(bundleFile(entityId))
+        }
+
+        override fun close() {
+            if (!rollbackFailed) previous?.delete()
         }
     }
 
     fun delete(entityId: Int) = synchronized(publicationLock) {
         publication.delete(bundleFile(entityId))
+        PREFIXES.forEach { File(directory, it + entityId).delete() }
+    }
+
+    fun invalidatePreviousSource(entityId: Int, previousUrl: String) = synchronized(publicationLock) {
+        val owned = try { open(entityId)?.use { it.sourceUrl == previousUrl } == true } catch (_: IOException) { false }
+        if (owned) publication.delete(bundleFile(entityId))
+        // root 形式は購読元を持たないため、URL 編集後の fallback には再使用しない。
         PREFIXES.forEach { File(directory, it + entityId).delete() }
     }
 

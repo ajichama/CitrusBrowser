@@ -59,6 +59,7 @@ class CitrusBrowserApplication : Application(), BrowserApplication {
         browserState.isNeedLoad = false
         ErrorReportServer.initialize(this)
         AppData.init(this, moshi, abpDatabase)
+        io.github.ajichama.citrusbrowser.adblock.service.AbpUpdateScheduler.initialize(this)
         ErrorReportServer.setDetailedLog(AppPrefs.detailed_log.get())
         if (AppPrefs.slow_rendering.get()) {
             WebView.enableSlowWholeDocumentDraw()

@@ -62,6 +62,8 @@ object Versions {
     const val jsoup = "1.18.3"
     const val re2j = "1.8"
     const val webkit = "1.12.1"
+    // 2.12 系は minSdk24 のため、API23 を維持できる安定版を使う。
+    const val workManager = "2.11.2"
 }
 
 // AndroidX / Jetpack ライブラリ定義
@@ -83,6 +85,7 @@ object AndroidX {
     const val lifecycle = "androidx.lifecycle:lifecycle-common-java8:${Versions.lifeCycle}"
     const val print = "androidx.print:print:${Versions.print}"
     const val webkit = "androidx.webkit:webkit:${Versions.webkit}"
+    const val workRuntime = "androidx.work:work-runtime:${Versions.workManager}"
 }
 
 // サードパーティおよびKotlin標準ライブラリ定義

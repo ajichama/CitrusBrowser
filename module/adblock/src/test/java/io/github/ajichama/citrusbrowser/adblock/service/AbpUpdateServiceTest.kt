@@ -46,7 +46,7 @@ class AbpUpdateServiceTest {
         val client = OkHttpClient.Builder().addInterceptor { chain ->
             Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(500).message("failed").body(body).build()
         }.build()
-        assertFalse(AbpUpdateService(context, client, dao, store).updateInternal(entity))
+        assertEquals(AbpUpdateOutcome.RetryableFailure, AbpUpdateService(context, client, dao, store).updateInternal(entity))
         assertTrue(bodyClosed)
         assertEquals(0, dao.metadataWrites)
         assertEquals(123L, entity.lastLocalUpdate)
@@ -63,7 +63,7 @@ class AbpUpdateServiceTest {
         val entity = AbpEntity(entityId = 1, url = url, title = "old", version = "old", lastLocalUpdate = 123)
         val dao = FakeDao(entity)
         val updater = AbpUpdateService(context, client(), dao, store)
-        assertFalse(updater.updateInternal(entity))
+        assertEquals(AbpUpdateOutcome.RetryableFailure, updater.updateInternal(entity))
         assertEquals(0, dao.metadataWrites)
         assertEquals("old", entity.title)
         assertEquals("old", entity.version)
@@ -81,7 +81,7 @@ class AbpUpdateServiceTest {
             conditional = chain.request().header("If-Modified-Since")
             Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(304).message("not modified").body("".toResponseBody()).build()
         }.build()
-        assertFalse(AbpUpdateService(context, noChange, dao, store).updateInternal(entity))
+        assertEquals(AbpUpdateOutcome.RetryableFailure, AbpUpdateService(context, noChange, dao, store).updateInternal(entity))
         assertNull(conditional)
         assertEquals(0, dao.checkedWrites)
         assertEquals(123L, entity.lastLocalUpdate)
@@ -94,11 +94,11 @@ class AbpUpdateServiceTest {
         val persisted = AbpEntity(entityId = 1, url = url)
         val caller = AbpEntity(entityId = 1, url = url)
         val dao = FakeDao(persisted).apply { beforeMetadata = { persisted.enabled = false } }
-        assertTrue(AbpUpdateService(context, client(), dao, store).updateInternal(caller))
+        assertEquals(AbpUpdateOutcome.Skipped, AbpUpdateService(context, client(), dao, store).updateInternal(caller))
         assertFalse(persisted.enabled)
         assertFalse(caller.enabled)
-        assertEquals(1, dao.metadataWrites)
-        assertEquals("2", persisted.version)
+        assertEquals(0, dao.metadataWrites)
+        assertNull(persisted.version)
     }
 
     @Test
@@ -112,7 +112,7 @@ class AbpUpdateServiceTest {
             dao.beforeMetadata = {
                 if (deleted) dao.entry = null else persisted.url = "https://other.example/list.txt"
             }
-            assertFalse(AbpUpdateService(context, client(), dao, store).updateInternal(caller))
+            assertEquals(AbpUpdateOutcome.Skipped, AbpUpdateService(context, client(), dao, store).updateInternal(caller))
             assertEquals(0, dao.metadataWrites)
             assertEquals(0L, caller.lastLocalUpdate)
             if (deleted) assertNull(dao.entry) else {
@@ -132,11 +132,11 @@ class AbpUpdateServiceTest {
         val updater = AbpUpdateService(context, client(), dao, store) {
             "[Adblock Plus 2.0]\n! Version: $version\n! Title: 内蔵\n".reader().buffered()
         }
-        assertTrue(updater.updateInternal(entity))
-        assertFalse(updater.updateInternal(entity))
+        assertEquals(AbpUpdateOutcome.Changed, updater.updateInternal(entity))
+        assertEquals(AbpUpdateOutcome.NotModified, updater.updateInternal(entity))
         assertEquals(1, dao.metadataWrites)
         version = "2"
-        assertTrue(updater.updateInternal(entity))
+        assertEquals(AbpUpdateOutcome.Changed, updater.updateInternal(entity))
         assertTrue(store.isCurrent(1, assetUrl, "2"))
     }
 
@@ -151,7 +151,9 @@ class AbpUpdateServiceTest {
         val store = AbpFilterStore(temporary.newFolder(), TestPublication())
         val entity = AbpEntity(entityId = 1, url = url, lastLocalUpdate = System.currentTimeMillis(), expires = 48)
         val dao = FakeDao(entity)
-        AbpUpdateService(context, client(), dao, store).executeUpdateAll(false, null)
+        val updater = AbpUpdateService(context, client(), dao, store)
+        assertEquals(listOf(entity), updater.dueEntities())
+        updater.updateEntity(entity.entityId, false, Long.MAX_VALUE)
         assertEquals(1, dao.metadataWrites)
         assertTrue(store.isCurrent(1, url))
     }
@@ -173,8 +175,18 @@ class AbpUpdateServiceTest {
         override suspend fun inset(entities: List<AbpEntity>) = throw AssertionError("購読を再挿入してはいけません。")
         override suspend fun delete(abpEntity: AbpEntity) { entry = null }
         override suspend fun update(abpEntity: AbpEntity) = throw AssertionError("古いentityの全項目更新は禁止です。")
+        override suspend fun setEnabled(id: Int, enabled: Boolean): Int {
+            val current = getById(id) ?: return 0
+            current.enabled = enabled
+            return 1
+        }
+        override suspend fun updateUrl(id: Int, url: String): Int {
+            val current = getById(id) ?: return 0
+            current.url = url
+            return 1
+        }
         override suspend fun markChecked(id: Int, expectedUrl: String, time: Long): Int {
-            val current = getById(id)?.takeIf { it.url == expectedUrl } ?: return 0
+            val current = getById(id)?.takeIf { it.url == expectedUrl && it.enabled } ?: return 0
             current.lastLocalUpdate = time
             checkedWrites++
             return 1
@@ -182,7 +194,7 @@ class AbpUpdateServiceTest {
         override suspend fun updateMetadata(id: Int, expectedUrl: String, title: String?, lastUpdate: String?,
                                             lastLocalUpdate: Long, expires: Int, version: String?, homePage: String?, lastModified: String?): Int {
             beforeMetadata()
-            val current = getById(id)?.takeIf { it.url == expectedUrl } ?: return 0
+            val current = getById(id)?.takeIf { it.url == expectedUrl && it.enabled } ?: return 0
             current.title = title
             current.lastUpdate = lastUpdate
             current.lastLocalUpdate = lastLocalUpdate

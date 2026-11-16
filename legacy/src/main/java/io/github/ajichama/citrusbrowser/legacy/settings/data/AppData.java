@@ -229,7 +229,7 @@ public class AppData {
             }
 
             if (lastLaunch <= 410013) {
-                AbpUpdateService.Companion.updateAll(context, true, null);
+                AbpUpdateService.Companion.updateAll(context, true);
             }
 
             if (lastLaunch <= 410015) {
