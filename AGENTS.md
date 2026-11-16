@@ -69,17 +69,18 @@
   - JDK 21 / Gradle 9.3.1 / AGP 9.1.1 / Kotlin 2.4.21 / Hilt 2.60.1 / KSP 2.3.12。AGP の built-in Kotlin と、Data Binding を使うモジュールの `com.android.legacy-kapt` に移行済み。Firebase トラッカー削除・`kotlinx.parcelize` 移行を保持。
   - 正式 SDK パッケージを使用し、API 37 SDK の別名ディレクトリ作成と非対応警告抑止を削除。Gradle Wrapper を更新し、配布 ZIP の SHA-256 固定と Wrapper JAR の公式チェックサム照合を実施。
   - OSS 通知は runtime の 102 依存・106 文書とソース由来 18 項目を固定入力として生成。通常生成は通知本文の通信取得を行わず、取得候補の更新は明示タスクとレビューで行う。
-  - 通信を切断した環境での通知再生成と APK 内の生成通知の一致も確認済み。ライセンス画面の実機表示は未確認。
-- **Phase 4: Android 16 / 17 (API 36 / 37) OS Compatibility (最新OS仕様対応・非推奨API刷新)** — *基盤実装済み・互換検証とページ配色対応を継続*
+  - 通信を切断した環境での通知再生成と APK 内の生成通知の一致も確認済み。ライセンス画面のバー重なりを最小修正し、Android 15の縦画面・現在のテーマ・3ボタンナビでInsets回帰の旧版失敗→修正版成功を確認。横画面・別テーマ・他OSへは一般化しない。
+- **Phase 4: Android 16 / 17 (API 36 / 37) OS Compatibility (最新OS仕様対応・非推奨API刷新)** — *基盤・ページ配色実装済み・OS横断検証を継続*
   - `compileSdk 37` / `targetSdk 37` 引き上げ、Edge-to-Edge (`WindowInsetsCompat`)、Predictive Back (`OnBackPressedDispatcher`)、`WebSettingsCompat.setAlgorithmicDarkeningAllowed`、`JobIntentService` 廃止、`IntentCompat`/`BundleCompat`/`ParcelCompat`、Android 11〜17 パッケージ可視性・Scoped Storage 互換対応完了。
-  - ページ配色は専用 WebView Theme でアプリ UI と独立し、明色・サイト暗色・サイト優先自動暗色の3選択へ整合。旧値3は2へ読み替え、サイト未指定−1を保持。公開 configuration 通知で変更し、ページを再生成しない。配色・Edge-to-Edge の旧OS・IMEを含む実機検証は未実施。
+  - ページ配色は専用 WebView Theme でアプリ UI と独立し、明色・サイト暗色・サイト優先自動暗色の3選択へ整合。旧値3は2へ読み替え、サイト未指定−1を保持。Android 15の配色計測5件でDOM・入力・JS・読込回数の保持、独立配色、旧key移行、PixelCopy暗色化を確認。他OS・Edge-to-Edge・IME等の操作確認は残る。
 - **Phase 5: AdBlock & Feature Evolution (広告ブロック等の機能強化)** ← *Current*
   - AdBlock フィルタエンジン（ABP / uBlock 互換ルール、Cosmetic Filtering、デフォルトフィルタリスト最新化等）の強化。
   - キャッシュ v2 の 32bit 保存・v1 読取互換、行単位ドメイン条件の最具体指定優先、`elemhide` / `generichide`、汎用要素フィルタ無視設定との連動を実装・単体検証済み。
   - minSdk 23 を維持する WorkManager 2.11.2 による永続更新、再試行、通信取消、実 UUID と Lifecycle Flow による画面復元を実装。最新 DB の再確認、自己世代を確認したキャッシュ復旧、UI の列限定更新で競合を防ぐ。
+  - Android 15のWorker等計測5件で実Roomの列限定SQL、不正入力Worker、広告OFF時のSkipped、要求UUID・SavedStateモデルを確認。本体Hiltのローカルfile://購読統合2件も成功。外部HTTP購読、実プロセス再起動・Doze・Wi-Fi制約・実画面復元は未確認。
   - リクエスト種別の誤分類、PSL null・IPv6 等の第三者判定、部分一致ルールの索引漏れを修正。比較回数の回帰を用意し、実サイト・実リスト・端末の性能評価を継続する。拡張 uBlock 構文の完全互換や Phase 5 全体の完了は宣言しない。
 
-2026-11-16 の検証では `assembleDebug testDebugUnitTest assembleDebugAndroidTest` と `:buildSrc:test` が成功し、通常モジュールの単体テスト 165 件、buildSrc 単体テスト 15 件が成功。`assembleRelease` も R8・lint を含め成功。計測テストは APK 生成までで、実機での実行は未実施。検証状態と残タスクの詳細は [公開進捗](docs/PROGRESS.md) を参照する。
+2026-11-16 の検証ではOSS修正後も `assembleDebug testDebugUnitTest assembleDebugAndroidTest` が成功し、通常モジュールの単体テスト165件が成功。別実行の `:buildSrc:test` は15件成功。修正後の `assembleRelease` もR8・lintを含め成功。SO-51DのAndroid 15（API35）・WebView 157.0.8103.38で配色5件・Worker等5件・本体Hiltローカル購読2件・ライセンスInsets1件の計13件が、最終再実行まで失敗・スキップ0。本体UIは起動・HTTPS・メニュー・タブ・設定/About/OSS導線と見た目のスモーク確認まで、IMEは要求フラグ確認のみ。外部HTTP・回線切替・プロセス/OS再起動・Doze・他OS・本番署名は未確認として、詳細を [公開進捗](docs/PROGRESS.md)へ記録する。
 
 ---
 

@@ -19,7 +19,7 @@ pwsh -File scripts/docker-build.ps1
 - デバッグ署名鍵と adb 鍵は `citrus-android-home:/root/.android` に保持する。鍵をソースへコピーしない。Volume を作り直すとデバッグ APK の署名も変わり得るため、検証のたびに削除しない。
 - Gradle Wrapper の配布 ZIP は `distributionSha256Sum` で固定する。Wrapper の更新・公式 JAR チェックサム照合も Docker 内で行う。
 - 成功すると `release/app-debug.apk` が生成される。
-- root/app の `assemble*`・`package*`・`build` を明示した場合だけ APK を取り出す。`help`、テスト、OSS 更新、module 単独タスクでは古い APK を再出力せず、その旨を表示する。
+- root/app の既知APKタスクで指定した種別だけを取り出す。Debugは本体debug、Releaseは本体release、DebugAndroidTestとassembleAndroidTestは計測テスト。generic assemble/buildは本体debug+release、複合指定は和集合とする。不明variant、`help`、単体テスト、OSS更新、module単独タスクではAPKを再出力しない。
 - 構成失敗時のホストへの HTML 出力を防ぐため `--no-problems-report` を使用し、`--warning-mode all` とスタックトレースで診断をログに残す。失敗を無視して先へ進めない。
 
 ## 2. 全モジュール単体テスト検証 (`testDebugUnitTest`)
@@ -35,7 +35,7 @@ pwsh -File scripts/docker-build.ps1 -Task "testDebugUnitTest"
 pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest assembleDebugAndroidTest"
 ```
 
-- 2026-11-15 の検証スナップショットは通常モジュール 128 件・buildSrc 15 件の単体テストが成功。実機実行は未実施。最新の状態は [公開進捗](../../../docs/PROGRESS.md) を参照する。
+- 2026-11-16 の検証スナップショットはOSS修正後の標準3タスクとRelease（R8/lint）も成功し、通常モジュール165件・別実行のbuildSrc15件の単体テストが成功。SO-51DのAndroid 15（API35）・WebView 157.0.8103.38で配色5件・Worker等5件・本体Hiltローカルfile://購読2件・ライセンスInsets1件の計13件が、最終再実行まで失敗・スキップ0。Insetsは旧版失敗→修正版成功、縦画面・現在のテーマ・3ボタンナビで確認。本体UIは導線と見た目のスモーク確認、IMEは要求フラグの確認まで。他OS、外部HTTP購読、回線切替、実プロセス/OS再起動・Doze等は検証済みとしない。最新の結果と未完項目は [公開進捗](../../../docs/PROGRESS.md)を参照する。
 
 ## 3. Docker イメージ再構築が必要な場合
 
@@ -47,7 +47,7 @@ pwsh -File scripts/docker-build.ps1 -RebuildImage
 
 ## 4. OSS 通知と依存更新の検証
 
-通常の通知生成は固定入力だけを読み、通知本文をネット取得しない。Gradle の依存解決は別であり、ビルド全体のオフライン実行を意味しない。固定入力は runtime の 99 依存・102 文書、ソース由来 18 項目を保持している。
+通常の通知生成は固定入力だけを読み、通知本文をネット取得しない。Gradle の依存解決は別であり、ビルド全体のオフライン実行を意味しない。WorkManager追加後の固定入力はruntimeの102依存・106文書、ソース由来18項目を保持している。
 
 ```powershell
 # 明示操作で候補を取得する。固定入力は変更しない。

@@ -13,6 +13,12 @@ WorkManager 2.11.2 の標準 `CoroutineWorker` を使用する。minSdk23 を維
 
 ZIP と Room は別ストレージであり、強制終了・電源断まで含む完全な一括トランザクションではない。公開後・DB 確定前の強制終了では、有効な新 ZIP と古い DB metadata、または退避ファイルが残る場合がある。次の実行で現在の URL・期限・parser revision を再確認して再試行する。購読を再挿入したり無効化を解除したりしない。
 
-JVM テストは HTTP キャンセル、typed outcome、失敗時の旧 ZIP、公開所有権、停止要求と DB 確定を検証する。Android テストは標準 WorkerFactory、WorkManager の終端記録、実 Room の列限定更新、SavedState の UUID 復元を対象にする。端末のプロセス停止・再起動・Doze 中の実行は実機で別途確認が必要。
+JVM テストは HTTP キャンセル、typed outcome、失敗時の旧 ZIP、公開所有権、停止要求と DB 確定を検証する。
+
+2026-11-16、SO-51DのAndroid 15（API35）、WebView 157.0.8103.38で`AbpUpdateWorkerTest`の5件が初回・最終再実行とも失敗・スキップ0で成功した。実Roomの列限定SQLによるmetadata・無効状態の保全、標準WorkerFactoryでの不正入力のFAILED、広告OFF時の自動DispatcherのSUCCEEDED/Skipped、要求UUIDと入力データ、SavedStateHandleを再構成したモデルの復元・重複完了抑止を確認した。
+
+加えて、同じ端末で本体Hiltローカル購読の統合2件が最終再実行まで成功した。実CitrusBrowserApplication・注入DB・公開手動更新窓口から標準Workerを通し、file://購読の更新、metadataとZIP4カテゴリ・本文、無効購読のskip、専用fixtureの後始末を確認した。
+
+外部HTTP購読、回線切替、実プロセス停止・再起動、OS再起動、Doze、Wi-Fi制約、通信復帰、実画面の再表示・状態復元は別途確認が必要。SavedStateHandleを再構成したモデルのテストは、実Activity・プロセスを再起動した確認ではない。本体UIの手動スモーク確認も、購読更新・再試行の全操作を検証したものではない。
 
 公式資料: [WorkManager release](https://developer.android.com/jetpack/androidx/releases/work)、[Work の定義](https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work)、[重複管理と観測](https://developer.android.com/develop/background-work/background-tasks/persistent/how-to/manage-work)。
