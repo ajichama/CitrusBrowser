@@ -22,10 +22,11 @@ import android.os.Bundle
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.appcompat.app.AppCompatActivity
 import io.github.ajichama.citrusbrowser.legacy.Constants
+import io.github.ajichama.citrusbrowser.ui.app.ThemeActivity
 
-class LicensesActivity : AppCompatActivity() {
+// 設定画面と同じシステムバー・ノッチの余白を適用し、本文の隠れを防ぐ。
+class LicensesActivity : ThemeActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
