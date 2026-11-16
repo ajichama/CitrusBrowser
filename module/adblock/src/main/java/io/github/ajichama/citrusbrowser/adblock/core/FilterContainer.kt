@@ -23,10 +23,7 @@ class FilterContainer {
     private val filters = hashMapOf<String, ContentFilter>()
 
     operator fun plusAssign(filter: ContentFilter) {
-        val key = when {
-            filter.isRegex -> ""
-            else -> Tag.createBest(filter.pattern)
-        }
+        val key = NetworkFilterTag.best(filter)
         this[key] = filter
     }
 
@@ -36,7 +33,7 @@ class FilterContainer {
     }
 
     operator fun get(request: ContentRequest): ContentFilter? {
-        Tag.create(request.url.toString()).forEach {
+        Tag.create(request.url.toString()).distinct().forEach {
             var filter = filters[it]
             while (filter != null) {
                 if (filter.isMatch(request)) {
