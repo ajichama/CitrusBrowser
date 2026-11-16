@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="page_color_light">明るい配色</string>
+    <string name="page_color_site_dark">サイトのダーク配色</string>
+    <string name="page_color_auto_dark">自動暗色化（サイトの配色を優先）</string>
+    <string name="page_color_summary">アプリとは別にページの配色を選びます。自動暗色化の適用はサイトとWebViewの対応状況により異なります。</string>
+</resources>

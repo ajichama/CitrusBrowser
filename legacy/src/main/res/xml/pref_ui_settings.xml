@@ -38,6 +38,7 @@
     <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
         android:key="web_theme"
         android:title="@string/pref_web_theme_mode"
+        android:summary="@string/page_color_summary"
         android:entries="@array/pref_web_theme_entries"
         android:entryValues="@array/pref_web_theme_values"
         android:defaultValue="0"

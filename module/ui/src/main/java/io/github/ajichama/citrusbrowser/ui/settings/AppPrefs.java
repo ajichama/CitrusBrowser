@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import io.github.ajichama.citrusbrowser.core.utility.log.ErrorReport;
+import io.github.ajichama.citrusbrowser.core.utility.utils.PageColorMode;
 import io.github.ajichama.citrusbrowser.ui.settings.container.BooleanContainer;
 import io.github.ajichama.citrusbrowser.ui.settings.container.Containable;
 import io.github.ajichama.citrusbrowser.ui.settings.container.FloatContainer;
@@ -214,6 +215,12 @@ public class AppPrefs {
         SharedPreferences shared_preference = getPreference(context);
         for (Containable pref : getPreferenceList()) {
             pref.read(shared_preference);
+        }
+        // 旧強制暗色化の値3は現行のサイト優先自動暗色化へ移行し、他の設定には触れない。
+        int normalizedWebTheme = PageColorMode.normalize(webTheme.get());
+        if (webTheme.get() != normalizedWebTheme) {
+            webTheme.set(normalizedWebTheme);
+            shared_preference.edit().putInt("web_theme", normalizedWebTheme).apply();
         }
         return true;
     }

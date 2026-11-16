@@ -18,6 +18,7 @@ package io.github.ajichama.citrusbrowser.webview
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Configuration
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -30,11 +31,15 @@ import io.github.ajichama.citrusbrowser.webview.listener.OnScrollChangedListener
 import io.github.ajichama.citrusbrowser.webview.listener.OnScrollableChangeListener
 import kotlin.math.abs
 
-internal class NormalWebView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyle: Int = android.R.attr.webViewStyle, id: Long = -1
-) : JvmWebViewBridge(context, attrs, defStyle), WebViewCallback.OnWebViewListener {
+internal class NormalWebView private constructor(
+    private val pageContext: WebPageThemeContext,
+    attrs: AttributeSet?,
+    defStyle: Int, id: Long
+) : JvmWebViewBridge(pageContext, attrs, defStyle), WebViewCallback.OnWebViewListener {
+
+    @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null,
+                              defStyle: Int = android.R.attr.webViewStyle, id: Long = -1) :
+        this(WebPageThemeContext(context), attrs, defStyle, id)
 
     private var titleBar: View? = null
     private var nestedOffsetY = 0
@@ -50,7 +55,12 @@ internal class NormalWebView @JvmOverloads constructor(
     override var swipeEnable = false
     private val webViewCallback = WebViewCallback(this)
     private var customWebViewClient: CustomWebViewClient? = null
-    override val webSettings = CitrusWebSettings(settings)
+    override val webSettings = CitrusWebSettings(settings) { mode ->
+        if (pageContext.updateMode(mode)) {
+            // 公開View APIから既存WebViewへ通知し、入力/POST/履歴を失うreloadや再生成を避ける。
+            dispatchConfigurationChanged(Configuration(resources.configuration))
+        }
+    }
     override var theme: CustomWebView.WebViewTheme? = null
         private set
 
@@ -65,6 +75,11 @@ internal class NormalWebView @JvmOverloads constructor(
     init {
         isNestedScrollingEnabled = true
         addJavascriptInterface(webViewCallback, WebViewCallback.INTERFACE_KEY)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        pageContext.reapplyPageTheme()
+        super.onConfigurationChanged(newConfig)
     }
 
     override val isBackForwardListEmpty: Boolean

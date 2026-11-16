@@ -21,6 +21,7 @@ import android.content.Context
 import android.webkit.CookieManager
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
+import io.github.ajichama.citrusbrowser.core.utility.utils.PageColorMode
 import io.github.ajichama.citrusbrowser.legacy.R
 import io.github.ajichama.citrusbrowser.legacy.pattern.PatternAction
 import io.github.ajichama.citrusbrowser.legacy.tab.manager.MainTabData
@@ -43,6 +44,10 @@ class WebSettingPatternAction : PatternAction {
     var renderingMode = UNDEFINED_RENDERING
         private set
     var webTheme = UNDEFINED_RENDERING
+        set(value) {
+            // サイト別の未指定-1を保持し、旧3と不正値をUI/実行/保存で共通に正規化する。
+            field = PageColorMode.normalizeOverride(value)
+        }
 
     constructor(
         ua: String?,

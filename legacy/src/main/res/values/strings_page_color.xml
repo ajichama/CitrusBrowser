@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="page_color_light">Light pages</string>
+    <string name="page_color_site_dark">Site dark theme</string>
+    <string name="page_color_auto_dark">Automatic darkening (prefer site theme)</string>
+    <string name="page_color_summary">Choose page colors independently of the app theme. Automatic darkening depends on website and WebView support.</string>
+</resources>

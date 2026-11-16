@@ -21,9 +21,10 @@ import android.webkit.WebSettings
 import androidx.annotation.RequiresApi
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
+import io.github.ajichama.citrusbrowser.core.utility.utils.PageColorMode
 import io.github.ajichama.citrusbrowser.webview.utility.trimForHttpHeader
 
-class CitrusWebSettings(private val origin: WebSettings) {
+class CitrusWebSettings(private val origin: WebSettings, private val onPageColorChanged: ((Int) -> Unit)? = null) {
 
     var appCacheEnabled = false
         set(flag) {
@@ -286,8 +287,7 @@ class CitrusWebSettings(private val origin: WebSettings) {
 
     var webTheme: Int = 0
         set(value) {
-            if (value !in 0..4) throw IllegalArgumentException("webTheme")
-            field = value
+            field = PageColorMode.normalize(value)
 
             setWebTheme()
         }
@@ -336,18 +336,18 @@ class CitrusWebSettings(private val origin: WebSettings) {
 
     private fun setWebTheme() {
         // 現行の targetSdk では旧 Force Dark API が無効なため、端末 OS ではなく WebView の対応状況で判定する。
-        if (!WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) return
-
-        // ページ配色はアプリのテーマにも依存し、旧4設定の独立した配色指定は完全には再現できない。
-        val allowAlgorithmic = webTheme == WEB_THEME_PREFER_WEB_OVER_FORCE_DARK ||
-            webTheme == WEB_THEME_FORCE_DARK
-        WebSettingsCompat.setAlgorithmicDarkeningAllowed(origin, allowAlgorithmic)
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+            WebSettingsCompat.setAlgorithmicDarkeningAllowed(origin, PageColorMode.allowsAlgorithmicDarkening(webTheme))
+        }
+        // isLightThemeの更新はalgorithm未対応のWebViewでもサイト自身の配色指定に必要。
+        onPageColorChanged?.invoke(webTheme)
     }
 
     companion object {
-        const val WEB_THEME_LIGHT = 0
-        const val WEB_THEME_DARK = 1
-        const val WEB_THEME_PREFER_WEB_OVER_FORCE_DARK = 2
+        const val WEB_THEME_LIGHT = PageColorMode.LIGHT
+        const val WEB_THEME_DARK = PageColorMode.SITE_DARK
+        const val WEB_THEME_PREFER_WEB_OVER_FORCE_DARK = PageColorMode.AUTO_DARK
+        // 旧保存値の読込互換用。現行APIではサイト配色を無視する強制暗色化を再現できない。
         const val WEB_THEME_FORCE_DARK = 3
     }
 }
