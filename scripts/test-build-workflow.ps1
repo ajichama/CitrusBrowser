@@ -66,13 +66,20 @@ $buildArgs = $buildRun.Arguments
 Assert-Condition ($buildArgs[-2] -eq 'assembleDebug') '最初のタスクが独立引数であること'
 Assert-Condition ($buildArgs[-1] -eq ':module:adblock:testDebugUnitTest') 'モジュール指定タスクが独立引数であること'
 Assert-Condition ($buildArgs -contains 'citrus-android-home:/root/.android') 'デバッグ署名鍵と adb 鍵をコンテナ終了後も保持すること'
-Assert-Condition ($buildArgs -contains 'CITRUS_EXPORT_APK=1') 'root の assemble では APK 出力を有効にすること'
+Assert-Condition ($buildArgs -contains 'CITRUS_EXPORT_VARIANTS=debug') 'debug assemble では debug だけを出力すること'
 Assert-Condition (@($buildArgs | Where-Object { $_ -match '^CITRUS_RELEASE_APK_NAME=[A-Za-z0-9._+-]+\.apk$' }).Count -eq 1) '公開用 APK 名を検証して環境変数で渡すこと'
 $buildCommand = $buildArgs[[array]::IndexOf($buildArgs, '-c') + 1]
 Assert-Condition ($buildCommand.Contains('"$@"')) 'タスクのシェル展開を避けること'
 Assert-Condition ($buildCommand.Contains('--no-problems-report')) '問題レポートの HTML をホストへ生成しないこと'
 Assert-Condition ($buildCommand.Contains('--warning-mode all')) '問題の診断をコンソールに保持すること'
-Assert-Condition ($buildCommand.Contains('if [ "$CITRUS_EXPORT_APK" = 1 ] && [ -d /build-cache/app/outputs/apk ]; then')) 'APK コピー処理を固定の出力フラグで制御すること'
+Assert-Condition ($buildCommand.Contains('if [ -n "$CITRUS_EXPORT_VARIANTS" ]; then')) 'APK コピー処理を独立した範囲指定で制御すること'
+Assert-Condition ($buildCommand.Contains('debug|release) apk_dir="/build-cache/app/outputs/apk/$variant"')) '本体variantは該当する出力ディレクトリだけを選ぶこと'
+Assert-Condition ($buildCommand.Contains('androidTest) apk_dir="/build-cache/app/outputs/apk/androidTest/debug"')) '計測テストは専用ディレクトリだけを選ぶこと'
+Assert-Condition ($buildCommand.Contains('find "$apk_dir" -maxdepth 1')) '選択外variantや下位ディレクトリを再帰コピーしないこと'
+Assert-Condition ($buildCommand.Contains("printf 'Copied APK: %s\n'")) 'コピーしたAPKだけをその場で列挙すること'
+Assert-Condition (-not $buildCommand.Contains('ls -lh /workspace/release/*.apk')) '既存releaseフォルダ全体を今回の成果物として列挙しないこと'
+Assert-Condition (-not $buildCommand.Contains('find /build-cache/app/outputs/apk ')) '全variantのキャッシュを走査しないこと'
+Assert-Condition ($buildCommand.Contains('filename="$CITRUS_RELEASE_APK_NAME"')) '版付きrelease APK名を維持すること'
 Assert-Condition (-not $buildCommand.Contains('sed -i')) 'gradlew を直接書き換えないこと'
 Assert-Condition ($WrapperHash -eq (Get-FileHash (Join-Path $WorkspaceRoot 'gradlew')).Hash) 'gradlew の内容を保持すること'
 Assert-Condition (-not ($buildArgs -contains '--no-parallel')) '通常タスクの並列設定を維持すること'
@@ -80,12 +87,48 @@ Assert-Condition (-not ($buildArgs -contains '--no-parallel')) '通常タスク�
 foreach ($nonApkTask in @('help testDebugUnitTest', ':module:adblock:assembleDebug', ':buildSrc:test', ':app:updateDebugOssNotices')) {
     & $BuildScript -Task $nonApkTask
     $nonApkArgs = @($DockerCalls | Where-Object { $_.Arguments[0] -eq 'run' })[-1].Arguments
-    Assert-Condition ($nonApkArgs -contains 'CITRUS_EXPORT_APK=0') "APK を生成しないタスクでは既存成果物をコピーしないこと: $nonApkTask"
+    Assert-Condition ($nonApkArgs -contains 'CITRUS_EXPORT_VARIANTS=') "APK を生成しないタスクでは既存成果物をコピーしないこと: $nonApkTask"
 }
 
 & $BuildScript -Task ':app:assembleDebug'
 $appAssembleArgs = @($DockerCalls | Where-Object { $_.Arguments[0] -eq 'run' })[-1].Arguments
-Assert-Condition ($appAssembleArgs -contains 'CITRUS_EXPORT_APK=1') 'app の assemble では APK 出力を有効にすること'
+Assert-Condition ($appAssembleArgs -contains 'CITRUS_EXPORT_VARIANTS=debug') 'app の debug assemble では debug だけを出力すること'
+
+$ApkSelections = [ordered]@{
+    ':assembleDebug' = 'debug'
+    'packageDebug' = 'debug'
+    ':app:packageDebug' = 'debug'
+    'assembleRelease' = 'release'
+    ':app:assembleRelease' = 'release'
+    'packageRelease' = 'release'
+    'app:packageRelease' = 'release'
+    'assembleDebugAndroidTest' = 'androidTest'
+    ':app:assembleDebugAndroidTest' = 'androidTest'
+    'packageDebugAndroidTest' = 'androidTest'
+    ':app:packageDebugAndroidTest' = 'androidTest'
+    'assembleAndroidTest' = 'androidTest'
+    ':app:assembleAndroidTest' = 'androidTest'
+    'assemble' = 'debug,release'
+    ':app:assemble' = 'debug,release'
+    'build' = 'debug,release'
+    ':app:build' = 'debug,release'
+    'assembleDebug testDebugUnitTest assembleDebugAndroidTest' = 'debug,androidTest'
+    ':app:packageRelease :app:packageDebugAndroidTest' = 'release,androidTest'
+    'assembleRelease :app:packageDebug assembleAndroidTest' = 'debug,release,androidTest'
+    'assembleDebug :app:packageDebug' = 'debug'
+    ':module:adblock:assembleDebug :module:bookmark:assembleDebugAndroidTest' = ''
+    'assembleStaging' = ''
+    ':app:packageDemoDebug' = ''
+    'assembleDebugUnitTest' = ''
+    ':app:bundleRelease' = ''
+    'package' = ''
+}
+foreach ($selection in $ApkSelections.GetEnumerator()) {
+    & $BuildScript -Task $selection.Key
+    $selectionArgs = @($DockerCalls | Where-Object { $_.Arguments[0] -eq 'run' })[-1].Arguments
+    Assert-Condition ($selectionArgs -contains "CITRUS_EXPORT_VARIANTS=$($selection.Value)") "指定タスクのAPK範囲が一致すること: $($selection.Key)"
+    Assert-Condition (@($selectionArgs | Where-Object { $_ -cmatch '^CITRUS_EXPORT_VARIANTS=' }).Count -eq 1) 'APK範囲は独立した環境変数引数一つで渡すこと'
+}
 
 & $BuildScript -Task ':app:dependencyUpdates'
 $updatesArgs = @($DockerCalls | Where-Object { $_.Arguments[0] -eq 'run' })[-1].Arguments

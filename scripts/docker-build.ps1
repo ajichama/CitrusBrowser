@@ -99,11 +99,20 @@ $JavaHome = switch ($JavaVersion) {
 Write-Host "[2/3] Docker コンテナ内で Gradle タスク ($Task, Java $JavaVersion) を実行しています..." -ForegroundColor Cyan
 
 $TaskNames = $Task -split '[ \t]+'
-# APK を生成する root/app の明示タスクだけを出力対象にする。検証・更新では古い APK を再出力しない。
-$ExportApk = @($TaskNames | Where-Object {
-    $_ -cmatch '\A:?(?:app:)?(?:assemble[A-Za-z0-9_]*|package[A-Za-z0-9_]*|build)\z'
-}).Count -gt 0
-$ExportApkValue = if ($ExportApk) { '1' } else { '0' }
+# root/app の既知タスクから出力範囲の和集合を作り、別variantの古いキャッシュを取り出さない。
+$ExportVariants = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+foreach ($TaskName in $TaskNames) {
+    if ($TaskName -cmatch '\A:?(?:app:)?(?<apkTask>[A-Za-z0-9_]+)\z') {
+        switch -CaseSensitive -Regex ($Matches['apkTask']) {
+            '\A(?:assemble|package)Debug\z' { [void]$ExportVariants.Add('debug'); break }
+            '\A(?:assemble|package)Release\z' { [void]$ExportVariants.Add('release'); break }
+            '\A(?:assembleDebugAndroidTest|packageDebugAndroidTest|assembleAndroidTest)\z' { [void]$ExportVariants.Add('androidTest'); break }
+            '\A(?:assemble|build)\z' { [void]$ExportVariants.Add('debug'); [void]$ExportVariants.Add('release'); break }
+        }
+    }
+}
+$ExportVariantValue = (@('debug', 'release', 'androidTest') | Where-Object { $ExportVariants.Contains($_) }) -join ','
+$ExportApk = $ExportVariants.Count -gt 0
 $GradleTaskArguments = @($TaskNames)
 # versions-plugin の更新確認タスクだけ、公式要件の並列実行禁止を固定引数で付ける。
 if (@($TaskNames | Where-Object { $_ -cmatch '(^|:)dependencyUpdates$' }).Count -gt 0) {
@@ -118,20 +127,28 @@ set -euo pipefail
 export PATH="$JAVA_HOME/bin:$PATH"
 git config --global --add safe.directory /workspace
 bash -c "$(sed 's/\r$//' ./gradlew)" ./gradlew "$@" --project-cache-dir /build-cache/.gradle-project-cache --init-script /workspace/docker/init.gradle --no-problems-report --warning-mode all --no-daemon --stacktrace
-if [ "$CITRUS_EXPORT_APK" = 1 ] && [ -d /build-cache/app/outputs/apk ]; then
+if [ -n "$CITRUS_EXPORT_VARIANTS" ]; then
     mkdir -p /workspace/release
-    find /build-cache/app/outputs/apk -type f -name "*.apk" -print0 |
-    while IFS= read -r -d '' apk; do
-        filename=$(basename "$apk")
-        case "$apk" in
-            */release/app-release.apk|*/release/app-release-unsigned.apk)
-                filename="$CITRUS_RELEASE_APK_NAME"
-                ;;
+    IFS=',' read -r -a export_variants <<< "$CITRUS_EXPORT_VARIANTS"
+    for variant in "${export_variants[@]}"; do
+        case "$variant" in
+            debug|release) apk_dir="/build-cache/app/outputs/apk/$variant" ;;
+            androidTest) apk_dir="/build-cache/app/outputs/apk/androidTest/debug" ;;
+            *) continue ;;
         esac
-        cp -f -- "$apk" "/workspace/release/$filename"
+        if [ ! -d "$apk_dir" ]; then continue; fi
+        find "$apk_dir" -maxdepth 1 -type f -name "*.apk" -print0 |
+        while IFS= read -r -d '' apk; do
+            filename=$(basename "$apk")
+            case "$apk" in
+                */release/app-release.apk|*/release/app-release-unsigned.apk)
+                    filename="$CITRUS_RELEASE_APK_NAME"
+                    ;;
+            esac
+            cp -f -- "$apk" "/workspace/release/$filename"
+            printf 'Copied APK: %s\n' "$filename"
+        done
     done
-    echo "Copied APK(s) to release/:"
-    ls -lh /workspace/release/*.apk
 fi
 '@ -replace "`r`n", "`n"
 
@@ -143,7 +160,7 @@ docker run --rm `
     -v "citrus-buildsrc-gradle:/workspace/buildSrc/.gradle" `
     -e "JAVA_HOME=$JavaHome" `
     -e "CITRUS_RELEASE_APK_NAME=$ReleaseApkName" `
-    -e "CITRUS_EXPORT_APK=$ExportApkValue" `
+    -e "CITRUS_EXPORT_VARIANTS=$ExportVariantValue" `
     $ImageName `
     bash -c $ContainerCmd -- @GradleTaskArguments
 

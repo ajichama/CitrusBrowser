@@ -74,6 +74,8 @@ pwsh -File scripts/docker-build.ps1 -Task ":app:checkOssNotices"
 
 実装済み・自動検証済み・実機未検証の区別は [公開進捗](docs/PROGRESS.md) にまとめています。PR では実施した検証範囲を記載してください。
 
+端末での操作確認は [実機確認手順](docs/DEVICE_CHECKS.md) に沿って記録します。ページ配色は [仕様と計測テスト](module/webview/PAGE_COLORS.md)、広告判定は [種別・索引と測定範囲](module/adblock/REQUEST_MATCHING.md) を参照してください。
+
 ---
 
 ## 3. コーディング・コミット規約
