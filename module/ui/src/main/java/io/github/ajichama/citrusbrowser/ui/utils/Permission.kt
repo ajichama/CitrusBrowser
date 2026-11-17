@@ -28,6 +28,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import jp.hazuki.asyncpermissions.AsyncPermissions
@@ -37,6 +38,12 @@ import io.github.ajichama.citrusbrowser.ui.settings.AppPrefs
 import io.github.ajichama.citrusbrowser.ui.widget.longToast
 import java.lang.ref.SoftReference
 
+/** 権限状態は OS を唯一の正とする。API 36 以下ではこの権限の要求・拒否判定を行わない。 */
+@ChecksSdkIntAtLeast(api = 37)
+fun isLocalNetworkPermissionRequired(): Boolean = Build.VERSION.SDK_INT >= 37
+
+fun Context.checkLocalNetworkPermission(): Boolean = !isLocalNetworkPermissionRequired() ||
+        checkSelfPermission(Manifest.permission.ACCESS_LOCAL_NETWORK) == PackageManager.PERMISSION_GRANTED
 fun Activity.checkBrowserPermission(): Boolean {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         return !checkNeed() || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED

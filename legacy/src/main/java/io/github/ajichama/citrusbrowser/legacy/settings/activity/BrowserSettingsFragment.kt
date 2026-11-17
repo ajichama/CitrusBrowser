@@ -16,12 +16,14 @@
 
 package io.github.ajichama.citrusbrowser.legacy.settings.activity
 
+import android.Manifest
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.preference.Preference
@@ -33,13 +35,25 @@ import io.github.ajichama.citrusbrowser.legacy.R
 import io.github.ajichama.citrusbrowser.ui.extensions.registerForStartActivityForResult
 import io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
 import io.github.ajichama.citrusbrowser.ui.settings.AppPrefs
+import io.github.ajichama.citrusbrowser.ui.utils.checkLocalNetworkPermission
+import io.github.ajichama.citrusbrowser.ui.utils.isLocalNetworkPermissionRequired
+import io.github.ajichama.citrusbrowser.ui.utils.openRequestPermissionSettings
 
 class BrowserSettingsFragment : CitrusPreferenceFragment() {
 
     private var replaceFragment: ReplaceFragmentListener? = null
+    private val localNetworkLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        refreshLocalNetworkPermission()
+        if (!granted) showLocalNetworkPermission(denied = true)
+    }
 
     override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_browser_settings)
+        refreshLocalNetworkPermission()
+        findPreference<Preference>("local_network_permission")!!.setOnPreferenceClickListener {
+            showLocalNetworkPermission()
+            true
+        }
 
         val pref = findPreference<StrToIntListPreference>("search_suggest")!!
         val suggest = findPreference<Preference>("search_suggest_engine")!!
@@ -71,6 +85,50 @@ class BrowserSettingsFragment : CitrusPreferenceFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // OS のアプリ設定から戻った場合も、永続化した独自の許可フラグには頼らない。
+        refreshLocalNetworkPermission()
+    }
+
+    private fun refreshLocalNetworkPermission() {
+        val context = context ?: return
+        findPreference<Preference>("local_network_permission")?.apply {
+            isVisible = isLocalNetworkPermissionRequired()
+            summary = getString(if (context.checkLocalNetworkPermission()) R.string.local_network_granted else R.string.local_network_not_granted)
+        }
+    }
+
+    private fun showLocalNetworkPermission(denied: Boolean = false) {
+        if (!isLocalNetworkPermissionRequired() || !isAdded || childFragmentManager.isStateSaved ||
+            childFragmentManager.findFragmentByTag(LOCAL_NETWORK_DIALOG) != null) return
+        LocalNetworkPermissionDialog().apply { arguments = Bundle().apply { putBoolean("denied", denied) } }
+            .show(childFragmentManager, LOCAL_NETWORK_DIALOG)
+    }
+
+    private fun requestLocalNetworkPermission() {
+        if (isLocalNetworkPermissionRequired()) localNetworkLauncher.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
+    }
+
+    class LocalNetworkPermissionDialog : DialogFragment() {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            val granted = requireContext().checkLocalNetworkPermission()
+            return AlertDialog.Builder(requireContext())
+                .setTitle(R.string.local_network_title)
+                .setMessage(if (granted) R.string.local_network_granted_explanation
+                    else if (arguments?.getBoolean("denied") == true) R.string.local_network_denied_explanation
+                    else R.string.local_network_explanation)
+                .setNegativeButton(android.R.string.cancel, null)
+                .apply {
+                    if (!granted) setPositiveButton(R.string.local_network_request) { _, _ ->
+                        (parentFragment as? BrowserSettingsFragment)?.requestLocalNetworkPermission()
+                    }
+                    setNeutralButton(R.string.local_network_app_settings) { _, _ ->
+                        requireContext().openRequestPermissionSettings(getString(R.string.local_network_settings_hint))
+                    }
+                }.create()
+        }
+    }
     override fun onPreferenceStartScreen(pref: PreferenceScreen): Boolean {
         if (pref.key == "ps_search") {
             replaceFragment?.replaceFragment(SuggestScreen(), "ps_search")
@@ -133,6 +191,7 @@ class BrowserSettingsFragment : CitrusPreferenceFragment() {
 
     companion object {
         private const val REQUEST_FOLDER = 1
+        private const val LOCAL_NETWORK_DIALOG = "local-network-permission"
     }
 
     class SuggestScreen : CitrusPreferenceFragment() {

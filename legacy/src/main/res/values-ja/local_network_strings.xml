@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 CitrusBrowser contributors. Apache License 2.0. -->
+<resources>
+    <string name="local_network_title">ローカルネットワークへのアクセス</string>
+    <string name="local_network_granted">OS の許可: 許可済み。変更するにはタップしてアプリ設定を開いてください。</string>
+    <string name="local_network_not_granted">OS の許可: 未許可。LAN 内のページ・ダウンロード・購読を使う場合にタップしてください。</string>
+    <string name="local_network_explanation">同じネットワーク内の機器やサーバーへ接続するための権限です。LAN 内のページ閲覧・ダウンロード・フィルタ購読を使う場合に許可してください。通常のインターネット閲覧だけのために要求するものではありません。</string>
+    <string name="local_network_denied_explanation">ローカルネットワークへのアクセスは許可されていません。LAN 内の接続を使う場合は、再度許可を要求するか、アプリ設定で権限を確認できます。アプリ設定を開くかどうかはご自身で選択してください。</string>
+    <string name="local_network_granted_explanation">OS でローカルネットワークへのアクセスが許可されています。許可を取り消す場合は、アプリ設定で変更してください。</string>
+    <string name="local_network_request">許可を要求</string>
+    <string name="local_network_app_settings">アプリ設定を開く</string>
+    <string name="local_network_settings_hint">端末のアプリ情報で、ローカルネットワークへのアクセス権限を確認してください。</string>
+</resources>

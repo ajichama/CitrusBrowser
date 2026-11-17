@@ -19,6 +19,11 @@
                   xmlns:app="http://schemas.android.com/apk/res-auto"
                   android:title="@string/pref_browser_settings">
 
+    <Preference
+        android:key="local_network_permission"
+        android:title="@string/local_network_title"
+        android:persistent="false"
+        app:iconSpaceReserved="false" />
     <io.github.ajichama.citrusbrowser.ui.preference.IntentPreference
         android:title="@string/pref_pattern_match"
         app:intent="io.github.ajichama.citrusbrowser.legacy.pattern.url.PatternUrlActivity"
