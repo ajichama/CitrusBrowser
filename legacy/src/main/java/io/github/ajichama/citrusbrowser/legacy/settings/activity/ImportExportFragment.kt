@@ -22,43 +22,42 @@ import android.content.Intent
 import android.net.Uri
 import android.os.*
 import android.widget.Toast
-import androidx.documentfile.provider.DocumentFile
+import android.view.View
+import androidx.appcompat.app.AlertDialog
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.Preference
 import dagger.hilt.android.AndroidEntryPoint
-import io.github.ajichama.citrusbrowser.bookmark.item.BookmarkFolder
 import io.github.ajichama.citrusbrowser.bookmark.netscape.exportHtmlBookmark
-import io.github.ajichama.citrusbrowser.bookmark.netscape.importHtmlBookmark
 import io.github.ajichama.citrusbrowser.bookmark.repository.BookmarkManager
-import io.github.ajichama.citrusbrowser.bookmark.util.BookmarkIdGenerator
 import io.github.ajichama.citrusbrowser.core.utility.utils.FileUtils
-import io.github.ajichama.citrusbrowser.favicon.FaviconManager
 import io.github.ajichama.citrusbrowser.legacy.R
 import io.github.ajichama.citrusbrowser.legacy.backup.*
 import io.github.ajichama.citrusbrowser.legacy.speeddial.io.backupSpeedDial
-import io.github.ajichama.citrusbrowser.legacy.speeddial.io.restoreSpeedDial
-import io.github.ajichama.citrusbrowser.ui.RestartActivity
 import io.github.ajichama.citrusbrowser.ui.extensions.registerForStartActivityForResult
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.collect
 import java.io.File
 import java.io.IOException
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class ImportExportFragment : CitrusPreferenceFragment() {
-    @Inject
-    internal lateinit var faviconManager: FaviconManager
+    private val portableModel: PortableImportViewModel by viewModels()
+    private val portableLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) portableModel.prepare(uri)
+    }
 
     override fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.pref_import_export)
+        findPreference<Preference>("portable_import")!!.setOnPreferenceClickListener { showPortableHelp(); true }
 
         findPreference<Preference>("import_sd_bookmark")!!.setOnPreferenceClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                type = "*/*"
-            }
-            importBookmarkLauncher.launch(intent)
+            showPortableHelp()
             false
         }
 
@@ -72,10 +71,7 @@ class ImportExportFragment : CitrusPreferenceFragment() {
         }
 
         findPreference<Preference>("import_html_bookmark")!!.setOnPreferenceClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                type = "text/html"
-            }
-            importHtmlBookmarkLauncher.launch(intent)
+            showPortableHelp()
             false
         }
 
@@ -89,10 +85,7 @@ class ImportExportFragment : CitrusPreferenceFragment() {
         }
 
         findPreference<Preference>("restore_speed_dial")!!.setOnPreferenceClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                type = "*/*"
-            }
-            restoreSpeeddialLauncher.launch(intent)
+            showPortableHelp()
             true
         }
 
@@ -106,10 +99,7 @@ class ImportExportFragment : CitrusPreferenceFragment() {
         }
 
         findPreference<Preference>("restore_settings")!!.setOnPreferenceClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                type = "*/*"
-            }
-            restoreSettingsLauncher.launch(intent)
+            showPortableHelp()
             true
         }
 
@@ -123,73 +113,69 @@ class ImportExportFragment : CitrusPreferenceFragment() {
         }
     }
 
-    private val importBookmarkLauncher = registerForStartActivityForResult {
-        if (it.resultCode == Activity.RESULT_OK) {
-            val uri = it.data!!.data ?: return@registerForStartActivityForResult
-            val file = DocumentFile.fromSingleUri(requireContext(), uri)!!
-            if (file.exists() && file.name?.endsWith(".dat") == true) {
-                val manager = BookmarkManager.getInstance(requireContext())
-                val internalFile = manager.file
-
-                GlobalScope.launch(Dispatchers.Main) {
-                    val result = withContext(Dispatchers.IO) { uri.copyTo(internalFile) }
-                    if (result) {
-                        manager.load()
-                        manager.save()
-                        Toast.makeText(activity, R.string.succeed, Toast.LENGTH_LONG).show()
-                    } else {
-                        Toast.makeText(activity, R.string.failed, Toast.LENGTH_LONG).show()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                portableModel.state.collect { state ->
+                    val busy = state is PortableImportState.Preparing || state is PortableImportState.Applying
+                    preferenceScreen.isEnabled = !busy
+                    findPreference<Preference>("portable_import")?.setSummary(when (state) {
+                        PortableImportState.Preparing -> R.string.legacy_import_preparing
+                        PortableImportState.Applying -> R.string.legacy_import_applying
+                        else -> R.string.legacy_import_summary
+                    })
+                    if (childFragmentManager.isStateSaved) return@collect
+                    when (state) {
+                        is PortableImportState.Ready -> if (childFragmentManager.findFragmentByTag("portable-import-preview") == null) {
+                            PortableImportDialog.preview(state.preview).show(childFragmentManager, "portable-import-preview")
+                        }
+                        is PortableImportState.Complete -> {
+                            PortableImportDialog.complete(state.result).show(childFragmentManager, "portable-import-complete")
+                            portableModel.acknowledge()
+                        }
+                        is PortableImportState.Failed -> {
+                            val message = when { state.recovery -> R.string.legacy_import_recovery; state.applying -> R.string.legacy_import_apply_failed; else -> R.string.legacy_import_invalid }
+                            AlertDialog.Builder(requireContext()).setTitle(R.string.failed).setMessage(message)
+                                .setPositiveButton(android.R.string.ok, null).show()
+                            portableModel.acknowledge()
+                        }
+                        else -> Unit
                     }
                 }
-            } else {
-                Toast.makeText(activity, R.string.failed, Toast.LENGTH_LONG).show()
             }
         }
     }
 
+    private fun showPortableHelp() {
+        AlertDialog.Builder(requireContext()).setTitle(R.string.legacy_import_title)
+            .setMessage(R.string.legacy_import_help)
+            .setPositiveButton(R.string.legacy_import_select) { _, _ -> portableLauncher.launch(arrayOf("*/*")) }
+            .setNegativeButton(android.R.string.cancel, null).show()
+    }
     private val exportBookmarkLauncher = registerForStartActivityForResult {
         if (it.resultCode == Activity.RESULT_OK) {
             val uri = it.data!!.data ?: return@registerForStartActivityForResult
-            val manager = BookmarkManager.getInstance(requireContext())
+            val context = requireContext().applicationContext
+            val manager = BookmarkManager.getInstance(context)
             val internalFile = manager.file
 
-            GlobalScope.launch(Dispatchers.Main) {
-                val result = withContext(Dispatchers.IO) { internalFile.copyTo(uri) }
-                requireContext().actionMessage(result)
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+                val result = withContext(Dispatchers.IO) { internalFile.copyTo(uri, context) }
+                context.actionMessage(result)
             }
         } else {
             Toast.makeText(activity, R.string.failed, Toast.LENGTH_LONG).show()
         }
     }
 
-    private val importHtmlBookmarkLauncher = registerForStartActivityForResult {
-        if (it.resultCode != Activity.RESULT_OK) return@registerForStartActivityForResult
-        val uri = it.data!!.data ?: return@registerForStartActivityForResult
-        val file = DocumentFile.fromSingleUri(requireContext(), uri)!!
-        val manager = BookmarkManager.getInstance(requireContext())
-
-        val root = BookmarkFolder(file.name, manager.root, BookmarkIdGenerator.getNewId())
-        manager.add(manager.root, root)
-
-        GlobalScope.launch(Dispatchers.Main) {
-            val context = requireContext()
-            val message = when (manager.importHtmlBookmark(context, uri, faviconManager, root)) {
-                0 -> R.string.failed
-                1 -> R.string.succeed
-                -1 -> R.string.not_bookmark_file
-                else -> throw IllegalStateException("Html bookmark result state error")
-            }
-            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-        }
-    }
-
     private val exportHtmlBookmarkLauncher = registerForStartActivityForResult {
         if (it.resultCode != Activity.RESULT_OK) return@registerForStartActivityForResult
         val uri = it.data!!.data ?: return@registerForStartActivityForResult
-        val manager = BookmarkManager.getInstance(requireContext())
+        val context = requireContext().applicationContext
+        val manager = BookmarkManager.getInstance(context)
 
-        GlobalScope.launch(Dispatchers.Main) {
-            val context = requireContext()
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             val result = manager.exportHtmlBookmark(context, uri)
             context.actionMessage(result)
         }
@@ -199,26 +185,9 @@ class ImportExportFragment : CitrusPreferenceFragment() {
         if (it.resultCode != Activity.RESULT_OK) return@registerForStartActivityForResult
         val uri = it.data!!.data ?: return@registerForStartActivityForResult
 
-        GlobalScope.launch(Dispatchers.Main) {
-            val context = requireContext()
+        val context = requireContext().applicationContext
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             val result = withContext(Dispatchers.IO) { context.backupSpeedDial(uri) }
-            context.actionMessage(result)
-        }
-    }
-
-    private val restoreSpeeddialLauncher = registerForStartActivityForResult {
-        if (it.resultCode != Activity.RESULT_OK) return@registerForStartActivityForResult
-        val uri = it.data!!.data ?: return@registerForStartActivityForResult
-        val file = DocumentFile.fromSingleUri(requireContext(), uri)!!
-        val name = file.name
-        if (name == null || !name.endsWith(EXT_SPEED_DIAL)) {
-            requireContext().actionMessage(false)
-            return@registerForStartActivityForResult
-        }
-
-        GlobalScope.launch(Dispatchers.Main) {
-            val context = requireContext()
-            val result = withContext(Dispatchers.IO) { context.restoreSpeedDial(uri) }
             context.actionMessage(result)
         }
     }
@@ -227,52 +196,17 @@ class ImportExportFragment : CitrusPreferenceFragment() {
         if (it.resultCode != Activity.RESULT_OK) return@registerForStartActivityForResult
         val uri = it.data!!.data ?: return@registerForStartActivityForResult
 
-        GlobalScope.launch(Dispatchers.Main) {
-            val context = requireContext()
+        val context = requireContext().applicationContext
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             val manager = BackupManager(context)
             val result = withContext(Dispatchers.IO) { manager.backup(context, uri) }
             context.actionMessage(result)
         }
     }
 
-    private val restoreSettingsLauncher = registerForStartActivityForResult {
-        if (it.resultCode != Activity.RESULT_OK) return@registerForStartActivityForResult
-        val uri = it.data!!.data ?: return@registerForStartActivityForResult
-        val file = DocumentFile.fromSingleUri(requireContext(), uri)!!
-        val name = file.name
-        if (name == null || !name.endsWith(EXT)) {
-            requireContext().actionMessage(false)
-            return@registerForStartActivityForResult
-        }
-
-        GlobalScope.launch(Dispatchers.Main) {
-            val context = requireContext()
-            val manager = BackupManager(context)
-            val result = withContext(Dispatchers.IO) { manager.restore(context, uri) }
-            context.actionMessage(result)
-            if (result) {
-                startActivity(RestartActivity.createIntent(context))
-            }
-        }
-    }
-
-    private fun Uri.copyTo(file: File): Boolean {
+    private fun File.copyTo(uri: Uri, context: Context): Boolean {
         try {
-            requireContext().contentResolver.openInputStream(this)?.use { input ->
-                file.outputStream().use { os ->
-                    input.copyTo(os)
-                    return true
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return false
-    }
-
-    private fun File.copyTo(uri: Uri): Boolean {
-        try {
-            requireContext().contentResolver.openOutputStream(uri)?.use { os ->
+            context.contentResolver.openOutputStream(uri)?.use { os ->
                 inputStream().use { input ->
                     input.copyTo(os)
                     return true

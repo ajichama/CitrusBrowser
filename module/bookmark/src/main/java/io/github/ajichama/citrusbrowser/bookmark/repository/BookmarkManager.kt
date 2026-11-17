@@ -17,6 +17,7 @@
 package io.github.ajichama.citrusbrowser.bookmark.repository
 
 import android.content.Context
+import android.util.AtomicFile
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import io.github.ajichama.citrusbrowser.bookmark.item.BookmarkFolder
@@ -55,13 +56,17 @@ class BookmarkManager private constructor(context: Context) : Serializable {
     }
 
     fun load(): Boolean {
-        root.clear()
-
-        if (!file.exists() || file.isDirectory) return true
+        if (!file.exists() && !File(file.path + ".bak").exists()) { root.clear(); siteIndex.clear(); return true }
 
         try {
-            JsonReader.of(file.source().buffer()).use {
-                root.readForRoot(it)
+            JsonReader.of(AtomicFile(file).openRead().source().buffer()).use {
+                val parsed = BookmarkFolder(null, null, -1)
+                if (!parsed.readForRoot(it) || it.peek() != JsonReader.Token.END_DOCUMENT) throw IOException("ブックマークが不正です。")
+                root.clear()
+                parsed.itemList.forEach { child ->
+                    if (child is BookmarkFolder) child.parent = root
+                    root.add(child)
+                }
                 createIndex()
 
                 return true
@@ -78,10 +83,15 @@ class BookmarkManager private constructor(context: Context) : Serializable {
         }
 
         try {
-            JsonWriter.of(file.sink().buffer()).use {
-                root.writeForRoot(it)
-                return true
+            val buffer = okio.Buffer()
+            JsonWriter.of(buffer).use {
+                if (!root.writeForRoot(it)) throw IOException("ブックマークを保存できません。")
             }
+            val atomic = AtomicFile(file)
+            val output = atomic.startWrite()
+            try { output.write(buffer.readByteArray()); atomic.finishWrite(output) }
+            catch (error: Exception) { atomic.failWrite(output); throw error }
+            return true
         } catch (e: IOException) {
             ErrorReport.printAndWriteLog(e)
         }

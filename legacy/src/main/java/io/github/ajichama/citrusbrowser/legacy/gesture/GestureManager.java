@@ -21,8 +21,10 @@ import android.gesture.Gesture;
 import android.gesture.GestureLibraries;
 import android.gesture.GestureLibrary;
 import android.gesture.Prediction;
+import android.util.AtomicFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,11 +39,13 @@ public abstract class GestureManager {
     public static final int GESTURE_TYPE_SUB = 1;
 
     private final GestureLibrary mLibrary;
+    private final File mLibraryFile;
     private final ActionDatabase mDatabase;
 
     protected GestureManager(Context context, int id) {
         File dir = context.getDir("gestures1", Context.MODE_PRIVATE);
-        mLibrary = GestureLibraries.fromFile(new File(dir, id + ".lib.dat"));
+        mLibraryFile = new File(dir, id + ".lib.dat");
+        mLibrary = GestureLibraries.fromFile(mLibraryFile);
         mDatabase = new ActionDatabase(context, new File(dir, id + ".list.dat"));
 
         if (!load()) {
@@ -50,6 +54,11 @@ public abstract class GestureManager {
     }
 
     public boolean load() {
+        if (mLibraryFile.exists() || new File(mLibraryFile.getPath() + ".bak").exists()) {
+            // 中断された AtomicFile 書込みから元のライブラリを復旧してから framework へ渡す。
+            try (java.io.FileInputStream ignored = new AtomicFile(mLibraryFile).openRead()) {
+            } catch (IOException error) { return false; }
+        }
         return mLibrary.load();
     }
 

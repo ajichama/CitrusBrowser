@@ -17,6 +17,7 @@
 package io.github.ajichama.citrusbrowser.legacy.gesture.multiFinger.data
 
 import android.content.Context
+import android.util.AtomicFile
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import io.github.ajichama.citrusbrowser.core.utility.utils.ArrayUtils
@@ -72,9 +73,9 @@ class MultiFingerGestureManager(context: Context) {
 
     private fun load() {
         gestureItems.clear()
-        if (jsonFile == null || !jsonFile.exists() || jsonFile.isDirectory) return
+        if (jsonFile == null || (!jsonFile.exists() && !java.io.File(jsonFile.path + ".bak").exists()) || jsonFile.isDirectory) return
         try {
-            JsonReader.of(jsonFile.source().buffer()).use { reader ->
+            JsonReader.of(AtomicFile(jsonFile).openRead().source().buffer()).use { reader ->
                 if (reader.peek() == JsonReader.Token.BEGIN_ARRAY) {
                     reader.beginArray()
                     while (reader.hasNext()) {

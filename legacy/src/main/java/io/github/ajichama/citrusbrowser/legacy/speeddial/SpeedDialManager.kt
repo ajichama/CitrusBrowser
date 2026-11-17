@@ -24,6 +24,9 @@ import android.graphics.Bitmap
 import io.github.ajichama.citrusbrowser.core.android.utils.calcImageHash
 import io.github.ajichama.citrusbrowser.core.utility.utils.ImageUtils
 import io.github.ajichama.citrusbrowser.legacy.R
+import io.github.ajichama.citrusbrowser.legacy.speeddial.io.ImportedSpeedDial
+import io.github.ajichama.citrusbrowser.core.utility.utils.BrowserSchemeCompat
+import java.io.File
 import java.util.*
 
 class SpeedDialManager(val context: Context) {
@@ -215,6 +218,46 @@ class SpeedDialManager(val context: Context) {
 
     private fun checkUrl(url: String?): Boolean {
         return !url.isNullOrEmpty() && !url.regionMatches(0, "about:", 0, 6, ignoreCase = true)
+    }
+
+    internal fun ensureImportDatabase(): File {
+        mOpenHelper.writableDatabase
+        return context.getDatabasePath(DB_NAME)
+    }
+
+    /** 元 DB を入れ替えず、同じ URL を保持して追加分だけを1トランザクションで確定する。 */
+    @Synchronized
+    internal fun mergeImport(rows: List<ImportedSpeedDial>, applyOtherData: () -> Unit): Int {
+        val db = mOpenHelper.writableDatabase
+        db.beginTransaction()
+        try {
+            val existing = hashSetOf<String>()
+            db.query(TABLE_NAME, arrayOf(COLUMN_URL), null, null, null, null, null).use { cursor ->
+                while (cursor.moveToNext()) existing += BrowserSchemeCompat.normalizeUrl(cursor.getString(0))
+            }
+            var order = db.rawQuery("SELECT COALESCE(MAX($COLUMN_ORDER), -1) FROM $TABLE_NAME", null).use {
+                it.moveToFirst(); it.getInt(0) + 1
+            }
+            var added = 0
+            rows.forEach { row ->
+                if (existing.add(row.url)) {
+                    val values = ContentValues().apply {
+                        put(COLUMN_URL, row.url)
+                        put(COLUMN_TITLE, row.title)
+                        put(COLUMN_ORDER, order++)
+                        put(COLUMN_ICON, row.icon ?: WebIcon.createIcon(ImageUtils.getBitmapFromVectorDrawable(context, R.drawable.ic_public_white_24dp)).iconBytes)
+                        put(COLUMN_FAVICON, row.favicon)
+                        put(COLUMN_LAST_UPDATE, if (row.favicon) -1L else System.currentTimeMillis())
+                    }
+                    db.insertOrThrow(TABLE_NAME, null, values)
+                    added++
+                }
+            }
+            applyOtherData()
+            if (added > 0) updateListTime()
+            db.setTransactionSuccessful()
+            return added
+        } finally { db.endTransaction() }
     }
 
     private class MyOpenHelper private constructor(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {

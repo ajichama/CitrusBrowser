@@ -19,11 +19,9 @@ package io.github.ajichama.citrusbrowser.legacy.speeddial.io
 import android.content.Context
 import android.net.Uri
 import io.github.ajichama.citrusbrowser.core.utility.extensions.forEach
-import io.github.ajichama.citrusbrowser.legacy.speeddial.SpeedDialHtml
 import io.github.ajichama.citrusbrowser.legacy.speeddial.SpeedDialManager
 import java.io.IOException
 import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 fun Context.backupSpeedDial(uri: Uri): Boolean {
@@ -35,29 +33,6 @@ fun Context.backupSpeedDial(uri: Uri): Boolean {
             db.inputStream().use { ins ->
                 zip.putNextEntry(ZipEntry(SpeedDialManager.DB_NAME))
                 ins.copyTo(zip)
-                return true
-            }
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-    }
-    return false
-}
-
-fun Context.restoreSpeedDial(uri: Uri): Boolean {
-    val db = getDatabasePath(SpeedDialManager.DB_NAME)
-
-    try {
-        val out = contentResolver.openInputStream(uri) ?: return false
-        ZipInputStream(out).use { zip ->
-            db.outputStream().use { os ->
-                zip.forEach {
-                    if (SpeedDialManager.DB_NAME == it.name) {
-                        zip.copyTo(os)
-                    }
-                }
-                SpeedDialHtml.clearCache(this)
-                SpeedDialManager.closeAll()
                 return true
             }
         }

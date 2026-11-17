@@ -62,3 +62,11 @@
 
 # OkHttp platform used only on JVM and when Conscrypt dependency is available.
 -dontwarn okhttp3.internal.platform.ConscryptPlatform
+
+# 取込時の反射列挙に使うフィールドだけを残す。名前では検索しないため難読化は許可する。
+-keepclassmembers,allowobfuscation class io.github.ajichama.citrusbrowser.legacy.action.SingleAction {
+    public static final int *;
+}
+-keepclassmembers,allowobfuscation class io.github.ajichama.citrusbrowser.ui.settings.AppPrefs {
+    public static io.github.ajichama.citrusbrowser.ui.settings.container.** *;
+}

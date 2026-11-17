@@ -28,6 +28,9 @@ class ActionDatabase(context: Context, file: File) {
 
     private val mOpenHelper = SQLiteHelper(context, file.absolutePath)
 
+    internal fun prepareImport() { mOpenHelper.writableDatabase }
+    internal fun closeImport() { mOpenHelper.close() }
+
     fun add(action: Action): Long {
         val jsonStr = action.toJsonString()
         if (TextUtils.isEmpty(jsonStr)) return -1

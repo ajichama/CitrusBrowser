@@ -19,11 +19,9 @@ package io.github.ajichama.citrusbrowser.legacy.backup
 import android.content.Context
 import android.net.Uri
 import io.github.ajichama.citrusbrowser.core.utility.extensions.forEach
-import org.xmlpull.v1.XmlPullParserException
 import java.io.File
 import java.io.IOException
 import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 fun BackupManager.backup(context: Context, uri: Uri): Boolean {
@@ -37,49 +35,6 @@ fun BackupManager.backup(context: Context, uri: Uri): Boolean {
                 zip.putNextEntry(ZipEntry(name))
                 file.inputStream().use {
                     it.copyTo(zip)
-                }
-            }
-        }
-        return true
-    } catch (e: IOException) {
-        return false
-    }
-}
-
-fun BackupManager.restore(context: Context, uri: Uri): Boolean {
-    try {
-        val rootPath = root.canonicalPath
-        val ins = context.contentResolver.openInputStream(uri) ?: return false
-        ZipInputStream(ins).use { zip ->
-            cleanFiles()
-            zip.forEach {
-                val file = File(rootPath, it.name)
-                if (!file.canonicalPath.startsWith(rootPath)) {
-                    throw IOException("This file is not put in tmp folder. to:" + file.absolutePath)
-                }
-                if ("main_preference.xml".equals(file.name, ignoreCase = true)) {
-                    val parser = PrefXmlParser(context, "main_preference")
-                    try {
-                        parser.load(zip)
-                    } catch (e: XmlPullParserException) {
-                        e.printStackTrace()
-                    }
-                } else {
-                    if (it.isDirectory) {
-                        if (file.exists()) {
-                            file.deleteRecursively()
-                        }
-                        file.mkdir()
-                    } else {
-                        if (file.exists()) {
-                            file.deleteRecursively()
-                        } else if (!file.parentFile!!.exists()) {
-                            file.parentFile!!.mkdirs()
-                        }
-                        file.outputStream().use { os ->
-                            zip.copyTo(os)
-                        }
-                    }
                 }
             }
         }

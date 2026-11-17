@@ -17,6 +17,7 @@
 package io.github.ajichama.citrusbrowser.legacy.action
 
 import android.content.Context
+import android.util.AtomicFile
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import io.github.ajichama.citrusbrowser.core.utility.log.ErrorReport
@@ -39,10 +40,10 @@ abstract class ActionFile : Serializable {
         reset()
 
         val file = getFile(context)
-        if (!file.exists() || file.isDirectory) return true
+        if (!file.exists() && !File(file.path + ".bak").exists()) return true
 
         try {
-            JsonReader.of(file.source().buffer()).use {
+            JsonReader.of(AtomicFile(file).openRead().source().buffer()).use {
                 if (!load(it)) {
                     Logger.e(TAG, "loadMain error (return false)")
                     return false
@@ -63,14 +64,18 @@ abstract class ActionFile : Serializable {
         val file = getFile(context)
 
         try {
-            JsonWriter.of(file.sink().buffer()).use {
+            val buffer = okio.Buffer()
+            JsonWriter.of(buffer).use {
                 if (!write(it)) {
                     Logger.e(TAG, "writeMain error (return false)")
                     return false
                 }
-                it.flush()
-                return true
             }
+            val atomic = AtomicFile(file)
+            val output = atomic.startWrite()
+            try { output.write(buffer.readByteArray()); atomic.finishWrite(output) }
+            catch (error: Exception) { atomic.failWrite(output); throw error }
+            return true
         } catch (e: IOException) {
             ErrorReport.printAndWriteLog(e)
         }
