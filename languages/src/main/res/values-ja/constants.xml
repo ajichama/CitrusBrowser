@@ -4,7 +4,7 @@
     tools:ignore="InconsistentArrays">
 
     <string-array name="default_search_url">
-        <item>https://www.google.co.jp/m?q=%s</item>
+        <item>https://www.google.com/search?q=%s</item>
         <item>https://www.bing.com/search?q=%s</item>
         <item>https://search.yahoo.co.jp/search?p=%s</item>
         <item>https://duckduckgo.com/?q=%s</item>

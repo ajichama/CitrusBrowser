@@ -56,7 +56,7 @@ internal class SearchViewModel @Inject constructor(
 
     init {
         providerSelection.addOnPropertyChangedCallback { _, _ ->
-            suggestProviders.selectedId = providerSelection.get()
+            suggestProviders.selectIndex(providerSelection.get())
         }
         useCase.suggestType = AppPrefs.searchSuggestType.get()
     }

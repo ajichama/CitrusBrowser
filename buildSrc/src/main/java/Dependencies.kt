@@ -39,7 +39,7 @@ object Versions {
     const val recyclerView = "1.3.2"
     const val androidxRoom = "2.8.5"
     const val lifeCycle = "2.8.7"
-    const val material = "1.12.0"
+    const val material = "1.14.0"
     const val preference = "1.2.1"
     const val constraintLayout = "2.2.0"
     const val documentFile = "1.0.1"

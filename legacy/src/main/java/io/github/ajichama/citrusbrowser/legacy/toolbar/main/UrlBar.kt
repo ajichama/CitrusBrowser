@@ -27,5 +27,11 @@ class UrlBar(context: Context, controller: ActionController, iconManager: Action
     override fun applyTheme(themeData: ThemeData?) {
         super.applyTheme(themeData)
         applyTheme(themeData, centerUrlButton)
+        // 入力欄の面に合わせるが、テーマファイルで明示した文字色は優先する。
+        if (themeData == null || themeData.toolbarTextColor == 0) {
+            val attributes = context.obtainStyledAttributes(intArrayOf(android.R.attr.textColorPrimary))
+            attributes.getColorStateList(0)?.let { centerUrlButton.setTextColor(it) }
+            attributes.recycle()
+        }
     }
 }

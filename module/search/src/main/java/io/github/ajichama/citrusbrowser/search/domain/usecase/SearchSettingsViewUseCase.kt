@@ -18,6 +18,7 @@ package io.github.ajichama.citrusbrowser.search.domain.usecase
 
 import io.github.ajichama.citrusbrowser.search.domain.ISearchUrlRepository
 import io.github.ajichama.citrusbrowser.search.model.provider.SearchSuggestProviders
+import io.github.ajichama.citrusbrowser.search.model.provider.SearchSettings
 import io.github.ajichama.citrusbrowser.search.model.provider.SearchUrl
 import java.util.Collections.swap
 
@@ -26,7 +27,8 @@ internal class SearchSettingsViewUseCase(
 ) {
     private var modified = false
 
-    private val providers = SearchSuggestProviders(repository.load())
+    private var baseline = repository.load().snapshot()
+    private var providers = SearchSuggestProviders(baseline.snapshot())
 
     val list: List<SearchUrl>
         get() = providers.items
@@ -69,12 +71,12 @@ internal class SearchSettingsViewUseCase(
 
     fun add(url: SearchUrl) {
         modified = true
-        providers.items.add(url)
+        providers.add(url)
     }
 
     fun add(index: Int, url: SearchUrl) {
         modified = true
-        providers.items.add(index, url)
+        providers.add(index, url)
     }
 
     fun removeAt(index: Int): SearchUrl {
@@ -82,11 +84,27 @@ internal class SearchSettingsViewUseCase(
         return providers.removeAt(index)
     }
 
-    fun commitIfNeed() {
-        if (modified) commit()
+    fun commitIfNeed(): Boolean = !modified || commit()
+
+    fun commit(): Boolean {
+        // 保存失敗時は編集状態を残し、再開時に古いディスク値で編集中の一覧を置き換えない。
+        // 別画面の取り込みが先に完了していた場合も、古い編集内容を自動で上書きしない。
+        if (repository.load() != baseline) return false
+        val settings = providers.toSettings()
+        if (!repository.save(settings)) return false
+        baseline = settings.snapshot()
+        modified = false
+        return true
     }
 
-    fun commit() {
-        repository.save(providers.toSettings())
+    fun reloadIfClean(): Boolean {
+        if (modified) return false
+        val latest = repository.load()
+        if (latest == providers.toSettings()) return false
+        providers = SearchSuggestProviders(latest)
+        baseline = latest.snapshot()
+        return true
     }
+
+    private fun SearchSettings.snapshot() = copy(items = items.map { it.copy() })
 }

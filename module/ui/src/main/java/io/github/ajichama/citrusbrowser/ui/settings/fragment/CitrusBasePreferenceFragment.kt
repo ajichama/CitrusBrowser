@@ -40,17 +40,15 @@ abstract class CitrusBasePreferenceFragment : PreferenceFragmentCompat() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return try {
-            super.onCreateView(inflater, container, savedInstanceState)
-        } finally {
-            activity?.let {
-                preferenceManager.sharedPreferencesName = PREFERENCE_FILE_NAME
-                val a = it.theme.obtainStyledAttributes(intArrayOf(android.R.attr.listDivider))
-                val divider = a.getDrawable(0)
-                a.recycle()
-                setDivider(divider)
-            }
-        }
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        preferenceManager.sharedPreferencesName = PREFERENCE_FILE_NAME
+        // 項目・保存キーは変えず、既存のリスト余白に内側の間隔を加える。
+        val spacing = (8 * resources.displayMetrics.density).toInt()
+        listView.setPaddingRelative(listView.paddingStart + spacing, listView.paddingTop + spacing,
+            listView.paddingEnd + spacing, listView.paddingBottom + spacing * 2)
+        listView.clipToPadding = false
+        setDivider(null)
+        return view
     }
 
     override fun onResume() {

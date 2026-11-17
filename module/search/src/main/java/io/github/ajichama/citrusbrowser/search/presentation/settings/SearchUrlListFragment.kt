@@ -50,6 +50,7 @@ class SearchUrlListFragment : Fragment(), SearchSettingDialog.OnUrlEditedListene
         val activity = requireActivity()
 
         viewModel.removedItem.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
             Snackbar.make(binding.root, R.string.deleted, Snackbar.LENGTH_SHORT)
                 .setAction(R.string.undo) {
                     viewModel.resetRemovedItem()
@@ -76,6 +77,11 @@ class SearchUrlListFragment : Fragment(), SearchSettingDialog.OnUrlEditedListene
     override fun onPause() {
         super.onPause()
         viewModel.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.onResume()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

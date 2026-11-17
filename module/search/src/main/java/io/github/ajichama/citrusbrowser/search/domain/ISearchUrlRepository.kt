@@ -22,5 +22,5 @@ interface ISearchUrlRepository {
 
     fun load(): SearchSettings
 
-    fun save(settings: SearchSettings)
+    fun save(settings: SearchSettings): Boolean
 }

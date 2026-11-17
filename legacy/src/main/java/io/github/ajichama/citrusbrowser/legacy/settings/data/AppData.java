@@ -264,6 +264,7 @@ public class AppData {
     public static boolean init(Context context, Moshi moshi, AbpDatabase abpDatabase) {
         AppPrefs.load(context);
         settingInitialValue(context, AppPrefs.getPreference(context), moshi, abpDatabase);
+        io.github.ajichama.citrusbrowser.search.repository.SearchDefaults.migrateLegacyDefaults(context, moshi);
         return true;
     }
 }

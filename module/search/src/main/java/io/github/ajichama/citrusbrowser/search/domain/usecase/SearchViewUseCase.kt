@@ -78,7 +78,11 @@ internal class SearchViewUseCase(
     }
 
     fun saveSuggestProviders(providers: SearchSuggestProviders) {
-        searchUrlRepository.save(providers.toSettings())
+        // 検索画面で変えるのは選択だけ。保持していた旧一覧で取り込み後の項目を消さない。
+        val latest = searchUrlRepository.load()
+        if (latest.items.any { it.id == providers.selectedId }) {
+            searchUrlRepository.save(latest.copy(selectedId = providers.selectedId))
+        }
     }
 
     companion object {

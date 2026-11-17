@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources translatable="false">
     <string-array name="default_search_url">
-        <item>http://www.google.com/m?q=%s</item>
+        <item>https://www.google.com/search?q=%s</item>
         <item>https://www.bing.com/search?q=%s</item>
         <item>https://search.yahoo.com/search?p=%s</item>
         <item>https://duckduckgo.com/?q=%s</item>

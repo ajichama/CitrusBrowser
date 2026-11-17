@@ -30,7 +30,7 @@
                                                        android:layout_width="match_parent"
                                                        android:layout_height="wrap_content"
                                                        android:background="?android:attr/selectableItemBackground"
-                                                       android:minHeight="?android:attr/listPreferredItemHeightSmall">
+                                                       android:minHeight="80dp">
 
         <io.github.ajichama.citrusbrowser.search.presentation.widget.SearchSimpleIconView
             android:id="@+id/iconColorView"
@@ -59,7 +59,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@{model.title}"
-            android:textAppearance="?android:attr/textAppearanceListItemSmall"
+            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
             app:layout_constraintBottom_toTopOf="@+id/urlTextView"
             app:layout_constraintEnd_toStartOf="@+id/menuImageButton"
             app:layout_constraintStart_toEndOf="@+id/iconColorView"
@@ -77,6 +77,8 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@{model.url}"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?android:attr/textColorSecondary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/titleTextView"
             app:layout_constraintStart_toStartOf="@+id/titleTextView"

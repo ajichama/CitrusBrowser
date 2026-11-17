@@ -19,7 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp"
+    android:padding="24dp"
     tools:ignore="UnusedAttribute">
 
     <CheckBox
@@ -42,36 +42,37 @@
         android:foreground="?android:attr/selectableItemBackgroundBorderless" />
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:id="@+id/textInputLayout4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/textInputLayout3"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="16dp"
+        android:hint="@string/url">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/urlEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/url"
             android:importantForAutofill="no"
             android:inputType="textUri" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:id="@+id/textInputLayout3"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/iconColorButton">
+        android:layout_toEndOf="@+id/iconColorButton"
+        android:layout_marginStart="16dp"
+        android:hint="@string/title">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/titleEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/title"
             android:importantForAutofill="no"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>

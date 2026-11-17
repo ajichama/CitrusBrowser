@@ -47,7 +47,7 @@ fun String.makeUrlFromQuery(search_url: String, search_place_holder: String): St
     }
     return if (!hasSpace && Patterns.WEB_URL.matcher(query).matches()) {
         URLUtil.guessUrl(query)
-    } else URLUtil.composeSearchUrl(query, search_url, search_place_holder)
+    } else SearchTemplates.compose(query, search_url, search_place_holder)
 }
 
 

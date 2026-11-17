@@ -55,6 +55,6 @@ class SuggestGoogle : ISuggest {
 
     companion object {
 
-        private const val SUGGEST_URL = "https://suggestqueries.google.com/complete/search?output=firefox&oe=utf-8&hl={{LANG}}&qu={{TERMS}}"
+        private const val SUGGEST_URL = "https://suggestqueries.google.com/complete/search?client=firefox&oe=utf-8&hl={{LANG}}&q={{TERMS}}"
     }
 }

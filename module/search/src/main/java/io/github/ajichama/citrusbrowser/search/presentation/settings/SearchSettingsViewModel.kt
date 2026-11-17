@@ -74,6 +74,14 @@ internal class SearchSettingsViewModel(
         useCase.commitIfNeed()
     }
 
+    fun onResume() {
+        if (useCase.reloadIfClean()) {
+            // 外部取り込み前の Undo は、新しい一覧へ適用しない。
+            removedItem.value = null
+            updateList()
+        }
+    }
+
     fun onFabClick() {
         onFabClick.value = null
     }

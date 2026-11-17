@@ -85,7 +85,8 @@ open class SwipeTextButton @JvmOverloads constructor(context: Context, attrs: At
     }
 
     protected open fun onSetNormalBackground() {
-        setBackgroundResource(R.drawable.swipebtn_text_background_normal)
+        // アドレス欄だけ形状を更新し、他のカスタムボタンとジェスチャーは従来どおり扱う。
+        setBackgroundResource(if (id == R.id.centerUrlButton) R.drawable.toolbar_url_box else R.drawable.swipebtn_text_background_normal)
     }
 
     protected open fun onSetPressedBackground() {
@@ -93,7 +94,7 @@ open class SwipeTextButton @JvmOverloads constructor(context: Context, attrs: At
         if (theme?.toolbarTextButtonBackgroundPress != null) {
             background = theme.toolbarTextButtonBackgroundPress
         } else {
-            setBackgroundResource(R.drawable.swipebtn_text_background_pressed)
+            setBackgroundResource(if (id == R.id.centerUrlButton) R.drawable.toolbar_url_box_pressed else R.drawable.swipebtn_text_background_pressed)
         }
     }
 

@@ -36,6 +36,7 @@ import io.github.ajichama.citrusbrowser.ui.settings.container.LongContainer;
 import io.github.ajichama.citrusbrowser.ui.settings.container.StringContainer;
 import io.github.ajichama.citrusbrowser.ui.settings.container.ToolbarContainer;
 import io.github.ajichama.citrusbrowser.ui.theme.ThemeData;
+import io.github.ajichama.citrusbrowser.ui.utils.SearchTemplates;
 
 import static io.github.ajichama.citrusbrowser.core.utility.storage.DocumentFileKt.DEFAULT_DOWNLOAD_PATH;
 import static io.github.ajichama.citrusbrowser.ui.ConstantsKt.BROWSER_LOAD_URL_TAB_CURRENT;
@@ -198,7 +199,7 @@ public class AppPrefs {
     public static final IntContainer searchSuggestType = new IntContainer("search_suggest", 0);
     public static final BooleanContainer searchSuggestHistories = new BooleanContainer("search_suggest_histories", true);
     public static final BooleanContainer searchSuggestBookmarks = new BooleanContainer("search_suggest_bookmarks", true);
-    public static final StringContainer search_url = new StringContainer("search_url", "http://www.google.com/m?q=%s");
+    public static final StringContainer search_url = new StringContainer("search_url", SearchTemplates.DEFAULT_GOOGLE_URL);
     public static final BooleanContainer searchUrlShowIcon = new BooleanContainer("search_url_show_icon", true);
     public static final BooleanContainer searchUrlSaveSwitching = new BooleanContainer("search_url_save_switching", false);
     //WebView
@@ -215,6 +216,12 @@ public class AppPrefs {
         SharedPreferences shared_preference = getPreference(context);
         for (Containable pref : getPreferenceList()) {
             pref.read(shared_preference);
+        }
+        // 旧既定値の完全一致だけ移行する。独自URL・追加パラメータ・他の設定は変更しない。
+        String searchTemplate = SearchTemplates.normalizeLegacyDefault(search_url.get());
+        if (!searchTemplate.equals(search_url.get())) {
+            search_url.set(searchTemplate);
+            shared_preference.edit().putString("search_url", searchTemplate).apply();
         }
         // 旧強制暗色化の値3は現行のサイト優先自動暗色化へ移行し、他の設定には触れない。
         int normalizedWebTheme = PageColorMode.normalize(webTheme.get());

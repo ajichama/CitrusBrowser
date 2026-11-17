@@ -20,7 +20,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.webkit.URLUtil;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,7 +67,7 @@ public class WebUtils {
     }
 
     public static String makeSearchUrlFromQuery(String query, String search_url, String search_place_holder) {
-        return URLUtil.composeSearchUrl(query.trim(), search_url, search_place_holder);
+        return io.github.ajichama.citrusbrowser.ui.utils.SearchTemplates.compose(query, search_url, search_place_holder);
     }
 
     public static Intent createShareWebIntent(String url, String title) {

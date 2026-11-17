@@ -27,6 +27,8 @@ class SearchSuggestProviders(
 
     fun add(element: SearchUrl): Boolean {
         if (element.id < 0) {
+            idCount = maxOf(idCount, items.maxOfOrNull { it.id } ?: 0)
+            check(idCount < Int.MAX_VALUE) { "検索項目の ID を追加できません。" }
             element.id = ++idCount
         }
         return items.add(element)
@@ -34,6 +36,8 @@ class SearchSuggestProviders(
 
     fun add(index: Int, element: SearchUrl) {
         if (element.id < 0) {
+            idCount = maxOf(idCount, items.maxOfOrNull { it.id } ?: 0)
+            check(idCount < Int.MAX_VALUE) { "検索項目の ID を追加できません。" }
             element.id = ++idCount
         }
         items.add(index, element)
@@ -46,6 +50,11 @@ class SearchSuggestProviders(
             }
         }
         return 0
+    }
+
+    /** 表示位置と保存用IDを区別し、並べ替えや取り込み後も同じ項目を選ぶ。 */
+    fun selectIndex(index: Int) {
+        items.getOrNull(index)?.let { selectedId = it.id }
     }
 
     operator fun get(index: Int): SearchUrl {

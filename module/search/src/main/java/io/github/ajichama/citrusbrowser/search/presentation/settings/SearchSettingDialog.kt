@@ -32,6 +32,8 @@ import androidx.core.graphics.BlendModeCompat
 import androidx.fragment.app.DialogFragment
 import com.android.colorpicker.ColorPickerDialog
 import com.android.colorpicker.ColorPickerSwatch
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputLayout
 import io.github.ajichama.citrusbrowser.search.R
 import io.github.ajichama.citrusbrowser.search.domain.COLORS
 import io.github.ajichama.citrusbrowser.search.domain.getIdentityColor
@@ -66,6 +68,7 @@ class SearchSettingDialog : DialogFragment(), ColorPickerSwatch.OnColorSelectedL
         val view = View.inflate(activity, R.layout.search_url_edit, null)
         val titleEditText: EditText = view.findViewById(R.id.titleEditText)
         val urlEditText: EditText = view.findViewById(R.id.urlEditText)
+        val urlInputLayout: TextInputLayout = view.findViewById(R.id.textInputLayout4)
         val isUseFavicon: CheckBox = view.findViewById(R.id.isUseFaviconCheckBox)
         iconColorButton = view.findViewById(R.id.iconColorButton)
 
@@ -101,7 +104,7 @@ class SearchSettingDialog : DialogFragment(), ColorPickerSwatch.OnColorSelectedL
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) = Unit
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                urlEditText.error = if (urlEditText.text.contains("%s")) null else errorText
+                urlInputLayout.error = if (urlEditText.text.contains("%s")) null else errorText
             }
 
             override fun afterTextChanged(p0: Editable?) = Unit
@@ -112,7 +115,7 @@ class SearchSettingDialog : DialogFragment(), ColorPickerSwatch.OnColorSelectedL
                 .show(childFragmentManager, "pick")
         }
 
-        val dialog = AlertDialog.Builder(activity).apply {
+        val dialog = MaterialAlertDialogBuilder(requireContext()).apply {
             setTitle(R.string.pref_search_url)
             setView(view)
             setNegativeButton(android.R.string.cancel, null)
@@ -135,7 +138,7 @@ class SearchSettingDialog : DialogFragment(), ColorPickerSwatch.OnColorSelectedL
                     }
                     dialog.dismiss()
                 } else {
-                    urlEditText.error = errorText
+                    urlInputLayout.error = errorText
                 }
             }
         }
