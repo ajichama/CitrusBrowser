@@ -1,6 +1,8 @@
 # 開発進捗と検証範囲
 
-更新日: 2026-11-17（以下のビルド・実機検証は2026-11-16実施）。正式 API 37 ビルド構成、独自アイコン、OSS 通知生成、ページ配色、永続フィルタ更新、AdBlock 判定改善を含む実装スナップショットの状態です。実装、APK の生成、端末での動作確認を分けて記載します。Phase 5 全体は進行中です。
+更新日: 2026-11-17。データ移行・Google検索・Material UI・広告遮断の改善と、正式API37構成を含む状態です。今回の全体ビルドと単体テストは成功しました。実機結果は2026-11-16の旧版に対するもので、今回の変更は再実機確認前です。Phase 5全体は進行中です。
+
+今回の変更は独立レビューを通過し、Dockerで通常単体247件・buildSrc15件、debug・全計測APK・releaseのR8/lintが成功しました。[改善一覧](IMPROVEMENT_PLAN.md)に各要望と残課題を整理しています。実際のYuzu書出し、はちま起稿のモバイル版、日本語検索、刷新した画面の操作は、修正版で改めて確認します。
 
 ## フェーズ別の状態
 
@@ -10,25 +12,30 @@
 | Phase 2: 命名・独自アイコン | 表示名、パッケージと物理配置、権限、内部識別子を Citrus へ移行。旧保存データの読み込み互換を維持。独自ランチャー・通知アイコンを実装し、APK の PNG 10点・148,608画素の一致と adaptive / round / monochrome・通知の参照を確認 | 各 OS・ランチャー・通知上の実機表示は未確認 |
 | Phase 3: 正式 API 37 構成 | AGP 9.1.1 / Gradle 9.3.1 / Kotlin 2.4.21 / Hilt 2.60.1 / KSP 2.3.12。JDK 21、built-in Kotlin と legacy-kapt へ移行。Android 15で本体の新規インストール・BrowserActivity起動・HTTPS表示を確認 | 更新インストールによる保存内容の維持、他OSでの起動は未確認 |
 | Phase 3: 生成物・署名 | SDK 別名ディレクトリと非対応警告抑止を削除。Wrapper 更新と公式 SHA-256 照合。デバッグ署名鍵・adb 鍵を専用 Volume に保持 | APK の生成成功は全 OS での互換保証や本番署名の用意を意味しない |
-| Phase 3: OSS 通知 | WorkManager 追加後の runtime 102 依存・106 文書とソース由来 18 項目を固定入力化。SHA-256 検証、通信なしの生成、NYSL保持・旧Firebase通知の除去を確認。実機で見つかったバーとの重なりを最小修正し、旧版で失敗・修正版で成功するInsets回帰1件を確認 | 非重なりの確認はAndroid 15・縦画面・現在のテーマ・3ボタンナビに限る。他OS・横画面・別テーマ・ジェスチャーナビ等は未確認 |
+| Phase 3: OSS 通知 | Material 1.14.0更新後のruntime102依存・114文書とソース由来18項目を固定入力化。通常生成・通信を切った再生成、debug/release APKとの一致、NYSL保持・旧Firebase通知0を確認 | 旧版のInsets回帰はAndroid15・縦画面・現在のテーマ・3ボタンナビで成功。新テーマでの実描画は再確認前 |
 | Phase 4: OS 互換基盤 | compileSdk / targetSdk 37、Edge-to-Edge、Predictive Back、Intent/Bundle/Parcel 互換、JobIntentService 廃止、ストレージ・可視性対応を実装 | 旧 OS・IME・権限・バックグラウンド動作を含む実機確認は未実施 |
+| Phase 4: LAN権限 | API37以上だけに、OSの実許可状態を表示する明示設定を追加。利用者が選んだ時だけ要求し、拒否後は任意でOS設定へ進める | API37での許可・拒否・取消は未確認。通信先の自動判定は行わず、LAN利用前に設定する。[対応範囲](../legacy/LOCAL_NETWORK_PERMISSION.md) |
 | Phase 4: ページ配色 | アプリ UI と独立した明色・サイト暗色・サイト優先の自動暗色を実装。旧値3を2へ移行し、サイト未指定−1を保持。Android 15の計測5件でDOM・入力・JS状態・読込回数の保持、独立配色、旧key移行、PixelCopyによる暗色化を確認 | 他OS・WebView providerでの描画、実サイトとサイト別設定UIの操作は未確認。UI テーマ全体の刷新も継続課題 |
 | Phase 5: AdBlock 互換・保存 | 初回のパーサ改善と一括保存の安全性を改善。キャッシュ v2 の 32bit 保存・v1 読取、旧 snapshot 保持、行単位ドメイン条件の最具体指定優先、elemhide / generichide、汎用要素フィルタ無視設定を実装 | 今回の追加互換回帰16件を含む単体テストに成功。実サイト・端末での確認と、拡張 uBlock 構文の対応拡大は残る |
 | Phase 5: 更新ジョブ | minSdk 23 を保ち WorkManager 2.11.2 へ移行。自動要求の重複抑止、手動要求の実 UUID、再試行、通信取消、画面再表示・復元時の Flow 観測を実装。Android 15でWorker等の計測5件と、本体Hilt経由のfile://購読統合2件が成功 | 外部HTTP購読、実プロセス再起動・Doze・Wi-Fi制約・実画面の復元は未確認。DB とファイルをまたぐ処理の強制終了時の限界は[更新仕様](../module/adblock/UPDATE_JOBS.md)へ記載 |
-| Phase 5: 判定・索引 | main frame・画像・script・不明種別を分離。PSL の null、IPv6、IDN、単一ラベル host の第三者判定を修正。部分一致・例外の索引漏れと同一 bucket の重複走査を修正。内蔵800ルール・43要求で直接照合との一致を確認 | 取得できない用途情報の判定、実サイトの誤遮断、大規模リスト・端末での性能測定が残る。内蔵ルールの41%が fallback。JVM の mock を含むバッチ時間や比較回数を実環境の速度向上率とみなさない |
+| Phase 5: 判定・索引 | main frame・画像・script・不明種別を分離。PSL の null、IPv6、IDN、単一ラベル host の第三者判定を修正。部分一致・例外の索引漏れと同一 bucket の重複走査を修正。11月16日の基準版では内蔵800ルール・43要求で直接照合との一致を確認 | 実サイトの誤遮断、大規模リスト・端末の性能測定が残る。基準版のfallbackは41%。今回の追加ルールへの測定値として扱わず、JVMの比較回数を実環境の速度向上率とみなさない |
+| Phase 5: モバイル広告 | 観測した配信・広告枠の限定ルール、持続CSS、inline重要指定への対処、無効selector分離、有界DOM追跡を実装。広告単体84件成功、実WebView回帰7件のAPK生成 | はちま起稿の実サイト、誤遮断と性能は再確認前。拡張uBlock構文・scriptletの完全互換はない。[対応仕様](../module/adblock/COSMETIC_FILTERING.md) |
+| データ移行 | 旧設定・ブックマーク・別書出しのスピードダイヤル・検索・UA/URL別設定・スクリプト・ジェスチャーを検証後に統合。既存を保持し参照IDを対応付け、通常失敗時は自己所有の変更を復旧 | 実際のYuzu書出しは未確認。外部テーマ画像・他アプリのSAF権限等は移せない。跨る保存領域の電源断原子性は保証しない。[対応形式と制約](../legacy/IMPORT_COMPATIBILITY.md) |
+| Google検索 | 既定をgoogle.comへ更新。旧既定だけの移行、UTF-8クエリ、候補URL、安定ID、旧編集画面からの再上書き、旧負IDを修正。検索単体21件成功 | 端末での日本語検索・候補表示は再確認前。独自URLは保持。[検索仕様](../module/search/SEARCH_COMPATIBILITY.md) |
+| Material UI | Material3のViewsテーマ、検索・設定・メニュー・アドレス欄・ホームを更新。ツールバー配置・操作・ジェスチャー・明示配色を保持 | 明暗・文字拡大・IME・既存カスタマイズの実操作は再確認前。[機能対応表](../module/ui/MATERIAL_UI.md) |
 
 ## 自動検証の結果
 
-| 検証 | 再現コマンド | 2026-11-16 の結果 |
+| 検証 | 再現コマンド | 2026-11-17の結果（過去の結果は日付を明記） |
 | --- | --- | --- |
-| 本体 APK・通常単体テスト・計測テスト APK | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest assembleDebugAndroidTest"` | OSS修正後も3タスク成功（57秒・1,230 tasks）。通常モジュールの単体テスト165件成功、失敗・スキップ0。端末実行は下記に別記 |
-| 追加の本体統合・Insets回帰テスト APK | `pwsh -File scripts/docker-build.ps1 -Task ":app:assembleDebugAndroidTest"` | Hilt統合2件とライセンスInsets回帰1件を含むapp計測テストAPKのビルド成功。端末実行は下記に別記 |
-| リリース構成・縮小・出力名 | `pwsh -File scripts/docker-build.ps1 -Task "assembleRelease"` | OSS修正後の構成もR8・lintを含め成功（2分1秒・744 tasks）。版付き未署名APKを生成。本番配布用署名は行っていない |
-| ビルド処理の単体テスト | `pwsh -File scripts/docker-build.ps1 -Task ":buildSrc:test"` | buildSrc の15件成功、失敗・スキップ0。通常モジュール165件とは別集計 |
-| 識別子・パッケージ配置 | `pwsh -File scripts/verify-citrus-identifiers.ps1` | 最新検査はテキスト1,382件、package/物理パス820件で問題0。原典帰属と明示的な移行互換を許可 |
-| ビルド・コミット補助処理 | `pwsh -File scripts/test-build-workflow.ps1` | APK 種別選択27ケースを含むモック成功。引数・明示 Push の安全性を保持。実ビルドでも debug 指定時に古い release APK の更新日時が変わらないことを確認 |
+| 本体・通常単体・全計測APK・release・buildSrc | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest assembleDebugAndroidTest assembleRelease :buildSrc:test"` | 全成功（4分50秒・1,965 tasks）。通常69suite・247件、buildSrc15件は別集計で失敗・error・スキップ0 |
+| 新しい計測回帰 | 上記の`assembleDebugAndroidTest` | 移行13・広告7・検索4・UI2・HTTP更新2の計28件を追加しAPK生成成功。端末実行は未実施。既存13件の実機成功とは別 |
+| リリース構成・縮小・出力名 | 上記の`assembleRelease` | R8/lint成功、版付き未署名APK生成。反射対象の操作定数138/138・設定Container155/155をmappingで照合、欠落0。本番配布用署名は行っていない |
+| ビルド処理の単体テスト | 上記の`:buildSrc:test` | buildSrc15件成功。通常247件に含めない |
+| 識別子・パッケージ配置 | `pwsh -File scripts/verify-citrus-identifiers.ps1` | テキスト1,434件、package/物理パス864件で問題0。原典帰属と明示的な移行互換を理由付き許可 |
+| ビルド・コミット補助処理 | `pwsh -File scripts/test-build-workflow.ps1` | 11月16日までにAPK種別選択27ケースを含むモック成功。今回は補助処理本体に変更なし |
 | 通知のオフライン再生成 | 隔離コンテナのネットワークを切断し、`:app:generateDebugOssNotices :app:generateReleaseOssNotices` を `--offline --rerun-tasks` で実行 | 成功。通常生成が通知本文のネット取得に依存しないことを確認 |
-| APK の梱包 | APK 内の画像・Manifest 参照・`assets/licenses.compressed` を生成元と照合 | 今回は生成 GZIP 一致、runtime 102依存・ソース18項目・NYSL保持・旧Firebase通知0を確認。アイコンの全画素・参照照合は11月15日に実施 |
+| APK の梱包 | APK内Manifest・`assets/licenses.compressed`を生成元と照合 | min23/target37とLAN権限宣言、debug/releaseの通知GZIP一致、NYSL・WorkManager・Material1.14保持、旧Firebase通知0を確認。アイコン全画素・参照照合は11月15日に実施 |
 
 ## 実機で確認した範囲
 
@@ -56,10 +63,10 @@ JDK・SDK・Gradle は Docker 内だけで実行します。中間生成物・Ko
 
 ## 次の作業
 
-1. [実機確認手順](DEVICE_CHECKS.md)に沿って、今回のAndroid 15・計測13件以外のOS、外部HTTP購読、回線切替・再起動、更新インストール、戻る操作・IME・権限・ダウンロード・広告判定・永続更新・通知を確認する。OSS画面は横画面・別テーマ・別ナビゲーション等へ確認条件を広げる。
-2. 実リスト・実 URL・端末上で候補比較数、遅延、メモリを測定し、正しい判定を保ったまま性能を改善する。
-3. 拡張 uBlock 構文等の対応範囲を広げ、実サイトで互換性を確認する。
-4. アプリ UI 全体のテーマ刷新、本番用署名・配布準備を進める。各変更の独立レビュー・Docker 検証・GitHub 反映を継続する。
+1. 検証済み変更をGitHubへ反映し、[実機確認手順](DEVICE_CHECKS.md)に沿ってSO-51Dをデータ保持更新する。新計測28件と既存13件を実行し、実Yuzu書出し・Google・はちま起稿モバイル版・Material UIの既存操作を優先確認する。
+2. Android17のLAN許可・拒否、他OS、HTTPの実時間再試行・回線切替・プロセス/OS再起動、Doze、IME・権限・ダウンロード・戻る操作を確認する。人工HTTP2件は端末内だけのテストであり、外部購読や実際の再起動を代用しない。
+3. 実リスト・実URL・端末上の遅延とメモリを測定し、拡張uBlock構文等の対応範囲を広げる。
+4. UIの残る画面と本番用署名・配布準備を進める。独立レビュー・Docker検証・GitHub反映を継続する。
 
 ## 原典とライセンス
 

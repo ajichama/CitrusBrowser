@@ -15,6 +15,8 @@ $allowed = @{
     'module/core/src/main/java/io/github/ajichama/citrusbrowser/core/utility/utils/BrowserSchemeCompat.kt' = '保存済み URI の旧 scheme を読み込む唯一の互換境界'
     'module/core/src/test/java/io/github/ajichama/citrusbrowser/core/utility/utils/BrowserIntentMigrationTest.kt' = '旧 Intent の復元互換を確認する入力データ'
     'module/core/src/test/java/io/github/ajichama/citrusbrowser/core/utility/utils/BrowserSchemeCompatTest.kt' = '旧 scheme の復元互換を確認する入力データ'
+    'legacy/src/main/java/io/github/ajichama/citrusbrowser/legacy/backup/LegacyImportCompatibility.kt' = '旧バックアップの既知 Intent 識別子と置換トークンを移行する互換境界'
+    'legacy/src/test/java/io/github/ajichama/citrusbrowser/legacy/backup/LegacyImportCompatibilityTest.kt' = '旧バックアップの識別子移行を検証する入力データ'
     'scripts/verify-citrus-identifiers.ps1' = '旧識別子の再混入を検出する検査パターン'
 }
 $issues = [Collections.Generic.List[object]]::new()
@@ -55,9 +57,25 @@ try {
         foreach ($line in $text -split '\r?\n') {
             if ($line -notmatch '(?i)jp\.hazuki\.(?:yuzubrowser|bookmark)|\byuzu\b') { continue }
             if ($allowed.ContainsKey($relative)) { [void]$allowedHits.Add($relative); continue }
+            if ($relative -eq 'legacy/src/test/java/io/github/ajichama/citrusbrowser/legacy/backup/ImportUserSettingsTest.kt' -and
+                $line.Trim() -ceq 'val old = "intent:#Intent;component=jp.hazuki.yuzubrowser/jp.hazuki.yuzubrowser.bookmark.view.BookmarkActivity;l.id=7;S.note=%E4%BF%9D%E6%8C%81;end"') {
+                $label = "$relative#旧ブックマークIntent入力"
+                $allowed[$label] = 'URL別設定の旧ブックマーク参照を移行する専用回帰入力（この行だけ許可）'
+                [void]$allowedHits.Add($label)
+                continue
+            }
             if ($relative -eq 'legacy/src/main/res/values/strings_pref.xml' -and
                 $line -match 'Based on Yuzu Browser.*Hazuki') {
                 [void]$allowedHits.Add('原典の著作権表示')
+                continue
+            }
+            # 移行元を示す製品名だけを許可し、リソース全体や旧コード識別子は除外しない。
+            if ($relative -in @('legacy/src/main/res/values/portable_import_strings.xml', 'legacy/src/main/res/values-ja/portable_import_strings.xml') -and
+                $line -match '^\s*<string name="legacy_import_(?:title|help)"[^>]*>[^<]*Yuzu Browser[^<]*</string>\s*$' -and
+                $line -notmatch '(?i)jp\.hazuki\.(?:yuzubrowser|bookmark)|\byuzu:') {
+                $label = "$relative#legacy_import_title/help"
+                $allowed[$label] = '移行元アプリを示す製品名の表示（旧コード識別子は許可しない）'
+                [void]$allowedHits.Add($label)
                 continue
             }
             Add-Issue $relative '旧識別子が互換境界以外に残っています'
