@@ -387,6 +387,8 @@ class WebClient(
         override fun onPageFinished(web: CustomWebView, url: String) {
             controller.onPageFinished()
             val data = controller.getTabOrNull(web) ?: return
+            // DOMContentLoaded の橋渡しが間に合わなかったページでも要素フィルタを適用する。
+            applyCosmeticFiltering(web, url)
             applyUserScript(web, url, UserScript.RunAt.IDLE)
 
             if (controller.isActivityPaused) {
@@ -441,14 +443,15 @@ class WebClient(
             if (web.isInvertMode) {
                 web.evaluateJavascript(invertEnableJs, null)
             }
-            val adBlockController = adBlockController
-            if (adBlockController != null) {
-                adBlockController.loadScript(Uri.parse(url))?.let {
-                    web.evaluateJavascript(it, null)
-                }
-            }
+            applyCosmeticFiltering(web, url)
 
             applyUserScript(web, url, UserScript.RunAt.END)
+        }
+
+        private fun applyCosmeticFiltering(web: CustomWebView, url: String) {
+            adBlockController?.loadScript(Uri.parse(url))?.let {
+                web.evaluateJavascript(it, null)
+            }
         }
 
         override fun onPageChanged(web: CustomWebView, url: String, originalUrl: String, progress: Int, isLoading: Boolean) {

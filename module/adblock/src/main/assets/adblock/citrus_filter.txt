@@ -1,6 +1,16 @@
 [Adblock Plus 2.0]
 ! Title: Citrus filter
-! Version: 1
+! Version: 2
+! 2026-11-17 はちま起稿の公開 mobile/PC HTML で広告用途を確認した枠と loader に限定する。
+! 通常記事・画像・コメントや、同じ配信元を利用する他サイトは対象にしない。
+||anymind360.com/js/20213/ats.js$script,domain=blog.esuteru.com
+||html-load.com/loader.min.js$script,domain=blog.esuteru.com
+blog.esuteru.com###ad
+blog.esuteru.com##[data-cptid]
+blog.esuteru.com##.blogroll_ads
+blog.esuteru.com##.ad-siteRanking
+blog.esuteru.com##[class^="google-user-ad-"]
+blog.esuteru.com##.ads-articleTop
 _ads$third-party
 .a8.net$third-party
 .accesstrade.net$third-party

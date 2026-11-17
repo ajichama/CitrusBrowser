@@ -52,8 +52,8 @@ class CosmeticFiltering(
         selector.forEach {
             builder.append('\'').append(it).append("',")
         }
-        // 未対応の拡張セレクター一件で、残りの通常 CSS まで止めない。
-        builder.append("];b.forEach(a=>{try{document.querySelectorAll(a).forEach(n=>{n.remove()})}catch(e){}})})()")
+        // ページの寿命中 CSS を保ち、後挿入や属性変更にも通常の CSS 照合を適用する。
+        builder.append("];").append(COSMETIC_STYLE_SCRIPT).append("})()")
 
         val script = builder.toString()
 

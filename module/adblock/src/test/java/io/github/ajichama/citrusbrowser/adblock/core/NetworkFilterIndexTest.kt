@@ -82,7 +82,7 @@ class NetworkFilterIndexTest {
             val trimmed = line.trim().removePrefix("\uFEFF").trim()
             trimmed.isNotEmpty() && !trimmed.startsWith('!') && !trimmed.startsWith(AbpFilterDecoder.HEADER)
         }
-        assertEquals("内蔵の通常ルールを黙って脱落させない", activeLines, decoded.blackList.size)
+        assertEquals("内蔵の通常・要素ルールを黙って脱落させない", activeLines, decoded.blackList.size + decoded.elementList.size)
         assertTrue(decoded.whiteList.isEmpty())
         val filters = decoded.blackList.map(::CountingFilter)
         val indexed = container(filters)

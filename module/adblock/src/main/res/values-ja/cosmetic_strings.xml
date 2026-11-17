@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ad_block_enabled_summary">広告ブロックは有効です。選択したフィルタはページの再読み込みで適用されます。</string>
+    <string name="ad_block_disabled_summary">広告ブロックは無効です。オンにすると選択したフィルタを適用します。</string>
+    <string name="ad_block_filter_scope_summary">標準では内蔵の基本フィルタのみ有効です。必要な追加リストを選び、更新してください。</string>
+    <string name="ad_block_enable_cosmetic_title">広告の要素を非表示にする</string>
+    <string name="ad_block_cosmetic_summary">選択したフィルタで広告枠や読み込み後に追加される広告を非表示にします。変更後はページを再読み込みしてください。</string>
+</resources>

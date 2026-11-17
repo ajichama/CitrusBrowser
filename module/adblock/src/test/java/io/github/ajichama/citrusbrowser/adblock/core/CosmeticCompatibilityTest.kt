@@ -141,7 +141,7 @@ class CosmeticCompatibilityTest {
         val cosmetic = cosmetic(rules)
         assertNotNull(cosmetic.loadScript(uri("https://alpha.example/"), ignoreGeneric = true))
         val script = cosmetic.loadScript(uri("https://beta.test/"), ignoreGeneric = true)!!
-        assertEquals(1, Regex("\\.ad").findAll(script).count())
+        assertEquals(1, Regex("'\\.ad'").findAll(script).count())
         assertNull(cosmetic.loadScript(uri("https://unrelated.test/")))
     }
 

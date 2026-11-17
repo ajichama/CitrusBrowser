@@ -164,7 +164,7 @@ class AbpFilterDecoderTest {
         assertTrue(script.contains("div[title=\\'ad\\']"))
         assertTrue(script.contains("div[title=\\'legacy\\']"))
         assertFalse(script.contains("div[title=\\\\'ad"))
-        assertTrue(script.contains("try{document.querySelectorAll"))
+        assertTrue(script.contains("syntax.querySelector(a)"))
         assertTrue(script.contains("catch(e){}"))
     }
 
