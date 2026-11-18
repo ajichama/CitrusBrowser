@@ -16,6 +16,7 @@
 
 package io.github.ajichama.citrusbrowser.gecko
 
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import org.mozilla.geckoview.AllowOrDeny
@@ -226,6 +227,26 @@ class BuiltinUblockManager(
         session.loadUri(url)
     }
 
+    /**
+     * uBO 自身が abp:subscribe リンクから開く購読確認ページ（asset-viewer.html の subscribe=1）を表示する。
+     * URL の形式と受け付ける scheme は uBO 1.76.4 の messaging.js `subscribeTo` に合わせる。
+     * 購読はページ内の「購読」ボタンを押した場合だけ uBO が確定し、ここでは選択・storage を変更しない。
+     */
+    fun showSubscribePage(listUrl: String, title: String): Boolean {
+        checkMainThread()
+        val source = extension ?: return false
+        val base = extensionBaseUrl
+        if (!canUse(source) || base.isNullOrBlank()) return false
+        if (!SUBSCRIBABLE_URL.containsMatchIn(listUrl)) return false
+        val url = base.trimEnd('/') + "/asset-viewer.html?url=" + Uri.encode(listUrl) +
+            "&title=" + Uri.encode(title) + "&subscribe=1"
+        val session = sessionFactory()
+        attachSession(session)
+        listener.onOpenExtensionPage(session, false)
+        session.loadUri(url)
+        return true
+    }
+
     /** Host の所有セッションを閉じる前に呼ぶ。拡張の storage・導入状態は消さない。 */
     fun close() {
         checkMainThread()
@@ -302,5 +323,6 @@ class BuiltinUblockManager(
         const val EXTENSION_ID = "uBlock0@raymondhill.net"
         const val EXTENSION_VERSION = "1.76.4"
         const val ASSET_URI = "resource://android/assets/ublock/"
+        private val SUBSCRIBABLE_URL = Regex("^(file|https?)://")
     }
 }

@@ -16,6 +16,25 @@
 
 後続では標準MyFiltersタブとpopupの描画を確認した。また、対象アプリのforce-stop後に別PIDで再起動し、uBOの無効状態を保持したことと元の有効状態への復旧を手動確認した。有効状態1項目の保持であり、フィルタ本文・タブ状態等をまとめて復元確認済みとはしない。
 
+### scriptlet・procedural 検証の方式変更（2026-11-19）
+
+別UIDのclipboard経由でMyFiltersを読み書きする`gecko-ui-probe`は読み取り段階で凍結した。代わりに`gecko-preview`の計測`GeckoDisposableProfileScriptletTest`を、既存3件とは別の`am instrument -e class`で実行する。
+
+- profile: GeckoViewは1プロセスでGeckoを1回しか初期化できない（`GeckoRuntime.create`は稼働中のGeckoがあると失敗する）。そのため`GeckoRuntimeHolder`で最初のRuntime生成前だけ設定を予約し、`-profile <アプリcache内の新規dir>`と`configFilePath("")`で使い捨てprofileを使う。通常起動は従来の`getDefault`のまま。既にRuntimeがあるプロセスでは失敗させ、利用者のprofileを使わない。
+- フィルタ投入: uBO自身がabp:subscribeで開く購読確認ページ（asset-viewerの`subscribe=1`）を表示し、a11yで「購読」を押す。`set-constant`の`true`と`:has-text`は原本の`requiresTrust`・`trustedSource`の対象外のため、MyFiltersの信頼設定に依存しない。private RPC・storage直書きは使わない。
+- 判定: `127.0.0.2`のloopback fixtureで、nonce付きのプロパティ・class・照合文字列を親文書と同一originの子フレームで測る。購読前・購読後・uBO無効をON/OFF比較し、文書の再読込なしと正常JS・controlの表示を必須にする。
+- 初回cold起動: 有効表示ではなく、同梱EasyListの`/microad.js$script`の実遮断（正常scriptの到達も必須）で準備完了を判定する。購読リストの反映も、nonce付きsentinel規則の遮断で確認する。
+
+あわせて、プレビューのdebug APKだけarm64-v8a・x86_64へ絞った（release は3 ABIのまま）。debug APKは541MBから403MBになった。
+
+SO-51D（Android15）での実機結果は次のとおり。ABIを絞ったAPKで既存3件が成功し、新しい計測1件も別プロセスで成功した（29.4秒、失敗・スキップ0）。
+
+- 使い捨てprofileが実際に使われ、初回cold起動から同梱EasyListの実遮断が始まるまで約7.8秒だった。
+- 標準の購読確認ページからテスト用リストを購読でき、sentinel規則の遮断で反映を確認した。
+- 親文書・子フレームの両方で、uBO有効時は`set-constant`と`:has-text`が効き、無効時は効かなかった。controlの表示と正常JSの実行も保持した。
+
+初回の実行（48.2秒）は`:has-text`の判定だけ失敗した。原因は、fixtureが`textContent`で文字だけを書き換えていたことにある。uBO 1.76.4の`contentscript.js`（`safeObserverHandler`）は、要素ノードの追加・削除だけを再判定の契機にし、テキストノードだけの変化は無視する。実際の広告と同じく、一致する文字を持つ要素を追加する形にfixtureを直した。製品とuBO原本は変えていない。初回の失敗は成功件数に含めない。
+
 ## 方式の判断
 
 | 方式 | 確認した範囲 | 今回の扱い |

@@ -1,5 +1,7 @@
 # 開発専用の MyFilters コピー probe
 
+> **凍結（2026-11-19）**: この probe は読み取り段階（実機 PASS 済み）で凍結し、機能を追加しません。別 UID からクリップボード経由で MyFilters を読み書きする方式は利用者の clipboard と既存 profile に依存して脆いため、scriptlet / procedural の検証は `gecko-preview` の計測 `GeckoDisposableProfileScriptletTest`（同一 UID・同一プロセス・使い捨て Gecko profile）へ移しました。以下は凍結時点の記録です。
+
 `gecko-ui-probe` は Java と Android framework だけを使う、debug 専用・外部 runtime 依存なしの検査アプリです。自己 target の `Instrumentation` から、別 UID の既存 Citrus Gecko Preview を accessibility と通常キーで操作します。本体や preview の起動・終了・URI 再読込は行いません。通常の preview 計測 **3 JUnit 件とは別**で、JUnit 総数には加算しません。
 
 `android.permission.INTERNET` は、scriptlet/procedural 判定用の fixture が `127.0.0.2` の loopback で待ち受けるためだけに宣言しています。外部への通信やライブラリの取得は行わず、外部 runtime 依存なしの方針は変わりません。

@@ -54,7 +54,8 @@ class GeckoEngineHost(context: Context, initialUrl: String? = null) : BuiltinUbl
     }
 
     private val preferences = context.applicationContext.getSharedPreferences("gecko_preview", Context.MODE_PRIVATE)
-    val runtime: GeckoRuntime = GeckoRuntime.getDefault(context.applicationContext)
+    // 通常は GeckoRuntime.getDefault と同じ。計測が予約した場合だけ使い捨て profile の Runtime になる。
+    val runtime: GeckoRuntime = GeckoRuntimeHolder.obtain(context.applicationContext)
     private val pages = linkedMapOf<GeckoSession, Page>()
     private var listener: Listener? = null
     private var foreground = false

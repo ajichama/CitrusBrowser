@@ -68,6 +68,8 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     buildTypes {
+        // debug は実機 arm64 とエミュレーター x86_64 だけを梱包する。release の ABI は変更しない。
+        debug { ndk { abiFilters.addAll(['arm64-v8a', 'x86_64']) } }
         release { minifyEnabled false }
     }
     androidResources {

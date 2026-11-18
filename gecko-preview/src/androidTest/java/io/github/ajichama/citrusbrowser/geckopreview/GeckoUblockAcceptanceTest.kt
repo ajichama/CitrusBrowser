@@ -31,6 +31,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import io.github.ajichama.citrusbrowser.gecko.GeckoRuntimeHolder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertFalse
@@ -271,6 +272,9 @@ class GeckoUblockAcceptanceTest {
     }
 
     private fun recordProfileBeforeLaunch() {
+        // 使い捨て profile の計測と同じプロセスでは、既存 profile の検証として扱わない。
+        assertFalse("使い捨て profile の Runtime が同じプロセスにあります。-e notClass で分けて実行してください。",
+            GeckoRuntimeHolder.customized)
         // Gecko の既定保存場所の存在と、この計測内での前回起動を別々に記録する。
         // 存在しない場合も fresh install と断定しない。実 cold は親側の初回導入記録と照合する。
         val filesMozilla = File(context.filesDir, "mozilla").isDirectory

@@ -52,7 +52,9 @@ import java.util.zip.GZIPInputStream
 
 /** 本体の設定やタブを読み替えない、実 uBO 内蔵動作の独立プレビュー。 */
 class PreviewActivity : Activity(), GeckoEngineHost.Listener {
-    private lateinit var host: GeckoEngineHost
+    // 同一モジュールの計測が uBO 標準ページを開くためだけに internal とする。
+    internal lateinit var host: GeckoEngineHost
+        private set
     private lateinit var root: LinearLayout
     private lateinit var address: EditText
     private lateinit var status: TextView

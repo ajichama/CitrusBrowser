@@ -23,3 +23,5 @@ SDK37.2 を対応範囲内で使うため、共有ビルドツールは AGP9.5.1
 明示ビルドは `pwsh -File scripts/docker-build.ps1 -Task ":gecko-preview:assembleDebug"`、完成 APK は `release/gecko-preview-debug.apk` です。本体 APK を上書きしません。root/app タスクや未指定 variant からプレビューの古い APK を取り出しません。
 
 Gecko 自身の通知はプレビューから `about:license` へ案内します。プレビュー全推移依存の固定通知は `gecko-preview/oss` の別 graph から生成し、通常ビルドでも不足を失敗として扱います。GMS の非 OSS ライセンスも含むため、表示名は「ライブラリのライセンス」です。既存 `app/oss` と本体の通知表示名は変更しません。
+
+Runtime はプロセスごとに1回だけ初期化できるため、`GeckoRuntimeHolder` が唯一の Runtime を所有します。通常起動は従来どおり `GeckoRuntime.getDefault` を使います。計測だけが最初の生成前に設定を予約でき、使い捨て profile（`-profile`）で起動します。予約後に生成が失敗しても既定 profile へ切り替えません。`BuiltinUblockManager.showSubscribePage` は、uBO 自身が abp:subscribe で開く購読確認ページを表示するだけです。購読の確定はページ内の「購読」ボタンで行い、選択や storage を直接変更しません。
