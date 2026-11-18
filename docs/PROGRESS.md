@@ -6,7 +6,9 @@
 
 固定した抜粋の破棄行数は EasyList 48行中5行（変更前と同じ）、AdGuard Japanese 54行中6行（変更前15行）、uBO filters 62行中29行（変更前47行）でした。単体テストで行数・破棄数を固定しています。未対応の制約は行ごと破棄し、scriptlet・procedural等の完全互換や、実サイトの広告残存解消を示す結果とは扱いません。
 
-追加の `:app:assembleDebugAndroidTest :module:adblock:assembleDebugAndroidTest` を含む最終ビルドも1分48秒・919 tasksで成功しました。実Room・実アセットで初期購読と既存無効保持を確認する計測2件を追加していますが、既存の更新回帰9件と合わせて実行は未完了です。API37エミュレーターは初回32.3秒で起動完了を表示したものの、SurfaceFlingerが `!rcEnc->featureInfo()->hasReadColorBufferDma` で繰り返し異常終了し、APK再導入も失敗しました。SwiftShaderへの変更とGLDirectMemの有効化試験でも解消せず、後者はソースの既定から除外しました。API37.2・16KB版も180秒で起動を確認できませんでした。起動表示を計測成功には数えません。
+追加の `:app:assembleDebugAndroidTest :module:adblock:assembleDebugAndroidTest` を含む最終ビルドも1分48秒・919 tasksで成功しました。実Room・実アセットで初期購読と既存無効保持を確認する計測2件と、既存の更新回帰9件（Worker5件・本体の更新2件・HTTP購読2件）は、Docker上のAPI37エミュレーターで11件すべて成功しました（失敗・スキップ0）。実機（SO-51D）での再確認と実サイトでの誤遮断の確認は未実施です。
+
+当初、API37エミュレーターはSurfaceFlingerが `!rcEnc->featureInfo()->hasReadColorBufferDma` で繰り返し異常終了しました。原因は、cmdline-tools 12.0 で作ったAVDに `target=android-0` が書かれ、エミュレーターがAPIを誤認して描画機能を有効にしなかったことでした。cmdline-tools 23.0 でAVDを作り直すと `target=android-37.0` になり、72.9秒で起動し、SurfaceFlingerの異常終了は0件でした。API37.2・16KB版の起動は未確認です。詳細は[エミュレーター環境](../docker/emulator/README.md)を参照してください。
 
 比較基準`f5f2ae8b`は独立レビューと通常単体247件・buildSrc15件、debug・全計測APK・releaseのR8/lintを通過しています。Google.comでの日本語・記号検索、メニュー・設定・IMEの一部も実機で確認しました。Yuzuの書出しは未作成で実データ取込は未確認です。広告対策はサイト個別ルールを追加する方針から、汎用処理を内蔵する方針へ修正しています。[内蔵uBOの検証計画](ADBLOCK_ENGINE_PLAN.md)と[改善一覧](IMPROVEMENT_PLAN.md)を参照してください。
 
