@@ -12,10 +12,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SERVER_PATH = path.join(__dirname, 'server.mjs');
 
 class McpTestClient {
-  constructor(workspaceDir) {
+  constructor(workspaceDir, env = process.env) {
     this.proc = spawn(process.execPath, [SERVER_PATH, '--workspace', workspaceDir], {
       stdio: ['pipe', 'pipe', 'pipe'],
       windowsHide: true,
+      env,
     });
     this.pending = new Map();
     this.nextId = 1;
@@ -99,6 +100,7 @@ test('citrus-collab MCP サーバーのプロトコル通信・状態引き継�
     'task_claim',
     'task_release',
     'codex_delegate',
+    'usage_status',
     'docker_verify',
   ]);
 
@@ -352,4 +354,48 @@ test('複数行の既存 TOML 値を壊さず停止し、レビューにもサ�
   const preview = JSON.parse(review.stdout);
   assert.deepEqual(preview.args.slice(0, 6), ['exec', '-C', root, '-s', 'read-only', 'review']);
   assert.ok(preview.args.includes('--uncommitted'));
+});
+
+test('usage_status は記録を判定し、古い記録は stale、Antigravity と記録なしは unavailable を返す', async (t) => {
+  const root = createWorkspace(t);
+  const usageDir = path.join(root, 'usage');
+  const codexHome = path.join(root, 'codex-home');
+  const dayDir = path.join(codexHome, 'sessions', '2026', '11', '19');
+  fs.mkdirSync(usageDir, { recursive: true });
+  fs.mkdirSync(dayDir, { recursive: true });
+  const now = Date.now();
+  const sec = (ms) => Math.floor(ms / 1000);
+  // Claude はステータスラインのキャッシュ（新しい記録、5時間枠 86%）
+  fs.writeFileSync(path.join(usageDir, 'claude.json'), JSON.stringify({
+    agent: 'claude', source: 'statusline', captured_at: new Date(now - 60_000).toISOString(),
+    windows: [{ kind: 'five_hour', used_pct: 86, resets_at: sec(now + 3600_000) }, { kind: 'seven_day', used_pct: 10, resets_at: sec(now + 86400_000) }],
+  }));
+  // Codex は 1時間前の rollout だけ（stale）
+  fs.writeFileSync(path.join(dayDir, 'rollout-test.jsonl'), JSON.stringify({
+    timestamp: new Date(now - 3600_000).toISOString(), type: 'event_msg',
+    payload: { type: 'token_count', rate_limits: {
+      primary: { used_percent: 99, window_minutes: 300, resets_at: sec(now + 3600_000) },
+      secondary: { used_percent: 5, window_minutes: 10080, resets_at: sec(now + 86400_000) },
+    } },
+  }) + '\n');
+  const client = new McpTestClient(root, { ...process.env, CITRUS_USAGE_DIR: usageDir, CODEX_HOME: codexHome });
+  t.after(() => client.close());
+
+  const all = JSON.parse((await callTool(client, 'usage_status', {})).result.content[0].text);
+  assert.deepEqual(Object.keys(all.agents), ['claude', 'codex', 'antigravity']);
+  assert.equal(all.agents.claude.status, 'ok');
+  assert.equal(all.agents.claude.level, 'checkpoint');
+  assert.equal(all.agents.codex.status, 'stale');
+  assert.equal(all.agents.codex.level, 'none');
+  assert.equal(all.agents.antigravity.status, 'unavailable');
+  assert.deepEqual(all.agents.antigravity.windows, []);
+  // rollout から読んだ記録はキャッシュにも保存される
+  assert.equal(JSON.parse(fs.readFileSync(path.join(usageDir, 'codex.json'), 'utf8')).windows[0].used_pct, 99);
+
+  fs.rmSync(path.join(usageDir, 'claude.json'));
+  const single = JSON.parse((await callTool(client, 'usage_status', { agent: 'claude' })).result.content[0].text);
+  assert.deepEqual(Object.keys(single.agents), ['claude']);
+  assert.equal(single.agents.claude.status, 'unavailable');
+  const bad = await callTool(client, 'usage_status', { agent: 'other' });
+  assert.equal(bad.result.isError, true);
 });

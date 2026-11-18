@@ -8,6 +8,7 @@ Antigravity (Gemini) と OpenAI Codex（CLI / IDE 拡張 / Desktop アプリ）�
 - **Structured Blackboard & Handoff Contract**: 状態 JSON (`.agents/handoff/state.json`) と可読台帳 (`.agents/handoff/HANDOFF.md`) を同時管理し、モデル・クオータ切替時の文脈欠落を防ぎます。
 - **排他タスクロック (`task_claim` / `task_release`)**: 対象パスが重なるタスクを別 MCP プロセスからも二重取得できないようにします（TTL 期限切れ自動解放つき）。実際のファイル書き込みを OS 権限で禁止する仕組みではないため、全担当が着手前にロックを取得してください。
 - **ハイブリッド連携 (`codex_delegate` / `docker_verify`)**: Antigravity からの Codex CLI 非対話委譲や、両エージェント共通の Docker ビルド検証を単一コマンド経路で実行できます。
+- **利用枠の確認 (`usage_status`)**: `scripts/usage-guard.mjs` の記録（`%USERPROFILE%\.citrus\usage\`）を `ok` / `stale` / `unavailable` で返します。推定値は返さず、Antigravity は常に `unavailable` です（AGENTS.md 第8節）。
 
 ## セットアップ
 

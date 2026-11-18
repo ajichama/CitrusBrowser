@@ -85,3 +85,7 @@ Antigravity を設計・統括役（Orchestrator）として維持したまま�
 - `HANDOFF.md` は毎回読まれるため、履歴は直近5件（各300字）だけを表示する。全文は `state.json` に残る。
 - ロック範囲は編集するパスに絞る。他エージェントの有効なロックを `force` で取るのは、ユーザーの承認がある場合だけ。
 - 利用枠（レート制限）の上限が近づいたら、上限に達する前に台帳を更新する。
+
+## 5. 利用枠ガード（AGENTS.md 第8節）
+
+利用枠の記録は `%USERPROFILE%\.citrus\usage\` に置く。Claude Code はユーザー設定のステータスライン（`~/.claude/statusline.js`）が `claude.json` を書き、Codex は rollout 記録（`~/.codex/sessions/`、内部形式のため読めなければ `unavailable`）から `scripts/usage-guard.mjs` が `codex.json` を更新する。hooks は Claude Code が `.claude/settings.json`、Codex が `.agents/hooks/codex-hooks.json`（`.codex/hooks.json` へ複製し `/hooks` で信頼承認）で、閾値（5時間枠70/85/95%・週枠80/90/97%）を超えたときだけ文脈へ警告を入れる。MCP `usage_status` は記録を `ok` / `stale`（15分より古い）/ `unavailable` で返し、Antigravity は常に `unavailable` なので作業を小さく区切って台帳を更新する。

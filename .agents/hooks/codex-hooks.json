@@ -1,0 +1,42 @@
+{
+  "description": "CitrusBrowser 利用枠ガード（AGENTS.md 第8節）。.agents/hooks/codex-hooks.json を .codex/hooks.json へ複製して使う。",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/usage-guard.mjs\" --agent codex --event SessionStart",
+            "commandWindows": "node scripts/usage-guard.mjs --agent codex --event SessionStart",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/usage-guard.mjs\" --agent codex --event UserPromptSubmit",
+            "commandWindows": "node scripts/usage-guard.mjs --agent codex --event UserPromptSubmit",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/usage-guard.mjs\" --agent codex --event PostToolUse",
+            "commandWindows": "node scripts/usage-guard.mjs --agent codex --event PostToolUse",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

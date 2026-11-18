@@ -117,7 +117,7 @@
 3. **セッション終了・交代時の構造化引き継ぎ**:
    - エージェントを切り替える際は必ず `handoff_update`（または [`.agents/skills/agent-handoff/SKILL.md`](.agents/skills/agent-handoff/SKILL.md) の手順）で進捗サマリー・次目標・受け入れ条件・関連ファイルを記録する。
    - サマリーは**人間が読める平文で600字程度まで**とし、「完了したこと／未完了・未検証のこと／戻すべき一時状態／次の一手」を分けて書く。担当記号（A/B/C）や英単語の羅列（freeze, PASS 等）だけの圧縮表現を避け、詳細はレポートのパスで示す。
-   - 利用枠の上限が近づいたら、上限に達する前に台帳を更新する。
+   - 利用枠の上限が近づいたら、上限に達する前に台帳を更新する（段階と手順は第8節）。
 4. **ハイブリッド委譲と共通検証**:
    - Codex への委譲には `codex_delegate` MCP または `pwsh -File scripts/codex-delegate.ps1` を使用する。
    - どのエージェントが変更を加えた場合でも、最終検証には必ず `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest"` を使用する。
@@ -129,3 +129,14 @@
 - `.agents/handoff/reports/` は作業記録の置き場であり、保管庫ではない。公開済みの成果に対応する古いビルドログや、外部から取得した生データは、作業が完了したら整理する。
 - 個人だけのメモや補助ファイルは `.git/info/exclude` に記載する。ホーム配下のアプリ設定・秘密鍵は共有しない。
 - 公開範囲を差分で確認してから対象を明示してステージする。未コミット全件の自動追加を行わない。
+
+## 8. 利用枠に応じた作業の区切り
+
+利用枠（レート制限）の上限で作業が途中で止まらないよう、上限に達する前にビルドが通る状態と台帳の更新を残す。記録は `%USERPROFILE%\.citrus\usage\`（ローカル・非共有）に置き、判定は [`scripts/usage-guard.mjs`](scripts/usage-guard.mjs) が行う。
+
+- 作業開始時と大きな作業の前に `usage_status`（MCP `citrus-collab`）で残量を確認する。Claude Code（[`.claude/settings.json`](.claude/settings.json)）と Codex（[`.agents/hooks/codex-hooks.json`](.agents/hooks/codex-hooks.json) を `.codex/hooks.json` へ複製）は hooks が閾値超過時に自動で警告する。
+- 5時間枠70%以上（週枠80%以上）: 新しい大作業（複数モジュールの変更・全体ビルド）を始めない。
+- 85%以上（週枠90%以上）: 今の変更をビルドが通る状態に戻すか退避し、`handoff_update` で進捗・次の目標・未検証の項目を記録する。保有するロックは第6節どおり `task_release`（`outcome: "paused"`）で解放する。
+- 95%以上（週枠97%以上）、または上限の警告を受けたら: 新しい作業を止め、台帳の更新だけを行って中断する。
+- `unavailable` / `stale`（Antigravity は公式の取得手段がないため常に `unavailable`）は残量不明として扱い、作業単位を小さく保ち、区切りごとに台帳を更新する。推定値で判断しない。
+- 中断時は未コミットの変更の有無と、最後に成功した検証コマンドを必ず台帳に残す。

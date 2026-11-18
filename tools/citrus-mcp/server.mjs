@@ -22,6 +22,7 @@ import {
   SUMMARY_SOFT_LIMIT,
   updateHandoffState,
 } from './handoff-store.mjs';
+import { AGENTS as USAGE_AGENTS, THRESHOLDS as USAGE_THRESHOLDS, evaluate as evaluateUsage, loadSnapshot as loadUsageSnapshot } from '../../scripts/usage-guard.mjs';
 
 const SUPPORTED_PROTOCOL_VERSIONS = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'];
 const SERVER_INFO = {
@@ -326,6 +327,21 @@ const TOOLS = [
     },
   },
   {
+    name: 'usage_status',
+    description:
+      '各エージェントの利用枠（レート制限）の記録を返します（status: ok / stale / unavailable）。作業開始時と大きな作業の前に呼び、AGENTS.md 第8節に従って区切りを判断してください。推定値は返しません。Antigravity は公式の取得手段がないため常に unavailable です。',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        agent: {
+          type: 'string',
+          enum: ['claude', 'codex', 'antigravity'],
+          description: '対象エージェント（省略時は全エージェント）',
+        },
+      },
+    },
+  },
+  {
     name: 'docker_verify',
     description:
       'scripts/docker-build.ps1 を呼び出して Docker コンテナ内で Android ビルド (assembleDebug) や単体テスト (testDebugUnitTest) を検証し、結果を引き継ぎ台帳に記録します。',
@@ -470,6 +486,28 @@ async function handleToolCall(name, args = {}) {
         },
         failed
       );
+    }
+
+    case 'usage_status': {
+      const targets = args.agent ? [args.agent] : USAGE_AGENTS;
+      const agents = {};
+      for (const agent of targets) {
+        let snapshot = null;
+        try {
+          snapshot = agent === 'antigravity' ? null : loadUsageSnapshot(agent);
+        } catch {
+          snapshot = null;
+        }
+        const result = evaluateUsage(agent, snapshot);
+        agents[agent] = {
+          status: result.status,
+          level: result.level,
+          windows: result.windows,
+          reason: result.reason,
+          ...(result.captured_at ? { capturedAt: result.captured_at } : {}),
+        };
+      }
+      return toolTextResult({ checkedAt: new Date().toISOString(), thresholds: USAGE_THRESHOLDS, agents });
     }
 
     case 'docker_verify': {
