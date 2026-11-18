@@ -11,7 +11,11 @@ const HISTORY_RENDER_ENTRIES = 5;
 const HISTORY_RENDER_CHARS = 300;
 // handoff_update の要約がこの文字数を超えたら、読みやすさのため警告を返す。
 export const SUMMARY_SOFT_LIMIT = 800;
-const SESSION_OWNER = randomUUID();
+// MCP サーバーはプロセスごとの UUID を所有者にする。CLI（cli.mjs）は CITRUS_SESSION_OWNER で
+// エージェントごとの固定値を渡し、取得したロックを別プロセスの CLI 呼出しから解放できるようにする。
+const SESSION_OWNER = /^[A-Za-z0-9:_-]{1,64}$/.test(process.env.CITRUS_SESSION_OWNER ?? '')
+  ? process.env.CITRUS_SESSION_OWNER
+  : randomUUID();
 const heldMutexes = new Set();
 
 /**

@@ -26,14 +26,11 @@
    - 後継アプリとして独自のアプリ名（**CitrusBrowser**）・パッケージID（`applicationId`）・アイコンを採用しつつ、Yuzu Browser（作者: Hazuki氏）をベースとしている旨を明記する。
 5. **Always Buildable & Testable (`main` ブランチの品質維持)**:
    - コミットおよび Push 前には、Docker ビルド (`pwsh -File scripts/docker-build.ps1`) および単体テストが通ることを確認する。
-6. **Multi-Agent Orchestration & Context Hygiene (サブエージェント分業体制とコンテキスト最適化)**:
-   - **Orchestrator-Specialist パターン**および **Progressive Disclosure** に従い、メインエージェント（Orchestrator）のコンテキストを常にクリーンに保つ。広範な調査・大量のファイル読込・大きな実装は、各エージェントのサブエージェント機能（Antigravity の `invoke_subagent`、Claude Code の Agent ツール、Codex のサブエージェント等）で次の専門役へ委譲する：
-     - **`code-explorer` (調査・影響分析 / Read-Only)**: 広範なコード検索・依存調査を独立コンテキストで実行し、構造化サマリーのみを返す。
-     - **`module-implementer` (モジュール実装 / Write-Enabled)**: モジュール・機能単位の実装やリファクタリングを独立コンテキスト内で完結させる。複数モジュールにまたがる場合は、編集範囲が重ならないように分けて並列起動する。
-     - **`code-reviewer` (品質監査 / Read-Only)**: 実装後の差分・規約遵守・参照漏れを監査する。
-   - サブエージェントには生ログや全文ではなく、結論・根拠（ファイル:行）・未解決事項の要約を返させる。長いビルドログは `.agents/handoff/reports/` に保存し、パスで参照する。
-   - 監査の多重化（実装者と別の監査役を重ねる等）は、リスクの高い変更に限る。利用枠（レート制限）を使い切って作業が中断することも品質上のリスクとして扱う。
-   - 詳細な運用手順はワークスペーススキル [`.agents/skills/multi-agent-workflow/SKILL.md`](.agents/skills/multi-agent-workflow/SKILL.md) および [`.agents/skills/docker-build-verify/SKILL.md`](.agents/skills/docker-build-verify/SKILL.md) に定義し、オンデマンドで参照する。
+6. **Skills を持つメインエージェントを基本とする (Skills-first & Context Hygiene)**:
+   - 繰り返す手順は Skills（[`.agents/skills/`](.agents/skills/)）に書き、必要なときだけ読み込む（Progressive Disclosure）。メインのエージェントが Skills を使って1つの流れで進めることを基本とする（Anthropic の公式見解: Skills を持つ単一ループはサブエージェント構成より品質・コスト・待ち時間で上回ることが多い）。
+   - サブエージェント（Antigravity の `invoke_subagent`、Claude Code の Agent ツール、Codex のサブエージェント等）は次の3つの場合に限る: (1) 大量の読み取りで文脈が膨らむ調査、(2) 独立した作業の並列化（編集範囲を重ねない）、(3) リスクの高い変更の独立監査（読み取り専用）。結論・根拠（ファイル:行）・未解決事項だけを返させ、長いログは `.agents/handoff/reports/` に保存してパスで参照する。判断基準と進め方は [`multi-agent-workflow`](.agents/skills/multi-agent-workflow/SKILL.md)。
+   - 利用枠（レート制限）を使い切って作業が中断することも品質上のリスクとして扱う（第8節）。
+   - Skills や進め方を変えたら、[評価セット](.agents/evals/golden-cases.md) の模範例に照らして、守るべき振る舞いが失われていないかを確かめる。
 
 ---
 
@@ -44,8 +41,11 @@
 ├── AGENTS.md                 # 全エージェント共通の規約（本ファイル。進捗は書かない）
 ├── .mcp.json                 # Claude Code 用の citrus-collab 接続設定（相対パスのみ）
 ├── .agents/
-│   ├── skills/               # 共通ワークフロースキル（agent-handoff, docker-build-verify, multi-agent-workflow）
+│   ├── skills/               # 共通スキルの正本（docker-build-verify, git-publish, emulator-measure, adblock-verify, oss-notices, agent-handoff, multi-agent-workflow）
+│   ├── evals/                # 進め方・Skills の評価セット（模範例）
+│   ├── hooks/                # Codex 用 hooks の雛形（利用枠ガード）
 │   └── handoff/              # 引き継ぎ台帳・ロック・レポート（Git管理外のローカル状態）
+├── .claude/                  # Claude Code 用（settings.json の hooks、skills/ は正本を指す生成ファイル）
 ├── tools/citrus-mcp/         # 引き継ぎ台帳・ロック・Codex委譲・Docker検証を提供する共通 MCP サーバー
 ├── docker/
 │   ├── Dockerfile            # Android SDK (API 30/36/37) + JDK 11/17/21 ビルド環境定義
@@ -107,7 +107,9 @@
 
 ## 6. Multi-Agent Collaboration & Handoff (Antigravity / Codex / Claude Code 協調運用)
 
-本リポジトリは **Antigravity (Gemini)**・**OpenAI Codex**・**Claude Code** が同一コードベース・MCP・スキルを共有して作業を引き継げる設計になっています。台帳とロックのエージェント名は `antigravity` / `codex` / `claude` / `human` です。Claude Code はプロジェクト共有の [`.mcp.json`](.mcp.json)（相対パスのみ）から `citrus-collab` を読み込みます。
+本リポジトリは **Antigravity (Gemini)**・**OpenAI Codex**・**Claude Code** が同一コードベース・MCP・スキルを共有して作業を引き継げる設計になっています。台帳とロックのエージェント名は `antigravity` / `codex` / `claude` / `human` です。Claude Code はプロジェクト共有の [`.mcp.json`](.mcp.json)（相対パスのみ）から `citrus-collab` を読み込みます。MCP を使えない場合は同じ処理を呼ぶ CLI（`node tools/citrus-mcp/cli.mjs read|update|claim|release`）を使います。手順の詳細は [`agent-handoff`](.agents/skills/agent-handoff/SKILL.md)。
+
+共通スキルの正本は `.agents/skills/` に置き、Claude Code 用の `.claude/skills/` は `node scripts/sync-agent-skills.mjs` で生成する（正本を変えたら実行し、`--check` でずれがないことを確かめる）。
 
 1. **セッション開始時の引き継ぎ確認**:
    - 作業着手前に MCP `citrus-collab` の `handoff_read` を呼び出すか、`.agents/handoff/HANDOFF.md`（Git管理外のローカル引き継ぎ台帳）を確認する。台帳の HEAD・ロック・端末状態は古いことがあるため、`git log` / `git status` と照合する。
@@ -124,7 +126,7 @@
 
 ## 7. 共有ファイルとローカル状態の管理
 
-- `AGENTS.md`、`.mcp.json`、`.agents/skills/`、`.agents/plugins/citrus-collab/`、`tools/citrus-mcp/`、再利用可能な `scripts/` は Git 管理する。接続テンプレートに個人の絶対パス・認証情報を入れない。
+- `AGENTS.md`、`.mcp.json`、`.agents/skills/`・`evals/`・`hooks/`、`.claude/settings.json`・`.claude/skills/`、`.agents/plugins/citrus-collab/`、`tools/citrus-mcp/`、再利用可能な `scripts/` は Git 管理する。接続テンプレートに個人の絶対パス・認証情報を入れない。
 - `.agents/handoff/`（台帳・ロック・レポート）、`.codex/`、`AGENTS.override.md` は全員に共通するローカル状態として `.gitignore` で除外する。
 - `.agents/handoff/reports/` は作業記録の置き場であり、保管庫ではない。公開済みの成果に対応する古いビルドログや、外部から取得した生データは、作業が完了したら整理する。
 - 個人だけのメモや補助ファイルは `.git/info/exclude` に記載する。ホーム配下のアプリ設定・秘密鍵は共有しない。
