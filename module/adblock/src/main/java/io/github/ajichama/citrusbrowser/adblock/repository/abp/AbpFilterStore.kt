@@ -235,7 +235,7 @@ internal class AbpFilterStore(
 
     companion object {
         // 解釈の変更時に更新する。旧キャッシュは新しい束の公開成功まで保持する。
-        const val PARSER_REVISION = 3
+        const val PARSER_REVISION = 4
         private const val MANIFEST = "manifest.properties"
         private val PREFIXES = listOf(ABP_PREFIX_DENY, ABP_PREFIX_ALLOW, ABP_PREFIX_DISABLE_ELEMENT_PAGE, ABP_PREFIX_ELEMENT)
         private val publicationLock = Any()

@@ -78,7 +78,16 @@ class FilterReader(private val input: InputStream) {
                 patternBuffer = ByteArray(patternSize)
             }
             if (input.read(patternBuffer, 0, patternSize) != patternSize) break
-            val pattern = String(patternBuffer, 0, patternSize)
+            var pattern = String(patternBuffer, 0, patternSize)
+            var actualType = type
+            var ruleKey: String? = null
+            if (type == FILTER_TYPE_NETWORK_RULE) {
+                val parts = pattern.split('\u0000', limit = 3)
+                if (parts.size != 3) throw IOException("フィルタの識別情報が壊れています。")
+                actualType = parts[0].toIntOrNull() ?: throw IOException("フィルタの種類が不正です。")
+                ruleKey = parts[1]
+                pattern = parts[2]
+            }
 
             val domainsSize = input.read()
             if (domainsSize == -1) break
@@ -134,7 +143,7 @@ class FilterReader(private val input: InputStream) {
                 }
             }
 
-            val filter = when (type) {
+            val filter = when (actualType) {
                 FILTER_TYPE_CONTAINS -> ContainsFilter(pattern, contentType, domains, thirdParty, ignoreCase)
                 FILTER_TYPE_HOST -> HostFilter(pattern, contentType, ignoreCase, domains, thirdParty)
                 FILTER_TYPE_CONTAINS_HOST -> ContainsHostFilter(pattern, contentType, ignoreCase, domains, thirdParty)
@@ -148,7 +157,7 @@ class FilterReader(private val input: InputStream) {
                 FILTER_TYPE_PATTERN -> PatternMatchFilter(pattern, contentType, ignoreCase, domains, thirdParty)
                 else -> break@loop
             }
-            yield(filter)
+            yield(if (ruleKey != null) NetworkRuleFilter(filter, ruleKey, 0) else filter)
         }
     }
 }

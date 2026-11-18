@@ -20,6 +20,8 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import dagger.hilt.android.EntryPointAccessors
+import io.github.ajichama.citrusbrowser.adblock.repository.abp.AbpDefaultSubscriptions
 import io.github.ajichama.citrusbrowser.core.utility.log.ErrorReport
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -35,8 +37,16 @@ class AbpUpdateWorker(context: Context, parameters: WorkerParameters) : Coroutin
             val id = inputData.getInt(AbpUpdateScheduler.KEY_ID, 0)
             val requestedAt = inputData.getLong(AbpUpdateScheduler.KEY_REQUESTED_AT, 0)
             if (!dispatch && ((id != AbpUpdateScheduler.ALL && id <= 0) || requestedAt <= 0)) return@withContext Result.failure()
+            // 自動更新が無効なら、移行や Hilt の依存解決を行わずに終了する。
             if (!manual && !AbpUpdateScheduler.automaticEnabled(applicationContext)) {
                 return@withContext complete(AbpUpdateOutcome.Skipped, manual)
+            }
+            if (dispatch || (manual && id == AbpUpdateScheduler.ALL)) {
+                val entryPoint = EntryPointAccessors.fromApplication(
+                    applicationContext, AbpUpdateService.AbpUpdateEntryPoint::class.java,
+                )
+                // 有効化後の dispatch または手動全件更新で、未登録の既定購読を追加する。
+                AbpDefaultSubscriptions.migrate(applicationContext, entryPoint.abpDatabase())
             }
             val updater = AbpUpdateService.createInstance(applicationContext)
             if (dispatch) {

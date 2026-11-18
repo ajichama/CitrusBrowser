@@ -17,6 +17,9 @@
 package io.github.ajichama.citrusbrowser.adblock.core
 
 import io.github.ajichama.citrusbrowser.adblock.filter.abp.ABP_PREFIX_ELEMENT
+import io.github.ajichama.citrusbrowser.adblock.filter.abp.ABP_PREFIX_ALLOW
+import io.github.ajichama.citrusbrowser.adblock.filter.abp.ABP_PREFIX_DENY
+import io.github.ajichama.citrusbrowser.adblock.filter.abp.ABP_PREFIX_DISABLE_ELEMENT_PAGE
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.io.ElementReader
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.io.FilterReader
 import io.github.ajichama.citrusbrowser.adblock.repository.abp.AbpEntity
@@ -77,6 +80,12 @@ internal class AbpLoader(
             }
         }
     }
+
+    fun loadNetworkRules() = NetworkFilterRules(
+        loadAll(ABP_PREFIX_DENY).toList(),
+        loadAll(ABP_PREFIX_ALLOW).toList(),
+        loadAll(ABP_PREFIX_DISABLE_ELEMENT_PAGE).toList(),
+    )
 
     override fun close() {
         entries.forEach { it.snapshot?.close() }

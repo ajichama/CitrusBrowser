@@ -1,0 +1,53 @@
+! 出典: EasyList (https://easylist.to/easylist/easylist.txt, 2026-11-18 版)
+! ライセンス: GPLv3 / CC BY-SA 3.0 (https://easylist.to/pages/licence.html)。単体テスト専用の抜粋で APK には含めない。
+! 前半40行は有効行からの等間隔抽出、後半は構文別に選んだ実在行。
+! --- sampled ---
+&rb=&uuid=$third-party
+###adContext
+###ft-ad
+##.ad--displayed
+##.ad_one_one
+##.advertisingarea-homepage
+##.horiz_adspace
+##.text-panel-ad
+||1oqib8z2vxqmtwtczzg.cfd^
+||agegodfatherbritish.com^
+||bcr74meb.xyz^
+||cartrigestale.com^
+||curriculumoutcry.com^
+||dsprpu.com^
+||ezygwbeelptbx.site^
+||gentoz.xyz^
+||hlbmyjktquias.space^
+||iwffbjlwvwloq.online^
+||koxuwurutihugi.com^
+||majorads.site^
+||nerangee.com^
+||origintube.com^
+||pqqrncwfjorsv.site^
+||realvu.net^
+||secutorlunts.cfd^
+||sunnyindication.com^
+||turbanminding.cfd^
+||villainous-track.pro^
+||wxcpjtdrckkld.website^
+||zddipepgvdwfp.online^
+||exponential.com^$third-party
+||juiceadv.com^$popup
+||an.yandex.ru^$domain=~e.mail.ru
+||awestat.com^*/banner/
+||x0r.urlgalleries.net^
+brawlinsights.com##.ad-banner-wrap
+opoyi.com##.hLYYlN
+fandom.com##.sticky-placement-top
+linkvertise.com##lv-redirect-static-ad
+sextvx.com##.ads_onpause_container
+! --- targeted ---
+###gStickyAd
+/gpt.js$script
+||microad.net^
+||2mdn.net/videoplayback/$rewrite=abp-resource:blank-mp4,domain=laurelberninteriors.com|safeframe.googlesyndication.com
+||googlevideo.com/videoplayback?$rewrite=abp-resource:blank-mp4,domain=laurelberninteriors.com|safeframe.googlesyndication.com
+$csp=script-src 'self' data: 'unsafe-inline' 'unsafe-hashes' 'unsafe-eval',domain=thumbs.pro
+discord.com#?#.wrapper__0d616:has-text(Get Reward)
+/ad_counter.aspx$ping

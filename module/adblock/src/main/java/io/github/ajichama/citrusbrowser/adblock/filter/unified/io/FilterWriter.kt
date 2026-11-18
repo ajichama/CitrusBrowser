@@ -19,6 +19,8 @@ package io.github.ajichama.citrusbrowser.adblock.filter.unified.io
 import io.github.ajichama.citrusbrowser.adblock.filter.toByteArray
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.FILTER_CACHE_HEADER
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.UnifiedFilter
+import io.github.ajichama.citrusbrowser.adblock.filter.unified.NetworkRuleFilter
+import io.github.ajichama.citrusbrowser.adblock.filter.unified.FILTER_TYPE_NETWORK_RULE
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.writeVariableInt
 import java.io.OutputStream
 import kotlin.math.min
@@ -40,12 +42,12 @@ class FilterWriter {
         os.write(filters.size.toByteArray(intBuf))
 
         filters.forEach {
-            os.write(it.filterType and 0xff)
+            os.write(if (it is NetworkRuleFilter) FILTER_TYPE_NETWORK_RULE else it.filterType and 0xff)
             // 要素非表示の例外は高位ビットを使うため、v2 では32bit全体を保存する。
             os.write(it.contentType.toByteArray(intBuf))
             os.write(if (it.ignoreCase) 1 else 0)
             os.write(it.thirdParty and 0xff)
-            val patternBytes = it.pattern.toByteArray()
+            val patternBytes = (if (it is NetworkRuleFilter) it.storedPattern else it.pattern).toByteArray()
             os.writeVariableInt(patternBytes.size, shortBuf, intBuf)
             os.write(patternBytes)
             os.write(min(it.domains?.size ?: 0, 255))

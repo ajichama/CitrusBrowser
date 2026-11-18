@@ -1,6 +1,12 @@
 # 開発進捗と検証範囲
 
-更新日: 2026-11-19。公開基準は`14685f9e`。従来本体の比較基準`f5f2ae8b`ではAndroid15の計測41件が成功し、後続では独立した内蔵uBO試作の計測3件と本体の設定反映1件も成功しました。本体への内蔵uBO統合と追加互換の検証は継続中です。
+更新日: 2026-11-19。本体の既定購読とネットワーク構文を拡張しました。Docker の本体ビルド・通常単体298件が成功しました。本変更の実機確認と、本体への内蔵uBO統合は継続中です。従来本体の比較基準`f5f2ae8b`ではAndroid15の計測41件が成功しています。
+
+新規利用者には EasyList・EasyPrivacy・AdGuard Japanese を有効登録し、既存利用者には旧版に無かった EasyPrivacy・AdGuard Japanese の未登録分だけを一度追加します。EasyList は旧版の既定リストに常に含まれていたため、既存利用者に無ければ削除とみなして復活させません。無効・未取得の EasyList を含め、既存の無効設定は維持します。種別を指定しない通信ルールは本文ページと popup に適用せず、パスを持たないホスト規則と `$document` 明示の規則だけを本文ページに適用します。別名・important・badfilter・限定した空資源への redirect と、安全な `!#include` の展開を実装しました。購読本文は実行時に取得し、完成APKにテスト用のリスト抜粋が含まれないことを確認しました。詳細と非対応範囲は[内蔵uBOの検証計画](ADBLOCK_ENGINE_PLAN.md)を参照してください。
+
+固定した抜粋の破棄行数は EasyList 48行中5行（変更前と同じ）、AdGuard Japanese 54行中6行（変更前15行）、uBO filters 62行中29行（変更前47行）でした。単体テストで行数・破棄数を固定しています。未対応の制約は行ごと破棄し、scriptlet・procedural等の完全互換や、実サイトの広告残存解消を示す結果とは扱いません。
+
+追加の `:app:assembleDebugAndroidTest :module:adblock:assembleDebugAndroidTest` を含む最終ビルドも1分48秒・919 tasksで成功しました。実Room・実アセットで初期購読と既存無効保持を確認する計測2件を追加していますが、既存の更新回帰9件と合わせて実行は未完了です。API37エミュレーターは初回32.3秒で起動完了を表示したものの、SurfaceFlingerが `!rcEnc->featureInfo()->hasReadColorBufferDma` で繰り返し異常終了し、APK再導入も失敗しました。SwiftShaderへの変更とGLDirectMemの有効化試験でも解消せず、後者はソースの既定から除外しました。API37.2・16KB版も180秒で起動を確認できませんでした。起動表示を計測成功には数えません。
 
 比較基準`f5f2ae8b`は独立レビューと通常単体247件・buildSrc15件、debug・全計測APK・releaseのR8/lintを通過しています。Google.comでの日本語・記号検索、メニュー・設定・IMEの一部も実機で確認しました。Yuzuの書出しは未作成で実データ取込は未確認です。広告対策はサイト個別ルールを追加する方針から、汎用処理を内蔵する方針へ修正しています。[内蔵uBOの検証計画](ADBLOCK_ENGINE_PLAN.md)と[改善一覧](IMPROVEMENT_PLAN.md)を参照してください。
 
@@ -37,6 +43,7 @@
 
 | 検証 | 再現コマンド | 対象と結果（比較基準版／今回の結果を区別） |
 | --- | --- | --- |
+| 本体の購読・構文拡張（11月19日） | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest"` | 独立監査の指摘（本文ページへの適用範囲、EasyList の移行）を修正後、1分2秒・843 tasksで成功。通常75suite・298件、失敗・error・スキップ0。既存無効保持・重複/再試行、important優先・全購読badfilter・空資源選択、include境界・子更新・失敗/取消時の旧束保持等を検証。実機は未実施 |
 | 公開版の本体・通常単体・全計測APK・release・buildSrc | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest assembleDebugAndroidTest assembleRelease :buildSrc:test"` | 11月17日、公開`f5f2ae8b`で全成功（4分50秒・1,965 tasks）。通常69suite・247件、buildSrc15件は別集計で失敗・error・スキップ0 |
 | 今回の全体・プレビュー | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest assembleDebugAndroidTest assembleRelease :buildSrc:test :gecko-preview:assembleDebug :gecko-preview:checkOssNotices"` | 11月18日、全成功（4分52秒・2,225 tasks）。通常69suite・249件、buildSrc3suite・25件のXMLで失敗・error・スキップ0。buildSrcの最終実行はUP-TO-DATEで検証済みXMLを確認 |
 | 最終の標準タスク再検証 | 上記の標準3タスク・buildSrc・明示プレビューdebug等を再実行 | 11月18日、成功（1分35秒・1,411 tasks）。通常249件・buildSrc25件を保持し、全計測APK・プレビューdebugも生成・出力 |

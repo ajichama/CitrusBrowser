@@ -557,7 +557,7 @@ class WebClient(
                             return if (request.isForMainFrame) {
                                 createMainFrameDummy(activity, request.url, filter.pattern)
                             } else {
-                                createDummy(request.url)
+                                createDummy(request.url, filter)
                             }
                         }
                     }

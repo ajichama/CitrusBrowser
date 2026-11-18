@@ -81,7 +81,7 @@ class AbpFilterDecoderTest {
             "||ads.example^\$sitekey=ABC",
             "@@||ads.example^\$sitekey=ABC",
             "||ads.example^\$unknown-option",
-            "||ads.example^\$redirect=noopjs",
+            "||ads.example^\$redirect=unknown-resource",
             "||ads.example^\$domain=",
             "||ads.example^\$domain=~example.*",
             "||ads.example^\$domain=~ ",
@@ -200,6 +200,25 @@ class AbpFilterDecoderTest {
         assertTrue(restored[1].isMatch(request("https://cdn.example/AD/BANNER.js")))
         assertTrue(restored[2].isMatch(request("https://cdn.example/TRACKING.js", "https://news.example.com/")))
         assertFalse(restored[2].isMatch(request("https://cdn.example/tracking.js", "https://news.private.example.com/")))
+    }
+
+    @Test
+    fun untypedPathRulesDoNotBlockTheMainDocumentButPureHostRulesAndExplicitDocumentDo() {
+        val (pathRule, hostRule, explicitDocument, subresourceOnly) = decode(
+            "/tracking/",
+            "||ads.example^",
+            "/landing/\$document",
+            "||cdn.example/banner/",
+        ).blackList
+        val page = "https://news.example/"
+        // 汎用パス規則が記事ページそのものを遮断画面へ置き換えない（ABP の既定種別と同じ）。
+        assertFalse(pathRule.isMatch(request("https://news.example/tracking/article", page, ContentRequest.TYPE_DOCUMENT)))
+        assertFalse(subresourceOnly.isMatch(request("https://cdn.example/banner/x", page, ContentRequest.TYPE_POPUP)))
+        // 通常の副リソースには従来どおり効く。
+        assertTrue(pathRule.isMatch(request("https://cdn.example/tracking/pixel.gif", page, ContentRequest.TYPE_IMAGE)))
+        // パスを持たないホスト規則と $document 明示は本文ページにも効く（uBO と同じ）。
+        assertTrue(hostRule.isMatch(request("https://ads.example/", page, ContentRequest.TYPE_DOCUMENT)))
+        assertTrue(explicitDocument.isMatch(request("https://news.example/landing/x", page, ContentRequest.TYPE_DOCUMENT)))
     }
 
     private fun decode(vararg lines: String) =

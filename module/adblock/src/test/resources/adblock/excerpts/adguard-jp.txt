@@ -1,0 +1,59 @@
+! 出典: AdGuard Japanese filter (https://filters.adtidy.org/extension/ublock/filters/7.txt, Version 2.0.78.52)
+! ライセンス: GPLv3 (https://github.com/AdguardTeam/AdguardFilters/blob/master/LICENSE)。単体テスト専用の抜粋で APK には含めない。
+! 前半40行は有効行からの等間隔抽出、後半は構文別に選んだ実在行。
+! --- sampled ---
+||ias.rakuten.co.jp^$3p,domain=~rakuten-co.jp|~rakuten.ne.jp
+||valueclick.jp^
+@@||g.doubleclick.net/gampad/ads?$xhr,domain=lemino.docomo.ne.jp
+.com/*/e-tax|$document
+hamusoku.com##div[class^="article-body"] > span[style="font-size: 150%;"]:has(> b > a[href^="https://www.amazon.co.jp/"])
+sundryst.com##.ad-instream
+column.lovecosmetic.jp##.fixed_bottom_banner
+chanto.jp.net##.gn-ad-clm
+businessinsider.jp##div[class*="displayAd_"]
+geinoukame.com##.left_outline
+weathernews.jp##.pc[style="text-align: center; min-height: 100px;"]
+trendka.jp##div[id^=trend-]
+popnroll.tv###uzou-chat-ad + div[class^="sc-"]
+books.step.rakuten.co.jp##.ad__pr
+plicy.net##.adGamepageHeaderBase
+||bbspic-newer.net/js/side_ad.js
+sanabo.com##.entry-header > center > font[size="1"]
+aaieba.livedoor.biz##.article-body-inner > div[align="center"] > table
+ascii.jp###sitejack
+ckworks.jp##.listItemGoodsAd
+pwrtube.com,khp.jp##a[href^="http://track.cross-system.com/click.php"]
+voltechno.com##.single_ads
+nanj.an-matome.com##div[style="margin-left:50px;width:740px;height:100px;background-color:#000;"]
+withonline.jp##.banner-area-margin-bottom
+glam.jp###other
+||src.gigafile.nu/images/contents_
+anna-media.jp##.tgad
+nan-net.com##div[style="height:250px;width:610px;background-color:#000;"]
+seikeidenron.jp##.advertising > div
+||privatter.net/img/mercari.png
+||fc2.com/*/ads.js
+member.toremaga.com###ar_w655px
+allreviews.jp,city.kitami.lg.jp,freesoft-concierge.com,toyokeizai.net##.banners
+otakomu.jp##.ad-aside
+gaccom.jp##.sub-row div.box:has(> div.content > div.widget-item p.price)
+contents.fc2.com##section[class^="search_"] > div[class^="c-cntCard-"]:has(> div[class*="_indetail"] > a[href^="https://media.fc2.com/clicks.php?id="] > span:contains(/^\[PR\]$/))
+2chblog.jp,kijyokatu.com,kijyomatome-ch.com,paranormal-ch.com,nadarenews.com##.plugin-memo:has(> div.side > script[src*="//p.permalink-system.com"])
+enfant.media##._popIn_infinite_page:has(> li > a[class*="_popIn_recommend_article_ad"])
+@@||support-beacon.nakanohito.jp/widget/faqview$domain=keio-passport.co.jp
+! --- targeted ---
+||re-n-ai.com^$3p
+||adingo.jp^$3p
+||caprofitx.com^
+||cdp.livedoor.com/client.js?
+||adm.shinobi.jp/abd.js$script,xhr,redirect=noop.js
+||googleads.g.doubleclick.net/pagead/id$xhr,redirect=noop.txt,domain=ib-game.jp
+||daotag.com/tag/$script,domain=exploader.net,important
+||tpc.googlesyndication.com^$image,redirect=1x1.gif,domain=rocketnews24.com|youpouch.com,important
+||kdrvs.online^$all
+$script,~3p,redirect-rule=noop.js,domain=wiki.yjsnpi.nu
+$script,3p,denyallow=cdn77.org|fc2.com|googleapis.com|llnwd.net,domain=motimoti3d.jp
+slorepo.com##+js(no-setTimeout-if, bait)
+blog.esuteru.com,jin115.com###gStickyAd
+||g.doubleclick.net/gampad/ads?$xhr,removeparam=/^(cookie|ga_|u_)/,domain=rocketnews24.com|youpouch.com
+blog.livedoor.jp##.plugin-memo > div.side > div.gad-fixed:upward(2):style(display: none !important;)

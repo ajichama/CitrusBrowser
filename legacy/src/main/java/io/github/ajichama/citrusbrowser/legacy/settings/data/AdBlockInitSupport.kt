@@ -17,22 +17,17 @@
 package io.github.ajichama.citrusbrowser.legacy.settings.data
 
 import android.content.Context
+import io.github.ajichama.citrusbrowser.adblock.repository.abp.AbpDefaultSubscriptions
 import io.github.ajichama.citrusbrowser.adblock.repository.abp.AbpDatabase
-import io.github.ajichama.citrusbrowser.adblock.repository.abp.AbpEntity
 import kotlinx.coroutines.runBlocking
 
 fun initAbpFilter(context: Context, abpDatabase: AbpDatabase) = runBlocking {
-    val sites = context.assets.open("adblock/default_filter_list.txt").bufferedReader().readLines()
-    abpDatabase
-            .abpDao()
-            .inset(sites
-                    .map { it.split(',') }
-                    .map { AbpEntity(url = it[2], title = it[1], enabled = it[0] == "1") })
+    AbpDefaultSubscriptions.initialize(context, abpDatabase)
 }
 
 fun disableCitrusList(abpDatabase: AbpDatabase) = runBlocking {
     val dao = abpDatabase.abpDao()
-    val entity = dao.getAll()[0]
-    entity.enabled = false
-    dao.update(entity)
+    dao.getAll().filter { it.url == "citrus://adblock/filter" }.forEach {
+        dao.setEnabled(it.entityId, false)
+    }
 }

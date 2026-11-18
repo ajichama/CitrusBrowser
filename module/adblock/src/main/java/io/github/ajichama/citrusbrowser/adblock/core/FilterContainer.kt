@@ -19,7 +19,7 @@ package io.github.ajichama.citrusbrowser.adblock.core
 import io.github.ajichama.citrusbrowser.adblock.filter.ContentFilter
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.Tag
 
-class FilterContainer {
+class FilterContainer(private val preferredFilters: FilterContainer? = null) {
     private val filters = hashMapOf<String, ContentFilter>()
 
     operator fun plusAssign(filter: ContentFilter) {
@@ -33,6 +33,7 @@ class FilterContainer {
     }
 
     operator fun get(request: ContentRequest): ContentFilter? {
+        preferredFilters?.get(request)?.let { return it }
         Tag.create(request.url.toString()).distinct().forEach {
             var filter = filters[it]
             while (filter != null) {

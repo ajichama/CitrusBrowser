@@ -37,6 +37,16 @@ data class ContentRequest(
         const val TYPE_WEB_SOCKET = 0x0200
         const val TYPE_XHR = 0x0400
 
+        const val TYPE_NETWORK_ALL = 0x0000_ffff
+        const val FLAG_IMPORTANT = 0x1000_0000
+        const val FLAG_BADFILTER = 0x0800_0000
+        internal const val REDIRECT_MASK = 0x0700_0000
+        internal const val REDIRECT_EMPTY = 0x0100_0000
+        internal const val REDIRECT_SCRIPT = 0x0200_0000
+        internal const val REDIRECT_STYLE = 0x0300_0000
+        internal const val REDIRECT_IMAGE = 0x0400_0000
+        internal const val REDIRECT_FRAME = 0x0500_0000
+
         const val TYPE_ELEMENT_HIDE = 0x4000_0000
         const val TYPE_ELEMENT_GENERIC_HIDE = 0x2000_0000
     }

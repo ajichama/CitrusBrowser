@@ -18,6 +18,7 @@ package io.github.ajichama.citrusbrowser.adblock.repository
 
 import android.content.Context
 import android.content.SharedPreferences
+import java.io.IOException
 
 /**
  * AdBlock フィルタ更新時刻設定の SharedPreferences ラッパー。
@@ -36,10 +37,23 @@ class AdBlockPref private constructor(context: Context) {
         get() = prefs.getLong(KEY_LAST_UPDATE_TIME, -1L)
         set(value) = prefs.edit().putLong(KEY_LAST_UPDATE_TIME, value).apply()
 
+    var defaultSubscriptionsRevision: Int
+        get() = prefs.getInt(KEY_DEFAULT_SUBSCRIPTIONS_REVISION, 0)
+        set(value) {
+            // DB 登録後に確定し、保存失敗時は次回の移行をやり直す。
+            val previous = defaultSubscriptionsRevision
+            if (!prefs.edit().putInt(KEY_DEFAULT_SUBSCRIPTIONS_REVISION, value).commit()) {
+                // commit 失敗時にもメモリ上の値は変わるため、再試行できる値に戻す。
+                prefs.edit().putInt(KEY_DEFAULT_SUBSCRIPTIONS_REVISION, previous).apply()
+                throw IOException("既定購読の移行版を保存できませんでした")
+            }
+        }
+
     companion object {
         private const val TABLE_NAME = "abp"
         private const val KEY_NEXT_UPDATE_TIME = "abpNextUpdateTime"
         private const val KEY_LAST_UPDATE_TIME = "abpLastUpdateTime"
+        private const val KEY_DEFAULT_SUBSCRIPTIONS_REVISION = "defaultSubscriptionsRevision"
 
         @JvmStatic
         fun get(context: Context): AdBlockPref = AdBlockPref(context)

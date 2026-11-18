@@ -24,6 +24,7 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import io.github.ajichama.citrusbrowser.adblock.BROADCAST_ACTION_UPDATE_AD_BLOCK_DATA
 import io.github.ajichama.citrusbrowser.adblock.filter.abp.AbpFilterDecoder
+import io.github.ajichama.citrusbrowser.adblock.filter.abp.AbpFilterPreprocessor
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.getFilterDir
 import io.github.ajichama.citrusbrowser.adblock.repository.AdBlockPref
 import io.github.ajichama.citrusbrowser.adblock.repository.abp.AbpDatabase
@@ -37,6 +38,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okhttp3.OkHttpClient
+import okhttp3.HttpUrl
 import okhttp3.Request
 import java.io.BufferedReader
 import java.io.File
@@ -130,7 +132,8 @@ class AbpUpdateService internal constructor(
         val request = Request.Builder().url(sourceUrl).get()
         val currentCache = store.isCurrent(entity.entityId, sourceUrl)
         if (!forceUpdate && currentCache) entity.lastModified?.let { request.addHeader("If-Modified-Since", it) }
-        val call = okHttpClient.newCall(request.build())
+        val httpRequest = request.build()
+        val call = okHttpClient.newCall(httpRequest)
         // ヘッダー受信後の body 読み込み中にも、Worker 停止を Call.cancel へ伝える。
         val cancellation = launch(start = CoroutineStart.UNDISPATCHED) {
             try { awaitCancellation() } finally { call.cancel() }
@@ -138,18 +141,58 @@ class AbpUpdateService internal constructor(
         try {
             call.awaitResponse().use { response ->
                 if (response.code == 304) {
-                    return@coroutineScope if (currentCache) markChecked(entity, sourceUrl) else AbpUpdateOutcome.RetryableFailure
+                    return@coroutineScope if (currentCache && httpRequest.header("If-Modified-Since") != null) {
+                        markChecked(entity, sourceUrl)
+                    } else AbpUpdateOutcome.RetryableFailure
                 }
                 if (!response.isSuccessful) return@coroutineScope AbpUpdateOutcome.forHttpError(response.code)
                 val body = response.body ?: return@coroutineScope AbpUpdateOutcome.PermanentFailure
                 val charset = body.contentType()?.charset() ?: Charsets.UTF_8
                 body.source().inputStream().bufferedReader(charset).use { reader ->
-                    decode(reader, charset, entity, sourceUrl, response.header("Last-Modified"))
+                    decode(reader, charset, entity, sourceUrl, response.header("Last-Modified"),
+                        includeBaseUrl = response.request.url.toString())
                 }
             }
         } finally {
             cancellation.cancelAndJoin()
         }
+    }
+
+    private suspend fun fetchInclude(target: HttpUrl, parent: HttpUrl): AbpFilterPreprocessor.Resource {
+        // 自動リダイレクトの前に境界を検証する。別ホストへの要求を送ってから拒否しない。
+        val client = okHttpClient.newBuilder().followRedirects(false).followSslRedirects(false).build()
+        var current = target
+        repeat(6) {
+            currentCoroutineContext().ensureActive()
+            if (!AbpFilterPreprocessor.isAllowedTarget(parent, current)) throw IOException("include の取得先が許可範囲外です。")
+            val resource = coroutineScope {
+                val call = client.newCall(Request.Builder().url(current).get().build())
+                val cancellation = launch(start = CoroutineStart.UNDISPATCHED) {
+                    try { awaitCancellation() } finally { call.cancel() }
+                }
+                try {
+                    call.awaitResponse().use { response ->
+                        if (response.code in setOf(301, 302, 303, 307, 308)) {
+                            val location = response.header("Location") ?: throw IOException("include の転送先がありません。")
+                            val next = current.resolve(location) ?: throw IOException("include の転送先が不正です。")
+                            if (!AbpFilterPreprocessor.isAllowedTarget(parent, next)) throw IOException("include の転送先が許可範囲外です。")
+                            current = next
+                            null
+                        } else {
+                            if (!response.isSuccessful) throw IOException("include の取得に失敗しました: ${response.code}")
+                            val body = response.body ?: throw IOException("include の本文がありません。")
+                            val charset = body.contentType()?.charset() ?: Charsets.UTF_8
+                            val contents = body.source().inputStream().bufferedReader(charset).use { AbpFilterPreprocessor.readBounded(it) }
+                            AbpFilterPreprocessor.Resource(current, contents)
+                        }
+                    }
+                } finally {
+                    cancellation.cancelAndJoin()
+                }
+            }
+            if (resource != null) return resource
+        }
+        throw IOException("include の転送回数が上限を超えました。")
     }
 
     private suspend fun updateFile(entity: AbpEntity, sourceUrl: String, forceUpdate: Boolean): AbpUpdateOutcome {
@@ -177,10 +220,16 @@ class AbpUpdateService internal constructor(
     }
 
     private suspend fun decode(reader: BufferedReader, charset: Charset, entity: AbpEntity,
-                               sourceUrl: String, lastModified: String? = null, assetVersion: String? = null): AbpUpdateOutcome {
+                               sourceUrl: String, lastModified: String? = null, assetVersion: String? = null,
+                               includeBaseUrl: String = sourceUrl): AbpUpdateOutcome {
         val decoder = AbpFilterDecoder()
-        if (!decoder.checkHeader(reader, charset)) return AbpUpdateOutcome.PermanentFailure
-        val set = decoder.decode(reader, sourceUrl)
+        // readLine による巨大な先頭行の確保より先に、本文全体の上限を検査する。
+        val boundedReader = AbpFilterPreprocessor.readBounded(reader).reader().buffered()
+        if (!decoder.checkHeader(boundedReader, charset)) return AbpUpdateOutcome.PermanentFailure
+        val expanded = AbpFilterPreprocessor(::fetchInclude).process(boundedReader.readText(), includeBaseUrl)
+        val set = decoder.decode(expanded.text.reader().buffered(), sourceUrl)
+        // 親の304だけでは子の更新を証明できないため、include購読は次回も本文を取得する。
+        val storedLastModified = if (expanded.hasIncludes) null else lastModified
         currentCoroutineContext().ensureActive()
         val info = set.filterInfo
         val current = dao.getById(entity.entityId)
@@ -191,7 +240,7 @@ class AbpUpdateService internal constructor(
             store.beginUpdate(entity.entityId, sourceUrl, set, assetVersion).use { publication ->
                 try {
                     if (dao.updateMetadata(entity.entityId, sourceUrl, info.title, info.lastUpdate, System.currentTimeMillis(),
-                            info.expires ?: -1, info.version, info.homePage, lastModified) == 0) {
+                            info.expires ?: -1, info.version, info.homePage, storedLastModified) == 0) {
                         // 無効化では旧束を保持し、削除・URL 変更では自己所有の新束だけを破棄する。
                         if (dao.getById(entity.entityId)?.url == sourceUrl) publication.rollback() else publication.discard()
                         AbpUpdateOutcome.Skipped

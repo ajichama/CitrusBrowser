@@ -21,9 +21,6 @@ import android.net.Uri
 import android.webkit.WebResourceResponse
 import io.github.ajichama.citrusbrowser.adblock.core.*
 import io.github.ajichama.citrusbrowser.adblock.filter.ContentFilter
-import io.github.ajichama.citrusbrowser.adblock.filter.abp.ABP_PREFIX_ALLOW
-import io.github.ajichama.citrusbrowser.adblock.filter.abp.ABP_PREFIX_DENY
-import io.github.ajichama.citrusbrowser.adblock.filter.abp.ABP_PREFIX_DISABLE_ELEMENT_PAGE
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.element.ElementContainer
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.getFilterDir
 import io.github.ajichama.citrusbrowser.adblock.repository.abp.AbpDao
@@ -59,27 +56,20 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
                 val loaded = AbpLoader(context.getFilterDir(), abpDao.getAll()).use { abpLoader ->
                     // 子の読込処理がすべて完了・取消されてから ZIP のファイル記述子を閉じる。
                     coroutineScope {
-                        val deny = async {
-                            FilterContainer().also { abpLoader.loadAll(ABP_PREFIX_DENY).forEach(it::plusAssign) }
-                        }
-                        val allow = async {
-                            FilterContainer().also { abpLoader.loadAll(ABP_PREFIX_ALLOW).forEach(it::plusAssign) }
-                        }
+                        val network = async { abpLoader.loadNetworkRules() }
                         val allowPage = async {
                             FilterContainer().also {
                                 manager.getCachedMatcherList(AdBlockManager.ALLOW_PAGE_TABLE_NAME).forEach(it::plusAssign)
                             }
                         }
                         val cosmetic = if (AppPrefs.isAbpUseElementHide.get()) {
-                            val disableCosmetic = async {
-                                FilterContainer().also { abpLoader.loadAll(ABP_PREFIX_DISABLE_ELEMENT_PAGE).forEach(it::plusAssign) }
-                            }
                             val elementFilter = async {
                                 ElementContainer().also { abpLoader.loadAllElementFilter().forEach(it::plusAssign) }
                             }
-                            CosmeticFiltering(disableCosmetic.await(), elementFilter.await())
+                            CosmeticFiltering(network.await().cosmetic, elementFilter.await())
                         } else null
-                        Pair(Blocker(allowPage.await(), allow.await(), deny.await()), cosmetic)
+                        val rules = network.await()
+                        Pair(Blocker(allowPage.await(), rules.allow, rules.deny, rules.important), cosmetic)
                     }
                 }
                 loadGate.publish(ticket) {
@@ -102,7 +92,15 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
         return adBlocker?.isBlock(contentRequest)
     }
 
-    fun createDummy(uri: Uri): WebResourceResponse {
+    fun createDummy(uri: Uri, filter: ContentFilter? = null): WebResourceResponse {
+        // 原本の資源集を取り込まず、既知の空資源だけを種別に合わせて返す。
+        when (filter?.contentType?.and(ContentRequest.REDIRECT_MASK)) {
+            ContentRequest.REDIRECT_SCRIPT -> return WebResourceResponse("application/javascript", "UTF-8", EmptyInputStream())
+            ContentRequest.REDIRECT_STYLE -> return WebResourceResponse("text/css", "UTF-8", EmptyInputStream())
+            ContentRequest.REDIRECT_IMAGE -> return WebResourceResponse("image/png", null, ByteArrayInputStream(dummyImage))
+            ContentRequest.REDIRECT_FRAME -> return WebResourceResponse("text/html", "UTF-8", EmptyInputStream())
+            ContentRequest.REDIRECT_EMPTY -> return WebResourceResponse("text/plain", "UTF-8", EmptyInputStream())
+        }
         val mimeType = getMimeType(uri.toString())
         return if (mimeType.startsWith("image/")) {
             WebResourceResponse("image/png", null, ByteArrayInputStream(dummyImage))

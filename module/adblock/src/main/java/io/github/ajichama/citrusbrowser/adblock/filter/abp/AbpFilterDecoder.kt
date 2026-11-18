@@ -133,7 +133,14 @@ class AbpFilterDecoder {
         }
     }
 
-    private fun String.sanitizeSelector() = trim().replace("\\", "\\\\").replace("'", "\\'")
+    /** `||example.com^` のように、パス・ワイルドカードを含まないホスト名だけの規則か。 */
+    private fun isPureHostnameFilter(filter: String): Boolean {
+        if (!filter.startsWith("||")) return false
+        val host = filter.substring(2).removeSuffix("^")
+        return host.isNotEmpty() && host.all { it.isLetterOrDigit() || it == '.' || it == '-' }
+    }
+
+    private fun String.sanitizeSelector() =trim().replace("\\", "\\\\").replace("'", "\\'")
         .replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
 
     private fun String.isSupportedSelector(): Boolean {
@@ -160,6 +167,12 @@ class AbpFilterDecoder {
         var filter = this
         var cosmeticType = 0
         var hasNetworkType = false
+        var excludedTypes = 0
+        var flags = 0
+        var redirectType = 0
+        var hasMatchCase = false
+        val canonicalOptions = mutableListOf<String>()
+        if ('\u0000' in filter) return
         val blocking = if (filter.startsWith("@@")) {
             filter = substring(2)
             false
@@ -181,14 +194,31 @@ class AbpFilterDecoder {
                     value = option.substring(separatorIndex + 1)
                     option = option.substring(0, separatorIndex)
                 }
-                if (option.isEmpty()) return@forEach
+                if (option.isEmpty()) return
 
                 val inverse = option[0] == '~'
                 if (inverse) {
                     option = option.substring(1)
                 }
 
-                option = option.lowercase(Locale.ENGLISH)
+                option = when (option.lowercase(Locale.ROOT)) {
+                    "3p" -> "third-party"
+                    "1p" -> "first-party"
+                    "xhr" -> "xmlhttprequest"
+                    "css" -> "stylesheet"
+                    "frame" -> "subdocument"
+                    "doc" -> "document"
+                    "from" -> "domain"
+                    "ehide" -> "elemhide"
+                    "ghide" -> "generichide"
+                    else -> option.lowercase(Locale.ROOT)
+                }
+                val canonicalOption = if (option == "first-party") {
+                    (if (inverse) "" else "~") + "third-party"
+                } else {
+                    (if (inverse) "~" else "") + option
+                }
+                canonicalOptions += canonicalOption + (value?.let { "=$it" } ?: "")
                 val type = option.getOptionBit()
                 if (type == -1) return
 
@@ -199,26 +229,50 @@ class AbpFilterDecoder {
                         cosmeticType = cosmeticType or type
                     }
                     type > 0 -> {
+                        if (value != null) return
                         hasNetworkType = true
-                        contentType = if (inverse) {
-                            if (contentType == 0) contentType = 0xffff
-                            contentType and (type.inv())
-                        } else {
-                            contentType or type
-                        }
+                        if (inverse) excludedTypes = excludedTypes or type else contentType = contentType or type
                     }
                     type == 0 -> {
                         when (option) {
-                            "match-case" -> ignoreCase = inverse
+                            "match-case" -> {
+                                if (value != null || hasMatchCase) return
+                                hasMatchCase = true
+                                ignoreCase = inverse
+                            }
                             "domain" -> {
-                                if (inverse || value.isNullOrBlank()) return
+                                if (inverse || value.isNullOrBlank() || domain != null) return
                                 if (value.split('|').any {
                                     val name = it.trim().removePrefix("~")
                                     name.isEmpty() || name.any { character -> character.isWhitespace() || character in "*/~" }
                                 }) return
                                 domain = value
                             }
-                            "third-party" -> thirdParty = if (inverse) 0 else 1
+                            "third-party", "first-party" -> {
+                                if (value != null || thirdParty != -1) return
+                                thirdParty = if ((option == "third-party") != inverse) 1 else 0
+                            }
+                            "important" -> {
+                                if (!blocking || inverse || value != null) return
+                                flags = flags or ContentRequest.FLAG_IMPORTANT
+                            }
+                            "badfilter" -> {
+                                if (inverse || value != null) return
+                                flags = flags or ContentRequest.FLAG_BADFILTER
+                                canonicalOptions.removeAt(canonicalOptions.lastIndex)
+                            }
+                            "redirect" -> {
+                                if (!blocking || inverse || value == null || redirectType != 0) return
+                                // 既知の空資源だけを近似する。任意の資源や redirect-rule を遮断へ変換しない。
+                                redirectType = when (value) {
+                                    "empty", "noop.txt" -> ContentRequest.REDIRECT_EMPTY
+                                    "noopjs", "noop.js" -> ContentRequest.REDIRECT_SCRIPT
+                                    "noopcss", "noop.css" -> ContentRequest.REDIRECT_STYLE
+                                    "1x1.gif", "1x1-transparent.gif" -> ContentRequest.REDIRECT_IMAGE
+                                    "noopframe", "noop.html" -> ContentRequest.REDIRECT_FRAME
+                                    else -> return
+                                }
+                            }
                             // サイトキーを検証できないため、制約を落とさずルール全体を無視する。
                             "sitekey" -> return
                             else -> return
@@ -230,7 +284,23 @@ class AbpFilterDecoder {
         }
 
         val domains = domain?.domainsToDomainMap('|')
-        if (contentType == 0) contentType = 0xffff
+        if (filter.isEmpty() && optionsIndex < 0) return
+        if (contentType == 0) {
+            contentType = ContentRequest.TYPE_NETWORK_ALL
+            // 種別未指定の通信ルールは、ABP と同じく本文ページ（document）と popup を含めない。
+            // EasyList 等の汎用パス規則で記事ページ自体を遮断画面へ置き換えないため。
+            // uBO と同じく、パスを持たない純粋なホスト規則（||host^）だけは本文ページにも効かせる。
+            if (cosmeticType == 0 && !isPureHostnameFilter(filter)) {
+                contentType = contentType and (ContentRequest.TYPE_DOCUMENT or ContentRequest.TYPE_POPUP).inv()
+            }
+        }
+        contentType = contentType and excludedTypes.inv()
+        if (contentType == 0 || (cosmeticType != 0 && flags and ContentRequest.FLAG_IMPORTANT != 0)) return
+        if (cosmeticType != 0 && redirectType != 0) return
+        flags = flags or redirectType
+        val ruleKey = (if (blocking) "" else "@@") + filter +
+            if (canonicalOptions.isEmpty()) "" else "$" + canonicalOptions.sorted().joinToString(",")
+        if (filter.isEmpty()) filter = "*"
 
         fun createFilter(mask: Int): UnifiedFilter? =
             if (filter.length >= 2 && filter[0] == '/' && filter[filter.lastIndex] == '/') {
@@ -262,12 +332,12 @@ class AbpFilterDecoder {
             }
 
         if (cosmeticType == 0 || hasNetworkType) {
-            val networkFilter = createFilter(contentType) ?: return
+            val networkFilter = NetworkRuleFilter(createFilter(contentType) ?: return, ruleKey, flags)
             if (blocking) blackList += networkFilter else whiteList += networkFilter
         }
         if (cosmeticType != 0) {
             // next を共有すると別コンテナの連結を壊すため、カテゴリごとに別インスタンスを作る。
-            elementFilterList += createFilter(cosmeticType) ?: return
+            elementFilterList += NetworkRuleFilter(createFilter(cosmeticType) ?: return, ruleKey, flags)
         }
     }
 
@@ -319,6 +389,7 @@ class AbpFilterDecoder {
             "font" -> ContentRequest.TYPE_FONT
             "popup" -> ContentRequest.TYPE_POPUP
             "xmlhttprequest" -> ContentRequest.TYPE_XHR
+            "all" -> ContentRequest.TYPE_NETWORK_ALL
             "object", "webrtc", "csp", "ping",
             "object-subrequest", "genericblock" -> -1
             "elemhide", "ehide" -> ContentRequest.TYPE_ELEMENT_HIDE
