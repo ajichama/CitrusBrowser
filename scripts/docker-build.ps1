@@ -102,6 +102,11 @@ $TaskNames = $Task -split '[ \t]+'
 # root/app の既知タスクから出力範囲の和集合を作り、別variantの古いキャッシュを取り出さない。
 $ExportVariants = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($TaskName in $TaskNames) {
+    # 独立プレビューは、この明示タスクだけを本体と別名で取り出す。
+    if ($TaskName -cmatch '\A:?gecko-preview:assembleDebug\z') {
+        [void]$ExportVariants.Add('geckoPreviewDebug')
+        continue
+    }
     if ($TaskName -cmatch '\A:?(?:app:)?(?<apkTask>[A-Za-z0-9_]+)\z') {
         switch -CaseSensitive -Regex ($Matches['apkTask']) {
             '\A(?:assemble|package)Debug\z' { [void]$ExportVariants.Add('debug'); break }
@@ -111,7 +116,7 @@ foreach ($TaskName in $TaskNames) {
         }
     }
 }
-$ExportVariantValue = (@('debug', 'release', 'androidTest') | Where-Object { $ExportVariants.Contains($_) }) -join ','
+$ExportVariantValue = (@('debug', 'release', 'androidTest', 'geckoPreviewDebug') | Where-Object { $ExportVariants.Contains($_) }) -join ','
 $ExportApk = $ExportVariants.Count -gt 0
 $GradleTaskArguments = @($TaskNames)
 # versions-plugin の更新確認タスクだけ、公式要件の並列実行禁止を固定引数で付ける。
@@ -134,12 +139,14 @@ if [ -n "$CITRUS_EXPORT_VARIANTS" ]; then
         case "$variant" in
             debug|release) apk_dir="/build-cache/app/outputs/apk/$variant" ;;
             androidTest) apk_dir="/build-cache/app/outputs/apk/androidTest/debug" ;;
+            geckoPreviewDebug) apk_dir="/build-cache/gecko-preview/outputs/apk/debug" ;;
             *) continue ;;
         esac
         if [ ! -d "$apk_dir" ]; then continue; fi
         find "$apk_dir" -maxdepth 1 -type f -name "*.apk" -print0 |
         while IFS= read -r -d '' apk; do
             filename=$(basename "$apk")
+            if [ "$variant" = geckoPreviewDebug ] && [ "$filename" != gecko-preview-debug.apk ]; then continue; fi
             case "$apk" in
                 */release/app-release.apk|*/release/app-release-unsigned.apk)
                     filename="$CITRUS_RELEASE_APK_NAME"

@@ -32,14 +32,17 @@ import javax.xml.parsers.DocumentBuilderFactory
 @CacheableTask
 abstract class GenerateOssNotices : DefaultTask() {
     @get:Input abstract val runtimeComponents: ListProperty<String>
+    @get:Input abstract val documentTitle: org.gradle.api.provider.Property<String>
     @get:InputFiles @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val fixedInputs: ConfigurableFileCollection
     @get:Internal abstract val inputRoot: DirectoryProperty
     @get:OutputDirectory abstract val outputDirectory: DirectoryProperty
     @get:OutputDirectory abstract val reportDirectory: DirectoryProperty
 
+    init { documentTitle.convention("オープンソースライセンス") }
+
     @TaskAction fun generate() {
-        val result = OssNotices.generate(inputRoot.get().asFile, runtimeComponents.get())
+        val result = OssNotices.generate(inputRoot.get().asFile, runtimeComponents.get(), documentTitle.get())
         val report = reportDirectory.get().asFile.apply { mkdirs() }
         OssNotices.writeAtomic(File(report, "missing.txt"), result.missing.joinToString("\n", postfix = if (result.missing.isEmpty()) "" else "\n").toByteArray())
         OssNotices.writeAtomic(File(report, "components.txt"), runtimeComponents.get().distinct().sorted().joinToString("\n", postfix = "\n").toByteArray())
@@ -196,7 +199,7 @@ internal object OssNotices {
         return items
     }
 
-    fun generate(root: File, ids: List<String>): OssGeneration {
+    fun generate(root: File, ids: List<String>, title: String = "オープンソースライセンス"): OssGeneration {
         val entries = components(File(root, "oss/dependencies.xml")).associateBy { it.id }
         val missing = mutableListOf<String>()
         val body = StringBuilder()
@@ -232,7 +235,8 @@ internal object OssNotices {
             body.append("</section>\n")
         }
         val css = canonicalText(File(root, "html/license/fixLicensesHtml.css").readBytes()).toString(Charsets.UTF_8)
-        val html = "<!doctype html><html lang=\"ja\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>オープンソースライセンス</title><style>body{font-family:sans-serif;line-height:1.5;margin:16px}section,.library{border-bottom:1px solid #aaa;padding:12px 0}h1,h2{font-size:1.2em}h3{font-size:1em}pre{white-space:pre-wrap;overflow-wrap:anywhere}input,label{display:none}$css</style></head><body><h1>オープンソースライセンス</h1>$body</body></html>\n"
+        val escapedTitle = escape(title)
+        val html = "<!doctype html><html lang=\"ja\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>$escapedTitle</title><style>body{font-family:sans-serif;line-height:1.5;margin:16px}section,.library{border-bottom:1px solid #aaa;padding:12px 0}h1,h2{font-size:1.2em}h3{font-size:1em}pre{white-space:pre-wrap;overflow-wrap:anywhere}input,label{display:none}$css</style></head><body><h1>$escapedTitle</h1>$body</body></html>\n"
         return OssGeneration(html, missing)
     }
 

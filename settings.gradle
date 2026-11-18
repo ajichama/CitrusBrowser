@@ -15,3 +15,5 @@
  */
 
 include ':app', ':libraries:floatingactionbutton', ':libraries:colorpicker', ':libraries:asyncpermissions', ':legacy', ':module:ui', ':module:core', ':languages', ':module:webview', ':browser', ':module:favicon', ':module:download', ':module:adblock', ':module:bookmark', ':module:connecter', ':module:history', ':module:search'
+// Gecko/uBO の独立実証。既存本体へは依存させない。
+include ':gecko-preview', ':module:gecko'

@@ -26,6 +26,20 @@ class OssNoticesTest {
         return OssDocument(kind, "oss/$name", OssNotices.hash(canonical), "test/$name")
     }
 
+    @Test fun documentTitleDefaultsToExistingOutputAndCustomTitleIsEscapedInBothLocations() {
+        val root = root()
+        OssNotices.writeComponents(File(root, "oss/dependencies.xml"), emptyList())
+        val baseline = OssNotices.generate(root, emptyList()).html
+        assertEquals(baseline, OssNotices.generate(root, emptyList(), "オープンソースライセンス").html)
+        assertTrue(baseline.contains("<title>オープンソースライセンス</title>"))
+        assertTrue(baseline.contains("<h1>オープンソースライセンス</h1>"))
+        val title = "ライブラリ <script>&\"'"
+        val escaped = "ライブラリ &lt;script&gt;&amp;&quot;&#39;"
+        val customized = OssNotices.generate(root, emptyList(), title).html
+        assertEquals(baseline.replace("オープンソースライセンス", escaped), customized)
+        assertFalse(customized.contains("<script>"))
+    }
+
     @Test fun runtimeSelectionExcludesObsoleteMetadataAndPreservesNotices() {
         val root = root()
         val license = document(root, "Copyright A\nPermission A")
