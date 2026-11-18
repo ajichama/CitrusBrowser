@@ -5,6 +5,10 @@ import { randomUUID } from 'node:crypto';
 
 const TASK_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/;
 const MAX_HISTORY_ENTRIES = 20;
+const HISTORY_RENDER_ENTRIES = 5;
+const HISTORY_RENDER_CHARS = 300;
+// handoff_update の要約がこの文字数を超えたら、読みやすさのため警告を返す。
+export const SUMMARY_SOFT_LIMIT = 800;
 const SESSION_OWNER = randomUUID();
 const heldMutexes = new Set();
 
@@ -303,6 +307,11 @@ function listActiveLocksUnlocked(workspaceRoot) {
 /**
  * 状態 JSON とロック一覧から人間・AI双方に読みやすい HANDOFF.md を生成する。
  */
+function truncateText(text, max) {
+  const chars = Array.from(String(text ?? ''));
+  return chars.length > max ? chars.slice(0, max).join('') + '…' : chars.join('');
+}
+
 export function renderHandoffMarkdown(state, locks = [], gitInfo = null) {
   const active = state.activeTask ?? {};
   const lines = [
@@ -382,9 +391,10 @@ export function renderHandoffMarkdown(state, locks = [], gitInfo = null) {
   }
 
   if (state.history?.length) {
-    lines.push('### 引き継ぎ履歴（最新順・最大20件）');
-    for (const h of state.history.slice(0, 10)) {
-      lines.push(`- **${h.timestamp}** [\`${h.fromAgent}\` → \`${h.toAgent}\`] (${h.taskId}): ${h.summary}`);
+    // 台帳は毎回読まれるため直近だけを要約表示し、全文（最大20件）は state.json に残す。
+    lines.push(`### 引き継ぎ履歴（最新${HISTORY_RENDER_ENTRIES}件・各${HISTORY_RENDER_CHARS}字まで。全文は state.json）`);
+    for (const h of state.history.slice(0, HISTORY_RENDER_ENTRIES)) {
+      lines.push(`- **${h.timestamp}** [\`${h.fromAgent}\` → \`${h.toAgent}\`] (${h.taskId}): ${truncateText(h.summary, HISTORY_RENDER_CHARS)}`);
     }
     lines.push('');
   }
@@ -493,7 +503,7 @@ export function claimTaskLock(workspaceRoot, { taskId, agent, scopePaths = [], t
 
 function claimTaskLockUnlocked(workspaceRoot, { taskId, agent, scopePaths, ttlMinutes, force }) {
   const safeId = validateTaskId(taskId);
-  if (!['antigravity', 'codex', 'human'].includes(agent)) throw new Error('不正な agent です。');
+  if (!['antigravity', 'codex', 'claude', 'human'].includes(agent)) throw new Error('不正な agent です。');
   if (typeof force !== 'boolean') throw new Error('force は真偽値で指定してください。');
   const normalizedScopes = normalizeScopes(workspaceRoot, scopePaths);
   const { locksDir } = getHandoffPaths(workspaceRoot);
@@ -550,7 +560,7 @@ export function releaseTaskLock(workspaceRoot, { taskId, agent, outcome = 'compl
 
 function releaseTaskLockUnlocked(workspaceRoot, { taskId, agent, outcome, note }) {
   const safeId = validateTaskId(taskId);
-  if (!['antigravity', 'codex', 'human'].includes(agent)) throw new Error('不正な agent です。');
+  if (!['antigravity', 'codex', 'claude', 'human'].includes(agent)) throw new Error('不正な agent です。');
   const { locksDir } = getHandoffPaths(workspaceRoot);
   const lockPath = path.join(locksDir, `${safeId}.lock.json`);
 

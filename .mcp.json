@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "citrus-collab": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["tools/citrus-mcp/server.mjs", "--workspace", "."]
+    }
+  }
+}

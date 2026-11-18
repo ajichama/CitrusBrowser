@@ -1,11 +1,13 @@
 ---
 name: agent-handoff
 description: >-
-  Antigravity (Gemini) と OpenAI Codex 間で作業コンテキスト・進捗・タスクロックを相互に引き継ぐ標準運用手順。
+  Antigravity (Gemini)・OpenAI Codex・Claude Code 間で作業コンテキスト・進捗・タスクロックを相互に引き継ぐ標準運用手順。
   セッション開始時の引き継ぎ確認、トークン上限対策の交代、Codex CLI へのサブタスク委譲時に参照する。
 ---
 
-# Dual-Agent Handoff & Interoperability Workflow (Antigravity ↔ Codex)
+# Multi-Agent Handoff & Interoperability Workflow (Antigravity / Codex / Claude Code)
+
+> Claude Code はエージェント名 `claude` で参加し、プロジェクト共有の `.mcp.json` から `citrus-collab` を読み込む。
 
 本リポジトリは **Antigravity (Gemini)** と **OpenAI Codex（CLI / IDE拡張 / Desktopアプリ）** を併用・相互引き継ぎしながら開発を進めるための共通ハーネス（Shared Harness）を備えています。
 
@@ -36,7 +38,7 @@ description: >-
    - 編集中の変更が中途半端でないか確認し、可能であれば `docker_verify` でビルド状態を確認する。
    - MCP ツール **`handoff_update`**（または `.agents/handoff/state.json` と `HANDOFF.md` の更新）を実行し、以下を必ず構造化して記録する：
      - `summary`: どこまで完了し、何が未完か
-     - `nextAgent`: `"codex"` または `"antigravity"`
+     - `nextAgent`: `"codex"`・`"antigravity"`・`"claude"`・`"any"` のいずれか
      - `nextObjective`: 次のエージェントが最初に着手すべき具体的目標
      - `acceptanceCriteria`: 完了・合格条件
      - `targetFiles`: 参照・編集すべき主要ファイル一覧
@@ -70,3 +72,16 @@ Antigravity を設計・統括役（Orchestrator）として維持したまま�
    pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest"
    ```
 3. Git へのコミット・Push は Dropbox ロック回避のため **`scripts/git-commit-push.ps1`** を使用する。公開対象だけを事前にステージして差分を確認する。Push は依頼範囲に含まれる場合だけ `-Push` を明示し、既定ではローカルコミットに留める。
+---
+
+## 4. 引き継ぎ要約の書き方（読み手は別のエージェントと人間）
+
+- `summary` は平文で600字程度まで（800字を超えると `handoff_update` が警告を返す）。次の4つを分けて書く：
+  1. 完了したこと（コミットのハッシュ、Push 済みかどうか）
+  2. 未完了・未検証のこと（未ビルド・未実機を明記）
+  3. 戻すべき一時状態（端末設定、起動中のコンテナや helper、一時ファイル）
+  4. 次の一手
+- 担当記号（A/B/C）、英単語の羅列（freeze, PASS, GO 等）、独自の略語だけの圧縮表現は使わない。詳細は `.agents/handoff/reports/` のパスで示す。
+- `HANDOFF.md` は毎回読まれるため、履歴は直近5件（各300字）だけを表示する。全文は `state.json` に残る。
+- ロック範囲は編集するパスに絞る。他エージェントの有効なロックを `force` で取るのは、ユーザーの承認がある場合だけ。
+- 利用枠（レート制限）の上限が近づいたら、上限に達する前に台帳を更新する。

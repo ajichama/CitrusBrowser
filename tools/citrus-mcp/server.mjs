@@ -19,6 +19,7 @@ import {
   releaseTaskLock,
   renderHandoffMarkdown,
   resolveWorkspaceRoot,
+  SUMMARY_SOFT_LIMIT,
   updateHandoffState,
 } from './handoff-store.mjs';
 
@@ -176,7 +177,7 @@ const TOOLS = [
       properties: {
         agent: {
           type: 'string',
-          enum: ['antigravity', 'codex', 'human'],
+          enum: ['antigravity', 'codex', 'claude', 'human'],
           description: 'この更新を書き込む現在の作業エージェント',
         },
         taskId: {
@@ -189,11 +190,12 @@ const TOOLS = [
         },
         summary: {
           type: 'string',
-          description: '直前作業の完了内容・発見事項・現状の明確なサマリー',
+          description:
+            '直前作業の要約。人間が読める平文で600字程度まで。「完了したこと／未完了・未検証のこと／戻すべき一時状態（端末設定等）／次の一手」を分けて書き、担当記号や英単語の羅列による圧縮表現を避ける。詳細ログは .agents/handoff/reports/ のパスで示す。',
         },
         nextAgent: {
           type: 'string',
-          enum: ['codex', 'antigravity', 'any'],
+          enum: ['codex', 'antigravity', 'claude', 'any'],
           description: '次に担当すべきエージェント',
         },
         nextObjective: {
@@ -242,7 +244,7 @@ const TOOLS = [
         },
         agent: {
           type: 'string',
-          enum: ['antigravity', 'codex', 'human'],
+          enum: ['antigravity', 'codex', 'claude', 'human'],
           description: 'ロックを要求するエージェント',
         },
         scopePaths: {
@@ -274,7 +276,7 @@ const TOOLS = [
         },
         agent: {
           type: 'string',
-          enum: ['antigravity', 'codex', 'human'],
+          enum: ['antigravity', 'codex', 'claude', 'human'],
           description: 'ロックを解放するエージェント',
         },
         outcome: {
@@ -337,7 +339,7 @@ const TOOLS = [
         },
         agent: {
           type: 'string',
-          enum: ['antigravity', 'codex', 'human'],
+          enum: ['antigravity', 'codex', 'claude', 'human'],
           description: '検証を実行したエージェント名（既定: antigravity）',
         },
         timeoutSec: {
@@ -396,6 +398,9 @@ async function handleToolCall(name, args = {}) {
         markdownPath: saved.paths.markdownPath,
         activeTask: saved.state.activeTask,
         updatedAt: saved.state.updatedAt,
+        ...(Array.from(summary).length > SUMMARY_SOFT_LIMIT
+          ? { warning: `summary が ${SUMMARY_SOFT_LIMIT} 字を超えています。次回は要点を絞り、詳細はレポートのパスで示してください。` }
+          : {}),
       });
     }
 
@@ -668,7 +673,7 @@ async function dispatchRequest(msg) {
               name: 'handover-to-peer',
               description: '作業を中断して相手エージェントへ綺麗に引き継ぐプロンプト',
               arguments: [
-                { name: 'nextAgent', description: '引き継ぎ先エージェント名 (codex / antigravity)', required: false },
+                { name: 'nextAgent', description: '引き継ぎ先エージェント名 (codex / antigravity / claude)', required: false },
               ],
             },
           ],
