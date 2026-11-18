@@ -440,7 +440,7 @@ class ActionExecutor(
         when (action.id) {
             SingleAction.GO_BACK -> {
                 val tab = controller.getTab(actionTarget)
-                if (tab.mWebView.canGoBack()) {
+                if (tab.engineSession.state.canGoBack) {
                     if (tab.isNavLock) {
                         val item = tab.mWebView.copyMyBackForwardList().prev
                         if (item != null) {
@@ -448,7 +448,7 @@ class ActionExecutor(
                             return true
                         }
                     }
-                    tab.mWebView.goBack()
+                    tab.engineSession.goBack()
 
                     controller.superFrameLayoutInfo.postDelayed(takeCurrentTabScreen, 500)
                     controller.superFrameLayoutInfo.postDelayed(paddingReset, 50)
@@ -458,7 +458,7 @@ class ActionExecutor(
             }
             SingleAction.GO_FORWARD -> {
                 val tab = controller.getTab(actionTarget)
-                if (tab.mWebView.canGoForward()) {
+                if (tab.engineSession.state.canGoForward) {
                     if (tab.isNavLock) {
                         val item = tab.mWebView.copyMyBackForwardList().next
                         if (item != null) {
@@ -466,20 +466,20 @@ class ActionExecutor(
                             return true
                         }
                     }
-                    tab.mWebView.goForward()
+                    tab.engineSession.goForward()
                     controller.superFrameLayoutInfo.postDelayed(takeCurrentTabScreen, 500)
                     controller.superFrameLayoutInfo.postDelayed(paddingReset, 50)
                 }
             }
             SingleAction.WEB_RELOAD_STOP -> {
                 val tab = controller.getTab(actionTarget)
-                if (tab.isInPageLoad)
-                    tab.mWebView.stopLoading()
+                if (tab.engineSession.state.isLoading)
+                    tab.engineSession.stopLoading()
                 else
-                    tab.mWebView.reload()
+                    tab.engineSession.reload()
             }
-            SingleAction.WEB_RELOAD -> controller.getTab(actionTarget).mWebView.reload()
-            SingleAction.WEB_STOP -> controller.getTab(actionTarget).mWebView.stopLoading()
+            SingleAction.WEB_RELOAD -> controller.getTab(actionTarget).engineSession.reload()
+            SingleAction.WEB_STOP -> controller.getTab(actionTarget).engineSession.stopLoading()
             SingleAction.GO_HOME -> controller.loadUrl(controller.getTab(actionTarget), AppPrefs.home_page.get())
             SingleAction.ZOOM_IN -> controller.getTab(actionTarget).mWebView.zoomIn()
             SingleAction.ZOOM_OUT -> controller.getTab(actionTarget).mWebView.zoomOut()

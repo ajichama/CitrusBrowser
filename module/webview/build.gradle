@@ -48,6 +48,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     testImplementation Libs.junit
+    testImplementation Libs.mockito
     androidTestImplementation Libs.espressoCore
     androidTestImplementation Libs.androidRunner
 
@@ -59,6 +60,8 @@ dependencies {
     implementation Libs.kotlin_coroutines
     implementation Libs.kotlin_coroutines_android
     implementation project(':module:core')
+    // adapter の公開型を利用する legacy/browser へ契約だけを公開する。
+    api project(':module:engine-api')
     implementation project(':module:ui')
 
     implementation Libs.moshi

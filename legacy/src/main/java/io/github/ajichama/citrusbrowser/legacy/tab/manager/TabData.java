@@ -20,13 +20,16 @@ import android.graphics.Bitmap;
 
 import io.github.ajichama.citrusbrowser.core.android.utils.BitmapUtilsKt;
 import io.github.ajichama.citrusbrowser.favicon.FaviconManager;
+import io.github.ajichama.citrusbrowser.engine.EngineSession;
 import io.github.ajichama.citrusbrowser.legacy.webkit.TabType;
 import io.github.ajichama.citrusbrowser.webview.CustomWebView;
+import io.github.ajichama.citrusbrowser.webview.WebViewEngineSession;
 
 public class TabData {
     protected static final int STATE_LOADING = 0x001;
 
     public final CustomWebView mWebView;
+    private final EngineSession engineSession;
     private TabIndexData mIndexData;
     public int mProgress = -1;
     private int scrollRange;
@@ -44,6 +47,12 @@ public class TabData {
     public TabData(CustomWebView web, TabIndexData data) {
         mWebView = web;
         mIndexData = data;
+        // 保存IDや既存Viewは維持し、タブと同じ寿命の操作adapterだけを所有する。
+        engineSession = new WebViewEngineSession(web, this::isInPageLoad);
+    }
+
+    public EngineSession getEngineSession() {
+        return engineSession;
     }
 
     public boolean equals(CustomWebView web) {
