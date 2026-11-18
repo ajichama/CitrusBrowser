@@ -5,6 +5,8 @@ import { randomUUID } from 'node:crypto';
 
 const TASK_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/;
 const MAX_HISTORY_ENTRIES = 20;
+// rename 再試行の待機（合計約3秒）。同期 API のまま Dropbox の一時ロックを越える。
+const RENAME_RETRY_DELAYS_MS = [50, 100, 200, 400, 800, 1500];
 const HISTORY_RENDER_ENTRIES = 5;
 const HISTORY_RENDER_CHARS = 300;
 // handoff_update の要約がこの文字数を超えたら、読みやすさのため警告を返す。
@@ -152,7 +154,21 @@ function writeTextAtomic(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   const tempPath = `${filePath}.${randomUUID()}.tmp`;
   fs.writeFileSync(tempPath, content, 'utf8');
-  fs.renameSync(tempPath, filePath);
+  // Windows では Dropbox・ウイルス対策が置換先を一時的につかみ、rename が EPERM/EBUSY/EACCES になる。
+  // 短い待機で再試行し、最終的に失敗した場合は一時ファイルを残さずに例外を返す。
+  const retryable = new Set(['EPERM', 'EBUSY', 'EACCES']);
+  for (let attempt = 0; ; attempt++) {
+    try {
+      fs.renameSync(tempPath, filePath);
+      return;
+    } catch (error) {
+      if (!retryable.has(error?.code) || attempt >= RENAME_RETRY_DELAYS_MS.length) {
+        try { fs.rmSync(tempPath, { force: true }); } catch { /* 後始末の失敗は元の例外を優先する */ }
+        throw error;
+      }
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, RENAME_RETRY_DELAYS_MS[attempt]);
+    }
+  }
 }
 
 /**
