@@ -48,7 +48,12 @@ is_running() {
     ENGINE_PID=""
     [ -f "${PID_FILE}" ] || return 1
     local pid executable
-    pid="$(cat "${PID_FILE}")"
+    # 存在確認の直後に dockerd が正常終了して PID ファイルを消すことがある。その場合は停止済みとして扱い、
+    # ファイルが残っているのに中身が不正な場合だけ操作を拒否する。
+    pid="$(cat "${PID_FILE}" 2>/dev/null)" || return 1
+    if [ -z "${pid}" ] && [ ! -e "${PID_FILE}" ]; then
+        return 1
+    fi
     if [[ ! "${pid}" =~ ^[1-9][0-9]*$ ]] || [ "${pid}" = 1 ]; then
         echo "専用 dockerd の PID ファイルが不正です。操作を拒否します。" >&2
         exit 2
