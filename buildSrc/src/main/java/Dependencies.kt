@@ -22,6 +22,19 @@ object Build {
     const val target_sdk_version = 37
 }
 
+// Gecko プレビューだけの要件。既存 API23 対応版の SDK・依存 graph へ混ぜない。
+object GeckoPreview {
+    const val minSdk = 26
+    const val compileSdk = 37
+    const val compileMinorSdk = 2
+    const val geckoviewVersion = "160.0.20261116130455"
+    const val geckoview = "org.mozilla.geckoview:geckoview:$geckoviewVersion"
+    const val ublockVersion = "1.76.4"
+    const val ublockSha256 = "66d0e3f21ce3b32b1bc0a9399b93cb2c9aa598ef18805d92118c76f66e266c1e"
+    const val ublockUrl = "https://addons.mozilla.org/firefox/downloads/file/5257481/ublock_origin-1.76.4.xpi"
+    const val ublockSource = "https://github.com/gorhill/uBlock/tree/1.76.4"
+}
+
 // アプリケーションバージョン定義
 object AppVersions {
     const val version_name = "6.0.2"
@@ -30,7 +43,7 @@ object AppVersions {
 
 // 依存ライブラリのバージョン一元管理
 object Versions {
-    const val agp = "9.1.1"
+    const val agp = "9.5.1"
     const val androidX = "1.8.2"
     const val appCompat = "1.7.0"
     const val activityX = "1.9.3"
@@ -56,6 +69,7 @@ object Versions {
     const val espresso = "3.6.1"
     const val testCore = "1.6.1"
     const val runner = "1.2.1"
+    const val instrumentationRunner = "1.6.2"
     const val header_decor = "0.2.8"
     const val materialprogressbar = "1.6.1"
     const val mockito = "3.8.0"
@@ -107,6 +121,8 @@ object Libs {
     const val espressoCore = "androidx.test.espresso:espresso-core:${Versions.espresso}"
     const val androidTestCore = "androidx.test:core:${Versions.testCore}"
     const val androidRunner = "androidx.test.ext:junit:${Versions.runner}"
+    // JUnit 拡張とは別に、計測 APK のエントリポイント本体を明示する。
+    const val androidInstrumentationRunner = "androidx.test:runner:${Versions.instrumentationRunner}"
     const val assertk = "com.willowtreeapps.assertk:assertk-jvm:${Versions.assertk}"
     const val mockito = "org.mockito:mockito-core:${Versions.mockito}"
 

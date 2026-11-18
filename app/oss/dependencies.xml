@@ -94,26 +94,26 @@
     <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.customview:customview:1.2.0!/META-INF/androidx/customview/customview/LICENSE.txt" />
     <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
   </component>
-  <component id="androidx.databinding:databinding-adapters:9.1.1" name="databinding-adapters" url="">
+  <component id="androidx.databinding:databinding-adapters:9.5.1" name="databinding-adapters" url="">
     <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
-    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
   </component>
-  <component id="androidx.databinding:databinding-common:9.1.1" name="androidx.databinding.databinding-common" url="http://tools.android.com/">
+  <component id="androidx.databinding:databinding-common:9.5.1" name="androidx.databinding.databinding-common" url="http://tools.android.com/">
     <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
-    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
-    <document kind="NOTICE" path="oss/texts/9ff463305b708a8b546b2100a945334e9cd72df1e5d2bd9389d881d9a922ac2d.txt" sha256="9ff463305b708a8b546b2100a945334e9cd72df1e5d2bd9389d881d9a922ac2d" source="androidx.databinding:databinding-common:9.1.1!/NOTICE" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="NOTICE" path="oss/texts/9ff463305b708a8b546b2100a945334e9cd72df1e5d2bd9389d881d9a922ac2d.txt" sha256="9ff463305b708a8b546b2100a945334e9cd72df1e5d2bd9389d881d9a922ac2d" source="androidx.databinding:databinding-common:9.5.1!/NOTICE" />
   </component>
-  <component id="androidx.databinding:databinding-ktx:9.1.1" name="databinding-ktx" url="">
+  <component id="androidx.databinding:databinding-ktx:9.5.1" name="databinding-ktx" url="">
     <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
-    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
   </component>
-  <component id="androidx.databinding:databinding-runtime:9.1.1" name="databinding-runtime" url="">
+  <component id="androidx.databinding:databinding-runtime:9.5.1" name="databinding-runtime" url="">
     <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
-    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
   </component>
-  <component id="androidx.databinding:viewbinding:9.1.1" name="viewbinding" url="">
+  <component id="androidx.databinding:viewbinding:9.5.1" name="viewbinding" url="">
     <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
-    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
   </component>
   <component id="androidx.documentfile:documentfile:1.0.1" name="Android Support Library Document File" url="http://developer.android.com/tools/extras/support-library.html">
     <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />

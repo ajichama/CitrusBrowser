@@ -45,6 +45,8 @@ WorkManager 2.11.2の追加時は、新規4座標とTracingの1.0.0から1.2.0�
 
 Material 1.14.0への更新時は、Core・ConstraintLayout・CustomView・DynamicAnimation等の推移依存更新、Core ViewTreeとGraphics Shapesの追加、不要になったLegacy Core UtilsとLocalBroadcastManagerの除外を実graphで確認しました。依存総数は102件で変わりませんが、追加の埋込ライセンスを含め114文書へ更新しています。同じ座標の確認済み通知とRE2/Jの固定本文は維持しています。
 
+AGP 9.5.1への更新時は、Data Bindingの`databinding-adapters`、`databinding-common`、`databinding-ktx`、`databinding-runtime`、`viewbinding`の5座標だけを9.1.1から9.5.1へ置き換えました。debug/releaseの更新候補は一致しています。新しい公式POMはApache 2.0を宣言し、取得した公式本文と`databinding-common`配布物内のNOTICEは確認済み本文とSHA-256が一致しました。ほか97座標の固定metadata、全既存本文、ソース由来18件とMikan専用NYSLは保持し、総数は102依存・114文書です。Geckoプレビューの通知は`gecko-preview/oss`に分離しており、本体の一覧へ混入させません。
+
 ## 保全と検証
 
 本文のSHA-256はUTF-8/LFに正規化して照合し、Gitの改行変換による誤差を避けます。生成GZIPと更新候補metadataは、一時ファイルを閉じてから原子的に置き換えます。失敗時は以前の公開済みファイルを保持します。ライセンス画面はassetを毎回展開するため、古い展開キャッシュは残りません。
