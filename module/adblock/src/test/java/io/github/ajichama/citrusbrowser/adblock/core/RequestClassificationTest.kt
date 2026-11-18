@@ -3,6 +3,7 @@ package io.github.ajichama.citrusbrowser.adblock.core
 import android.net.Uri
 import android.webkit.WebResourceRequest
 import io.github.ajichama.citrusbrowser.adblock.getContentRequest
+import io.github.ajichama.citrusbrowser.adblock.getAdBlockPageUri
 import io.github.ajichama.citrusbrowser.adblock.filter.abp.AbpFilterDecoder
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.whenever
 import org.junit.Assert.*
@@ -23,6 +24,41 @@ class RequestClassificationTest {
         assertEquals(ContentRequest.TYPE_DOCUMENT, request.getContentRequest(uri("https://old.example/")).type)
     }
 
+    @Test fun mainFrameFromInternalHomeUsesDestinationForTheHostGateAndDomainRules() {
+        val destination = uri("https://blog.esuteru.com/page.js")
+        val home = uri("citrus:home")
+        val request = mock(WebResourceRequest::class.java)
+        whenever(request.url).thenReturn(destination)
+        whenever(request.isForMainFrame).thenReturn(true)
+        whenever(request.requestHeaders).thenReturn(emptyMap())
+        assertNull(home.host)
+        assertSame(destination, request.getAdBlockPageUri(home))
+        assertEquals("blog.esuteru.com", request.getAdBlockPageUri(home).host)
+        val content = request.getContentRequest(home)
+        assertSame(destination, content.pageUrl)
+        assertFalse(content.isThirdParty)
+        val decoded = AbpFilterDecoder().decode("||blog.esuteru.com^\$document,domain=blog.esuteru.com".reader().buffered(), null)
+        val blocker = Blocker(FilterContainer(), FilterContainer(), FilterContainer().also { c -> decoded.blackList.forEach(c::plusAssign) })
+        assertFalse(blocker.isWhitePage(destination))
+        assertNotNull(blocker.isBlock(content))
+    }
+
+    @Test fun subresourceKeepsItsOwningPageForDomainAndThirdPartyRules() {
+        val page = uri("https://blog.esuteru.com/")
+        val resource = uri("https://cdn.example/ads.js")
+        val request = mock(WebResourceRequest::class.java)
+        whenever(request.url).thenReturn(resource)
+        whenever(request.isForMainFrame).thenReturn(false)
+        whenever(request.requestHeaders).thenReturn(emptyMap())
+        assertSame(page, request.getAdBlockPageUri(page))
+        val content = request.getContentRequest(page)
+        assertSame(page, content.pageUrl)
+        assertTrue(content.isThirdParty)
+        val decoded = AbpFilterDecoder().decode("||cdn.example/ads.js\$script,third-party,domain=blog.esuteru.com".reader().buffered(), null)
+        val blocker = Blocker(FilterContainer(), FilterContainer(), FilterContainer().also { c -> decoded.blackList.forEach(c::plusAssign) })
+        assertNotNull(blocker.isBlock(content))
+        assertNull(blocker.isBlock(request.getContentRequest(uri("https://other.example/"))))
+    }
     @Test fun explicitDestinationsOverrideMisleadingSuffixesAndHeaderCase() {
         val expected = mapOf("iframe" to ContentRequest.TYPE_SUB_DOCUMENT, "image" to ContentRequest.TYPE_IMAGE,
             "script" to ContentRequest.TYPE_SCRIPT, "worker" to ContentRequest.TYPE_SCRIPT,

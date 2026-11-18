@@ -28,5 +28,10 @@ fun WebResourceRequest.isThirdParty(pageUri: Uri): Boolean {
 }
 
 
-fun WebResourceRequest.getContentRequest(pageUri: Uri) =
-    ContentRequest(url, pageUri, RequestClassification.contentType(isForMainFrame, url.scheme, url.path, requestHeaders), isThirdParty(pageUri))
+/** 主文書では遷移前の内部ページに依存せず、要求先をページの基準にする。 */
+fun WebResourceRequest.getAdBlockPageUri(currentPageUri: Uri): Uri = if (isForMainFrame) url else currentPageUri
+
+fun WebResourceRequest.getContentRequest(pageUri: Uri): ContentRequest {
+    val effectivePageUri = getAdBlockPageUri(pageUri)
+    return ContentRequest(url, effectivePageUri, RequestClassification.contentType(isForMainFrame, url.scheme, url.path, requestHeaders), isThirdParty(effectivePageUri))
+}

@@ -542,7 +542,7 @@ class WebClient(
             }
 
             val tabIndexData = controller.tabManager.getIndexData(web.identityId) ?: return null
-            val uri = Uri.parse(tabIndexData.url ?: "")
+            val uri = request.getAdBlockPageUri(Uri.parse(tabIndexData.url ?: ""))
 
             adBlockController?.run {
                 val host = uri.host
@@ -934,7 +934,11 @@ class WebClient(
                         action = action.substring(0, action.indexOf('/'))
                     }
                 when (action.lowercase(Locale.ENGLISH)) {
-                    "settings", "setting" -> intent = Intent(activity, MainSettingsActivity::class.java)
+                    "settings", "setting" -> {
+                        // ホームの設定リンクから戻った場合も、保存値をブラウザ内へ再読込する。
+                        controller.startActivity(Intent(activity, MainSettingsActivity::class.java), BrowserController.REQUEST_SETTING)
+                        return true
+                    }
                     "histories", "history" -> {
                         intent = Intent(activity, BrowserHistoryActivity::class.java)
                         intent.putExtra(Constants.intent.EXTRA_MODE_FULLSCREEN, controller.isFullscreenMode && DisplayUtils.isNeedFullScreenFlag())
@@ -972,7 +976,10 @@ class WebClient(
                         return true
                     }
                     "resblock" -> intent = Intent(activity, ResourceBlockListActivity::class.java)
-                    "adblock" -> intent = Intent(activity, AdBlockActivity::class.java)
+                    "adblock" -> {
+                        controller.startActivity(Intent(activity, AdBlockActivity::class.java), BrowserController.REQUEST_SETTING)
+                        return true
+                    }
                     "readitlater" -> intent = Intent(activity, ReadItLaterActivity::class.java)
                     "download-file" -> {
                         val keyData = uri.schemeSpecificPart.substring(action.length + 1)
