@@ -19,3 +19,5 @@ include ':app', ':libraries:floatingactionbutton', ':libraries:colorpicker', ':l
 include ':gecko-preview', ':module:gecko'
 // エンジン共通契約は既存の API23 版からも利用する。
 include ':module:engine-api'
+// 既存アプリを再起動しない、外部依存のない開発専用 UI probe。
+include ':gecko-ui-probe'

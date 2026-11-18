@@ -9,7 +9,7 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $taskRoot = [IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
-$sourceRoots = @('app', 'browser', 'legacy', 'languages', 'module', 'libraries', 'gecko-preview')
+$sourceRoots = @('app', 'browser', 'legacy', 'languages', 'module', 'libraries', 'gecko-preview', 'gecko-ui-probe')
 $allowed = @{
     'module/core/src/main/java/io/github/ajichama/citrusbrowser/core/utility/utils/BrowserIntentMigration.kt' = '保存済み Intent の旧クラス名・action・extra を現行名へ移行する読込口'
     'module/core/src/main/java/io/github/ajichama/citrusbrowser/core/utility/utils/BrowserSchemeCompat.kt' = '保存済み URI の旧 scheme を読み込む唯一の互換境界'
