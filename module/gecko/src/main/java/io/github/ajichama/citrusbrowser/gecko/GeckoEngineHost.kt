@@ -109,9 +109,7 @@ class GeckoEngineHost(context: Context, initialUrl: String? = null) : BuiltinUbl
                 hasUserGesture: Boolean
             ) {
                 if (url != null) page.url = url
-                if (!page.extensionPage && session === selectedPage?.session && isWebUrl(page.url)) {
-                    preferences.edit().putString("last_url", page.url).apply()
-                }
+                if (!page.extensionPage && session === selectedPage?.session) rememberSelectedPage()
                 changed()
             }
 
@@ -139,7 +137,7 @@ class GeckoEngineHost(context: Context, initialUrl: String? = null) : BuiltinUbl
                 if (!extensionState.ready || closed) return null
                 // window.open は未 open のセッションを返し、Gecko 自身に関連付けを任せる。
                 val child = makeSession(open = false)
-                selectTab(pages.getValue(child))
+                selectPage(pages.getValue(child), remember = false)
                 return GeckoResult.fromValue(child)
             }
 
@@ -197,7 +195,7 @@ class GeckoEngineHost(context: Context, initialUrl: String? = null) : BuiltinUbl
     fun newTab(url: String = "about:blank"): Page? {
         if (!extensionState.ready || closed) return null
         val page = pages.getValue(createSession())
-        selectTab(page)
+        selectPage(page, remember = false)
         page.session.loadUri(url)
         return page
     }
@@ -233,9 +231,17 @@ class GeckoEngineHost(context: Context, initialUrl: String? = null) : BuiltinUbl
         updateVisibility()
     }
 
-    fun selectTab(page: Page) {
+    /** 利用者のタブ切替。既存ページの URL を次回起動用に保存する。 */
+    fun selectTab(page: Page) = selectPage(page, remember = true)
+
+    /**
+     * 読込前の新規タブや拡張・window.open 由来の選択では、初期値 about:blank 等で
+     * 保存済み URL を上書きしないよう remember=false とし、保存は onLocationChange に任せる。
+     */
+    private fun selectPage(page: Page, remember: Boolean) {
         if (page.extensionPage || pages[page.session] !== page) return
         selectedPage = page
+        if (remember) rememberSelectedPage()
         ublock.setActiveSession(page.session)
         updateVisibility()
         changed()
@@ -251,6 +257,7 @@ class GeckoEngineHost(context: Context, initialUrl: String? = null) : BuiltinUbl
         if (extensionPage === page) extensionPage = null
         if (selectedPage === page) {
             selectedPage = tabs.lastOrNull()
+            rememberSelectedPage()
             selectedPage?.let { ublock.setActiveSession(it.session) }
         }
         if (session.isOpen) {
@@ -277,7 +284,7 @@ class GeckoEngineHost(context: Context, initialUrl: String? = null) : BuiltinUbl
         extensionState = state
         if (state.ready && !state.enabled && !state.loading && extensionPage?.addonPage == true) closeExtensionPage()
         if (state.ready && selectedPage == null) {
-            val url = pendingExternalUrl ?: preferences.getString("last_url", null)?.takeIf(::isWebUrl) ?: "https://www.google.com/"
+            val url = pendingExternalUrl ?: preferences.getString("last_url", null)?.takeIf(::isExternalUrl) ?: "https://www.google.com/"
             pendingExternalUrl = null
             newTab(url)
         } else if (state.ready) {
@@ -323,7 +330,7 @@ class GeckoEngineHost(context: Context, initialUrl: String? = null) : BuiltinUbl
         val page = pages[session] ?: return
         if (active || selectedPage == null) {
             closeExtensionPage()
-            selectTab(page)
+            selectPage(page, remember = false)
         } else changed()
     }
 
@@ -335,7 +342,7 @@ class GeckoEngineHost(context: Context, initialUrl: String? = null) : BuiltinUbl
         if (url != null) page.url = url
         if (active == true) {
             closeExtensionPage()
-            selectTab(page)
+            selectPage(page, remember = false)
         }
         changed()
     }
@@ -352,7 +359,12 @@ class GeckoEngineHost(context: Context, initialUrl: String? = null) : BuiltinUbl
         if (!closed) listener?.onHostChanged()
     }
 
-    private fun isWebUrl(url: String): Boolean = Uri.parse(url).scheme?.lowercase(Locale.ROOT) in setOf("http", "https")
+    private fun rememberSelectedPage() {
+        // 選択だけで startup URL を更新する。既存ページの DOM を再読込せず、空白タブも保持する。
+        // close() 中は残りのタブを順に閉じるため、別タブの URL で上書きしないよう保存しない。
+        if (closed) return
+        selectedPage?.url?.takeIf(::isExternalUrl)?.let { preferences.edit().putString("last_url", it).apply() }
+    }
 
     private fun isExternalUrl(url: String): Boolean {
         if (url == "about:blank") return true
