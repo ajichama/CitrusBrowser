@@ -12,6 +12,8 @@ uBlock filters の対応状況（2026-11-19 取得分、子リスト展開後）
 
 同じ方法で計り直した結果（scriptlet 第2弾・procedural の対応後、2026-11-19）: uBlock filters の破棄は 6,153 行から 2,564 行（10.8%）、EasyList は 315 行から 26 行に減った。残りの主な内訳は、redirect-rule 375、未知の redirect 資源 338、$domain の entity 290、denyallow 247、trusted の rpnt 235、HTML フィルタ 139、to= 104、trusted-replace-argument 73、:style 69、csp 65。通信の条件（redirect-rule・entity・denyallow・to=・method）は、フィルタの保存形式と照合処理の拡張が要る。
 
+通信の条件・trusted の scriptlet・procedural の補足・無音の音声の対応後（2026-11-19、購読元を trusted として計測）: uBlock filters の破棄は 1,196 行（5.0%）、EasyList は 26 行。残りの主な内訳は、未対応の代替資源の redirect 193（google-ima.js 130、動画 約33）、HTML フィルタ 139、trusted-replace-argument 73、csp 65、json-prune-fetch-response 49、removeparam 43、urlskip 26、popunder 23、trusted-json-edit 22。
+
 種別を指定しない通信ルールは、ABP と同じく本文ページ（document）と popup に適用しない。汎用のパス規則で記事ページ自体が遮断画面に置き換わることを防ぐためである。パスを持たないホスト規則（`||host^`）と、`$document`・`$all` を明示した規則だけを本文ページに適用する（uBO と同じ扱い）。
 
 ネットワーク構文の別名、`important`、全有効購読を横断する `badfilter`、既知の空資源への `redirect=` を実装する。利用者の許可ページは最優先し、その後に important・通信例外・通常遮断を照合する。未知資源や `redirect-rule`、未対応の制約を含む行は丸ごと破棄する。空資源応答は限定した近似であり、uBO の資源ライブラリを移植したものではない。キャッシュのレコード形式は v2 を保ち、構文の版を4へ進めて旧キャッシュを再生成する。
