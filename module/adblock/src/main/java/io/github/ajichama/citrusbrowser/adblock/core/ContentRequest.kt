@@ -50,6 +50,8 @@ data class ContentRequest(
         internal const val REDIRECT_STYLE = 0x0300_0000
         internal const val REDIRECT_IMAGE = 0x0400_0000
         internal const val REDIRECT_FRAME = 0x0500_0000
+        /** 自作の約0.1秒の無音 MP3（assets/adblock/noop-0.1s.mp3）。 */
+        internal const val REDIRECT_AUDIO = 0x0600_0000
 
         const val TYPE_ELEMENT_HIDE = 0x4000_0000
         const val TYPE_ELEMENT_GENERIC_HIDE = 0x2000_0000

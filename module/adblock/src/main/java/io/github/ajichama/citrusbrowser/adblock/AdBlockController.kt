@@ -42,6 +42,7 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
     }
 
     private val dummyImage: ByteArray = IOUtils.readByte(context.resources.assets.open("blank.png"))
+    private val silentAudio: ByteArray by lazy { IOUtils.readByte(context.resources.assets.open("adblock/noop-0.1s.mp3")) }
     private val dummy = WebResourceResponse("text/plain", "UTF-8", EmptyInputStream())
 
     private val manager: AdBlockManager = AdBlockManager(context)
@@ -110,6 +111,7 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
             ContentRequest.REDIRECT_STYLE -> return WebResourceResponse("text/css", "UTF-8", EmptyInputStream())
             ContentRequest.REDIRECT_IMAGE -> return WebResourceResponse("image/png", null, ByteArrayInputStream(dummyImage))
             ContentRequest.REDIRECT_FRAME -> return WebResourceResponse("text/html", "UTF-8", EmptyInputStream())
+            ContentRequest.REDIRECT_AUDIO -> return WebResourceResponse("audio/mpeg", null, ByteArrayInputStream(silentAudio))
             ContentRequest.REDIRECT_EMPTY -> return WebResourceResponse("text/plain", "UTF-8", EmptyInputStream())
         }
         val mimeType = getMimeType(uri.toString())

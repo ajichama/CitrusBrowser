@@ -88,6 +88,15 @@ class NetworkConstraintsTest {
         // 別のルールで遮断したときは、redirect-rule の資源を返す。
         val image = requireNotNull(blocker.isBlock(request("https://y.example/ads/1.png", "https://page.test/", ContentRequest.TYPE_IMAGE)))
         assertEquals(ContentRequest.REDIRECT_IMAGE, image.contentType and ContentRequest.REDIRECT_MASK)
+        // 自作の無音の音声。ファイルは MPEG-1 Layer III の無音フレーム（417バイト）を4つ並べたもの。
+        val audio = decode("||a.example^\$media,redirect=noopmp3-0.1s").blackList.single()
+        assertEquals(ContentRequest.REDIRECT_AUDIO, audio.contentType and ContentRequest.REDIRECT_MASK)
+        val mp3 = listOf(java.io.File("src/main/assets/adblock/noop-0.1s.mp3"), java.io.File("module/adblock/src/main/assets/adblock/noop-0.1s.mp3"))
+            .first { it.isFile }.readBytes()
+        assertEquals(4 * 417, mp3.size)
+        for (frame in 0 until 4) {
+            assertEquals(listOf(0xFF, 0xFB, 0x90, 0xC0), (0 until 4).map { mp3[frame * 417 + it].toInt() and 0xFF })
+        }
         // 未知の資源（代替スクリプト）は行ごと破棄する。
         assertTrue(decode("||g.example^\$script,redirect=google-ima.js").blackList.isEmpty())
     }

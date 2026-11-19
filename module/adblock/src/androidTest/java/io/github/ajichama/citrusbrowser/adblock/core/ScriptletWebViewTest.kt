@@ -210,6 +210,17 @@ class ScriptletWebViewTest {
         assertEquals("true", evaluate("r.detected === false && r.prefs === '{\"ads\":false}' && r.seen"))
     }
 
+    @Test fun silentAudioResourceIsPlayableByTheWebView() {
+        val bytes = instrumentation.targetContext.assets.open("adblock/noop-0.1s.mp3").use { it.readBytes() }
+        val data = "data:audio/mpeg;base64," + android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+        load("""<script>window.r = {}; var a = new Audio();
+            a.onloadedmetadata = function () { r.duration = a.duration; r.done = true; };
+            a.onerror = function () { r.error = true; r.done = true; };
+            a.src = '$data';</script>""")
+        awaitTrue("window.r && r.done === true")
+        assertEquals("true", evaluate("!r.error && r.duration > 0.05 && r.duration < 0.5"))
+    }
+
     @Test fun exceptionAndEmptyResultsInjectNothing() {
         install("blog.esuteru.com##+js(set, citrusAdFlag, false)", "blog.esuteru.com#@#+js()")
         load("<script>window.r = { flag: typeof window.citrusAdFlag, done: true };</script>")

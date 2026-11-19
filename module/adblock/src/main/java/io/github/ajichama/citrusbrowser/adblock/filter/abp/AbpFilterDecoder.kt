@@ -328,6 +328,7 @@ class AbpFilterDecoder {
                                     "1x1.gif", "1x1-transparent.gif", "2x2.png", "2x2-transparent.png",
                                     "3x2.png", "3x2-transparent.png", "32x32.png", "32x32-transparent.png" -> ContentRequest.REDIRECT_IMAGE
                                     "noopframe", "noop.html" -> ContentRequest.REDIRECT_FRAME
+                                    "noopmp3-0.1s", "noop-0.1s.mp3" -> ContentRequest.REDIRECT_AUDIO
                                     else -> return
                                 }
                                 redirectRule = option == "redirect-rule"
