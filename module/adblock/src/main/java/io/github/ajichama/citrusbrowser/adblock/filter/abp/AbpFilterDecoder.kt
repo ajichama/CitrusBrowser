@@ -92,10 +92,16 @@ class AbpFilterDecoder {
         elementFilterList: MutableList<ElementFilter>,
         trusted: Boolean = false,
     ) {
+        // HTML フィルタのうち `##^script:has-text(文字列)` だけは、実行前にスクリプトの中身を消す rmnt で同じ効果を出す。
+        // 受信中の HTML は書き換えられないため、それ以外の HTML フィルタと例外は従来どおり破棄する。
+        val htmlScriptNeedle = htmlScriptFilterNeedle(body)
+        if (htmlScriptNeedle != null && type == "@") return
         // scriptlet と procedural は要素フィルタと同じドメイン条件で保存し、CSS としては扱わない。
-        val isScriptlet = Scriptlets.isScriptletBody(body)
+        val isScriptlet = Scriptlets.isScriptletBody(body) || htmlScriptNeedle != null
         var isProcedural = false
-        val selector = if (isScriptlet) {
+        val selector = if (htmlScriptNeedle != null) {
+            Scriptlets.encode(listOf("remove-node-text", "script", htmlScriptNeedle))
+        } else if (isScriptlet) {
             // 未対応の名前・壊れた構文は行ごと破棄する。空の +js() は例外（全無効化）でだけ意味を持つ。
             val call = Scriptlets.parse(body, trusted) ?: return
             if (call.isEmpty() && type != "@") return
@@ -161,6 +167,21 @@ class AbpFilterDecoder {
                 PlaneElementFilter(domain, isHide, isNot, selector)
             }
         }
+    }
+
+    /**
+     * `^script:has-text(文字列)` の探す文字列（`/正規表現/` はそのまま）。外側の引用符は外す。
+     * 括弧・バックスラッシュ・入れ子を含む指定は意味が曖昧なため null（行ごと破棄）。
+     */
+    private fun htmlScriptFilterNeedle(body: String): String? {
+        val match = HTML_SCRIPT_FILTER.matchEntire(body.trim()) ?: return null
+        var needle = match.groupValues[1].trim()
+        if (needle.length >= 2 && needle.first() == '/' && needle.last() == '/') return needle
+        if (needle.length >= 2 && (needle.first() == '\'' || needle.first() == '"') && needle.last() == needle.first()) {
+            needle = needle.substring(1, needle.length - 1)
+        }
+        if (needle.isEmpty() || needle.any { it in "()\\'\"" }) return null
+        return needle
     }
 
     /** `||example.com^` のように、パス・ワイルドカードを含まないホスト名だけの規則か。 */
@@ -518,5 +539,6 @@ class AbpFilterDecoder {
         const val HEADER = "[Adblock Plus"
 
         private const val CONTENT_FILTER_REGEX = "^([^/|@\"!]*?)#([@?\$])?#(.+)\$"
+        private val HTML_SCRIPT_FILTER = Regex("\\^script:has-text\\((.+)\\)")
     }
 }

@@ -73,6 +73,25 @@ class ScriptletsTest {
     }
 
     @Test
+    fun simpleHtmlScriptFiltersBecomeRemoveNodeTextAndOthersAreDropped() {
+        val calls = decode(
+            "example.com##^script:has-text(adblock)",
+            "example.com##^script:has-text('a b')",
+            "example.com##^script:has-text(/ab+c/i)",
+            "##^script:has-text(generic)",
+            "example.com#@#^script:has-text(adblock)",
+            "example.com##^script:has-text(a(b)",
+            "example.com##^div:has-text(x)",
+            "example.com##^script[src]:has-text(x)",
+        ).elementList.map { Scriptlets.decode(it.selector) }
+        assertEquals(listOf(
+            listOf("remove-node-text", "script", "adblock"),
+            listOf("remove-node-text", "script", "a b"),
+            listOf("remove-node-text", "script", "/ab+c/i"),
+        ), calls)
+    }
+
+    @Test
     fun decoderStoresOnlySpecificSupportedScriptletsAndKeepsThemOutOfCss() {
         val decoded = decode(
             "example.com##+js(set, ads, false)",
