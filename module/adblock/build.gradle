@@ -63,6 +63,8 @@ dependencies {
     androidTestImplementation Libs.espressoCore
     androidTestImplementation Libs.androidTestCore
     androidTestImplementation Libs.androidRunner
+    // scriptlet の文書開始時の注入（addDocumentStartJavaScript）を計測テストでだけ使う。
+    androidTestImplementation AndroidX.webkit
     testImplementation Libs.mockito
 
     implementation AndroidX.appcompat

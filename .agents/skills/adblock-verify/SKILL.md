@@ -21,6 +21,7 @@ pwsh -File scripts/docker-build.ps1 -Task ":module:adblock:testDebugUnitTest :le
 ## 2. 計測テスト（`emulator-measure` スキルで実行）
 
 - 広告モジュール: `AbpDefaultSubscriptionsIntegrationTest`、`AbpUpdateWorkerTest`
+- scriptlet: `ScriptletWebViewTest`（広告モジュール。文書開始時の注入と各 scriptlet の効果）
 - 本体: `AbpUpdateIntegrationTest`、`AbpHttpSubscriptionIntegrationTest`、`CosmeticFilteringWebViewTest`
 
 ## 3. 実サイトでの比較

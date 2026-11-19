@@ -43,4 +43,15 @@ class AdBlockLoadGateTest {
             executor.shutdownNow()
         }
     }
+
+    @Test
+    fun boundedWaitReturnsFalseWhileLoadingAndTrueAfterFinish() {
+        val gate = AdBlockLoadGate()
+        assertTrue(gate.awaitAtMost(0))
+        val ticket = gate.begin()
+        // scriptlet のブリッジはレンダラーを止めるため、読み込み中は期限で諦める。
+        assertFalse(gate.awaitAtMost(30))
+        gate.finish(ticket)
+        assertTrue(gate.awaitAtMost(30))
+    }
 }

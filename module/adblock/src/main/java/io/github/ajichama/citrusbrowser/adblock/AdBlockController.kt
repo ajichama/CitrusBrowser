@@ -37,6 +37,10 @@ import kotlinx.coroutines.coroutineScope
 import java.io.ByteArrayInputStream
 
 class AdBlockController(private val context: Context, private val abpDao: AbpDao) {
+    private companion object {
+        const val SCRIPTLET_WAIT_MS = 200L
+    }
+
     private val dummyImage: ByteArray = IOUtils.readByte(context.resources.assets.open("blank.png"))
     private val dummy = WebResourceResponse("text/plain", "UTF-8", EmptyInputStream())
 
@@ -63,10 +67,17 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
                             }
                         }
                         val cosmetic = if (AppPrefs.isAbpUseElementHide.get()) {
+                            // scriptlet は別の入れ物に分け、フレームごとの照合で汎用 CSS 規則をたどらない。
                             val elementFilter = async {
-                                ElementContainer().also { abpLoader.loadAllElementFilter().forEach(it::plusAssign) }
+                                val css = ElementContainer()
+                                val scriptlets = ElementContainer()
+                                abpLoader.loadAllElementFilter().forEach {
+                                    if (Scriptlets.isStored(it.selector)) scriptlets += it else css += it
+                                }
+                                css to scriptlets
                             }
-                            CosmeticFiltering(network.await().cosmetic, elementFilter.await())
+                            val (css, scriptlets) = elementFilter.await()
+                            CosmeticFiltering(network.await().cosmetic, css, scriptlets)
                         } else null
                         val rules = network.await()
                         Pair(Blocker(allowPage.await(), rules.allow, rules.deny, rules.important), cosmetic)
@@ -126,6 +137,20 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
             .append("</pre>")
 
         return getNoCacheResponse("text/html", builder)
+    }
+
+    /**
+     * フレームの URL に適用する scriptlet を JSON 配列で返す（JavaScript ブリッジのスレッドから呼ぶ）。
+     * 要素フィルタを無効にしている場合は、scriptlet も適用しない。
+     */
+    fun scriptletsJson(frameUrl: String): String {
+        val uri = Uri.parse(frameUrl)
+        val scheme = uri.scheme?.lowercase()
+        if ((scheme != "http" && scheme != "https") || uri.host.isNullOrEmpty()) return ScriptletInjection.EMPTY
+        // 同期呼び出しの間はレンダラーが止まるため、読み込み中は長く待たずに何も適用しない。
+        if (!loadGate.awaitAtMost(SCRIPTLET_WAIT_MS)) return ScriptletInjection.EMPTY
+        val calls = elementBlocker?.scriptlets(uri) ?: return ScriptletInjection.EMPTY
+        return if (calls.isEmpty()) ScriptletInjection.EMPTY else Scriptlets.toJson(calls)
     }
 
     fun loadScript(url: Uri): String? {

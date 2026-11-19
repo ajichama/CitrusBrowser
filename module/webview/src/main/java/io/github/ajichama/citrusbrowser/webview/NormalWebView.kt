@@ -24,6 +24,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
+import android.webkit.WebView
 import androidx.core.view.NestedScrollingChildHelper
 import androidx.core.view.ViewCompat
 import io.github.ajichama.citrusbrowser.core.utility.common.listener.OnTouchEventListener
@@ -108,7 +109,8 @@ internal class NormalWebView private constructor(
     override var isToolbarShowing: Boolean = false
     override var renderingMode = 0
 
-    override var isBlock = false
+    // 通信の横取り（IO スレッド）で書き、scriptlet のブリッジのスレッドで読む。
+    @Volatile override var isBlock = false
     private var isOverScrolling = false
 
     override val canPullToRefresh: Boolean
@@ -172,6 +174,14 @@ internal class NormalWebView private constructor(
     }
 
     override fun onPreferenceReset() {}
+
+    private var pageInitializer: ((WebView) -> Unit)? = null
+
+    override fun setPageInitializer(initializer: (WebView) -> Unit) {
+        if (pageInitializer != null) return
+        pageInitializer = initializer
+        initializer(this)
+    }
 
     override fun setDoubleTapFling(fling: Boolean) {
         doubleTapFling = fling

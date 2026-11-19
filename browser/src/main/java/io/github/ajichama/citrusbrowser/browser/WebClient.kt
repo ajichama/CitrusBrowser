@@ -31,7 +31,10 @@ import android.view.View
 import android.webkit.*
 import android.widget.TextView
 import android.widget.Toast
+import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
 import io.github.ajichama.citrusbrowser.adblock.*
+import io.github.ajichama.citrusbrowser.adblock.core.ScriptletInjection
 import io.github.ajichama.citrusbrowser.adblock.filter.mining.MiningProtector
 import io.github.ajichama.citrusbrowser.adblock.repository.abp.AbpDatabase
 import io.github.ajichama.citrusbrowser.adblock.ui.abp.AbpFilterSubscribeDialog
@@ -118,10 +121,14 @@ class WebClient(
     private val scrollableToolbarHeight = { controller.appBarLayout.totalScrollRange + controller.pagePaddingHeight }
     private var browserHistoryManager: BrowserHistoryAsyncManager? = null
     private var resourceCheckerList: ArrayList<ResourceChecker>? = null
-    private var adBlockController: AdBlockController? = null
+    // scriptlet のブリッジ（JavaBridge のスレッド）からも読む。
+    @Volatile private var adBlockController: AdBlockController? = null
     private var miningProtector: MiningProtector? = null
     private var userScriptList: ArrayList<UserScript>? = null
     private var webUploadHandler: WebUploadHandler? = null
+    // 文書開始時の注入に対応しない WebView では scriptlet を使わない（ブリッジをページに残さないため）。
+    private val isDocumentStartSupported by lazy { WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT) }
+    private val scriptletScript by lazy { ScriptletInjection.script(activity.applicationContext) }
     private val invertEnableJs by SoftCache {
         activity.readAssetsText("scripts/invert-min.js").replace("%s", "true")
     }
@@ -299,8 +306,26 @@ class WebClient(
         }
         web.setWebViewTheme(webViewTheme)
         web.swipeEnable = AppPrefs.pull_to_refresh.get()
+        installScriptletInjection(web)
 
         //if add to this, should also add to AbstractCacheWebView#settingWebView
+    }
+
+    /**
+     * scriptlet を全フレームの文書開始時に実行する。適用する scriptlet は、フレームの URL から
+     * 要素フィルタと同じドメイン照合で決める。広告ブロックが無効な間と、許可したページでは何も適用しない。
+     */
+    private fun installScriptletInjection(web: CustomWebView) {
+        if (!isDocumentStartSupported) return
+        web.setPageInitializer { view ->
+            val bridge = ScriptletInjection.createBridge { frameUrl ->
+                val adBlock = adBlockController
+                if (adBlock == null || !web.isBlock) ScriptletInjection.EMPTY else adBlock.scriptletsJson(frameUrl)
+            }
+            view.addJavascriptInterface(bridge, ScriptletInjection.interfaceName)
+            // 全フレームで固定スクリプトが先に動き、ブリッジを受け取ってからページから外す。
+            WebViewCompat.addDocumentStartJavaScript(view, scriptletScript, setOf("*"))
+        }
     }
 
     fun loadUrl(tab: MainTabData, url: String, handleOpenInBrowser: Boolean) {

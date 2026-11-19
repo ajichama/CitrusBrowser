@@ -14,6 +14,17 @@
 
 ビルド・単体検証の結果は [公開進捗](PROGRESS.md) に記録する。本変更の実機検証と、汎用要素非表示ルール増加時の注入負荷測定は未実施である。
 
+### scriptlet の独自実装（第3段階、2026-11-19）
+
+`example.com##+js(名前, 引数...)` を解析し、全フレームの文書開始時に実行する。uBO と名前・引数だけを合わせた Apache-2.0 の独自実装で、仕様は uBO wiki の公開文書（Resources-Library と Static-filter-syntax）だけを参照し、uBO の scriptlet のソースは参照していない。
+
+- 対応は10種類と別名: set-constant、abort-on-property-read、abort-on-property-write、abort-current-script、prevent-setTimeout、prevent-setInterval、remove-node-text、set-local-storage-item、set-session-storage-item、addEventListener-defuser。未対応の名前・ドメインを限定しない行・壊れた構文は行ごと破棄する。引数の引用符は wiki どおり文字として扱う。
+- 例外は `#@#+js(名前, 引数)`（別名を正規化して一致する行だけ）と `#@#+js()`（そのホストのすべて）。`$elemhide` の例外と、利用者の許可ページでは適用しない。要素の非表示を無効にした場合も適用しない。
+- 注入の仕組み: 固定スクリプト（`module/adblock/src/main/assets/adblock/scriptlets.js`）を `WebViewCompat.addDocumentStartJavaScript` で全フレームに登録する。スクリプトはフレームの URL を同期 JS ブリッジへ渡し、要素フィルタと同じドメイン照合（entity・除外を含む）の結果を受け取る。ブリッジ名と照合用の鍵はプロセスごとに乱数で決め、取得後にページから外す。文書開始時の注入に対応しない古い WebView では、ブリッジをページに残さないよう scriptlet を使わない。フィルタの読み込み中は最大200ミリ秒だけ待ち、間に合わなければ何も適用しない（同期呼び出しの間はレンダラーが止まるため）。scriptlet は読み込み時に別の入れ物へ分け、フレームごとの照合で汎用の CSS 規則をたどらない。
+- 独立監査で残した課題: ドメインのない `#@#+js(...)`（汎用の例外）は破棄している。`rmnt` に `stay` を付けると、要素の追加のたびに部分木をたどる。許可ページの判定は主フレームの通信の横取りで更新するため、横取りのない遷移（戻る操作など）では前のページの判定が残る。about:blank の iframe で固定スクリプトが動くかは未確認。
+- 保存は要素フィルタの束に同居させ、構文の版を5へ進めて旧キャッシュを再生成する。
+- 反広告ブロック（Ad-Shield）: livedoor 系の対策（`html-load.com` の遮断と `rmnt`）は uBlock filters にあり、既定の3リスト（EasyList・EasyPrivacy・AdGuard Japanese）には無い。uBlock filters を購読すれば本体でも効くことをエミュレーターで確認した（[実機確認](DEVICE_CHECKS.md)）。既定の購読に加えるかは未決定。
+
 ## 現在地
 
 公開基準は`14685f9e`。比較基準`f5f2ae8b`で移行・Google検索・Material UI・広告遮断の基礎改善を公開済み。通常単体247件・buildSrc15件とrelease構成、Android15のSO-51D、WebView157.0.8103.50で計測41件が成功した。

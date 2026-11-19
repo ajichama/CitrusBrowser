@@ -5,6 +5,7 @@ import io.github.ajichama.citrusbrowser.adblock.core.Blocker
 import io.github.ajichama.citrusbrowser.adblock.core.ContentRequest
 import io.github.ajichama.citrusbrowser.adblock.core.CosmeticFiltering
 import io.github.ajichama.citrusbrowser.adblock.core.FilterContainer
+import io.github.ajichama.citrusbrowser.adblock.core.Scriptlets
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.UnifiedFilter
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.element.ElementContainer
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.element.PlaneElementFilter
@@ -149,7 +150,10 @@ class AbpFilterDecoderTest {
             "example.com#?#div:-abp-contains(advert)",
             "example.com##.normal-ad",
         )
-        assertEquals(listOf(".normal-ad"), set.elementList.map { it.selector })
+        // scriptlet は CSS に混ぜず、正規化した呼び出しとして別の形式で保存する（第3段階）。
+        assertEquals(listOf(".normal-ad"), set.elementList.filterNot { Scriptlets.isStored(it.selector) }.map { it.selector })
+        assertEquals(listOf(listOf("set-constant", "ads", "false")),
+            set.elementList.filter { Scriptlets.isStored(it.selector) }.map { Scriptlets.decode(it.selector) }.distinct())
     }
 
     @Test

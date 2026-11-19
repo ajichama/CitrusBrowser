@@ -217,6 +217,12 @@ interface CustomWebView {
 
     fun setWebViewTheme(theme: WebViewTheme?)
 
+    /**
+     * 内部の各 WebView に一度だけ適用する初期化（JavaScript ブリッジや文書開始時のスクリプトの登録）。
+     * キャッシュ型では、ページごとに作る WebView にも引き継ぐ。2回目以降の呼び出しは無視する。
+     */
+    fun setPageInitializer(initializer: (WebView) -> Unit)
+
     fun setLayerType(layerType: Int, paint: Paint?)
 
     fun onPreferenceReset()

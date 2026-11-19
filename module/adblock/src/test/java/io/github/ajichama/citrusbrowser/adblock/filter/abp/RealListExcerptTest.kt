@@ -15,10 +15,10 @@ class RealListExcerptTest {
     fun easyListKeepsUnsupportedModifiersRejected() = verify("easylist", 48, 5)
 
     @Test
-    fun japaneseListAcceptsSupportedNetworkExtensions() = verify("adguard-jp", 54, 6)
+    fun japaneseListAcceptsSupportedNetworkExtensions() = verify("adguard-jp", 54, 5)
 
     @Test
-    fun ublockListAcceptsNetworkExtensionsWithoutClaimingScriptletSupport() = verify("ubo-filters", 62, 29)
+    fun ublockListAcceptsNetworkExtensionsAndOnlyImplementedScriptlets() = verify("ubo-filters", 62, 16)
 
     private fun verify(name: String, expectedLines: Int, expectedDiscarded: Int) {
         val lines = javaClass.getResourceAsStream("/adblock/excerpts/$name.txt")!!.bufferedReader().use { reader ->
@@ -31,6 +31,8 @@ class RealListExcerptTest {
         }
         assertEquals("抜粋の行数が変わった場合は出典と比較基準も見直してください", expectedLines, lines.size)
         // 変更前は順に5・15・47行。対応外の制約を落として数値だけ改善しない。
+        // 第3段階で、実装済みの scriptlet（set・aopr・aopw・acs・nostif・aeld）の行を受け付けた（adguard-jp 6→5、ubo-filters 29→16）。
+        // 未実装の名前（ra・popads-dummy 等）の行は引き続き破棄する。
         assertEquals("$name: 対応構文と拒否すべき構文の双方を見直してください", expectedDiscarded, discarded)
         println("EXCERPT $name active=${lines.size} discarded=$discarded")
     }

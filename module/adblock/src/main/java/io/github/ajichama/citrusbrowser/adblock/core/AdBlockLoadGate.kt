@@ -17,12 +17,14 @@
 package io.github.ajichama.citrusbrowser.adblock.core
 
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /** 各読込の待機を個別に解放し、最後に依頼された読込だけを公開する。 */
 internal class AdBlockLoadGate {
     internal class Ticket {
         private val completed = CountDownLatch(1)
         fun await() = completed.await()
+        fun await(timeout: Long, unit: TimeUnit) = completed.await(timeout, unit)
         fun finish() = completed.countDown()
     }
 
@@ -37,6 +39,17 @@ internal class AdBlockLoadGate {
     @Synchronized fun finish(ticket: Ticket) {
         ticket.finish()
         if (current === ticket) current = null
+    }
+
+    /** 最大 [timeoutMs] だけ待つ。読み込みが終わっていれば true。 */
+    fun awaitAtMost(timeoutMs: Long): Boolean {
+        val deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMs)
+        while (true) {
+            val pending = current ?: return true
+            val remaining = deadline - System.nanoTime()
+            if (remaining <= 0 || !pending.await(remaining, TimeUnit.NANOSECONDS)) return current == null
+            if (current == null) return true
+        }
     }
 
     fun await() {

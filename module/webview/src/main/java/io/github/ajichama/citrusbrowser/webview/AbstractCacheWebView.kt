@@ -52,7 +52,8 @@ internal abstract class AbstractCacheWebView(context: Context) : FrameLayout(con
     private var webLayerType: Int = 0
     private var webLayerPaint: Paint? = null
     override var renderingMode = 0
-    override var isBlock = false
+    // 通信の横取り（IO スレッド）で書き、scriptlet のブリッジのスレッドで読む。
+    @Volatile override var isBlock = false
     private var acceptThirdPartyCookies: Boolean = false
     private var verticalScrollBarEnabled: Boolean = false
     private var onScrollChangedListener: OnScrollChangedListener? = null
@@ -436,6 +437,14 @@ internal abstract class AbstractCacheWebView(context: Context) : FrameLayout(con
         tabs.forEach { it.webView.setWebViewTheme(theme) }
     }
 
+    private var pageInitializer: ((WebView) -> Unit)? = null
+
+    override fun setPageInitializer(initializer: (WebView) -> Unit) {
+        if (pageInitializer != null) return
+        pageInitializer = initializer
+        tabs.forEach { it.webView.setPageInitializer(initializer) }
+    }
+
     override fun scrollTo(x: Int, y: Int) {
         currentPage.webView.scrollTo(x, y)
     }
@@ -476,6 +485,7 @@ internal abstract class AbstractCacheWebView(context: Context) : FrameLayout(con
     protected fun CustomWebView.copySettingsTo(to: CustomWebView) {
         to.setMyWebChromeClient(webChromeClientWrapper)
         to.setMyWebViewClient(webViewClientWrapper)
+        pageInitializer?.let { to.setPageInitializer(it) }
 
         to.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY)
         to.setOverScrollModeMethod(overScrollModeMethod)

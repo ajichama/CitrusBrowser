@@ -23,6 +23,8 @@ pwsh -File scripts/emulator.ps1 Stop                         # 作業の最後�
 - テストパッケージ: 本体 `io.github.ajichama.citrusbrowser.debug.test`、広告モジュール `io.github.ajichama.citrusbrowser.adblock.test`、Gecko プレビュー `io.github.ajichama.citrusbrowser.geckopreview.test`。API 37 では `pm list instrumentation` が使えないので `pm list packages` で確かめる。
 - Gecko プレビューの使い捨て profile の計測は、既存の計測と同じプロセスで動かせない。`-TestClass` で分けて別々に実行する。
 - `Start` は起動完了の表示に加え、45秒間 SurfaceFlinger が落ちないことを確かめる。失敗したら `docker/emulator/README.md` の原因（古い cmdline-tools で作った AVD の `target=android-0`）をまず疑う。
+- debug 版の WebView は DevTools プロトコルで中身を調べられる: `adb forward tcp:9222 localabstract:webview_devtools_remote_<pid>`（`/proc/net/unix` で名前を確認）の後、Windows から `http://localhost:9222/json` と WebSocket の `Runtime.evaluate` を使う。画面のタップは広告を誤って押すため、確認には DevTools を優先する。
+- `assumeTrue` で始まる計測は、`-RawOutput` で各テストの STATUS_CODE が 0（スキップは -4）であることを確かめる。
 - 結果は `OK (n tests)` の件数と所要時間をログ（`.agents/handoff/reports/`）に残す。
 
 ## 実機（SO-51D、Android 15）

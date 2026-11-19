@@ -19,6 +19,7 @@ package io.github.ajichama.citrusbrowser.adblock.filter.abp
 import com.google.re2j.Pattern
 import io.github.ajichama.citrusbrowser.adblock.*
 import io.github.ajichama.citrusbrowser.adblock.core.ContentRequest
+import io.github.ajichama.citrusbrowser.adblock.core.Scriptlets
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.*
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.element.*
 import io.github.ajichama.citrusbrowser.core.utility.extensions.forEachLine
@@ -86,7 +87,17 @@ class AbpFilterDecoder {
         body: String,
         elementFilterList: MutableList<ElementFilter>,
     ) {
-        if (!body.isSupportedSelector()) return
+        // scriptlet は要素フィルタと同じドメイン条件で保存し、CSS としては扱わない。
+        val isScriptlet = Scriptlets.isScriptletBody(body)
+        val selector = if (isScriptlet) {
+            // 未対応の名前・壊れた構文は行ごと破棄する。空の +js() は例外（全無効化）でだけ意味を持つ。
+            val call = Scriptlets.parse(body) ?: return
+            if (call.isEmpty() && type != "@") return
+            Scriptlets.encode(call)
+        } else {
+            if (!body.isSupportedSelector()) return
+            body.sanitizeSelector()
+        }
 
         if (domains == null && type == "@") return
 
@@ -99,6 +110,9 @@ class AbpFilterDecoder {
         if (domainList.isEmpty()) {
             domainList = listOf("")
         }
+
+        // ドメインを限定しない scriptlet は、wiki の規定（must be specific）どおり無視する。
+        if (isScriptlet && domainList.none { it.isNotEmpty() && it != "*" && !it.startsWith('~') }) return
 
         val isHide = when (type) {
             "@" -> false
@@ -113,7 +127,7 @@ class AbpFilterDecoder {
                 ('*' in value && value != "*" && !(value.endsWith(".*") && value.count { it == '*' } == 1))
         }) return
         if (domainList.size > 1) {
-            elementFilterList += GroupElementFilter(domainList.joinToString(","), isHide, body.sanitizeSelector())
+            elementFilterList += GroupElementFilter(domainList.joinToString(","), isHide, selector)
             return
         }
 
@@ -126,9 +140,9 @@ class AbpFilterDecoder {
 
             elementFilterList += if (domain.endsWith('*')) {
                 domain = domain.substring(0, domain.length - 1)
-                TldRemovedElementFilter(domain, isHide, isNot, body.sanitizeSelector())
+                TldRemovedElementFilter(domain, isHide, isNot, selector)
             } else {
-                PlaneElementFilter(domain, isHide, isNot, body.sanitizeSelector())
+                PlaneElementFilter(domain, isHide, isNot, selector)
             }
         }
     }

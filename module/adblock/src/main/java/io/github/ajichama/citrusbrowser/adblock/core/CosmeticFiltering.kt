@@ -22,6 +22,8 @@ import io.github.ajichama.citrusbrowser.adblock.filter.unified.element.ElementCo
 class CosmeticFiltering(
     private val disables: FilterContainer,
     private val filters: ElementContainer,
+    // 本体では scriptlet だけを入れた別の入れ物を渡す。省略時は同じ入れ物から絞り込む。
+    private val scriptletFilters: ElementContainer = filters,
 ) {
     private var cacheUrl: Uri? = null
     private var cache: String? = null
@@ -38,7 +40,8 @@ class CosmeticFiltering(
         val isUseGeneric = !ignoreGeneric &&
             disables[ContentRequest(url, url, ContentRequest.TYPE_ELEMENT_GENERIC_HIDE, false)] == null
 
-        val results = filters[url, isUseGeneric]
+        // scriptlet は同じ保存領域に同居しているため、CSS には含めない。
+        val results = filters[url, isUseGeneric].filterNot { Scriptlets.isStored(it.selector) }
         if (results.isEmpty()) return null
 
         val builder = StringBuilder()
@@ -60,6 +63,22 @@ class CosmeticFiltering(
         cache = script
 
         return script
+    }
+
+    /**
+     * フレームの URL に適用する scriptlet の呼び出し（[正式名, 引数...]）を返す。
+     * 状態を持たないため、JavaScript ブリッジのスレッドから呼んでよい。
+     * `$elemhide` の例外ではページの要素フィルタと一緒に止め、`#@#+js()` ではそのホストのすべてを止める。
+     */
+    fun scriptlets(url: Uri): List<List<String>> {
+        if (disables[ContentRequest(url, url, ContentRequest.TYPE_ELEMENT_HIDE, false)] != null) return emptyList()
+        // scriptlet はドメイン指定が必須なので、汎用の要素非表示は引かない。
+        val stored = scriptletFilters[url, false].filter { Scriptlets.isStored(it.selector) }
+        if (stored.isEmpty()) return emptyList()
+        val exceptions = stored.asSequence().filter { !it.isHide }.map { it.selector }.toSet()
+        if (Scriptlets.encode(emptyList()) in exceptions) return emptyList()
+        return stored.asSequence().filter { it.isHide }.map { it.selector }
+            .filterNot { it in exceptions }.distinct().map(Scriptlets::decode).toList()
     }
 
     private fun String.escapeCachedSelector(): String = buildString {
