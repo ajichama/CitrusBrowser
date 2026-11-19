@@ -45,6 +45,10 @@ class ProceduralFiltersTest {
             ":matches-path(/news) .ad",
             "a:matches-attr(data-x=/^ad/):remove-attr(onclick)",
             "div:has-text(\"a)b\")",
+            // 先頭の CSS はセレクタの並びでもよく、後ろに通常の CSS 疑似クラスが続いてもよい。
+            "#a, #b, #c:others()",
+            "div:has-text(x):not(.keep)",
+            ":matches-path(/a) div :is(h3, h4):style(color: red)",
         )) {
             assertTrue(procedural, ProceduralFilters.classify(procedural, false) is Result.Procedural)
         }
@@ -61,7 +65,8 @@ class ProceduralFiltersTest {
             ".a:remove():upward(1)",
             "a:if(.b)",
             "a:spath(> b)",
-            "a, b:has-text(x)",
+            "a:has-text(x), b:has-text(y)",
+            "a:has-text(x) b, c",
             "div:has-text(",
             "div:has-text(x) extra:remove() more",
         )) {

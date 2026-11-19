@@ -1072,7 +1072,8 @@
     var steps = [];
     var action = null;
     var watch = null;
-    var chain = tokens.slice(first);
+    // procedural より後ろの通常の CSS 疑似クラス（:is() 等）は、前後の CSS の続きとして扱う。
+    var chain = tokens.slice(first).filter(isProceduralToken);
     for (var k = 0; k < chain.length; k++) {
       if (k > 0) {
         var between = text.slice(chain[k - 1].end, chain[k].start);
@@ -1098,10 +1099,22 @@
     return { text: text, prefix: prefix, steps: steps, action: action, watch: watch };
   }
 
+  function queryWithMark(el, css) {
+    try {
+      el.setAttribute(markAttribute, '');
+      return Array.prototype.slice.call(doc.querySelectorAll('[' + markAttribute + ']' + css));
+    } catch (e) {
+      return [];
+    } finally {
+      el.removeAttribute(markAttribute);
+    }
+  }
+
   function cssStep(css) {
     return function (elements) {
       var out = [];
-      for (var i = 0; i < elements.length; i++) out = out.concat(queryFrom(elements[i], isCombinatorStart(css) ? css : ' ' + css.trim()));
+      // 先頭の空白は子孫、結合子は兄弟・子、それ以外は同じ要素への条件として、印の属性を起点に探す。
+      for (var i = 0; i < elements.length; i++) out = out.concat(queryWithMark(elements[i], css));
       return unique(out);
     };
   }

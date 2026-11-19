@@ -54,12 +54,11 @@ internal object ProceduralFilters {
         if (tokens.any { it.name in undocumented }) return Result.Invalid
         val first = tokens.indexOfFirst { it.isProcedural() }
         if (first < 0) return Result.Css
-        // 先頭の CSS 部分に、procedural を並べるための区切り（カンマ）を置かない（wiki: 連結は未対応）。
-        if (hasTopLevelComma(text.substring(0, tokens[first].start))) return Result.Invalid
-        val chain = tokens.drop(first)
+        // 先頭の CSS 部分はセレクタの並び（`#a, #b:others()`）でもよい。wiki が未対応とするのは procedural の連結で、
+        // 最初の procedural より後ろのカンマは下で拒否する。
+        // procedural より後ろにある通常の CSS 疑似クラス（:is()・:not(.a) 等）は、CSS の続きとして扱う。
+        val chain = tokens.drop(first).filter { it.isProcedural() }
         chain.forEachIndexed { index, token ->
-            val known = token.name in operators || token.name in actions || token.name in cssCapable
-            if (!known) return Result.Invalid
             if (token.name in actions && index != chain.lastIndex) return Result.Invalid
             if (token.name == "style" && !isSafeDeclarations(token.argument)) return Result.Invalid
             if (token.name in cssCapable && token.argument.isBlank()) return Result.Invalid
