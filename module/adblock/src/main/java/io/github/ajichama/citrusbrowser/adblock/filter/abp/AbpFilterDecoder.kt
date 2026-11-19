@@ -19,6 +19,7 @@ package io.github.ajichama.citrusbrowser.adblock.filter.abp
 import com.google.re2j.Pattern
 import io.github.ajichama.citrusbrowser.adblock.*
 import io.github.ajichama.citrusbrowser.adblock.core.ContentRequest
+import io.github.ajichama.citrusbrowser.adblock.core.ProceduralFilters
 import io.github.ajichama.citrusbrowser.adblock.core.Scriptlets
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.*
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.element.*
@@ -87,16 +88,24 @@ class AbpFilterDecoder {
         body: String,
         elementFilterList: MutableList<ElementFilter>,
     ) {
-        // scriptlet は要素フィルタと同じドメイン条件で保存し、CSS としては扱わない。
+        // scriptlet と procedural は要素フィルタと同じドメイン条件で保存し、CSS としては扱わない。
         val isScriptlet = Scriptlets.isScriptletBody(body)
+        var isProcedural = false
         val selector = if (isScriptlet) {
             // 未対応の名前・壊れた構文は行ごと破棄する。空の +js() は例外（全無効化）でだけ意味を持つ。
             val call = Scriptlets.parse(body) ?: return
             if (call.isEmpty() && type != "@") return
             Scriptlets.encode(call)
-        } else {
-            if (!body.isSupportedSelector()) return
-            body.sanitizeSelector()
+        } else when (val result = ProceduralFilters.classify(body, explicitProcedural = type == "?")) {
+            is ProceduralFilters.Result.Procedural -> {
+                isProcedural = true
+                Scriptlets.encodeProcedural(result.body)
+            }
+            ProceduralFilters.Result.Invalid -> return
+            ProceduralFilters.Result.Css -> {
+                if (!body.isSupportedSelector()) return
+                body.sanitizeSelector()
+            }
         }
 
         if (domains == null && type == "@") return
@@ -112,11 +121,14 @@ class AbpFilterDecoder {
         }
 
         // ドメインを限定しない scriptlet は、wiki の規定（must be specific）どおり無視する。
-        if (isScriptlet && domainList.none { it.isNotEmpty() && it != "*" && !it.startsWith('~') }) return
+        // procedural も同じく、ドメインの指定が必須（wiki: must always be specific）。
+        if ((isScriptlet || isProcedural) && domainList.none { it.isNotEmpty() && it != "*" && !it.startsWith('~') }) return
 
         val isHide = when (type) {
             "@" -> false
             null -> true
+            // #?# は procedural であることを明示する書き方。CSS だけの行は通常の要素非表示として扱う。
+            "?" -> true
             else -> return
         }
 

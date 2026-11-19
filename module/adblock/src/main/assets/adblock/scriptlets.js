@@ -899,9 +899,516 @@
     runAt(3, sanitize);
   };
 
+  // ---- procedural の要素フィルタ（uBO wiki の Procedural-cosmetic-filters の公開仕様だけを参照） ----
+
+  var proceduralOperators = ['has-text', 'matches-attr', 'matches-css', 'matches-css-before', 'matches-css-after',
+    'matches-media', 'matches-path', 'matches-prop', 'min-text-length', 'others', 'upward', 'nth-ancestor',
+    'watch-attr', 'xpath', '-abp-has', '-abp-contains', 'contains'];
+  var proceduralActions = ['remove', 'remove-attr', 'remove-class', 'style'];
+  var proceduralFilters = [];
+
+  function skipQuotedText(text, start) {
+    var quote = text.charAt(start);
+    for (var i = start + 1; i < text.length; i++) {
+      if (text.charAt(i) === '\\') { i++; continue; }
+      if (text.charAt(i) === quote) return i + 1;
+    }
+    return -1;
+  }
+
+  // 引数の先頭が引用符なら引用符の範囲を飛ばし、`\` の次の文字は数えない。
+  function closingParenthesis(text, open) {
+    var depth = 0;
+    var argumentStart = true;
+    for (var i = open; i < text.length; i++) {
+      var c = text.charAt(i);
+      if (c === '\\') { i++; argumentStart = false; continue; }
+      if (argumentStart && (c === '"' || c === "'")) {
+        var end = skipQuotedText(text, i);
+        if (end < 0) return -1;
+        i = end - 1;
+        argumentStart = false;
+        continue;
+      }
+      if (c === '(') { depth++; argumentStart = depth === 1; continue; }
+      if (c === ')') { depth--; if (depth === 0) return i; continue; }
+      if (!(c === ' ' && argumentStart)) argumentStart = false;
+    }
+    return -1;
+  }
+
+  // 最上位の `:名前(引数)` を取り出す。対応が壊れていれば null。
+  function scanPseudo(text) {
+    var tokens = [];
+    for (var i = 0; i < text.length;) {
+      var c = text.charAt(i);
+      if (c === '\\') { i += 2; continue; }
+      if (c === '"' || c === "'") { i = skipQuotedText(text, i); if (i < 0) return null; continue; }
+      if (c === '[') {
+        var j = i + 1;
+        for (; j < text.length; j++) {
+          var d = text.charAt(j);
+          if (d === '\\') { j++; continue; }
+          if (d === '"' || d === "'") { j = skipQuotedText(text, j) - 1; if (j < 0) return null; continue; }
+          if (d === ']') break;
+        }
+        if (j >= text.length) return null;
+        i = j + 1;
+        continue;
+      }
+      if (c === ':') {
+        var m = /^-?[a-zA-Z][a-zA-Z-]*/.exec(text.slice(i + 1));
+        if (m && text.charAt(i + 1 + m[0].length) === '(') {
+          var open = i + 1 + m[0].length;
+          var close = closingParenthesis(text, open);
+          if (close < 0) return null;
+          tokens.push({ name: m[0].toLowerCase(), arg: text.slice(open + 1, close), start: i, end: close + 1 });
+          i = close + 1;
+          continue;
+        }
+      }
+      if (c === '(' || c === ')') return null;
+      i++;
+    }
+    return tokens;
+  }
+
+  function isProceduralToken(token) {
+    if (proceduralOperators.indexOf(token.name) !== -1 || proceduralActions.indexOf(token.name) !== -1) return true;
+    if (token.name === 'has' || token.name === 'not') {
+      var inner = scanPseudo(token.arg.trim());
+      return !!inner && inner.some(isProceduralToken);
+    }
+    return false;
+  }
+
+  // 引用符で囲んだ引数は外側の引用符を外し、中のエスケープを戻す。
+  function unquote(text) {
+    var t = String(text).trim();
+    var q = t.charAt(0);
+    if ((q === '"' || q === "'") && t.length >= 2 && t.charAt(t.length - 1) === q) {
+      return t.slice(1, -1).replace(/\\(.)/g, '$1');
+    }
+    return t;
+  }
+
+  // 文字列（部分一致）または /正規表現/（フラグ i・m）。exact は完全一致。
+  function textMatcher(source, exact) {
+    var text = unquote(source);
+    var m = /^\/(.+)\/([im]*)$/.exec(text);
+    if (m) {
+      var re;
+      try { re = new RegExp(m[1], m[2]); } catch (e) { return null; }
+      return function (value) { return re.test(String(value)); };
+    }
+    if (exact) return function (value) { return String(value) === text; };
+    return function (value) { return String(value).indexOf(text) !== -1; };
+  }
+
+  function isCombinatorStart(css) { return /^\s*[>+~]/.test(css); }
+
+  // 兄弟（+ ・ ~）を起点の要素から探すため、一時的に付ける印の属性。
+  var markAttribute = 'data-c' + Math.random().toString(36).slice(2, 10);
+
+  // 要素を起点にした CSS（`> .a`・`+ .a` のような相対指定を含む）で子孫・兄弟を探す。
+  function queryFrom(el, css) {
+    var selector = css.trim();
+    if (selector === '') return [];
+    try {
+      if (/^[+~]/.test(selector)) {
+        el.setAttribute(markAttribute, '');
+        try {
+          return Array.prototype.slice.call(doc.querySelectorAll('[' + markAttribute + ']' + selector));
+        } finally {
+          el.removeAttribute(markAttribute);
+        }
+      }
+      if (/^>/.test(selector)) return Array.prototype.slice.call(el.querySelectorAll(':scope ' + selector));
+      return Array.prototype.slice.call(el.querySelectorAll(selector));
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function unique(list) {
+    var out = [];
+    for (var i = 0; i < list.length; i++) if (out.indexOf(list[i]) === -1) out.push(list[i]);
+    return out;
+  }
+
+  function compileProcedural(text) {
+    var tokens = scanPseudo(text);
+    if (!tokens) return null;
+    var first = -1;
+    for (var i = 0; i < tokens.length; i++) { if (isProceduralToken(tokens[i])) { first = i; break; } }
+    if (first < 0) return null;
+    var prefix = text.slice(0, tokens[first].start).trim();
+    var steps = [];
+    var action = null;
+    var watch = null;
+    var chain = tokens.slice(first);
+    for (var k = 0; k < chain.length; k++) {
+      if (k > 0) {
+        var between = text.slice(chain[k - 1].end, chain[k].start);
+        if (between.trim() !== '') steps.push(cssStep(between));
+      }
+      var token = chain[k];
+      if (proceduralActions.indexOf(token.name) !== -1) {
+        if (k !== chain.length - 1 || text.slice(token.end).trim() !== '') return null;
+        action = { name: token.name, arg: token.arg };
+        continue;
+      }
+      if (token.name === 'watch-attr') {
+        watch = unquote(token.arg).split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        continue;
+      }
+      var step = makeProceduralStep(token);
+      if (!step) return null;
+      steps.push(step);
+    }
+    var rest = text.slice(chain[chain.length - 1].end);
+    if (!action && rest.trim() !== '') steps.push(cssStep(rest));
+    if (action && action.name === 'style' && !safeDeclarations(action.arg)) return null;
+    return { text: text, prefix: prefix, steps: steps, action: action, watch: watch };
+  }
+
+  function cssStep(css) {
+    return function (elements) {
+      var out = [];
+      for (var i = 0; i < elements.length; i++) out = out.concat(queryFrom(elements[i], isCombinatorStart(css) ? css : ' ' + css.trim()));
+      return unique(out);
+    };
+  }
+
+  // 要素の集合に対して、この filter の CSS 部分と各段を順に適用する。
+  function runProcedural(filter, root, asFilter) {
+    var elements;
+    if (asFilter) {
+      // :not() の中: 要素そのものが条件に合うかを判定する。
+      elements = root.filter(function (el) {
+        if (filter.prefix === '') return true;
+        try { return el.matches(filter.prefix); } catch (e) { return false; }
+      });
+    } else if (filter.prefix === '') {
+      elements = root ? [root] : (doc.documentElement ? [doc.documentElement] : []);
+    } else if (root) {
+      elements = queryFrom(root, filter.prefix);
+    } else {
+      try { elements = Array.prototype.slice.call(doc.querySelectorAll(filter.prefix)); } catch (e) { return []; }
+    }
+    for (var i = 0; i < filter.steps.length && elements.length; i++) elements = filter.steps[i](elements);
+    return elements;
+  }
+
+  function makeProceduralStep(token) {
+    var name = token.name;
+    var arg = token.arg;
+    var matches;
+    switch (name) {
+      case 'has':
+      case '-abp-has': {
+        var inner = scanPseudo(arg.trim());
+        if (inner && inner.some(isProceduralToken)) {
+          var sub = compileProcedural(arg.trim());
+          if (!sub || sub.action) return null;
+          return function (elements) {
+            return elements.filter(function (el) { return runProcedural(sub, el, false).length > 0; });
+          };
+        }
+        return function (elements) {
+          return elements.filter(function (el) {
+            try { return el.matches(':has(' + arg + ')'); } catch (e) { return queryFrom(el, arg).length > 0; }
+          });
+        };
+      }
+      case 'not': {
+        var innerNot = scanPseudo(arg.trim());
+        if (innerNot && innerNot.some(isProceduralToken)) {
+          var subNot = compileProcedural(arg.trim());
+          if (!subNot || subNot.action) return null;
+          return function (elements) {
+            return elements.filter(function (el) { return runProcedural(subNot, [el], true).length === 0; });
+          };
+        }
+        return function (elements) {
+          return elements.filter(function (el) { try { return !el.matches(arg); } catch (e) { return false; } });
+        };
+      }
+      case 'has-text':
+      case '-abp-contains':
+      case 'contains':
+        matches = textMatcher(arg, false);
+        if (!matches) return null;
+        return function (elements) { return elements.filter(function (el) { return matches(el.textContent || ''); }); };
+      case 'min-text-length': {
+        var min = parseInt(unquote(arg), 10);
+        if (!(min >= 0)) return null;
+        return function (elements) { return elements.filter(function (el) { return (el.textContent || '').length >= min; }); };
+      }
+      case 'matches-css':
+      case 'matches-css-before':
+      case 'matches-css-after': {
+        var colon = arg.indexOf(':');
+        if (colon < 0) return null;
+        var property = arg.slice(0, colon).trim();
+        matches = textMatcher(arg.slice(colon + 1), true);
+        if (!property || !matches) return null;
+        var pseudo = name === 'matches-css-before' ? '::before' : name === 'matches-css-after' ? '::after' : null;
+        return function (elements) {
+          return elements.filter(function (el) {
+            try { return matches(getComputedStyle(el, pseudo).getPropertyValue(property)); } catch (e) { return false; }
+          });
+        };
+      }
+      case 'matches-media': {
+        var query = unquote(arg);
+        return function (elements) {
+          try { return W.matchMedia(query).matches ? elements : []; } catch (e) { return []; }
+        };
+      }
+      case 'matches-path':
+        matches = textMatcher(arg, false);
+        if (!matches) return null;
+        return function (elements) { return matches(location.pathname + location.search) ? elements : []; };
+      case 'matches-attr': {
+        var pair = splitNameValue(arg);
+        if (!pair) return null;
+        return function (elements) {
+          return elements.filter(function (el) {
+            for (var i = 0; i < el.attributes.length; i++) {
+              var attribute = el.attributes[i];
+              if (pair.name(attribute.name) && (!pair.value || pair.value(attribute.value))) return true;
+            }
+            return false;
+          });
+        };
+      }
+      case 'matches-prop': {
+        var prop = splitNameValue(arg, true);
+        if (!prop) return null;
+        return function (elements) {
+          return elements.filter(function (el) {
+            var value = el;
+            var parts = prop.chain.split('.');
+            for (var i = 0; i < parts.length; i++) {
+              if (value === null || value === undefined) return false;
+              try { value = value[parts[i]]; } catch (e) { return false; }
+            }
+            if (!prop.value) return value !== undefined;
+            return value !== undefined && prop.value(value);
+          });
+        };
+      }
+      case 'upward':
+      case 'nth-ancestor': {
+        var target = unquote(arg);
+        var count = /^\d+$/.test(target) ? Number(target) : 0;
+        if (count === 0 && (name === 'nth-ancestor' || target === '')) return null;
+        if (count >= 256) return null;
+        if (count === 0) { try { doc.createDocumentFragment().querySelector(target); } catch (e) { return null; } }
+        return function (elements) {
+          return unique(elements.map(function (el) {
+            if (count > 0) {
+              var node = el;
+              for (var i = 0; i < count && node; i++) node = node.parentElement;
+              return node;
+            }
+            return el.parentElement ? el.parentElement.closest(target) : null;
+          }).filter(Boolean));
+        };
+      }
+      case 'xpath': {
+        var expression = unquote(arg);
+        return function (elements) {
+          var out = [];
+          elements.forEach(function (el) {
+            try {
+              var result = doc.evaluate(expression, el, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+              for (var i = 0; i < result.snapshotLength; i++) {
+                var node = result.snapshotItem(i);
+                if (node && node.nodeType === 1) out.push(node);
+              }
+            } catch (e) { /* 不正な式は何も選ばない */ }
+          });
+          return unique(out);
+        };
+      }
+      case 'others':
+        // 選んだ要素とその祖先・子孫以外のすべて（実験的な演算子）。
+        return function (elements) {
+          if (!doc.body) return [];
+          return Array.prototype.filter.call(doc.body.querySelectorAll('*'), function (node) {
+            return !elements.some(function (el) { return el === node || el.contains(node) || node.contains(el); });
+          });
+        };
+      default:
+        return null;
+    }
+  }
+
+  // `name=value`（各部分は文字列・引用符つき文字列・/正規表現/）。値を省いた場合は名前だけで判定する。
+  function splitNameValue(source, isChain) {
+    var text = String(source).trim();
+    var index = -1;
+    var inRegex = false;
+    var quote = '';
+    for (var i = 0; i < text.length; i++) {
+      var c = text.charAt(i);
+      if (c === '\\') { i++; continue; }
+      if (quote) { if (c === quote) quote = ''; continue; }
+      if (c === '"' || c === "'") { quote = c; continue; }
+      if (c === '/' && (i === 0 || inRegex)) { inRegex = !inRegex; continue; }
+      if (c === '=' && !inRegex) { index = i; break; }
+    }
+    var namePart = index < 0 ? text : text.slice(0, index);
+    var valuePart = index < 0 ? null : text.slice(index + 1);
+    if (isChain) {
+      var chain = unquote(namePart);
+      if (!/^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)*$/.test(chain)) return null;
+      var propValue = valuePart === null ? null : textMatcher(valuePart, true);
+      if (valuePart !== null && !propValue) return null;
+      return { chain: chain, value: propValue };
+    }
+    var nameMatcher = textMatcher(namePart, true);
+    var valueMatcher = valuePart === null ? null : textMatcher(valuePart, true);
+    if (!nameMatcher || (valuePart !== null && !valueMatcher)) return null;
+    return { name: nameMatcher, value: valueMatcher };
+  }
+
+  // :style() の宣言から、外部資源の読込・コメント・エスケープ・規則の注入を除く（wiki の禁止事項と同じ方針）。
+  function safeDeclarations(text) {
+    var lower = String(text).toLowerCase();
+    var forbidden = ['url(', 'image-set(', '/*', '*/', '\\', '//', '{', '}', '<', 'expression('];
+    for (var i = 0; i < forbidden.length; i++) if (lower.indexOf(forbidden[i]) !== -1) return false;
+    return String(text).split(';').filter(function (s) { return s.trim() !== ''; }).every(function (s) {
+      return /^-{0,2}[a-zA-Z][a-zA-Z0-9-]*\s*:\s*[^:;]+$/.test(s.trim());
+    });
+  }
+
+  function parseDeclarations(text) {
+    return String(text).split(';').filter(function (s) { return s.trim() !== ''; }).map(function (s) {
+      var colon = s.indexOf(':');
+      var value = s.slice(colon + 1).trim();
+      var important = /!\s*important\s*$/i.test(value);
+      return { name: s.slice(0, colon).trim(), value: value.replace(/!\s*important\s*$/i, '').trim(), important: important };
+    });
+  }
+
+  scriptlets['#procedural'] = function (args) {
+    var compiled = args[0] ? compileProcedural(String(args[0]).trim()) : null;
+    if (compiled) proceduralFilters.push(compiled);
+  };
+
+  function startProceduralEngine() {
+    if (proceduralFilters.length === 0 || !MutationObserverCtor) return;
+    var hidden = new Map();
+    var styleElement = null;
+    var styleRules = [];
+    var inlineFilters = [];
+    // CSS だけの :style() はスタイルシートにし、要素ごとの処理を減らす。
+    proceduralFilters.forEach(function (filter) {
+      if (filter.steps.length === 0 && filter.action && filter.action.name === 'style' && filter.prefix !== '') {
+        styleRules.push(filter);
+      } else {
+        inlineFilters.push(filter);
+      }
+    });
+
+    function ensureStyleSheet() {
+      if (styleElement || styleRules.length === 0 || !doc.documentElement) return;
+      styleElement = doc.createElement('style');
+      (doc.head || doc.documentElement).appendChild(styleElement);
+      var failed = [];
+      styleRules.forEach(function (filter) {
+        try {
+          doc.createDocumentFragment().querySelector(filter.prefix);
+          styleElement.sheet.insertRule(filter.prefix + '{' + filter.action.arg + '}', styleElement.sheet.cssRules.length);
+        } catch (e) { failed.push(filter); }
+      });
+      // CSP 等でスタイルシートを使えない場合は、要素ごとに適用する。
+      if (!styleElement.sheet) failed = styleRules.slice();
+      inlineFilters = inlineFilters.concat(failed);
+    }
+
+    function hide(el) {
+      if (hidden.has(el)) return;
+      hidden.set(el, { value: el.style.getPropertyValue('display'), priority: el.style.getPropertyPriority('display') });
+      el.style.setProperty('display', 'none', 'important');
+    }
+
+    function unhide(el, saved) {
+      hidden.delete(el);
+      if (el.style.getPropertyValue('display') !== 'none') return;
+      if (saved.value) el.style.setProperty('display', saved.value, saved.priority); else el.style.removeProperty('display');
+    }
+
+    function evaluate() {
+      if (!doc.documentElement) return;
+      ensureStyleSheet();
+      var shouldHide = new Set();
+      inlineFilters.forEach(function (filter) {
+        var elements;
+        try { elements = runProcedural(filter, null, false); } catch (e) { return; }
+        elements.forEach(function (el) {
+          if (el === doc.documentElement || el === doc.body || el === doc.head) return;
+          var action = filter.action;
+          if (!action) { shouldHide.add(el); return; }
+          try {
+            if (action.name === 'remove') el.remove();
+            else if (action.name === 'remove-attr') {
+              var attrMatches = textMatcher(action.arg, true);
+              if (attrMatches) Array.prototype.slice.call(el.attributes).forEach(function (a) { if (attrMatches(a.name)) el.removeAttribute(a.name); });
+            } else if (action.name === 'remove-class') {
+              var classMatches = textMatcher(action.arg, true);
+              if (classMatches) Array.prototype.slice.call(el.classList).forEach(function (c) { if (classMatches(c)) el.classList.remove(c); });
+            } else if (action.name === 'style') {
+              parseDeclarations(action.arg).forEach(function (d) {
+                if (el.style.getPropertyValue(d.name) !== d.value) el.style.setProperty(d.name, d.value, d.important ? 'important' : '');
+              });
+            }
+          } catch (e) { /* 1つの要素の失敗で止めない */ }
+        });
+      });
+      shouldHide.forEach(hide);
+      hidden.forEach(function (saved, el) { if (!shouldHide.has(el)) unhide(el, saved); });
+    }
+
+    var pending = false;
+    function schedule() {
+      if (pending) return;
+      pending = true;
+      later(function () { pending = false; evaluate(); }, 50);
+    }
+
+    // 既定は要素の追加・削除で再評価する。:watch-attr を持つ filter があるときだけ属性の変化も見る。
+    var options = { childList: true, subtree: true };
+    var watched = [];
+    var watchAll = false;
+    proceduralFilters.forEach(function (filter) {
+      if (!filter.watch) return;
+      if (filter.watch.length === 0) watchAll = true;
+      watched = watched.concat(filter.watch);
+    });
+    if (watchAll || watched.length) {
+      options.attributes = true;
+      if (!watchAll) options.attributeFilter = unique(watched);
+    }
+    new MutationObserverCtor(function (records) {
+      for (var i = 0; i < records.length; i++) {
+        // 自分で変えた style 属性と一時的な印だけの変化では、再評価しない。
+        var attributeName = records[i].attributeName;
+        if (records[i].type !== 'attributes' || (attributeName !== 'style' && attributeName !== markAttribute)) { schedule(); return; }
+      }
+    }).observe(doc, options);
+    schedule();
+    runAt(2, evaluate);
+    runAt(3, evaluate);
+  }
+
   for (var i = 0; i < calls.length; i++) {
     var call = calls[i];
     if (!Array.isArray(call) || typeof scriptlets[call[0]] !== 'function') continue;
     try { scriptlets[call[0]](call.slice(1)); } catch (e) { /* 1つの失敗で他の scriptlet を止めない */ }
   }
+  try { startProceduralEngine(); } catch (e) { /* 要素フィルタの失敗で scriptlet を止めない */ }
 })();

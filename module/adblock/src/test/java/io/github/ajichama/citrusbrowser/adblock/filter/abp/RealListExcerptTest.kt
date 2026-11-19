@@ -12,13 +12,13 @@ import org.junit.Test
 
 class RealListExcerptTest {
     @Test
-    fun easyListKeepsUnsupportedModifiersRejected() = verify("easylist", 48, 5)
+    fun easyListKeepsUnsupportedModifiersRejected() = verify("easylist", 48, 4)
 
     @Test
-    fun japaneseListAcceptsSupportedNetworkExtensions() = verify("adguard-jp", 54, 5)
+    fun japaneseListAcceptsSupportedNetworkExtensions() = verify("adguard-jp", 54, 3)
 
     @Test
-    fun ublockListAcceptsNetworkExtensionsAndOnlyImplementedScriptlets() = verify("ubo-filters", 62, 15)
+    fun ublockListAcceptsNetworkExtensionsAndOnlyImplementedScriptlets() = verify("ubo-filters", 62, 14)
 
     private fun verify(name: String, expectedLines: Int, expectedDiscarded: Int) {
         val lines = javaClass.getResourceAsStream("/adblock/excerpts/$name.txt")!!.bufferedReader().use { reader ->
@@ -33,6 +33,8 @@ class RealListExcerptTest {
         // 変更前は順に5・15・47行。対応外の制約を落として数値だけ改善しない。
         // 第3段階で、実装済みの scriptlet（set・aopr・aopw・acs・nostif・aeld）の行を受け付けた（adguard-jp 6→5、ubo-filters 29→16）。
         // 第3段階の第2弾で ra（remove-attr）も受け付けた（ubo-filters 16→15）。未実装の popads-dummy 等の行は引き続き破棄する。
+        // procedural（#?#…:has-text、:has(…:contains)、:upward():style()、:style()）を受け付けた（easylist 5→4、adguard-jp 5→3、
+        // ubo-filters 15→14）。WebView で実行できない HTML フィルタ（##^）は引き続き破棄する。
         assertEquals("$name: 対応構文と拒否すべき構文の双方を見直してください", expectedDiscarded, discarded)
         println("EXCERPT $name active=${lines.size} discarded=$discarded")
     }

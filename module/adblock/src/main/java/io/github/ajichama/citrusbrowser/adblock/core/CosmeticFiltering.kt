@@ -76,9 +76,12 @@ class CosmeticFiltering(
         val stored = scriptletFilters[url, false].filter { Scriptlets.isStored(it.selector) }
         if (stored.isEmpty()) return emptyList()
         val exceptions = stored.asSequence().filter { !it.isHide }.map { it.selector }.toSet()
-        if (Scriptlets.encode(emptyList()) in exceptions) return emptyList()
+        // #@#+js() は scriptlet だけを止め、procedural の要素フィルタは止めない。
+        val scriptletsDisabled = Scriptlets.encode(emptyList()) in exceptions
         return stored.asSequence().filter { it.isHide }.map { it.selector }
-            .filterNot { it in exceptions }.distinct().map(Scriptlets::decode).toList()
+            .filterNot { it in exceptions }
+            .filterNot { scriptletsDisabled && !it.startsWith(Scriptlets.PROCEDURAL_PREFIX) }
+            .distinct().map(Scriptlets::decode).toList()
     }
 
     private fun String.escapeCachedSelector(): String = buildString {

@@ -152,8 +152,13 @@ class AbpFilterDecoderTest {
         )
         // scriptlet は CSS に混ぜず、正規化した呼び出しとして別の形式で保存する（第3段階）。
         assertEquals(listOf(".normal-ad"), set.elementList.filterNot { Scriptlets.isStored(it.selector) }.map { it.selector })
-        assertEquals(listOf(listOf("set-constant", "ads", "false")),
-            set.elementList.filter { Scriptlets.isStored(it.selector) }.map { Scriptlets.decode(it.selector) }.distinct())
+        // procedural の要素フィルタも CSS に混ぜず、文書開始時のスクリプトへ渡す形で保存する。##^ は破棄する。
+        assertEquals(listOf(
+            listOf("set-constant", "ads", "false"),
+            listOf(Scriptlets.PROCEDURAL_CALL, "div:has-text(advert)"),
+            listOf(Scriptlets.PROCEDURAL_CALL, "div:style(display: none)"),
+            listOf(Scriptlets.PROCEDURAL_CALL, "div:-abp-contains(advert)"),
+        ), set.elementList.filter { Scriptlets.isStored(it.selector) }.map { Scriptlets.decode(it.selector) }.distinct())
     }
 
     @Test

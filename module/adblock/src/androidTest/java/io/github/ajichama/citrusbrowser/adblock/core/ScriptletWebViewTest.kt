@@ -159,6 +159,41 @@ class ScriptletWebViewTest {
         awaitTrue("!document.querySelector('#link').hasAttribute('onclick')")
     }
 
+    @Test fun proceduralFiltersHideRemoveAndStyleWithoutTouchingTheArticle() {
+        install(
+            "blog.esuteru.com##.card:has-text(スポンサー)",
+            "blog.esuteru.com##.label:has-text(/^PR$/):upward(.box)",
+            "blog.esuteru.com##body:style(overflow: auto !important)",
+            "blog.esuteru.com##.gone:remove()",
+            "blog.esuteru.com##a.attr-target:remove-attr(onclick)",
+            "blog.esuteru.com##:xpath(//div[@id='xp'])",
+            "blog.esuteru.com##div:matches-attr(data-ad=/^slot/)",
+            "blog.esuteru.com##.late:has-text(後から)",
+            "blog.esuteru.com##.card:has-text(除外)",
+            "blog.esuteru.com#@#.card:has-text(除外)",
+            "blog.esuteru.com##.box2:has(.inner:has-text(広告))",
+        )
+        load("""
+            <div class="card" id="c1">スポンサー記事</div><div class="card" id="c2">普通の記事</div>
+            <div class="box" id="b1"><div><span class="label">PR</span></div></div>
+            <div class="box" id="b2"><span class="label">PRではない</span></div>
+            <div class="gone" id="g1">消える</div>
+            <a class="attr-target" id="a1" href="#" onclick="return false">リンク</a>
+            <div id="xp">xpath</div><div data-ad="slot-1" id="m1">枠</div><div data-ad="article" id="m2">本文の枠</div>
+            <div class="card" id="c3">除外する広告</div>
+            <div class="box2" id="n1"><p class="inner">広告です</p></div><div class="box2" id="n2"><p class="inner">記事</p></div>
+            <article id="article">記事本文</article>""")
+        val hidden = "['c1','b1','xp','m1','n1'].every(id=>getComputedStyle(document.getElementById(id)).display==='none')"
+        awaitTrue(hidden)
+        assertEquals("true", evaluate("['c2','b2','m2','c3','n2','article'].every(id=>getComputedStyle(document.getElementById(id)).display!=='none')"))
+        assertEquals("true", evaluate("document.getElementById('g1')===null && !document.getElementById('a1').hasAttribute('onclick')"))
+        assertEquals("\"auto\"", evaluate("getComputedStyle(document.body).overflow"))
+        // 後から追加した要素も、要素の追加をきっかけに再評価して隠す。
+        evaluate("const late=document.createElement('div');late.className='late';late.id='late';late.textContent='後から来た広告';document.body.appendChild(late)")
+        awaitTrue("getComputedStyle(document.getElementById('late')).display==='none'")
+        assertEquals("\"記事本文\"", evaluate("document.getElementById('article').textContent"))
+    }
+
     @Test fun exceptionAndEmptyResultsInjectNothing() {
         install("blog.esuteru.com##+js(set, citrusAdFlag, false)", "blog.esuteru.com#@#+js()")
         load("<script>window.r = { flag: typeof window.citrusAdFlag, done: true };</script>")

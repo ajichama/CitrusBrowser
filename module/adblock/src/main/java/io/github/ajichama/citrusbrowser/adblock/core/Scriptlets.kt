@@ -84,10 +84,19 @@ object Scriptlets {
 
     fun encode(call: List<String>): String = STORED_PREFIX + call.joinToString(SEPARATOR.toString())
 
-    fun isStored(selector: String) = selector.startsWith(STORED_PREFIX)
+    /** procedural の要素フィルタ。scriptlet と同じ経路で、文書開始時の固定スクリプトへ渡す。 */
+    const val PROCEDURAL_PREFIX = "+pf\u001F"
+    const val PROCEDURAL_CALL = "#procedural"
 
-    fun decode(selector: String): List<String> =
-        selector.removePrefix(STORED_PREFIX).let { if (it.isEmpty()) emptyList() else it.split(SEPARATOR) }
+    fun encodeProcedural(body: String): String = PROCEDURAL_PREFIX + body
+
+    /** scriptlet・procedural のどちらか（CSS の注入には含めず、ブリッジで渡すもの）。 */
+    fun isStored(selector: String) = selector.startsWith(STORED_PREFIX) || selector.startsWith(PROCEDURAL_PREFIX)
+
+    fun decode(selector: String): List<String> {
+        if (selector.startsWith(PROCEDURAL_PREFIX)) return listOf(PROCEDURAL_CALL, selector.removePrefix(PROCEDURAL_PREFIX))
+        return selector.removePrefix(STORED_PREFIX).let { if (it.isEmpty()) emptyList() else it.split(SEPARATOR) }
+    }
 
     /** 適用する呼び出しの一覧を、注入スクリプトへ渡す JSON 配列にする。 */
     fun toJson(calls: List<List<String>>): String = buildString {

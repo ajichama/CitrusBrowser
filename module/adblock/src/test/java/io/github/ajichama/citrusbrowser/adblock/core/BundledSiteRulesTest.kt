@@ -77,8 +77,11 @@ class BundledSiteRulesTest {
         assertEquals(listOf(".article-body > blockquote:has(> .amz-card)"),
             rules.elementList.filterNot { Scriptlets.isStored(it.selector) }.map { it.selector })
         // scriptlet は CSS ではなく、正規化した呼び出しとして保存する（第3段階）。
-        assertEquals(listOf(listOf("remove-node-text", "script", "ads")),
-            rules.elementList.filter { Scriptlets.isStored(it.selector) }.map { Scriptlets.decode(it.selector) })
+        assertEquals(listOf(
+            listOf(Scriptlets.PROCEDURAL_CALL, "blockquote:-abp-has(.amz-card)"),
+            listOf(Scriptlets.PROCEDURAL_CALL, "blockquote:has-text(広告)"),
+            listOf("remove-node-text", "script", "ads"),
+        ), rules.elementList.filter { Scriptlets.isStored(it.selector) }.map { Scriptlets.decode(it.selector) })
         assertTrue(rules.blackList.isEmpty())
         assertTrue(rules.whiteList.isEmpty())
     }

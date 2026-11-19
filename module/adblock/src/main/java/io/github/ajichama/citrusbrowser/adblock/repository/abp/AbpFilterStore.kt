@@ -234,8 +234,8 @@ internal class AbpFilterStore(
     private fun bundleFile(entityId: Int) = File(directory, "abp_$entityId.zip")
 
     companion object {
-        // 解釈の変更時に更新する。旧キャッシュは新しい束の公開成功まで保持する。5: scriptlet（+js）の保存を追加。6: scriptlet の第2弾を追加。
-        const val PARSER_REVISION = 6
+        // 解釈の変更時に更新する。旧キャッシュは新しい束の公開成功まで保持する。5: scriptlet（+js）の保存を追加。6: scriptlet の第2弾を追加。7: procedural の要素フィルタを追加。
+        const val PARSER_REVISION = 7
         private const val MANIFEST = "manifest.properties"
         private val PREFIXES = listOf(ABP_PREFIX_DENY, ABP_PREFIX_ALLOW, ABP_PREFIX_DISABLE_ELEMENT_PAGE, ABP_PREFIX_ELEMENT)
         private val publicationLock = Any()
