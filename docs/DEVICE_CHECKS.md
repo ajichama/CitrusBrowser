@@ -26,6 +26,15 @@
 
 本体の設定リンク回帰は、起動追跡を修正した同じテストで公開旧版が11.651秒で失敗し、修正版へのデータ保持更新後は2.132秒で成功しました。1件で3つの内部リンクを確認しています。起動追跡に失敗していた最初の実行は製品の回帰証拠に含めません。
 
+## 2026-11-19の scriptlet 第2弾と5リスト（エミュレーター）
+
+環境は Docker 上のエミュレーター（API 37、WebView 145.0.7632.218）で、実機ではない。
+
+- 計測12件が成功した（ScriptletWebViewTest 3件・CosmeticFilteringWebViewTest 7件・AbpDefaultSubscriptionsIntegrationTest 2件、失敗・スキップ0）。第2弾では、ポップアップ・fetch・XHR・タイマー・JSON・eval・属性・Cookie の各 scriptlet の効果を確かめた。
+- AdGuard Japanese を、配布元の予備（AdGuard 公式の GitHub）から初めて取得できた。Citrus・EasyList・EasyPrivacy・AdGuard Japanese・uBlock filters の5リストで、やらおん！・オタコム・はちま起稿のトップは広告0、誤遮断なし。
+- 既定3リストではオタコム上部に残った楽天の枠（配信元 jp1media.com、クリック先 getallmedia.com）は、AdGuard Japanese の `||jp1media.com^$3p`・`||getallmedia.com^` で消えた。
+- 広告は表示のたびに変わるため、1回の観察として扱う。
+
 ## 2026-11-19の scriptlet（第3段階、エミュレーター）
 
 環境は Docker 上のエミュレーター（API 37、WebView 145.0.7632.218、英語ロケール）で、実機ではない。

@@ -114,6 +114,51 @@ class ScriptletWebViewTest {
         assertEquals("true", evaluate("typeof document.title === 'string'"))
     }
 
+    @Test fun secondBatchScriptletsDefuseNetworkPopupTimerJsonAndAttributes() {
+        install(
+            "blog.esuteru.com##+js(nowoif, popunder)",
+            "blog.esuteru.com##+js(nowoif, decoyAd, 5)",
+            "blog.esuteru.com##+js(no-fetch-if, adserver.example, emptyObj)",
+            "blog.esuteru.com##+js(no-xhr-if, method:POST beacon.example)",
+            "blog.esuteru.com##+js(nano-stb, slowAd, 2000, 0.05)",
+            "blog.esuteru.com##+js(json-prune, ads data.[].tracking, ads)",
+            "blog.esuteru.com##+js(ra, onclick, #link)",
+            "blog.esuteru.com##+js(set-cookie, citrus_consent, accepted)",
+            "blog.esuteru.com##+js(noeval-if, adEval)",
+            "blog.esuteru.com##+js(aost, citrusStackProbe, inlineScript)",
+        )
+        load("""
+            <a id="link" href="#" onclick="r.clicked=1">リンク</a>
+            <script>
+              window.r = {};
+              r.popup = window.open('https://popunder.example/x') === null;
+              r.decoy = (function () { var w = window.open('https://decoyAd.example/'); return !!w && w !== window; })();
+              r.json = JSON.stringify(JSON.parse('{"ads":[1],"keep":2,"data":[{"tracking":1,"v":1}]}'));
+              r.jsonUntouched = JSON.stringify(JSON.parse('{"keep":2}'));
+              r.evalAd = eval('"adEval"');
+              r.evalOk = eval('1+1');
+              try { citrusStackProbe; r.aost = 'not aborted'; } catch (e) { r.aost = e instanceof ReferenceError ? 'aborted' : 'other'; }
+              r.cookie = document.cookie.indexOf('citrus_consent=accepted') !== -1;
+              var started = Date.now();
+              setTimeout(function () { /* slowAd */ r.slow = Date.now() - started; }, 2000);
+              fetch('https://adserver.example/ad.json').then(function (res) { return res.text(); }).then(function (t) { r.fetch = t; });
+              var x = new XMLHttpRequest();
+              x.open('POST', 'https://beacon.example/collect');
+              x.onload = function () { r.xhr = x.status + ':' + x.readyState; };
+              x.send('data');
+            </script>""")
+        awaitTrue("window.r && r.fetch !== undefined && r.xhr !== undefined && r.slow !== undefined")
+        assertEquals("true", evaluate("r.popup && r.decoy"))
+        assertEquals("true", evaluate("r.json === '{\"keep\":2,\"data\":[{\"v\":1}]}' && r.jsonUntouched === '{\"keep\":2}'"))
+        assertEquals("true", evaluate("r.evalAd === undefined && r.evalOk === 2"))
+        assertEquals("\"aborted\"", evaluate("r.aost"))
+        assertEquals("true", evaluate("r.cookie"))
+        assertEquals("\"{}|200:4\"", evaluate("r.fetch + '|' + r.xhr"))
+        assertEquals("true", evaluate("r.slow < 1000"))
+        // remove-attr は解析完了後に属性を外す。
+        awaitTrue("!document.querySelector('#link').hasAttribute('onclick')")
+    }
+
     @Test fun exceptionAndEmptyResultsInjectNothing() {
         install("blog.esuteru.com##+js(set, citrusAdFlag, false)", "blog.esuteru.com#@#+js()")
         load("<script>window.r = { flag: typeof window.citrusAdFlag, done: true };</script>")

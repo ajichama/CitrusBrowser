@@ -47,6 +47,9 @@
   var addListener = EventTarget.prototype.addEventListener;
   var removeListener = EventTarget.prototype.removeEventListener;
   var MutationObserverCtor = W.MutationObserver;
+  // prevent-setTimeout 等が置き換える前の setTimeout。scriptlet 自身の遅延処理に使う。
+  var nativeSetTimeout = W.setTimeout;
+  function later(fn, ms) { return reflectApply(nativeSetTimeout, W, [fn, ms]); }
   var errorId = 'citrus' + Math.random().toString(36).slice(2);
 
   function abort() { throw new ReferenceError(errorId); }
@@ -379,7 +382,7 @@
     if (doc.documentElement) walk(doc.documentElement);
     if (!stay) {
       runAt(2, function () {
-        if (quitAfter > 0) setTimeout(stop, quitAfter); else stop();
+        if (quitAfter > 0) later(stop, quitAfter); else stop();
       });
     }
   };
@@ -436,6 +439,464 @@
         }
       });
     });
+  };
+
+  // ---- 第2弾（同じく uBO wiki の Resources-Library の公開仕様だけを参照） ----
+
+  // 先頭の ! を否定として扱う一致関数。空は「すべてに一致」。
+  function negatableMatcher(source) {
+    source = source === undefined ? '' : String(source);
+    var negate = source.charAt(0) === '!';
+    var matches = toMatcher(negate ? source.slice(1) : source);
+    if (!matches) return null;
+    return function (text) { return matches(text) !== negate; };
+  }
+
+  function proxyFunction(owner, name, apply) {
+    var original = owner[name];
+    if (typeof original !== 'function' || !ProxyCtor) return false;
+    owner[name] = new ProxyCtor(original, { apply: apply });
+    return true;
+  }
+
+  // prevent-window-open: 条件に合う window.open を開かない。秒数を指定すると、見えない偽の window を返す。
+  scriptlets['prevent-window-open'] = function (args) {
+    var pattern = args[0] === undefined ? '' : args[0];
+    if (pattern === 'debug') return;
+    var matches = negatableMatcher(pattern);
+    if (!matches) return;
+    var seconds = parseInt(args[1], 10);
+    var useObject = String(args[2] || '').indexOf('obj') !== -1;
+    proxyFunction(W, 'open', function (target, thisArg, callArgs) {
+      var text = Array.prototype.map.call(callArgs, function (a) { return String(a); }).join(' ');
+      if (!matches(text)) return reflectApply(target, thisArg, callArgs);
+      if (!(seconds > 0)) return null;
+      // 広告の URL は読み込まず、空のページを入れた見えない枠を偽の window として返す。
+      var decoy = doc.createElement(useObject ? 'object' : 'iframe');
+      if (useObject) decoy.data = 'about:blank'; else decoy.src = 'about:blank';
+      decoy.setAttribute('style', 'position:fixed;top:-99px;left:-99px;width:1px;height:1px;border:0;opacity:0;pointer-events:none');
+      (doc.body || doc.documentElement).appendChild(decoy);
+      later(function () { decoy.remove(); }, seconds * 1000);
+      return decoy.contentWindow || null;
+    });
+  };
+
+  // prevent-fetch / prevent-xhr の条件: 空白区切りで、すべて一致したときだけ止める。
+  var fetchOptionNames = ['url', 'method', 'mode', 'credentials', 'cache', 'redirect', 'referrer', 'referrerPolicy',
+    'integrity', 'keepalive', 'priority', 'body', 'headers'];
+  function requestConditions(source, names) {
+    if (source === undefined || source === '') return null;
+    var conditions = [];
+    var parts = String(source).split(/\s+/);
+    for (var i = 0; i < parts.length; i++) {
+      if (parts[i] === '') continue;
+      var m = /^([A-Za-z]+):(.*)$/.exec(parts[i]);
+      var name = m && names.indexOf(m[1]) !== -1 ? m[1] : 'url';
+      var matcher = negatableMatcher(m && name === m[1] ? m[2] : parts[i]);
+      if (!matcher) return null;
+      conditions.push({ name: name, test: matcher });
+    }
+    return function (props) {
+      for (var j = 0; j < conditions.length; j++) {
+        if (!conditions[j].test(props[conditions[j].name] === undefined ? '' : String(props[conditions[j].name]))) return false;
+      }
+      return true;
+    };
+  }
+
+  // 応答本文の指示（true / emptyObj / emptyArr / emptyStr / length:min[-max]）。未知の指示は空文字列。
+  function responseBody(directive) {
+    var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    function randomText(n) { var s = ''; for (var i = 0; i < n; i++) s += chars.charAt(Math.floor(Math.random() * chars.length)); return s; }
+    switch (directive) {
+      case 'true': return randomText(10);
+      case 'emptyObj': return '{}';
+      case 'emptyArr': return '[]';
+      default: break;
+    }
+    var m = /^length:(\d+)(?:-(\d+))?$/.exec(directive || '');
+    if (m) {
+      var low = Math.min(Number(m[1]), 500000);
+      var high = Math.min(m[2] ? Number(m[2]) : low, 500000);
+      return randomText(low + Math.floor(Math.random() * (Math.max(high, low) - low + 1)));
+    }
+    return '';
+  }
+
+  // 応答の種類（ok / type / statusText）。JSON 文字列、または type の値だけを受け付ける。外側の引用符は外す。
+  function responseShape(source) {
+    if (source === undefined || source === '') return {};
+    var text = String(source).replace(/^'(.*)'$/, '$1');
+    if (text.charAt(0) === '{') {
+      try { var parsed = JSON.parse(text); return parsed && typeof parsed === 'object' ? parsed : {}; } catch (e) { return {}; }
+    }
+    return { type: text };
+  }
+
+  scriptlets['prevent-fetch'] = function (args) {
+    var matches = requestConditions(args[0], fetchOptionNames);
+    if (!matches || typeof W.fetch !== 'function' || typeof W.Response !== 'function') return;
+    var directive = args[1] === undefined ? '' : args[1];
+    var shape = responseShape(args[2]);
+    proxyFunction(W, 'fetch', function (target, thisArg, callArgs) {
+      var input = callArgs[0];
+      var init = callArgs[1] && typeof callArgs[1] === 'object' ? callArgs[1] : {};
+      var isRequest = typeof W.Request === 'function' && input instanceof W.Request;
+      var props = { url: isRequest ? input.url : String(input), method: init.method || (isRequest ? input.method : 'GET') };
+      for (var i = 0; i < fetchOptionNames.length; i++) {
+        var name = fetchOptionNames[i];
+        if (name !== 'url' && name !== 'method' && init[name] !== undefined) props[name] = init[name];
+      }
+      if (!matches(props)) return reflectApply(target, thisArg, callArgs);
+      var response = new W.Response(responseBody(directive), { status: 200, statusText: shape.statusText === undefined ? 'OK' : String(shape.statusText) });
+      try {
+        defineProperty(response, 'url', { value: props.url });
+        if (shape.type !== undefined) defineProperty(response, 'type', { value: String(shape.type) });
+        if (shape.ok !== undefined) defineProperty(response, 'ok', { value: shape.ok === true || shape.ok === 'true' });
+      } catch (e) { /* 定義できない環境では既定の値のまま */ }
+      return Promise.resolve(response);
+    });
+  };
+
+  scriptlets['prevent-xhr'] = function (args) {
+    var matches = requestConditions(args[0], ['method', 'url']);
+    var XHR = W.XMLHttpRequest;
+    if (!matches || typeof XHR !== 'function') return;
+    var directive = args[1] === undefined ? '' : args[1];
+    var requests = new WeakMap();
+    proxyFunction(XHR.prototype, 'open', function (target, thisArg, callArgs) {
+      requests.set(thisArg, { method: String(callArgs[0] || 'GET'), url: String(callArgs[1] || '') });
+      return reflectApply(target, thisArg, callArgs);
+    });
+    proxyFunction(XHR.prototype, 'send', function (target, thisArg, callArgs) {
+      var props = requests.get(thisArg);
+      if (!props || !matches(props)) return reflectApply(target, thisArg, callArgs);
+      // 通信せず、空の応答を受け取ったように振る舞う。
+      var text = responseBody(directive);
+      var type = thisArg.responseType;
+      var body = text;
+      if (type === 'json') { try { body = JSON.parse(text); } catch (e) { body = null; } }
+      else if (type === 'arraybuffer') body = new ArrayBuffer(0);
+      else if (type === 'blob') body = new Blob([]);
+      else if (type === 'document') body = null;
+      var values = { readyState: 4, status: 200, statusText: 'OK', response: body, responseURL: props.url };
+      if (type === '' || type === 'text') values.responseText = text;
+      try {
+        Object.keys(values).forEach(function (key) { defineProperty(thisArg, key, { value: values[key], configurable: true }); });
+      } catch (e) { return reflectApply(target, thisArg, callArgs); }
+      later(function () {
+        ['readystatechange', 'load', 'loadend'].forEach(function (type2) {
+          try { thisArg.dispatchEvent(new Event(type2)); } catch (e) { /* 続ける */ }
+        });
+      }, 1);
+      return undefined;
+    });
+  };
+
+  // adjust-setTimeout / adjust-setInterval: 条件に合う呼び出しの遅延を倍率で変える（既定 1000ms・0.05倍）。
+  function adjustTimer(name, args) {
+    var matches = toMatcher(args[0] === undefined ? '' : args[0]);
+    if (!matches) return;
+    var delayArg = args[1] === undefined || args[1] === '' ? '1000' : args[1];
+    if (delayArg !== '*' && !/^\d+$/.test(delayArg)) return;
+    var boost = args[2] === undefined || args[2] === '' ? 0.05 : parseFloat(args[2]);
+    if (!isFinite(boost)) return;
+    boost = Math.min(Math.max(boost, 0.02), 50);
+    proxyFunction(W, name, function (target, thisArg, callArgs) {
+      var delay = Number(callArgs[1]) || 0;
+      if ((delayArg === '*' || delay === Number(delayArg)) && matches(functionText(callArgs[0]))) {
+        var replaced = Array.prototype.slice.call(callArgs);
+        replaced[1] = Math.round(delay * boost);
+        return reflectApply(target, thisArg, replaced);
+      }
+      return reflectApply(target, thisArg, callArgs);
+    });
+  }
+  scriptlets['adjust-setTimeout'] = function (args) { adjustTimer('setTimeout', args); };
+  scriptlets['adjust-setInterval'] = function (args) { adjustTimer('setInterval', args); };
+
+  // prevent-requestAnimationFrame: 条件に合うコールバックを空の関数に置き換える。
+  scriptlets['prevent-requestAnimationFrame'] = function (args) {
+    if (args[0] === undefined || args[0] === '') return;
+    var matches = negatableMatcher(args[0]);
+    if (!matches) return;
+    proxyFunction(W, 'requestAnimationFrame', function (target, thisArg, callArgs) {
+      if (!matches(functionText(callArgs[0]))) return reflectApply(target, thisArg, callArgs);
+      return reflectApply(target, thisArg, [function () {}]);
+    });
+  };
+
+  // abort-on-stack-trace: プロパティに触れたときの呼び出し履歴が条件に合えば中断する。
+  scriptlets['abort-on-stack-trace'] = function (args) {
+    var chain = args[0];
+    var needle = args[1] === undefined ? '' : args[1];
+    if (!chain || needle === '') return;
+    var negate = needle.charAt(0) === '!';
+    var body = negate ? needle.slice(1) : needle;
+    var matches = body === 'inlineScript' ? null : toMatcher(body);
+    if (body !== 'inlineScript' && !matches) return;
+    var check = function () {
+      var hit;
+      if (body === 'inlineScript') {
+        var script = doc.currentScript;
+        hit = !!script && script.nodeName === 'SCRIPT' && !script.src;
+      } else {
+        var stack = '';
+        try { stack = String(new Error().stack); } catch (e) { stack = ''; }
+        hit = matches(stack);
+      }
+      if (hit !== negate) abort();
+    };
+    trapChain(W, chain, function (owner, prop) {
+      replaceProperty(owner, prop, function (getOriginal, setOriginal) {
+        return {
+          get: function () { check(); return getOriginal(this); },
+          set: function (next) { check(); setOriginal(this, next); }
+        };
+      });
+    });
+  };
+
+  // noeval-if: 内容が条件に合う eval を実行しない。noeval: eval をすべて実行しない。
+  function guardEval(matches) {
+    proxyFunction(W, 'eval', function (target, thisArg, callArgs) {
+      if (matches(String(callArgs[0]))) return undefined;
+      return reflectApply(target, thisArg, callArgs);
+    });
+  }
+  scriptlets['noeval-if'] = function (args) {
+    if (args[0] === undefined || args[0] === '') return;
+    var matches = toMatcher(args[0]);
+    if (matches) guardEval(matches);
+  };
+  scriptlets['noeval'] = function () { guardEval(function () { return true; }); };
+
+  // json-prune: JSON.parse と Response.json の結果から、指定したプロパティを取り除く。
+  function splitPath(path) {
+    var parts = [];
+    String(path).split('.').forEach(function (part) {
+      var m = /^(.*?)((?:\[\])+)$/.exec(part);
+      if (m) {
+        if (m[1] !== '') parts.push(m[1]);
+        for (var i = 0; i < m[2].length / 2; i++) parts.push('[]');
+      } else if (part !== '') {
+        parts.push(part);
+      }
+    });
+    return parts;
+  }
+  function visitPath(value, parts, index, visit) {
+    if (!isObjectLike(value)) return;
+    var part = parts[index];
+    var keys;
+    if (part === '[]') keys = Array.isArray(value) ? Object.keys(value) : [];
+    else if (part === '*') keys = Object.keys(value);
+    else keys = Object.prototype.hasOwnProperty.call(value, part) ? [part] : [];
+    for (var i = 0; i < keys.length; i++) {
+      if (index === parts.length - 1) visit(value, keys[i]);
+      else visitPath(value[keys[i]], parts, index + 1, visit);
+    }
+  }
+  scriptlets['json-prune'] = function (args) {
+    if (args[0] === undefined || args[0] === '') return;
+    var prune = args[0].split(/\s+/).filter(Boolean).map(splitPath);
+    // [-] と {-} は未対応。含む行は何もしない（遮断範囲を広げない）。
+    if (/\[-\]|\{-\}/.test(args[0])) return;
+    var required = [];
+    if (args[1] !== undefined && args[1] !== '' && args[1].charAt(0) !== '/') {
+      required = args[1].split(/\s+/).filter(Boolean).map(splitPath);
+    }
+    var stackMatches = args[2] === undefined || args[2] === '' ? null : negatableMatcher(args[2]);
+    if (args[2] !== undefined && args[2] !== '' && !stackMatches) return;
+    var pruneValue = function (value) {
+      if (!isObjectLike(value)) return value;
+      if (stackMatches) {
+        var stack = '';
+        try { stack = String(new Error().stack); } catch (e) { stack = ''; }
+        if (!stackMatches(stack)) return value;
+      }
+      for (var i = 0; i < required.length; i++) {
+        var found = false;
+        visitPath(value, required[i], 0, function () { found = true; });
+        if (!found) return value;
+      }
+      prune.forEach(function (parts) {
+        if (parts.length === 0) return;
+        visitPath(value, parts, 0, function (owner, key) { try { delete owner[key]; } catch (e) { /* 消せない値は残す */ } });
+      });
+      return value;
+    };
+    proxyFunction(JSON, 'parse', function (target, thisArg, callArgs) {
+      return pruneValue(reflectApply(target, thisArg, callArgs));
+    });
+    if (typeof W.Response === 'function') {
+      proxyFunction(W.Response.prototype, 'json', function (target, thisArg, callArgs) {
+        return reflectApply(target, thisArg, callArgs).then(pruneValue);
+      });
+    }
+  };
+
+  // remove-attr / remove-class: 要素から属性・クラスを取り除く（既定は解析完了後に1回）。
+  function removeFromElements(args, kind) {
+    var names = String(args[0] || '').split('|').map(function (s) { return s.trim(); }).filter(Boolean);
+    if (names.length === 0) return;
+    var selector = args[1] && args[1] !== '' ? args[1] : names.map(function (n) {
+      return kind === 'attr' ? '[' + n + ']' : '.' + (W.CSS && CSS.escape ? CSS.escape(n) : n);
+    }).join(',');
+    try { doc.createDocumentFragment().querySelector(selector); } catch (e) { return; }
+    var behavior = String(args[2] || '').split(/\s+/);
+    var applyOnce = function () {
+      var nodes;
+      try { nodes = doc.querySelectorAll(selector); } catch (e) { return; }
+      for (var i = 0; i < nodes.length; i++) {
+        for (var j = 0; j < names.length; j++) {
+          if (kind === 'attr') nodes[i].removeAttribute(names[j]); else nodes[i].classList.remove(names[j]);
+        }
+      }
+    };
+    var start = function () {
+      applyOnce();
+      if (behavior.indexOf('stay') === -1 || !MutationObserverCtor) return;
+      var pending = false;
+      new MutationObserverCtor(function () {
+        if (pending) return;
+        pending = true;
+        later(function () { pending = false; applyOnce(); }, 0);
+      }).observe(doc, { childList: true, subtree: true, attributes: true,
+        attributeFilter: kind === 'attr' ? names : ['class'] });
+    };
+    if (behavior.indexOf('asap') !== -1) runAt(1, start);
+    else if (behavior.indexOf('complete') !== -1) runAt(3, start);
+    else runAt(2, start);
+  }
+  scriptlets['remove-attr'] = function (args) { removeFromElements(args, 'attr'); };
+  scriptlets['remove-class'] = function (args) { removeFromElements(args, 'class'); };
+
+  // nowebrtc: RTCPeerConnection を、何も接続しない代わりの物にする。
+  scriptlets['nowebrtc'] = function () {
+    var Fake = function () {};
+    var resolved = function () { return Promise.resolve(); };
+    ['close', 'addEventListener', 'removeEventListener', 'addTrack', 'removeTrack'].forEach(function (m) { Fake.prototype[m] = function () {}; });
+    ['createOffer', 'createAnswer', 'setLocalDescription', 'setRemoteDescription', 'addIceCandidate', 'getStats'].forEach(function (m) { Fake.prototype[m] = resolved; });
+    Fake.prototype.createDataChannel = function () { return { close: function () {}, send: function () {}, addEventListener: function () {} }; };
+    ['RTCPeerConnection', 'webkitRTCPeerConnection'].forEach(function (name) {
+      if (typeof W[name] === 'function') { try { W[name] = Fake; } catch (e) { /* 置き換えられない環境では何もしない */ } }
+    });
+  };
+
+  // set-cookie: 決められた値だけを Cookie に保存する。
+  var cookieValues = ['accept', 'reject', 'accepted', 'rejected', 'notaccepted', 'allow', 'disallow', 'deny', 'allowed',
+    'denied', 'approved', 'disapproved', 'checked', 'unchecked', 'dismiss', 'dismissed', 'enable', 'disable', 'enabled',
+    'disabled', 'essential', 'nonessential', 'forbidden', 'forever', 'hide', 'hidden', 'necessary', 'required', 'ok',
+    'on', 'off', 'true', 't', 'false', 'f', 'yes', 'y', 'no', 'n', 'all', 'none', 'functional', 'granted', 'done',
+    'decline', 'declined', 'closed', 'next', 'mandatory', 'disagree', 'agree'];
+  function readCookie(name) {
+    var parts = doc.cookie.split(';');
+    for (var i = 0; i < parts.length; i++) {
+      var eq = parts[i].indexOf('=');
+      var key = (eq === -1 ? parts[i] : parts[i].slice(0, eq)).trim();
+      if (key === name) return eq === -1 ? '' : parts[i].slice(eq + 1).trim();
+    }
+    return null;
+  }
+  scriptlets['set-cookie'] = function (args) {
+    var name = args[0];
+    var raw = args[1];
+    if (!name || raw === undefined) return;
+    raw = raw.replace(/^"(.*)"$/, '$1');
+    var ok = cookieValues.indexOf(raw.toLowerCase()) !== -1 || (/^-?\d+$/.test(raw) && Math.abs(Number(raw)) <= 32767);
+    if (!ok) return;
+    var path = args[2] === undefined || args[2] === '' ? '/' : args[2];
+    var tokens = namedTokens(args, 3);
+    var encodedName = encodeURIComponent(name);
+    var before = readCookie(encodedName);
+    if (tokens.dontOverwrite === '1' && before !== null) return;
+    var cookie = encodedName + '=' + encodeURIComponent(raw);
+    if (path !== 'none') cookie += '; path=' + path;
+    if (/^__(Secure|Host)-/.test(name)) cookie += '; Secure';
+    try { doc.cookie = cookie; } catch (e) { return; }
+    if (tokens.reload === '1' && before === null && readCookie(encodedName) !== null) {
+      try { W.location.reload(); } catch (e) { /* 再読込できない環境では何もしない */ }
+    }
+  };
+
+  // remove-cookie: 名前が条件に合う Cookie を、読込時と離脱前に消す。
+  scriptlets['remove-cookie'] = function (args) {
+    var matches = toMatcher(args[0] === undefined ? '' : args[0]);
+    if (!matches) return;
+    var tokens = namedTokens(args, 1);
+    var removeMatching = function () {
+      var host = location.hostname;
+      var domains = ['', host, '.' + host];
+      if (/^www\./.test(host)) domains.push(host.slice(4), '.' + host.slice(4));
+      var paths = ['/', location.pathname];
+      doc.cookie.split(';').forEach(function (part) {
+        var eq = part.indexOf('=');
+        var name = (eq === -1 ? part : part.slice(0, eq)).trim();
+        if (name === '' || !matches(name)) return;
+        domains.forEach(function (domain) {
+          paths.forEach(function (path) {
+            var cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=' + path;
+            if (domain !== '') cookie += '; domain=' + domain;
+            try { doc.cookie = cookie; } catch (e) { /* 続ける */ }
+          });
+        });
+      });
+    };
+    if (tokens.when === 'scroll' || tokens.when === 'keydown') {
+      reflectApply(addListener, W, [tokens.when, function () { later(removeMatching, 500); }, { passive: true, capture: true }]);
+      return;
+    }
+    removeMatching();
+    reflectApply(addListener, W, ['pagehide', removeMatching, true]);
+    reflectApply(addListener, W, ['beforeunload', removeMatching, true]);
+  };
+
+  // window.name-defuser: 最上位の window の name を空にする（追跡対策）。
+  scriptlets['window.name-defuser'] = function () {
+    try { if (W === W.top) W.name = ''; } catch (e) { /* 続ける */ }
+  };
+
+  // disable-newtab-links: target を持つリンクを、同じタブで開くようにする。
+  scriptlets['disable-newtab-links'] = function () {
+    reflectApply(addListener, doc, ['click', function (event) {
+      var link = event.target && event.target.closest ? event.target.closest('a[target]') : null;
+      if (link && link.getAttribute('target') !== '_self') link.removeAttribute('target');
+    }, true]);
+  };
+
+  // href-sanitizer: 中継用のリンクを、表示テキスト・属性・クエリから得た本来の https の URL に置き換える。
+  scriptlets['href-sanitizer'] = function (args) {
+    var selector = args[0];
+    if (!selector) return;
+    try { doc.createDocumentFragment().querySelector(selector); } catch (e) { return; }
+    var source = args[1] === undefined ? '' : args[1];
+    // 変換手順（-base64 等）を含む指定は未対応のため何もしない。
+    if (/\s/.test(source.trim())) return;
+    var extract = function (link) {
+      var candidate;
+      if (source === '') candidate = link.textContent;
+      else if (/^\[.+\]$/.test(source)) candidate = link.getAttribute(source.slice(1, -1));
+      else if (source.charAt(0) === '?') {
+        try { candidate = new URL(link.href, location.href).searchParams.get(source.slice(1)); } catch (e) { candidate = null; }
+      } else return null;
+      if (!candidate) return null;
+      try {
+        var url = new URL(String(candidate).trim());
+        return url.protocol === 'https:' ? url.href : null;
+      } catch (e) { return null; }
+    };
+    var sanitize = function () {
+      var links;
+      try { links = doc.querySelectorAll(selector); } catch (e) { return; }
+      for (var i = 0; i < links.length; i++) {
+        if (links[i].nodeName !== 'A' || !links[i].hasAttribute('href')) continue;
+        var href = extract(links[i]);
+        if (href) links[i].setAttribute('href', href);
+      }
+    };
+    runAt(2, sanitize);
+    runAt(3, sanitize);
   };
 
   for (var i = 0; i < calls.length; i++) {

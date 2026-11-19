@@ -128,10 +128,34 @@ class AbpUpdateService internal constructor(
         }
     }
 
-    private suspend fun updateHttp(entity: AbpEntity, sourceUrl: String, forceUpdate: Boolean): AbpUpdateOutcome = coroutineScope {
-        val request = Request.Builder().url(sourceUrl).get()
+    private suspend fun updateHttp(entity: AbpEntity, sourceUrl: String, forceUpdate: Boolean): AbpUpdateOutcome {
+        var failure: IOException? = null
+        val primary = try {
+            attemptHttp(entity, sourceUrl, sourceUrl, forceUpdate)
+        } catch (error: IOException) {
+            failure = error
+            null
+        }
+        if (primary != null && primary != AbpUpdateOutcome.RetryableFailure) return primary
+        // 主な配布元が一時的に使えないときだけ、同じ内容を公開している公式の予備から取得する。
+        // 購読の識別・保存は元の URL のまま行う。404 等の恒久的な失敗では予備を使わない。
+        for (mirror in AbpListMirrors.of(sourceUrl)) {
+            currentCoroutineContext().ensureActive()
+            val outcome = try {
+                attemptHttp(entity, sourceUrl, mirror, forceUpdate = true)
+            } catch (error: IOException) {
+                failure?.addSuppressed(error) ?: run { failure = error }
+                null
+            }
+            if (outcome != null && outcome != AbpUpdateOutcome.RetryableFailure) return outcome
+        }
+        return primary ?: throw failure ?: IOException("フィルタを取得できませんでした。")
+    }
+
+    private suspend fun attemptHttp(entity: AbpEntity, sourceUrl: String, fetchUrl: String, forceUpdate: Boolean): AbpUpdateOutcome = coroutineScope {
+        val request = Request.Builder().url(fetchUrl).get()
         val currentCache = store.isCurrent(entity.entityId, sourceUrl)
-        if (!forceUpdate && currentCache) entity.lastModified?.let { request.addHeader("If-Modified-Since", it) }
+        if (!forceUpdate && currentCache && fetchUrl == sourceUrl) entity.lastModified?.let { request.addHeader("If-Modified-Since", it) }
         val httpRequest = request.build()
         val call = okHttpClient.newCall(httpRequest)
         // ヘッダー受信後の body 読み込み中にも、Worker 停止を Call.cancel へ伝える。
@@ -149,7 +173,8 @@ class AbpUpdateService internal constructor(
                 val body = response.body ?: return@coroutineScope AbpUpdateOutcome.PermanentFailure
                 val charset = body.contentType()?.charset() ?: Charsets.UTF_8
                 body.source().inputStream().bufferedReader(charset).use { reader ->
-                    decode(reader, charset, entity, sourceUrl, response.header("Last-Modified"),
+                    // 予備から取得した更新日時は、主な配布元への条件付き取得に使わない。
+                    decode(reader, charset, entity, sourceUrl, response.header("Last-Modified").takeIf { fetchUrl == sourceUrl },
                         includeBaseUrl = response.request.url.toString())
                 }
             }

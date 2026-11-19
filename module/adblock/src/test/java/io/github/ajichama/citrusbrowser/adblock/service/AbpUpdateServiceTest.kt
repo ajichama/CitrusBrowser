@@ -304,6 +304,49 @@ class AbpUpdateServiceTest {
         AbpLoader(directory, listOf(entity), store).use { assertEquals("old.example", it.loadAll(ABP_PREFIX_DENY).single().pattern) }
     }
 
+    @Test
+    fun aKnownListFallsBackToItsOfficialMirrorOnlyForTemporaryFailuresAndKeepsItsIdentity() = runBlocking {
+        val japanese = "https://filters.adtidy.org/extension/ublock/filters/7.txt"
+        val mirror = "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/platforms/extension/ublock/filters/7.txt"
+        assertEquals(listOf(mirror), AbpListMirrors.of(japanese))
+        assertTrue(AbpListMirrors.of(url).isEmpty())
+        val directory = temporary.newFolder()
+        val store = AbpFilterStore(directory, TestPublication())
+        val entity = AbpEntity(entityId = 1, url = japanese, lastModified = "Wed, 18 Nov 2026 00:00:00 GMT")
+        val dao = FakeDao(entity)
+        val requests = mutableListOf<String>()
+        var primaryCode = 0
+        val client = OkHttpClient.Builder().addInterceptor { chain ->
+            val requested = chain.request().url.toString()
+            requests += requested
+            if (requested == japanese) {
+                // 主な配布元: 接続できない（0）か、指定した HTTP 状態を返す。
+                if (primaryCode == 0) throw java.net.SocketTimeoutException("接続できません")
+                return@addInterceptor Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1)
+                    .code(primaryCode).message("err").body("".toResponseBody()).build()
+            }
+            assertNull("予備には条件付き取得を送らない", chain.request().header("If-Modified-Since"))
+            Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("ok")
+                .header("Last-Modified", "Thu, 19 Nov 2026 00:00:00 GMT")
+                .body("[Adblock Plus 2.0]\n! Title: AdGuard Japanese filter\n||mirror.example^".toResponseBody()).build()
+        }.build()
+        val updater = AbpUpdateService(context, client, dao, store)
+        assertEquals(AbpUpdateOutcome.Changed, updater.updateInternal(entity))
+        assertEquals(listOf(japanese, mirror), requests)
+        assertEquals(japanese, entity.url)
+        assertTrue(store.isCurrent(1, japanese))
+        // 予備の更新日時は、主な配布元への条件付き取得に使わない。
+        assertNull(entity.lastModified)
+        AbpLoader(directory, listOf(entity), store).use { assertEquals("mirror.example", it.loadAll(ABP_PREFIX_DENY).single().pattern) }
+        // 5xx は一時的な失敗として予備を使い、404 は恒久的な失敗として予備を使わない。
+        requests.clear(); primaryCode = 503
+        assertEquals(AbpUpdateOutcome.Changed, updater.updateInternal(entity, forceUpdate = true))
+        assertEquals(listOf(japanese, mirror), requests)
+        requests.clear(); primaryCode = 404
+        assertEquals(AbpUpdateOutcome.PermanentFailure, updater.updateInternal(entity, forceUpdate = true))
+        assertEquals(listOf(japanese), requests)
+    }
+
     private fun client() = OkHttpClient.Builder().addInterceptor { chain ->
         Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(200).message("ok")
             .body("[Adblock Plus 2.0]\n! Version: 2\n! Title: 新しいフィルタ\n||new.example^".toResponseBody()).build()

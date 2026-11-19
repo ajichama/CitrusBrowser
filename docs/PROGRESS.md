@@ -45,6 +45,7 @@
 
 | 検証 | 再現コマンド | 対象と結果（比較基準版／今回の結果を区別） |
 | --- | --- | --- |
+| scriptlet 第2弾・uBlock filters の既定化・配布元の予備（11月19日） | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest :module:adblock:assembleDebugAndroidTest"` | 1分30秒で成功。通常76suite・307件、失敗・error・スキップ0（既定購読の版2の移行、予備からの取得と恒久的な失敗での不使用を追加）。エミュレーター（API 37）で ScriptletWebViewTest 3件・CosmeticFilteringWebViewTest 7件・AbpDefaultSubscriptionsIntegrationTest 2件が成功。実機は未実施 |
 | scriptlet の独自実装（11月19日） | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest :module:adblock:assembleDebugAndroidTest"` | 独立監査の指摘（非対応 WebView でのブリッジ残留、期限なしの待ち、汎用規則の走査）を修正後、1分23秒で成功。通常76suite・305件、失敗・error・スキップ0（解析・別名・例外・`$elemhide`・キャッシュ往復・JSON・入れ物の分離・期限つきの待ちの新規7件と、scriptlet を受け付けたことによる既存4件の期待値更新）。エミュレーター（API 37）で ScriptletWebViewTest 2件と CosmeticFilteringWebViewTest 7件が成功。実機は未実施 |
 | 本体の購読・構文拡張（11月19日） | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest"` | 独立監査の指摘（本文ページへの適用範囲、EasyList の移行）を修正後、1分2秒・843 tasksで成功。通常75suite・298件、失敗・error・スキップ0。既存無効保持・重複/再試行、important優先・全購読badfilter・空資源選択、include境界・子更新・失敗/取消時の旧束保持等を検証。実機は未実施 |
 | 公開版の本体・通常単体・全計測APK・release・buildSrc | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest assembleDebugAndroidTest assembleRelease :buildSrc:test"` | 11月17日、公開`f5f2ae8b`で全成功（4分50秒・1,965 tasks）。通常69suite・247件、buildSrc15件は別集計で失敗・error・スキップ0 |

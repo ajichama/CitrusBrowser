@@ -45,7 +45,11 @@ class ScriptletsTest {
         assertEquals(emptyList<String>(), Scriptlets.parse("+js()"))
         // 未対応の名前・壊れた構文は null（行ごと破棄）。
         assertNull(Scriptlets.parse("+js(trusted-set-cookie, a, b)"))
-        assertNull(Scriptlets.parse("+js(json-prune, a)"))
+        // trusted の scriptlet（rpnt は trusted-replace-node-text の別名）と未実装の名前は破棄する。
+        assertNull(Scriptlets.parse("+js(rpnt, script, a, b)"))
+        assertNull(Scriptlets.parse("+js(nobab)"))
+        assertEquals(listOf("prevent-window-open", "ads"), Scriptlets.parse("+js(nowoif, ads)"))
+        assertEquals(listOf("window.name-defuser"), Scriptlets.parse("+js(window.name-defuser.js)"))
         assertNull(Scriptlets.parse("+js(set, a"))
         assertNull(Scriptlets.parse("+js(, a)"))
     }
@@ -57,7 +61,7 @@ class ScriptletsTest {
             "##+js(set, generic, false)",
             "*##+js(set, star, false)",
             "~example.com##+js(set, negated, false)",
-            "example.com##+js(json-prune, ads)",
+            "example.com##+js(nobab)",
             "example.com##+js()",
             "example.com##.banner",
         )
