@@ -925,6 +925,174 @@
     runAt(3, sanitize);
   };
 
+  // ---- 第3弾（uBO wiki の Resources-Library の公開仕様だけを参照） ----
+
+  // json-prune の引数（削除するパス・必須のパス・呼び出し履歴の条件）から、値を取り除く関数を作る。
+  function makePruner(args, stackSource) {
+    if (args[0] === undefined || args[0] === '' || /\[-\]|\{-\}/.test(args[0])) return null;
+    var prune = args[0].split(/\s+/).filter(Boolean).map(splitPath);
+    var required = [];
+    if (args[1] !== undefined && args[1] !== '' && args[1].charAt(0) !== '/') {
+      required = args[1].split(/\s+/).filter(Boolean).map(splitPath);
+    }
+    var stackMatches = stackSource === undefined || stackSource === '' ? null : negatableMatcher(stackSource);
+    if (stackSource !== undefined && stackSource !== '' && !stackMatches) return null;
+    return function (value) {
+      if (!isObjectLike(value)) return value;
+      if (stackMatches) {
+        var stack = '';
+        try { stack = String(new Error().stack); } catch (e) { stack = ''; }
+        if (!stackMatches(stack)) return value;
+      }
+      for (var i = 0; i < required.length; i++) {
+        var found = false;
+        visitPath(value, required[i], 0, function () { found = true; });
+        if (!found) return value;
+      }
+      prune.forEach(function (parts) {
+        if (parts.length === 0) return;
+        visitPath(value, parts, 0, function (owner, key) { try { delete owner[key]; } catch (e) { /* 消せない値は残す */ } });
+      });
+      return value;
+    };
+  }
+
+  // json-prune-fetch-response: 条件に合う fetch の JSON 応答から、指定したプロパティを取り除く。
+  scriptlets['json-prune-fetch-response'] = function (args) {
+    var tokens = namedTokens(args, 2);
+    var pruneValue = makePruner(args, tokens.stackToMatch);
+    if (!pruneValue || typeof W.fetch !== 'function' || typeof W.Response !== 'function') return;
+    var matches = tokens.propsToMatch ? requestConditions(tokens.propsToMatch, fetchOptionNames) : function () { return true; };
+    if (!matches) return;
+    proxyFunction(W, 'fetch', function (target, thisArg, callArgs) {
+      var input = callArgs[0];
+      var init = callArgs[1] && typeof callArgs[1] === 'object' ? callArgs[1] : {};
+      var isRequest = typeof W.Request === 'function' && input instanceof W.Request;
+      var props = { url: isRequest ? input.url : String(input), method: init.method || (isRequest ? input.method : 'GET') };
+      var pending = reflectApply(target, thisArg, callArgs);
+      if (!matches(props)) return pending;
+      return pending.then(function (response) {
+        return response.clone().text().then(function (text) {
+          var parsed;
+          try { parsed = JSON.parse(text); } catch (e) { return response; }
+          if (!isObjectLike(parsed)) return response;
+          var pruned = new W.Response(JSON.stringify(pruneValue(parsed)), {
+            status: response.status, statusText: response.statusText, headers: response.headers
+          });
+          try {
+            defineProperty(pruned, 'url', { value: response.url });
+            defineProperty(pruned, 'type', { value: response.type });
+            defineProperty(pruned, 'redirected', { value: response.redirected });
+          } catch (e) { /* 定義できない環境では既定の値のまま */ }
+          return pruned;
+        }, function () { return response; });
+      });
+    });
+  };
+
+  // json-prune-xhr-response: 条件に合う XHR の JSON 応答から、指定したプロパティを取り除く。
+  scriptlets['json-prune-xhr-response'] = function (args) {
+    var tokens = namedTokens(args, 2);
+    var pruneValue = makePruner(args, tokens.stackToMatch);
+    var XHR = W.XMLHttpRequest;
+    if (!pruneValue || typeof XHR !== 'function') return;
+    var matches = tokens.propsToMatch ? requestConditions(tokens.propsToMatch, ['method', 'url']) : function () { return true; };
+    if (!matches) return;
+    var proto = XHR.prototype;
+    var responseGetter = (getOwnDescriptor(proto, 'response') || {}).get;
+    var textGetter = (getOwnDescriptor(proto, 'responseText') || {}).get;
+    if (!responseGetter || !textGetter) return;
+    var targets = new WeakMap();
+    proxyFunction(proto, 'open', function (target, thisArg, callArgs) {
+      if (matches({ method: String(callArgs[0] || 'GET'), url: String(callArgs[1] || '') })) targets.set(thisArg, {});
+      else targets.delete(thisArg);
+      return reflectApply(target, thisArg, callArgs);
+    });
+    // 応答を読む口だけを差し替え、読み終えた応答（readyState 4）のときに一度だけ取り除く。
+    function prunedText(xhr) {
+      var state = targets.get(xhr);
+      var text = reflectApply(textGetter, xhr, []);
+      if (!state || xhr.readyState !== 4) return text;
+      if (state.text === undefined) {
+        try {
+          var parsed = JSON.parse(text);
+          state.text = isObjectLike(parsed) ? JSON.stringify(pruneValue(parsed)) : text;
+        } catch (e) { state.text = text; }
+      }
+      return state.text;
+    }
+    try {
+      defineProperty(proto, 'responseText', { configurable: true, enumerable: true, get: function () {
+        var type = this.responseType;
+        return (type === '' || type === 'text') ? prunedText(this) : reflectApply(textGetter, this, []);
+      } });
+      defineProperty(proto, 'response', { configurable: true, enumerable: true, get: function () {
+        var type = this.responseType;
+        var value = reflectApply(responseGetter, this, []);
+        if (!targets.has(this) || this.readyState !== 4) return value;
+        if (type === '' || type === 'text') return prunedText(this);
+        if (type === 'json') return pruneValue(value);
+        return value;
+      } });
+    } catch (e) { /* 置き換えられない環境では何もしない */ }
+  };
+
+  // trusted-replace-argument: 指定した関数を呼ぶときの引数（または this）を置き換える（信頼できるリストからだけ届く）。
+  scriptlets['trusted-replace-argument'] = function (args) {
+    var chain = args[0];
+    var position = args[1];
+    var raw = args[2];
+    if (!chain || position === undefined || position === '' || raw === undefined || !ProxyCtor) return;
+    if (position !== 'this' && !/^-?\d+$/.test(position)) return;
+    var tokens = namedTokens(args, 3);
+    var condition = tokens.condition !== undefined ? toMatcher(tokens.condition) : null;
+    if (tokens.condition !== undefined && !condition) return;
+    var replaceValue;
+    if (raw.indexOf('json:') === 0) {
+      var jsonValue;
+      try { jsonValue = JSON.parse(raw.slice(5)); } catch (e) { return; }
+      replaceValue = function () { return jsonValue; };
+    } else if (raw.indexOf('repl:') === 0) {
+      var m = /^repl:\/((?:\\.|[^\\/])+)\/((?:\\.|[^\\/])*)\/([gimsu]*)$/.exec(raw);
+      if (!m) return;
+      var re;
+      try { re = new RegExp(m[1], m[3]); } catch (e) { return; }
+      replaceValue = function (current) { return String(current).replace(re, m[2]); };
+    } else {
+      replaceValue = function () { return raw; };
+    }
+    var proxies = new WeakMap();
+    var wrap = function (fn) {
+      if (typeof fn !== 'function') return fn;
+      if (proxies.has(fn)) return proxies.get(fn);
+      var proxy = new ProxyCtor(fn, {
+        apply: function (target, thisArg, callArgs) {
+          var list = Array.prototype.slice.call(callArgs);
+          if (position === 'this') {
+            if (!condition || condition(String(thisArg))) thisArg = replaceValue(thisArg);
+          } else {
+            var index = Number(position);
+            if (index < 0) index = list.length + index;
+            if (index >= 0 && index < list.length && (!condition || condition(String(list[index])))) {
+              list[index] = replaceValue(list[index]);
+            }
+          }
+          return reflectApply(target, thisArg, list);
+        }
+      });
+      proxies.set(fn, proxy);
+      return proxy;
+    };
+    trapChain(W, chain, function (owner, prop) {
+      replaceProperty(owner, prop, function (getOriginal, setOriginal) {
+        return {
+          get: function () { return wrap(getOriginal(this)); },
+          set: function (next) { setOriginal(this, next); }
+        };
+      });
+    });
+  };
+
   // ---- procedural の要素フィルタ（uBO wiki の Procedural-cosmetic-filters の公開仕様だけを参照） ----
 
   var proceduralOperators = ['has-text', 'matches-attr', 'matches-css', 'matches-css-before', 'matches-css-after',

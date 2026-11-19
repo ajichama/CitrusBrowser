@@ -221,6 +221,31 @@ class ScriptletWebViewTest {
         assertEquals("true", evaluate("!r.error && r.duration > 0.05 && r.duration < 0.5"))
     }
 
+    @Test fun thirdBatchPrunesFetchAndXhrJsonAndReplacesArguments() {
+        install(
+            "blog.esuteru.com##+js(json-prune-fetch-response, ads, , propsToMatch, data:application/json)",
+            "blog.esuteru.com##+js(json-prune-xhr-response, ads, , propsToMatch, data:application/json)",
+            "blog.esuteru.com##+js(trusted-replace-argument, citrusTarget, 0, json:\"replaced\")",
+            "blog.esuteru.com##+js(trusted-replace-argument, String.prototype.split, this, repl:/ads=1/ads=0/)",
+            source = "https://ublockorigin.github.io/uAssets/filters/filters.txt",
+        )
+        load("""<script>
+            window.r = {};
+            window.citrusTarget = function (a) { return a; };
+            r.arg = citrusTarget('original');
+            r.split = 'x&ads=1'.split('&').join('&');
+            var body = 'data:application/json,' + encodeURIComponent('{"ads":1,"keep":2}');
+            fetch(body).then(function (res) { return res.json(); }).then(function (j) { r.fetch = JSON.stringify(j); });
+            var x = new XMLHttpRequest();
+            x.open('GET', body);
+            x.onload = function () { r.xhr = x.responseText; };
+            x.send();
+            </script>""")
+        awaitTrue("window.r && r.fetch !== undefined && r.xhr !== undefined")
+        assertEquals("true", evaluate("r.arg === 'replaced' && r.split === 'x&ads=0'"))
+        assertEquals("true", evaluate("r.fetch === '{\"keep\":2}' && r.xhr === '{\"keep\":2}'"))
+    }
+
     @Test fun exceptionAndEmptyResultsInjectNothing() {
         install("blog.esuteru.com##+js(set, citrusAdFlag, false)", "blog.esuteru.com#@#+js()")
         load("<script>window.r = { flag: typeof window.citrusAdFlag, done: true };</script>")

@@ -37,6 +37,7 @@ uBlock filters の対応状況（2026-11-19 取得分、子リスト展開後）
 - procedural の補足（2026-11-19）: 先頭の CSS はセレクタの並び（`#a, #b:others()`）でもよく、procedural の後ろに続く通常の CSS 疑似クラス（`:is()`・`:not(.a)` 等）は CSS の続きとして扱う。wiki が未対応とする procedural の連結（最初の procedural より後ろのカンマ）は引き続き破棄する。構文の版を10へ進めた。
 - 無音の音声の資源（2026-11-19）: `redirect=noopmp3-0.1s` / `noop-0.1s.mp3` に、自作の約0.1秒の無音 MP3（MPEG-1 Layer III・128kbps・44.1kHz・モノラルの無音フレームを4つ並べた1,668バイト、assets/adblock/noop-0.1s.mp3）を返す。WebView で音声として読み込めることを計測テストで確認した。動画（noop-1s.mp4）と代替スクリプト（google-ima.js 等）は未対応。構文の版を11へ進めた。
 - HTML フィルタの代用（2026-11-19）: 受信中の HTML は書き換えられないため、`##^script:has-text(文字列)` の単純な形だけを、実行前にスクリプトの中身を消す rmnt（remove-node-text）に置き換える。括弧・バックスラッシュを含む指定、script 以外・属性つきの HTML フィルタ、例外（#@#^）は従来どおり破棄する。構文の版を12へ進めた。
+- scriptlet 第3弾（2026-11-20）: json-prune-fetch-response・json-prune-xhr-response（propsToMatch・stackToMatch）と、trusted の trusted-replace-argument（引数位置・this、json:・repl: の置換値、condition）を追加した。trusted 版の json-edit は wiki に節がないため対象外。構文の版を13へ進めた。
 - 独立監査で残した課題: ドメインのない `#@#+js(...)`（汎用の例外）は破棄している。`rmnt` に `stay` を付けると、要素の追加のたびに部分木をたどる。許可ページの判定は主フレームの通信の横取りで更新するため、横取りのない遷移（戻る操作など）では前のページの判定が残る。about:blank の iframe で固定スクリプトが動くかは未確認。
 - 保存は要素フィルタの束に同居させ、構文の版を5へ進めて旧キャッシュを再生成する。
 - 反広告ブロック（Ad-Shield）: livedoor 系の対策（`html-load.com` の遮断と `rmnt`）は uBlock filters にあり、既定の3リスト（EasyList・EasyPrivacy・AdGuard Japanese）には無い。uBlock filters を購読すれば本体でも効くことをエミュレーターで確認した（[実機確認](DEVICE_CHECKS.md)）。既定の購読に加えるかは未決定。

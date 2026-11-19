@@ -63,6 +63,9 @@ object Scriptlets {
         add("window.name-defuser")
         add("disable-newtab-links")
         add("href-sanitizer")
+        // 第3弾
+        add("json-prune-fetch-response")
+        add("json-prune-xhr-response")
     }
 
     /**
@@ -77,6 +80,7 @@ object Scriptlets {
         add("trusted-replace-node-text", "trusted-rpnt", "replace-node-text", "rpnt")
         add("trusted-set-local-storage-item")
         add("trusted-set-session-storage-item")
+        add("trusted-replace-argument")
     }
 
     private val trustedPrefixes = listOf(
