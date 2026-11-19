@@ -81,12 +81,17 @@ class FilterReader(private val input: InputStream) {
             var pattern = String(patternBuffer, 0, patternSize)
             var actualType = type
             var ruleKey: String? = null
+            var constraints: NetworkConstraints? = null
             if (type == FILTER_TYPE_NETWORK_RULE) {
-                val parts = pattern.split('\u0000', limit = 3)
-                if (parts.size != 3) throw IOException("フィルタの識別情報が壊れています。")
+                // 3欄（種類・識別子・パターン）または、追加条件を挟んだ4欄。パターンは NUL を含まない。
+                val parts = pattern.split('\u0000')
+                if (parts.size != 3 && parts.size != 4) throw IOException("フィルタの識別情報が壊れています。")
                 actualType = parts[0].toIntOrNull() ?: throw IOException("フィルタの種類が不正です。")
                 ruleKey = parts[1]
-                pattern = parts[2]
+                if (parts.size == 4) {
+                    constraints = NetworkConstraints.decode(parts[2]) ?: throw IOException("フィルタの追加条件が壊れています。")
+                }
+                pattern = parts.last()
             }
 
             val domainsSize = input.read()
@@ -157,7 +162,7 @@ class FilterReader(private val input: InputStream) {
                 FILTER_TYPE_PATTERN -> PatternMatchFilter(pattern, contentType, ignoreCase, domains, thirdParty)
                 else -> break@loop
             }
-            yield(if (ruleKey != null) NetworkRuleFilter(filter, ruleKey, 0) else filter)
+            yield(if (ruleKey != null) NetworkRuleFilter(filter, ruleKey, 0, constraints) else filter)
         }
     }
 }

@@ -84,7 +84,8 @@ class AbpFilterDecoderTest {
             "||ads.example^\$unknown-option",
             "||ads.example^\$redirect=unknown-resource",
             "||ads.example^\$domain=",
-            "||ads.example^\$domain=~example.*",
+            // 除外だけの entity（~example.*）は対応した（NetworkConstraintsTest）。ここでは壊れた指定だけを扱う。
+            "||ads.example^\$domain=~ex*ample.*",
             "||ads.example^\$domain=~ ",
         )
         assertTrue(set.blackList.isEmpty())

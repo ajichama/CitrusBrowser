@@ -15,18 +15,25 @@ internal class NetworkRuleFilter(
     private val delegate: UnifiedFilter,
     val ruleKey: String,
     flags: Int,
+    /** DomainMap で表せない追加条件（entity の $domain、denyallow、to、method）。 */
+    val constraints: NetworkConstraints? = null,
 ) : UnifiedFilter(delegate.pattern, delegate.contentType or flags, delegate.ignoreCase, delegate.domains, delegate.thirdParty) {
     override val filterType: Int get() = delegate.filterType
     override val isRegex: Boolean get() = delegate.isRegex
     override fun check(url: Uri): Boolean = delegate.check(url)
 
     // v2 のレコード形式を保ち、専用レコードの文字列欄へ識別子と実際のパターンを保存する。
-    val storedPattern: String get() = "$filterType\u0000$ruleKey\u0000$pattern"
+    // 追加条件がある場合だけ、識別子とパターンの間に条件の欄を挟む（旧形式は3欄のまま読める）。
+    val storedPattern: String get() = constraints?.let { "$filterType\u0000$ruleKey\u0000${it.encode()}\u0000$pattern" }
+        ?: "$filterType\u0000$ruleKey\u0000$pattern"
+
+    override fun isMatch(request: ContentRequest): Boolean =
+        super.isMatch(request) && (constraints?.matches(request) ?: true)
 
     override fun equals(other: Any?): Boolean = other is NetworkRuleFilter &&
-        super.equals(other) && ruleKey == other.ruleKey
+        super.equals(other) && ruleKey == other.ruleKey && constraints == other.constraints
 
-    override fun hashCode(): Int = 31 * super.hashCode() + ruleKey.hashCode()
+    override fun hashCode(): Int = 31 * (31 * super.hashCode() + ruleKey.hashCode()) + (constraints?.hashCode() ?: 0)
 }
 
 /** 同じ元ルールの全カテゴリを、全有効購読にまたがって取り除く。 */

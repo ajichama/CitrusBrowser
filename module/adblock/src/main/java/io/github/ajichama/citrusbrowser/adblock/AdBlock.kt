@@ -33,5 +33,6 @@ fun WebResourceRequest.getAdBlockPageUri(currentPageUri: Uri): Uri = if (isForMa
 
 fun WebResourceRequest.getContentRequest(pageUri: Uri): ContentRequest {
     val effectivePageUri = getAdBlockPageUri(pageUri)
-    return ContentRequest(url, effectivePageUri, RequestClassification.contentType(isForMainFrame, url.scheme, url.path, requestHeaders), isThirdParty(effectivePageUri))
+    return ContentRequest(url, effectivePageUri, RequestClassification.contentType(isForMainFrame, url.scheme, url.path, requestHeaders),
+        isThirdParty(effectivePageUri), method ?: "GET")
 }

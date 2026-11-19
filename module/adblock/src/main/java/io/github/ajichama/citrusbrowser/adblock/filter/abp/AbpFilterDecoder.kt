@@ -197,6 +197,11 @@ class AbpFilterDecoder {
         var flags = 0
         var redirectType = 0
         var hasMatchCase = false
+        var redirectRule = false
+        var entityDomains: String? = null
+        var denyAllow: String? = null
+        var requestDomains: String? = null
+        var methods: String? = null
         val canonicalOptions = mutableListOf<String>()
         if ('\u0000' in filter) return
         val blocking = if (filter.startsWith("@@")) {
@@ -267,12 +272,33 @@ class AbpFilterDecoder {
                                 ignoreCase = inverse
                             }
                             "domain" -> {
-                                if (inverse || value.isNullOrBlank() || domain != null) return
-                                if (value.split('|').any {
-                                    val name = it.trim().removePrefix("~")
-                                    name.isEmpty() || name.any { character -> character.isWhitespace() || character in "*/~" }
-                                }) return
-                                domain = value
+                                if (inverse || value.isNullOrBlank() || domain != null || entityDomains != null) return
+                                if (value.split('|').any { it.trim().removePrefix("~").endsWith(".*") }) {
+                                    // entity（example.*）は公開サフィックスで照合するため、追加条件として持つ。
+                                    if (!NetworkConstraints.isValidHostList(value, allowNegation = true, allowEntity = true)) return
+                                    entityDomains = value
+                                } else {
+                                    if (value.split('|').any {
+                                        val name = it.trim().removePrefix("~")
+                                        name.isEmpty() || name.any { character -> character.isWhitespace() || character in "*/~" }
+                                    }) return
+                                    domain = value
+                                }
+                            }
+                            "denyallow" -> {
+                                if (inverse || value.isNullOrBlank() || denyAllow != null) return
+                                if (!NetworkConstraints.isValidHostList(value, allowNegation = false, allowEntity = false)) return
+                                denyAllow = value
+                            }
+                            "to" -> {
+                                if (inverse || value.isNullOrBlank() || requestDomains != null) return
+                                if (!NetworkConstraints.isValidHostList(value, allowNegation = true, allowEntity = true)) return
+                                requestDomains = value
+                            }
+                            "method" -> {
+                                if (inverse || value.isNullOrBlank() || methods != null) return
+                                if (!NetworkConstraints.isValidMethodList(value)) return
+                                methods = value
                             }
                             "third-party", "first-party" -> {
                                 if (value != null || thirdParty != -1) return
@@ -287,17 +313,20 @@ class AbpFilterDecoder {
                                 flags = flags or ContentRequest.FLAG_BADFILTER
                                 canonicalOptions.removeAt(canonicalOptions.lastIndex)
                             }
-                            "redirect" -> {
+                            "redirect", "redirect-rule" -> {
                                 if (!blocking || inverse || value == null || redirectType != 0) return
-                                // 既知の空資源だけを近似する。任意の資源や redirect-rule を遮断へ変換しない。
-                                redirectType = when (value) {
-                                    "empty", "noop.txt" -> ContentRequest.REDIRECT_EMPTY
+                                // 既知の空資源だけを近似する。未知の資源（各種の代替スクリプト等）は行ごと破棄する。
+                                // 末尾の `:数字` は優先度の指定なので外す。
+                                redirectType = when (value.replace(Regex(":\\d+$"), "")) {
+                                    "empty", "noop.txt", "nooptext" -> ContentRequest.REDIRECT_EMPTY
                                     "noopjs", "noop.js" -> ContentRequest.REDIRECT_SCRIPT
                                     "noopcss", "noop.css" -> ContentRequest.REDIRECT_STYLE
-                                    "1x1.gif", "1x1-transparent.gif" -> ContentRequest.REDIRECT_IMAGE
+                                    "1x1.gif", "1x1-transparent.gif", "2x2.png", "2x2-transparent.png",
+                                    "3x2.png", "3x2-transparent.png", "32x32.png", "32x32-transparent.png" -> ContentRequest.REDIRECT_IMAGE
                                     "noopframe", "noop.html" -> ContentRequest.REDIRECT_FRAME
                                     else -> return
                                 }
+                                redirectRule = option == "redirect-rule"
                             }
                             // サイトキーを検証できないため、制約を落とさずルール全体を無視する。
                             "sitekey" -> return
@@ -324,6 +353,12 @@ class AbpFilterDecoder {
         if (contentType == 0 || (cosmeticType != 0 && flags and ContentRequest.FLAG_IMPORTANT != 0)) return
         if (cosmeticType != 0 && redirectType != 0) return
         flags = flags or redirectType
+        if (redirectRule) flags = flags or ContentRequest.FLAG_REDIRECT_RULE
+        val constraints = if (entityDomains != null || denyAllow != null || requestDomains != null || methods != null) {
+            NetworkConstraints(entityDomains, denyAllow, requestDomains, methods)
+        } else null
+        // 追加条件は要素非表示の例外（elemhide 等）には使わない。意味が変わるため行ごと破棄する。
+        if (constraints != null && cosmeticType != 0) return
         val ruleKey = (if (blocking) "" else "@@") + filter +
             if (canonicalOptions.isEmpty()) "" else "$" + canonicalOptions.sorted().joinToString(",")
         if (filter.isEmpty()) filter = "*"
@@ -358,7 +393,7 @@ class AbpFilterDecoder {
             }
 
         if (cosmeticType == 0 || hasNetworkType) {
-            val networkFilter = NetworkRuleFilter(createFilter(contentType) ?: return, ruleKey, flags)
+            val networkFilter = NetworkRuleFilter(createFilter(contentType) ?: return, ruleKey, flags, constraints)
             if (blocking) blackList += networkFilter else whiteList += networkFilter
         }
         if (cosmeticType != 0) {

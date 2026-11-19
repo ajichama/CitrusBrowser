@@ -22,7 +22,9 @@ data class ContentRequest(
     val url: Uri,
     val pageUrl: Uri,
     val type: Int,
-    val isThirdParty: Boolean
+    val isThirdParty: Boolean,
+    /** `$method=` の照合に使う HTTP メソッド。 */
+    val method: String = "GET",
 ) {
     companion object {
         const val TYPE_OTHER = 0x01
@@ -40,6 +42,8 @@ data class ContentRequest(
         const val TYPE_NETWORK_ALL = 0x0000_ffff
         const val FLAG_IMPORTANT = 0x1000_0000
         const val FLAG_BADFILTER = 0x0800_0000
+        /** `$redirect-rule=`: それ自体では遮断せず、別のルールで遮断したときに返す資源だけを決める。 */
+        const val FLAG_REDIRECT_RULE = 0x0001_0000
         internal const val REDIRECT_MASK = 0x0700_0000
         internal const val REDIRECT_EMPTY = 0x0100_0000
         internal const val REDIRECT_SCRIPT = 0x0200_0000

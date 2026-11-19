@@ -80,7 +80,7 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
                             CosmeticFiltering(network.await().cosmetic, css, scriptlets)
                         } else null
                         val rules = network.await()
-                        Pair(Blocker(allowPage.await(), rules.allow, rules.deny, rules.important), cosmetic)
+                        Pair(Blocker(allowPage.await(), rules.allow, rules.deny, rules.important, rules.redirectRules), cosmetic)
                     }
                 }
                 loadGate.publish(ticket) {

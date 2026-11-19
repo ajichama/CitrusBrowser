@@ -15,10 +15,10 @@ class RealListExcerptTest {
     fun easyListKeepsUnsupportedModifiersRejected() = verify("easylist", 48, 4)
 
     @Test
-    fun japaneseListAcceptsSupportedNetworkExtensions() = verify("adguard-jp", 54, 3)
+    fun japaneseListAcceptsSupportedNetworkExtensions() = verify("adguard-jp", 54, 1)
 
     @Test
-    fun ublockListAcceptsNetworkExtensionsAndOnlyImplementedScriptlets() = verify("ubo-filters", 62, 14)
+    fun ublockListAcceptsNetworkExtensionsAndOnlyImplementedScriptlets() = verify("ubo-filters", 62, 7)
 
     private fun verify(name: String, expectedLines: Int, expectedDiscarded: Int) {
         val lines = javaClass.getResourceAsStream("/adblock/excerpts/$name.txt")!!.bufferedReader().use { reader ->
@@ -35,6 +35,8 @@ class RealListExcerptTest {
         // 第3段階の第2弾で ra（remove-attr）も受け付けた（ubo-filters 16→15）。未実装の popads-dummy 等の行は引き続き破棄する。
         // procedural（#?#…:has-text、:has(…:contains)、:upward():style()、:style()）を受け付けた（easylist 5→4、adguard-jp 5→3、
         // ubo-filters 15→14）。WebView で実行できない HTML フィルタ（##^）は引き続き破棄する。
+        // 通信の条件（entity の domain・denyallow・to・redirect-rule・redirect の優先度）を受け付けた（adguard-jp 3→1、ubo-filters 14→7）。
+        // 未知の資源（fuckadblock.js・google-ima.js）と、要素非表示の例外に entity を使う行は引き続き破棄する。
         assertEquals("$name: 対応構文と拒否すべき構文の双方を見直してください", expectedDiscarded, discarded)
         println("EXCERPT $name active=${lines.size} discarded=$discarded")
     }

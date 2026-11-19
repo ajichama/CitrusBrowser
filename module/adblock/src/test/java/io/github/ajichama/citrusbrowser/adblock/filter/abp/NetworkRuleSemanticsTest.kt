@@ -93,10 +93,11 @@ class NetworkRuleSemanticsTest {
         val invalid = listOf(
             "@@||ads.example^\$important", "||ads.example^\$~important", "||ads.example^\$important=1",
             "||ads.example^\$badfilter=1", "||ads.example^\$~badfilter", "||ads.example^\$script=1",
-            "||ads.example^\$from=*.example.com", "||ads.example^\$domain=example.*",
+            // entity の domain・redirect-rule・優先度つきの redirect は対応した（NetworkConstraintsTest）。
+            "||ads.example^\$from=*.example.com", "||ads.example^\$domain=ex*ample.*",
             "||ads.example^\$from=trusted.example,domain=other.example", "||ads.example^\$script,unknown",
-            "||ads.example^\$redirect-rule=noopjs", "@@||ads.example^\$redirect=noopjs",
-            "||ads.example^\$redirect=custom-resource", "||ads.example^\$redirect=noopjs:10",
+            "@@||ads.example^\$redirect-rule=noopjs", "@@||ads.example^\$redirect=noopjs",
+            "||ads.example^\$redirect=custom-resource", "||ads.example^\$redirect=custom-resource:10",
             "||ads.example^\$3p,1p", "||ads.example^\$match-case,~match-case",
         )
         invalid.forEach { line ->

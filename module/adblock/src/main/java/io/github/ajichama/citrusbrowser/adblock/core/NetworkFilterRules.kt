@@ -18,7 +18,10 @@ internal class NetworkFilterRules(
     cosmeticControls: List<UnifiedFilter>,
 ) {
     private val disabled = disabledRuleKeys(denies, allows, cosmeticControls)
-    private val blocking = withoutBadFilters(denies, disabled)
+    private val allDenies = withoutBadFilters(denies, disabled)
+    // redirect-rule はそれ自体では遮断しないため、遮断用の入れ物に入れない。
+    private val blocking = allDenies.filter { it.contentType and ContentRequest.FLAG_REDIRECT_RULE == 0 }
+    val redirectRules = container(allDenies.filter { it.contentType and ContentRequest.FLAG_REDIRECT_RULE != 0 })
     val important = blockingContainer(blocking.filter { it.contentType and ContentRequest.FLAG_IMPORTANT != 0 })
     val deny = blockingContainer(blocking.filter { it.contentType and ContentRequest.FLAG_IMPORTANT == 0 })
     val allow = container(withoutBadFilters(allows, disabled))
