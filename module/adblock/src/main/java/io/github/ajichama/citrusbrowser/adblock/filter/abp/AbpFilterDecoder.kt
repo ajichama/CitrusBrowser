@@ -57,6 +57,8 @@ class AbpFilterDecoder {
         val white = mutableListOf<UnifiedFilter>()
         val elementDisableFilter = mutableListOf<UnifiedFilter>()
         val elementFilter = mutableListOf<ElementFilter>()
+        // trusted の scriptlet は、信頼できる出典のリストからだけ受け付ける。
+        val trusted = Scriptlets.isTrustedSource(url)
         reader.forEachLine { line ->
             val trimmedLine = line.trim().removePrefix("\uFEFF").trim()
             if (trimmedLine.isEmpty() || trimmedLine.startsWith(HEADER)) return@forEachLine
@@ -72,6 +74,7 @@ class AbpFilterDecoder {
                             matcher.group(2),
                             matcher.group(3),
                             elementFilter,
+                            trusted,
                         )
                     } else {
                         trimmedLine.decodeFilter(black, white, elementDisableFilter)
@@ -87,13 +90,14 @@ class AbpFilterDecoder {
         type: String?,
         body: String,
         elementFilterList: MutableList<ElementFilter>,
+        trusted: Boolean = false,
     ) {
         // scriptlet と procedural は要素フィルタと同じドメイン条件で保存し、CSS としては扱わない。
         val isScriptlet = Scriptlets.isScriptletBody(body)
         var isProcedural = false
         val selector = if (isScriptlet) {
             // 未対応の名前・壊れた構文は行ごと破棄する。空の +js() は例外（全無効化）でだけ意味を持つ。
-            val call = Scriptlets.parse(body) ?: return
+            val call = Scriptlets.parse(body, trusted) ?: return
             if (call.isEmpty() && type != "@") return
             Scriptlets.encode(call)
         } else when (val result = ProceduralFilters.classify(body, explicitProcedural = type == "?")) {

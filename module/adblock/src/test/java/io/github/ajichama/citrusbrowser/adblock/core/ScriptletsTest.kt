@@ -55,6 +55,24 @@ class ScriptletsTest {
     }
 
     @Test
+    fun trustedScriptletsAreAcceptedOnlyFromTrustedSources() {
+        val line = "example.com##+js(rpnt, script, adblock, ok)"
+        val storage = "example.com##+js(trusted-set-local-storage-item, consent, '{\"a\":1\\,\"b\":2}')"
+        // 利用者が追加した任意のリストと、出典の分からない解析では受け付けない。
+        for (source in listOf(null, "https://filters.example/list.txt", "https://ublockorigin.github.io.evil.example/uAssets/x.txt")) {
+            val set = AbpFilterDecoder().decode("$line\n$storage".reader().buffered(), source)
+            assertTrue(source.toString(), set.elementList.isEmpty())
+        }
+        for (source in listOf("https://ublockorigin.github.io/uAssets/filters/filters.txt", "citrus://adblock/filter")) {
+            val calls = AbpFilterDecoder().decode("$line\n$storage".reader().buffered(), source).elementList.map { Scriptlets.decode(it.selector) }
+            assertEquals(listOf(
+                listOf("trusted-replace-node-text", "script", "adblock", "ok"),
+                listOf("trusted-set-local-storage-item", "consent", "'{\"a\":1,\"b\":2}'"),
+            ), calls)
+        }
+    }
+
+    @Test
     fun decoderStoresOnlySpecificSupportedScriptletsAndKeepsThemOutOfCss() {
         val decoded = decode(
             "example.com##+js(set, ads, false)",

@@ -45,6 +45,7 @@
 
 | 検証 | 再現コマンド | 対象と結果（比較基準版／今回の結果を区別） |
 | --- | --- | --- |
+| trusted の scriptlet（11月19日） | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest :module:adblock:assembleDebugAndroidTest"` | 1分31秒で成功。通常78suite・314件、失敗・error・スキップ0（出典による受け付けの可否）。エミュレーター（API 37）で ScriptletWebViewTest 5件・CosmeticFilteringWebViewTest 7件が成功。この変更分の実サイト確認と実機は未実施 |
 | 通信の条件（entity・denyallow・to・method・redirect-rule）（11月19日） | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest :module:adblock:assembleDebugAndroidTest"` | 44秒で成功。通常78suite・313件、失敗・error・スキップ0（各条件の照合・キャッシュの往復・不正な値の破棄・redirect-rule が単独で遮断しないこと）。エミュレーター（API 37）で実サイトの誤遮断なし。実機は未実施 |
 | procedural の要素フィルタ（11月19日） | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest :module:adblock:assembleDebugAndroidTest"` | 1分23秒で成功。通常77suite・310件、失敗・error・スキップ0（判定・検証・ドメイン必須・例外・抜粋の件数更新）。エミュレーター（API 37）で ScriptletWebViewTest 4件（procedural を含む）・CosmeticFilteringWebViewTest 7件が成功。実サイトの誤遮断なし。実機は未実施 |
 | scriptlet 第2弾・uBlock filters の既定化・配布元の予備（11月19日） | `pwsh -File scripts/docker-build.ps1 -Task "assembleDebug testDebugUnitTest :module:adblock:assembleDebugAndroidTest"` | 1分30秒で成功。通常76suite・307件、失敗・error・スキップ0（既定購読の版2の移行、予備からの取得と恒久的な失敗での不使用を追加）。エミュレーター（API 37）で ScriptletWebViewTest 3件・CosmeticFilteringWebViewTest 7件・AbpDefaultSubscriptionsIntegrationTest 2件が成功。実機は未実施 |

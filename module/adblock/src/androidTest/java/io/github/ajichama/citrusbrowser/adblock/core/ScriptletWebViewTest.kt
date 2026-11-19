@@ -194,6 +194,19 @@ class ScriptletWebViewTest {
         assertEquals("\"記事本文\"", evaluate("document.getElementById('article').textContent"))
     }
 
+    @Test fun trustedScriptletsFromATrustedListReplaceTextAndStoreArbitraryValues() {
+        install(
+            "blog.esuteru.com##+js(rpnt, script, adblockDetected = true, adblockDetected = false)",
+            "blog.esuteru.com##+js(trusted-set-local-storage-item, citrusPrefs, {\"ads\":false})",
+            "blog.esuteru.com##+js(trusted-set-local-storage-item, citrusSeen, \$now\$)",
+            source = "https://ublockorigin.github.io/uAssets/filters/filters.txt",
+        )
+        load("""<script>var adblockDetected = true; window.r = { detected: adblockDetected,
+            prefs: localStorage.getItem('citrusPrefs'), seen: Number(localStorage.getItem('citrusSeen')) > 0, done: true };</script>""")
+        awaitTrue("window.r && r.done === true")
+        assertEquals("true", evaluate("r.detected === false && r.prefs === '{\"ads\":false}' && r.seen"))
+    }
+
     @Test fun exceptionAndEmptyResultsInjectNothing() {
         install("blog.esuteru.com##+js(set, citrusAdFlag, false)", "blog.esuteru.com#@#+js()")
         load("<script>window.r = { flag: typeof window.citrusAdFlag, done: true };</script>")
@@ -201,8 +214,8 @@ class ScriptletWebViewTest {
         assertEquals("\"undefined\"", evaluate("r.flag"))
     }
 
-    private fun install(vararg lines: String) {
-        val filters = AbpFilterDecoder().decode(lines.joinToString("\n").reader().buffered(), null).elementList
+    private fun install(vararg lines: String, source: String? = null) {
+        val filters = AbpFilterDecoder().decode(lines.joinToString("\n").reader().buffered(), source).elementList
         val cosmetic = CosmeticFiltering(FilterContainer(), ElementContainer().also { container -> filters.forEach(container::plusAssign) })
         val script = ScriptletInjection.script(instrumentation.targetContext)
         instrumentation.runOnMainSync {

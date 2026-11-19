@@ -335,8 +335,24 @@
   scriptlets['prevent-setTimeout'] = function (args) { defuseTimer('setTimeout', args); };
   scriptlets['prevent-setInterval'] = function (args) { defuseTimer('setInterval', args); };
 
+  // trusted-replace-node-text（rpnt）: 一致した部分を置換文字列に置き換える（信頼できるリストからだけ届く）。
+  scriptlets['trusted-replace-node-text'] = function (args) {
+    if (args[2] === undefined) { scriptlets['remove-node-text'](args); return; }
+    var source = String(args[1]);
+    var m = /^\/(.+)\/([gimsu]*)$/.exec(source);
+    var pattern;
+    if (m) { try { pattern = new RegExp(m[1], m[2]); } catch (e) { return; } }
+    var replacement = args[2];
+    var replace = function (text) {
+      return pattern ? text.replace(pattern, replacement) : text.split(source).join(replacement);
+    };
+    removeNodeText([args[0], args[1]].concat(args.slice(3)), replace);
+  };
+
   // remove-node-text: 名前と内容が条件に合うノードの文字列を空にする（script なら実行前に中身を消す）。
-  scriptlets['remove-node-text'] = function (args) {
+  scriptlets['remove-node-text'] = function (args) { removeNodeText(args, null); };
+
+  function removeNodeText(args, replace) {
     var nodeName = args[0];
     if (!nodeName || args[1] === undefined || !MutationObserverCtor) return;
     nodeName = nodeName.toLowerCase();
@@ -356,7 +372,9 @@
       var text = node.nodeType === 3 ? node.nodeValue : node.textContent;
       text = text || '';
       if (text === '' || !matches(text) || (includes && !includes(text)) || (excludes && excludes(text))) return;
-      if (node.nodeType === 3) node.nodeValue = ''; else node.textContent = '';
+      var next = replace ? replace(text) : '';
+      if (next === text) return;
+      if (node.nodeType === 3) node.nodeValue = next; else node.textContent = next;
       count++;
       if (limit > 0 && count >= limit) stop();
     };
@@ -390,7 +408,7 @@
   // set-local-storage-item / set-session-storage-item: 決められた値だけを保存する。
   var storageValues = ['', 'undefined', 'null', 'false', 'true', 'on', 'off', 'yes', 'no', 'accept', 'reject',
     'accepted', 'rejected', 'allowed', 'denied', '{}', '[]', '""', "''"];
-  function setStorageItem(kind, args) {
+  function setStorageItem(kind, args, trusted) {
     var key = args[0];
     var raw = args[1];
     if (!key || raw === undefined) return;
@@ -400,7 +418,13 @@
     try {
       if (raw === '$remove$') { storage.removeItem(key); return; }
       var value;
-      if (storageValues.indexOf(raw) !== -1) {
+      if (trusted) {
+        // trusted 版: 任意の値と、時刻を表す $now$ / $currentDate$ / $currentISODate$ を受け付ける。
+        if (raw === '$now$') value = String(Date.now());
+        else if (raw === '$currentDate$') value = String(new Date());
+        else if (raw === '$currentISODate$') value = new Date().toISOString();
+        else value = raw;
+      } else if (storageValues.indexOf(raw) !== -1) {
         value = raw === '""' || raw === "''" ? '' : raw;
       } else if (/^-?\d+$/.test(raw) && Math.abs(Number(raw)) <= 32767) {
         value = String(Number(raw));
@@ -412,6 +436,8 @@
   }
   scriptlets['set-local-storage-item'] = function (args) { setStorageItem('localStorage', args); };
   scriptlets['set-session-storage-item'] = function (args) { setStorageItem('sessionStorage', args); };
+  scriptlets['trusted-set-local-storage-item'] = function (args) { setStorageItem('localStorage', args, true); };
+  scriptlets['trusted-set-session-storage-item'] = function (args) { setStorageItem('sessionStorage', args, true); };
 
   // addEventListener-defuser: 条件に合うイベント処理の登録を無視する。
   scriptlets['addEventListener-defuser'] = function (args) {

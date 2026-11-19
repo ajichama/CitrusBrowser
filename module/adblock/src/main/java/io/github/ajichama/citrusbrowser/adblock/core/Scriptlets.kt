@@ -65,20 +65,45 @@ object Scriptlets {
         add("href-sanitizer")
     }
 
+    /**
+     * trusted の scriptlet。wiki の規定どおり、信頼できる出典（uBO 自身のリストと本体同梱のリスト）からだけ受け付ける。
+     * rpnt・replace-node-text は wiki で trusted-replace-node-text の別名とされている。
+     */
+    private val trustedNames: Map<String, String> = buildMap {
+        fun add(canonical: String, vararg aliases: String) {
+            put(canonical, canonical)
+            aliases.forEach { put(it, canonical) }
+        }
+        add("trusted-replace-node-text", "trusted-rpnt", "replace-node-text", "rpnt")
+        add("trusted-set-local-storage-item")
+        add("trusted-set-session-storage-item")
+    }
+
+    private val trustedPrefixes = listOf(
+        "https://ublockorigin.github.io/uAssets/",
+        "https://ublockorigin.pages.dev/",
+        "https://raw.githubusercontent.com/uBlockOrigin/uAssets/",
+        "citrus://adblock/filter",
+    )
+
+    /** 購読の URL が、trusted の scriptlet を許す出典か。利用者が追加した任意のリストは含めない。 */
+    fun isTrustedSource(url: String?): Boolean = url != null && trustedPrefixes.any { url.startsWith(it) }
+
     fun isScriptletBody(body: String) = body.trimStart().startsWith("+js(")
 
     /**
      * `+js(...)` の中身を [正式名, 引数...] に分解する。`+js()` は空のリスト（例外で全無効化に使う）。
      * 構文が壊れている場合と、未対応の名前は null。
      */
-    fun parse(body: String): List<String>? {
+    fun parse(body: String, trusted: Boolean = false): List<String>? {
         val trimmed = body.trim()
         if (!trimmed.startsWith("+js(") || !trimmed.endsWith(")")) return null
         val inner = trimmed.substring(4, trimmed.length - 1)
         if (inner.isBlank()) return emptyList()
         val args = splitArguments(inner) ?: return null
         if (args.any { SEPARATOR in it }) return null
-        val canonical = names[args[0].removeSuffix(".js")] ?: return null
+        val name = args[0].removeSuffix(".js")
+        val canonical = names[name] ?: (if (trusted) trustedNames[name] else null) ?: return null
         return listOf(canonical) + args.drop(1)
     }
 
