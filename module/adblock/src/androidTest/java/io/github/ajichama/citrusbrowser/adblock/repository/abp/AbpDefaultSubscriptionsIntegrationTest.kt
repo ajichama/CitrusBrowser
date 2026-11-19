@@ -37,15 +37,15 @@ class AbpDefaultSubscriptionsIntegrationTest {
             assertEquals(0, AdBlockPref.get(context).defaultSubscriptionsRevision)
             AbpDefaultSubscriptions.initialize(context, database)
             val initial = database.abpDao().getAll()
-            assertEquals(setOf(CITRUS, EASY_LIST, EASY_PRIVACY, JAPANESE), initial.filter { it.enabled }.map { it.url }.toSet())
-            assertEquals(4, initial.count { it.enabled })
+            assertEquals(setOf(CITRUS, EASY_LIST, EASY_PRIVACY, JAPANESE, UBLOCK), initial.filter { it.enabled }.map { it.url }.toSet())
+            assertEquals(5, initial.count { it.enabled })
             assertEquals(initial.size, initial.map { it.url }.toSet().size)
             assertEquals(AbpDefaultSubscriptions.REVISION, AdBlockPref.get(context).defaultSubscriptionsRevision)
 
             AbpDefaultSubscriptions.initialize(context, database)
             val repeated = database.abpDao().getAll()
             assertEquals(initial.map { it.entityId to it.url }.toSet(), repeated.map { it.entityId to it.url }.toSet())
-            assertEquals(4, repeated.count { it.enabled })
+            assertEquals(5, repeated.count { it.enabled })
             assertEquals(AbpDefaultSubscriptions.REVISION, AdBlockPref.get(context).defaultSubscriptionsRevision)
         }
     }
@@ -62,8 +62,8 @@ class AbpDefaultSubscriptionsIntegrationTest {
             val existingId = dao.inset(existing).toInt()
             AbpDefaultSubscriptions.migrate(context, database)
             val rows = dao.getAll()
-            assertEquals(setOf(EASY_LIST, EASY_PRIVACY, JAPANESE), rows.map { it.url }.toSet())
-            assertEquals(3, rows.size)
+            assertEquals(setOf(EASY_LIST, EASY_PRIVACY, JAPANESE, UBLOCK), rows.map { it.url }.toSet())
+            assertEquals(4, rows.size)
             val unchanged = dao.getById(existingId)!!
             assertEquals(EASY_LIST, unchanged.url)
             assertFalse(unchanged.enabled)
@@ -76,13 +76,14 @@ class AbpDefaultSubscriptionsIntegrationTest {
             assertEquals(existing.lastModified, unchanged.lastModified)
             assertTrue(rows.single { it.url == EASY_PRIVACY }.enabled)
             assertTrue(rows.single { it.url == JAPANESE }.enabled)
+            assertTrue(rows.single { it.url == UBLOCK }.enabled)
             assertEquals(AbpDefaultSubscriptions.REVISION, AdBlockPref.get(context).defaultSubscriptionsRevision)
 
             dao.delete(rows.single { it.url == EASY_PRIVACY })
             AbpDefaultSubscriptions.migrate(context, database)
             val afterDeletion = dao.getAll()
-            assertEquals(setOf(EASY_LIST, JAPANESE), afterDeletion.map { it.url }.toSet())
-            assertEquals(2, afterDeletion.size)
+            assertEquals(setOf(EASY_LIST, JAPANESE, UBLOCK), afterDeletion.map { it.url }.toSet())
+            assertEquals(3, afterDeletion.size)
             assertFalse(dao.getById(existingId)!!.enabled)
             assertEquals(AbpDefaultSubscriptions.REVISION, AdBlockPref.get(context).defaultSubscriptionsRevision)
         }
@@ -119,5 +120,6 @@ class AbpDefaultSubscriptionsIntegrationTest {
         private const val EASY_LIST = "https://easylist.to/easylist/easylist.txt"
         private const val EASY_PRIVACY = "https://easylist.to/easylist/easyprivacy.txt"
         private const val JAPANESE = "https://filters.adtidy.org/extension/ublock/filters/7.txt"
+        private const val UBLOCK = "https://ublockorigin.github.io/uAssets/filters/filters.txt"
     }
 }

@@ -2,6 +2,7 @@
 1,EasyList,https://easylist.to/easylist/easylist.txt
 1,EasyPrivacy,https://easylist.to/easylist/easyprivacy.txt
 1,AdGuard Japanese filter,https://filters.adtidy.org/extension/ublock/filters/7.txt
+1,uBlock filters,https://ublockorigin.github.io/uAssets/filters/filters.txt
 0,豆腐フィルタ,https://raw.githubusercontent.com/tofukko/filter/master/Adblock_Plus_list.txt
 0,AdGuard Base filter,https://filters.adtidy.org/extension/ublock/filters/2_without_easylist.txt
 0,AdGuard Mobile Ads filter,https://filters.adtidy.org/extension/ublock/filters/11.txt

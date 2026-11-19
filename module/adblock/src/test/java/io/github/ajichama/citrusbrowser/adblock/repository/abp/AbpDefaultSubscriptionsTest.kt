@@ -40,13 +40,14 @@ class AbpDefaultSubscriptionsTest {
     private val easyList = "https://easylist.to/easylist/easylist.txt"
     private val easyPrivacy = "https://easylist.to/easylist/easyprivacy.txt"
     private val japanese = "https://filters.adtidy.org/extension/ublock/filters/7.txt"
+    private val ublock = "https://ublockorigin.github.io/uAssets/filters/filters.txt"
 
     @Test
     fun firstInitializationRegistersTheThreeNewDefaultsEnabledWithoutDownloadingLists() = runBlocking {
         val fixture = Fixture()
         fixture.installer().install(defaults, initialize = true)
         assertEquals(defaults.size, fixture.dao.entries.size)
-        for (url in listOf(easyList, easyPrivacy, japanese, "citrus://adblock/filter")) {
+        for (url in listOf(easyList, easyPrivacy, japanese, ublock, "citrus://adblock/filter")) {
             assertTrue(url, fixture.dao.entries.single { it.url == url }.enabled)
         }
         assertTrue(fixture.dao.entries.all { it.lastLocalUpdate == 0L })
@@ -68,18 +69,37 @@ class AbpDefaultSubscriptionsTest {
         assertEquals("保存版", original.version)
         assertFalse(privacy.enabled)
         assertEquals(123L, privacy.lastLocalUpdate)
-        assertEquals(setOf(easyList, easyPrivacy, japanese), fixture.dao.entries.map { it.url }.toSet())
+        assertEquals(setOf(easyList, easyPrivacy, japanese, ublock), fixture.dao.entries.map { it.url }.toSet())
         assertTrue(fixture.dao.entries.single { it.url == japanese }.enabled)
+        assertTrue(fixture.dao.entries.single { it.url == ublock }.enabled)
     }
 
     @Test
     fun migrationAddsOnlyTheNewDefaultsAndDoesNotRecreateOldOptionalSubscriptions() = runBlocking {
         // EasyList は旧版の既定リストに常に（無効で）含まれていた。既存利用者に無いなら利用者が削除したものなので、
-        // 移行で有効化して復活させない。追加するのは旧版に無かった EasyPrivacy と AdGuard Japanese だけ。
+        // 移行で有効化して復活させない。追加するのは旧版に無かった EasyPrivacy・AdGuard Japanese・uBlock filters だけ。
         val fixture = Fixture()
         fixture.installer().install(defaults)
-        assertEquals(setOf(easyPrivacy, japanese), fixture.dao.entries.map { it.url }.toSet())
+        assertEquals(setOf(easyPrivacy, japanese, ublock), fixture.dao.entries.map { it.url }.toSet())
         assertEquals(AbpDefaultSubscriptions.REVISION, fixture.revision)
+    }
+
+    @Test
+    fun revisionOneUsersGetOnlyUblockFiltersAndTheirDeletedSubscriptionsStayDeleted() = runBlocking {
+        // 版1で EasyPrivacy を削除した利用者に、版2の移行で EasyPrivacy を戻さない。
+        val kept = AbpEntity(entityId = 7, url = japanese, enabled = false, lastLocalUpdate = 55)
+        val fixture = Fixture(listOf(kept))
+        fixture.revision = 1
+        fixture.installer().install(defaults)
+        assertEquals(setOf(japanese, ublock), fixture.dao.entries.map { it.url }.toSet())
+        assertSame(kept, fixture.dao.entries.single { it.url == japanese })
+        assertFalse(kept.enabled)
+        assertTrue(fixture.dao.entries.single { it.url == ublock }.enabled)
+        assertEquals(AbpDefaultSubscriptions.REVISION, fixture.revision)
+        // 最新の版の利用者には、何も追加しない。
+        fixture.dao.entries.removeAll { it.url == ublock }
+        fixture.installer().install(defaults)
+        assertFalse(fixture.dao.entries.any { it.url == ublock })
     }
 
     @Test
@@ -113,7 +133,7 @@ class AbpDefaultSubscriptionsTest {
         assertTrue(fixture.dao.entries.isEmpty())
         fixture.dao.failUrl = null
         fixture.installer().install(defaults)
-        assertEquals(setOf(easyPrivacy, japanese), fixture.dao.entries.map { it.url }.toSet())
+        assertEquals(setOf(easyPrivacy, japanese, ublock), fixture.dao.entries.map { it.url }.toSet())
         assertEquals(AbpDefaultSubscriptions.REVISION, fixture.revision)
     }
 
@@ -126,10 +146,10 @@ class AbpDefaultSubscriptionsTest {
             fail("移行版の保存失敗を呼出側へ返す必要があります")
         } catch (_: IOException) { }
         assertEquals(0, fixture.revision)
-        assertEquals(2, fixture.dao.entries.size)
+        assertEquals(3, fixture.dao.entries.size)
         fixture.failRevisionWrite = false
         fixture.installer().install(defaults)
-        assertEquals(2, fixture.dao.entries.size)
+        assertEquals(3, fixture.dao.entries.size)
         assertEquals(AbpDefaultSubscriptions.REVISION, fixture.revision)
     }
 

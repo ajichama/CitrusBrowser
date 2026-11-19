@@ -24,13 +24,24 @@ import kotlinx.coroutines.sync.withLock
 
 /** URL の追加だけを行い、既存の有効・無効や取得履歴には触れない。 */
 object AbpDefaultSubscriptions {
-    internal const val REVISION = 1
-    // EasyList は旧版の既定リストに常に無効で含まれていた。既存 DB に無ければ利用者が削除したものなので、
-    // 移行では追加しない（新規初期化では既定リストどおり有効で登録する）。
-    internal val migrationUrls = setOf(
-        "https://easylist.to/easylist/easyprivacy.txt",
-        "https://filters.adtidy.org/extension/ublock/filters/7.txt",
+    internal const val REVISION = 2
+    /**
+     * 版ごとに、その版で既定へ加えた URL。移行では、利用者の記録した版より新しい版の URL だけを一度追加する。
+     * 古い版の URL を再び追加しないので、利用者が削除した購読は復活しない。
+     * EasyList は旧版の既定リストに常に無効で含まれていた。既存 DB に無ければ利用者が削除したものなので、
+     * 移行では追加しない（新規初期化では既定リストどおり有効で登録する）。
+     */
+    internal val migrationUrlsByRevision = mapOf(
+        1 to setOf(
+            "https://easylist.to/easylist/easyprivacy.txt",
+            "https://filters.adtidy.org/extension/ublock/filters/7.txt",
+        ),
+        // 反広告ブロック（Ad-Shield 等）への対策が、このリストにだけ含まれる。
+        2 to setOf("https://ublockorigin.github.io/uAssets/filters/filters.txt"),
     )
+
+    internal fun migrationUrlsAfter(revision: Int): Set<String> =
+        migrationUrlsByRevision.filterKeys { it > revision }.values.flatten().toSet()
 
     suspend fun initialize(context: Context, database: AbpDatabase) =
         install(context, database, initialize = true)
@@ -66,10 +77,11 @@ internal class AbpDefaultSubscriptionInstaller(
     suspend fun install(defaults: List<AbpEntity>, initialize: Boolean = false) = registrationMutex.withLock {
         if (!initialize && readRevision() >= AbpDefaultSubscriptions.REVISION) return@withLock
         // 初期化と移行を同じロックで直列化し、DB 内の読取と登録も一括で確定する。
+        val migrationUrls = AbpDefaultSubscriptions.migrationUrlsAfter(readRevision())
         transaction {
             val existingUrls = dao.getAll().mapTo(mutableSetOf()) { it.url }
             defaults.forEach { candidate ->
-                if ((initialize || candidate.url in AbpDefaultSubscriptions.migrationUrls) &&
+                if ((initialize || candidate.url in migrationUrls) &&
                     existingUrls.add(candidate.url)) {
                     dao.inset(candidate)
                 }
