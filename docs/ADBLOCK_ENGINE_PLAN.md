@@ -10,6 +10,8 @@ uBlock filters（`https://ublockorigin.github.io/uAssets/filters/filters.txt`）
 
 uBlock filters の対応状況（2026-11-19 取得分、子リスト展開後）: 23,710 行のうち 6,153 行（26%）を破棄している（EasyList は 77,942 行中 315 行）。主な内訳は、未実装の scriptlet（nowoif 856、no-fetch-if 366、rpnt 235、no-xhr-if 199、nano-sib 196、aost 194、noeval-if 144、json-prune 118、nano-stb 111、ra 106 など）、procedural の要素フィルタ（`:style()` 623、`:has-text()` 209、`:upward()` 154、`:remove()` 74 など）、通信の制約（`redirect-rule` 375、未知の `redirect` 資源 338、`$domain` の entity 290、`denyallow` 247、`to=` 104、`csp` 65、`removeparam` 43 など）、HTML フィルタ `##^` 139。WebView で再現できないのは、応答ヘッダーを使う `csp`・`header`、サブリソースの `removeparam`、HTML フィルタ（`##^script:has-text()` は文書開始時の削除で近似できる）。それ以外は対応する方針とし、件数の多い順に進める。
 
+同じ方法で計り直した結果（scriptlet 第2弾・procedural の対応後、2026-11-19）: uBlock filters の破棄は 6,153 行から 2,564 行（10.8%）、EasyList は 315 行から 26 行に減った。残りの主な内訳は、redirect-rule 375、未知の redirect 資源 338、$domain の entity 290、denyallow 247、trusted の rpnt 235、HTML フィルタ 139、to= 104、trusted-replace-argument 73、:style 69、csp 65。通信の条件（redirect-rule・entity・denyallow・to=・method）は、フィルタの保存形式と照合処理の拡張が要る。
+
 種別を指定しない通信ルールは、ABP と同じく本文ページ（document）と popup に適用しない。汎用のパス規則で記事ページ自体が遮断画面に置き換わることを防ぐためである。パスを持たないホスト規則（`||host^`）と、`$document`・`$all` を明示した規則だけを本文ページに適用する（uBO と同じ扱い）。
 
 ネットワーク構文の別名、`important`、全有効購読を横断する `badfilter`、既知の空資源への `redirect=` を実装する。利用者の許可ページは最優先し、その後に important・通信例外・通常遮断を照合する。未知資源や `redirect-rule`、未対応の制約を含む行は丸ごと破棄する。空資源応答は限定した近似であり、uBO の資源ライブラリを移植したものではない。キャッシュのレコード形式は v2 を保ち、構文の版を4へ進めて旧キャッシュを再生成する。
