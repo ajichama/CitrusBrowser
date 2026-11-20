@@ -355,6 +355,26 @@ class ScriptletWebViewTest {
         assertEquals("\"undefined|undefined|undefined\"", evaluate("r.top + '|' + r.blank + '|' + r.srcdoc"))
     }
 
+    @Test fun xmlPruneAndSuppressNativeMethod() {
+        install(
+            "blog.esuteru.com##+js(xml-prune, Period[id*=\"-ad-\"], , data:application/dash+xml)",
+            "blog.esuteru.com##+js(trusted-suppress-native-method, localStorage.setItem, '/^citrus_ad/|\"blocked\"', prevent)",
+            source = "https://ublockorigin.github.io/uAssets/filters/filters.txt",
+        )
+        load("""<script>
+            window.r = {};
+            localStorage.setItem('citrus_ad_key', 'value-blocked');
+            localStorage.setItem('citrus_ok', 'value-blocked');
+            r.suppressed = localStorage.getItem('citrus_ad_key') === null && localStorage.getItem('citrus_ok') === 'value-blocked';
+            var mpd = '<MPD><Period id="main"/><Period id="pre-ad-1"/></MPD>';
+            fetch('data:application/dash+xml,' + encodeURIComponent(mpd)).then(function (res) { return res.text(); }).then(function (t) {
+              r.mpd = t; r.done = true;
+            });
+            </script>""")
+        awaitTrue("window.r && r.done === true")
+        assertEquals("true", evaluate("r.suppressed && r.mpd.indexOf('pre-ad-1') === -1 && r.mpd.indexOf('id=\"main\"') !== -1"))
+    }
+
     @Test fun exceptionAndEmptyResultsInjectNothing() {
         install("blog.esuteru.com##+js(set, citrusAdFlag, false)", "blog.esuteru.com#@#+js()")
         load("<script>window.r = { flag: typeof window.citrusAdFlag, done: true };</script>")

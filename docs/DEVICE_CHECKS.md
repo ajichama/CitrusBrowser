@@ -33,7 +33,9 @@
 - 計測19件が成功した（広告モジュールの ScriptletWebViewTest 12件・CosmeticFilteringWebViewTest 7件、19.2秒、失敗・スキップ0）。文書開始時の注入と同期ブリッジ、各 scriptlet・procedural・JSONPath・trusted・iframe のブリッジの扱いが実機の WebView でも動くことを確かめた。
 - 本体でやらおん！・オタコム・はちま起稿のトップを開き、上部と中部で広告なし・本文と画像の欠けなし。起動から3サイトの閲覧まで同じプロセスのままで、クラッシュの記録0（巨大な正規表現のクラッシュの修正後）。
 - 端末の消灯時間は検証の後に元の 600000 へ戻した。
-- 未実施: 記事ページ、性能（読み込み時間・メモリ）の測定、日本語入力など広告ブロック以外の項目。
+- 記事ページ（3サイト各1件）: 本文・画像・埋め込み・コメントの欠けなし、広告なし（オタコム記事上部のサイト自前の Amazon 枠は残る）。クラッシュ0。
+- 性能（各サイト2回、loadEventEnd ミリ秒、ON / OFF）: やらおん！ 3,484・962 / 10,031・2,359、オタコム 455・259 / 4,375・2,534、はちま起稿 728・225 / 4,273・3,499。資源数は ON 53〜124、OFF 159〜250。アプリ全体の PSS は ON 約26〜28万KB（起動直後の初回だけ約56万KB）、OFF 約30〜38万KB。広告ブロックの設定は run-as で一時的に OFF にし、測定後に ON へ戻した。全フレームへの注入による遅れは、この比較では見えなかった（1回の観察で、実ネットワークの揺らぎを含む）。
+- 未実施: 日本語入力など広告ブロック以外の項目。
 
 ## 2026-11-19〜20の広告ブロック拡張（エミュレーター）
 
@@ -42,7 +44,7 @@
 - 計測（広告モジュールの ScriptletWebViewTest・CosmeticFilteringWebViewTest・AbpDefaultSubscriptionsIntegrationTest）は、変更のたびに実行して最終的に17件（ScriptletWebViewTest 10件・CosmeticFilteringWebViewTest 7件）が成功した。procedural、trusted の scriptlet、無音の音声の再生、fetch・XHR の JSON 応答の書き換え、JSONPath、trusted-click-element、prevent-refresh を、外部と通信しない fixture で確かめた。
 - 実サイト（やらおん！・オタコム・はちま起稿）: トップは procedural・通信の条件・trusted・監査の修正・引用符の解析変更の後に、記事ページは 2026-11-20 に確認し、広告0・誤遮断なし（オタコム記事上部のサイト自前の Amazon 枠は残る）。
 - はちま起稿の Ad-Shield（html-load.com）は、uBlock filters の rmnt と通信の遮断で止まる（2026-11-19 に DevTools で確認）。
-- 書き換え（removeparam・urlskip）は、リンクからの移動が壊れないことだけを確認した。既定のリストには主フレームに当たる removeparam がなく、書き換えそのものの実地の確認は未実施。
+- 書き換え: uBlock filters の実際の行で確認した。`||link.onlinekosh.com^$doc,urlskip=?url` の中継 URL へのリンクは移動先（example.org）を直接開き、`||finya.de^$removeparam=visitorGating` の URL へのリンクはそのパラメータを外して開いた（2026-11-20）。
 - 未実施: 実機（SO-51D）、性能（長いページ・iframe の多いページでの表示の遅れとメモリ）、別 origin・about:blank の iframe でのブリッジの扱い、古い WebView。
 
 ## 2026-11-19の scriptlet 第2弾と5リスト（エミュレーター）

@@ -1248,6 +1248,182 @@
     });
   };
 
+  // ---- 第5弾（uBO wiki の Resources-Library の原文だけを参照） ----
+
+  // trusted-suppress-native-method の引数の照合。空白だけは「照合しない」、/…/ は正規表現、
+  // JSON として読める値は種類ごとに照合（文字列は部分一致、オブジェクトは部分一致、配列は順序を問わず含む）、
+  // それ以外は部分一致の文字列とする。
+  function argumentMatcher(token) {
+    if (token.trim() === '') return function () { return true; };
+    var t = token.trim();
+    var re = /^\/(.+)\/([imsu]*)$/.exec(t);
+    if (re) {
+      var regex;
+      try { regex = new RegExp(re[1], re[2]); } catch (e) { return null; }
+      return function (value) { return typeof value === 'string' && regex.test(value); };
+    }
+    if (t === 'undefined') return function (value) { return value === undefined; };
+    var parsed;
+    try { parsed = { value: JSON.parse(t) }; } catch (e) { parsed = null; }
+    if (!parsed) return function (value) { return typeof value === 'string' && value.indexOf(t) !== -1; };
+    var expected = parsed.value;
+    var matchValue = function (actual, wanted) {
+      if (typeof wanted === 'string') return typeof actual === 'string' && actual.indexOf(wanted) !== -1;
+      if (wanted === null || typeof wanted !== 'object') return actual === wanted;
+      if (Array.isArray(wanted)) {
+        if (!Array.isArray(actual)) return false;
+        return wanted.every(function (w) { return actual.some(function (a) { return matchValue(a, w); }); });
+      }
+      if (!isObjectLike(actual)) return false;
+      return Object.keys(wanted).every(function (k) {
+        var v;
+        try { v = actual[k]; } catch (e) { return false; }
+        return matchValue(v, wanted[k]);
+      });
+    };
+    return function (value) { return matchValue(value, expected); };
+  }
+
+  // trusted-suppress-native-method: 引数の条件に合う組み込み関数の呼び出しを止める（既定は中断、prevent で空の関数）。
+  scriptlets['trusted-suppress-native-method'] = function (args) {
+    var path = args[0];
+    var signature = args[1];
+    if (!path || signature === undefined || signature === '' || !ProxyCtor) return;
+    var how = args[2] === undefined || args[2] === '' ? 'abort' : args[2];
+    if (how !== 'abort' && how !== 'prevent') return;
+    var matchers = String(signature).split('|').map(argumentMatcher);
+    if (matchers.some(function (m) { return !m; })) return;
+    var stackMatches = args[3] === undefined || args[3] === '' ? null : negatableMatcher(args[3]);
+    if (args[3] !== undefined && args[3] !== '' && !stackMatches) return;
+    var parts = path.split('.');
+    var name = parts.pop();
+    var owner = W;
+    for (var i = 0; i < parts.length; i++) {
+      try { owner = owner[parts[i]]; } catch (e) { return; }
+      if (!isObjectLike(owner)) return;
+    }
+    proxyFunction(owner, name, function (target, thisArg, callArgs) {
+      var hit = matchers.every(function (m, index) { return m(callArgs[index]); });
+      if (hit && stackMatches) {
+        var stack = '';
+        try { stack = String(new Error().stack); } catch (e) { stack = ''; }
+        hit = stackMatches(stack);
+      }
+      if (!hit) return reflectApply(target, thisArg, callArgs);
+      if (how === 'prevent') return undefined;
+      abort();
+    });
+  };
+
+  // fetch・XHR の文字列の応答を書き換える共通部分。transform は書き換えた文字列、変えない場合は null を返す。
+  function interceptFetchText(urlMatches, acceptsType, transform) {
+    if (typeof W.fetch !== 'function' || typeof W.Response !== 'function') return;
+    proxyFunction(W, 'fetch', function (target, thisArg, callArgs) {
+      var input = callArgs[0];
+      var isRequest = typeof W.Request === 'function' && input instanceof W.Request;
+      var url = isRequest ? input.url : String(input);
+      var pending = reflectApply(target, thisArg, callArgs);
+      if (!urlMatches(url)) return pending;
+      return pending.then(function (response) {
+        var contentType = '';
+        var length = 0;
+        try {
+          contentType = response.headers.get('content-type') || '';
+          length = Number(response.headers.get('content-length')) || 0;
+        } catch (e) { return response; }
+        if (!acceptsType(contentType, url) || length > 8 * 1024 * 1024) return response;
+        return response.clone().text().then(function (text) {
+          var edited = transform(text);
+          if (edited === null || edited === text) return response;
+          var replaced = new W.Response(edited, { status: response.status, statusText: response.statusText, headers: response.headers });
+          try {
+            defineProperty(replaced, 'url', { value: response.url });
+            defineProperty(replaced, 'type', { value: response.type });
+          } catch (e) { /* 定義できない環境では既定の値のまま */ }
+          return replaced;
+        }, function () { return response; });
+      });
+    });
+  }
+
+  function interceptXhrText(urlMatches, transform) {
+    var XHR = W.XMLHttpRequest;
+    if (typeof XHR !== 'function') return;
+    var proto = XHR.prototype;
+    var textGetter = (getOwnDescriptor(proto, 'responseText') || {}).get;
+    var responseGetter = (getOwnDescriptor(proto, 'response') || {}).get;
+    if (!textGetter || !responseGetter) return;
+    var targets = new WeakMap();
+    proxyFunction(proto, 'open', function (target, thisArg, callArgs) {
+      if (urlMatches(String(callArgs[1] || ''))) targets.set(thisArg, {}); else targets.delete(thisArg);
+      return reflectApply(target, thisArg, callArgs);
+    });
+    function edited(xhr, original) {
+      var state = targets.get(xhr);
+      if (!state || xhr.readyState !== 4) return original;
+      if (state.text === undefined) { var out = transform(original); state.text = out === null ? original : out; }
+      return state.text;
+    }
+    var textDescriptor = getOwnDescriptor(proto, 'responseText');
+    var responseDescriptor = getOwnDescriptor(proto, 'response');
+    try {
+      defineProperty(proto, 'responseText', { configurable: true, enumerable: true, get: function () {
+        var type = this.responseType;
+        var value = reflectApply(textDescriptor.get, this, []);
+        return (type === '' || type === 'text') ? edited(this, value) : value;
+      } });
+      defineProperty(proto, 'response', { configurable: true, enumerable: true, get: function () {
+        var type = this.responseType;
+        var value = reflectApply(responseDescriptor.get, this, []);
+        return (type === '' || type === 'text') && typeof value === 'string' ? edited(this, value) : value;
+      } });
+    } catch (e) { /* 置き換えられない環境では何もしない */ }
+  }
+
+  // xml-prune: fetch・XHR で取得した XML から、セレクタまたは xpath(…) に合う要素（xpath なら属性も）を取り除く。
+  scriptlets['xml-prune'] = function (args) {
+    var target = args[0];
+    if (!target || typeof W.DOMParser !== 'function' || typeof W.XMLSerializer !== 'function') return;
+    var check = args[1] === undefined ? '' : args[1];
+    var urlMatches = toMatcher(args[2] === undefined ? '' : args[2]);
+    if (!urlMatches) return;
+    var selectNodes = function (xmlDoc, expression) {
+      var m = /^xpath\((.+)\)$/.exec(expression);
+      if (m) {
+        var out = [];
+        try {
+          var result = xmlDoc.evaluate(m[1], xmlDoc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+          for (var i = 0; i < result.snapshotLength; i++) out.push(result.snapshotItem(i));
+        } catch (e) { return null; }
+        return out;
+      }
+      try { return Array.prototype.slice.call(xmlDoc.querySelectorAll(expression)); } catch (e) { return null; }
+    };
+    var transform = function (text) {
+      if (text.indexOf('<') === -1) return null;
+      var xmlDoc;
+      try { xmlDoc = new W.DOMParser().parseFromString(text, 'text/xml'); } catch (e) { return null; }
+      if (!xmlDoc || xmlDoc.querySelector('parsererror')) return null;
+      if (check !== '') {
+        var found = selectNodes(xmlDoc, check);
+        if (!found || found.length === 0) return null;
+      }
+      var nodes = selectNodes(xmlDoc, target);
+      if (!nodes || nodes.length === 0) return null;
+      nodes.forEach(function (node) {
+        try {
+          if (node.nodeType === 2) node.ownerElement && node.ownerElement.removeAttributeNode(node);
+          else if (node.parentNode) node.parentNode.removeChild(node);
+        } catch (e) { /* 消せないノードは残す */ }
+      });
+      try { return new W.XMLSerializer().serializeToString(xmlDoc); } catch (e) { return null; }
+    };
+    interceptFetchText(urlMatches, function (contentType, url) {
+      return /xml|dash/i.test(contentType) || /\.(mpd|xml)(\?|$)/i.test(url);
+    }, transform);
+    interceptXhrText(urlMatches, transform);
+  };
+
   // ---- uBO 方式の JSONPath（wiki の uBO-flavored-JSONPath の公開仕様だけを参照） ----
   // RFC 9535 の一部（$ / @ / .名前 / ..名前 / [名前] / [番号] / * / [?フィルタ]）と、uBO の拡張
   // （/正規表現/ の選択、^= $= *= =/…/ の比較、; による連結と {x,y} の数の条件、trusted での代入）に対応する。
