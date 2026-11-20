@@ -14,7 +14,7 @@
 
 11月18日の変更では AGP9.5.1 / Gradle9.6.1 と独立した Gecko/uBO プレビューを追加しました。全体ビルドは4分52秒・2,225 tasks、最終の標準タスク再検証も1分35秒・1,411 tasksで成功し、通常249件・buildSrc25件を保持しています。JUnit XMLは失敗・error・スキップ0で、全計測APKと明示指定のプレビューdebugも生成・出力しました。通信を切った通知再生成も16秒・11 tasksで成功しました。これは比較基準の公開`f5f2ae8b`の247件・15件・実機41件とは別の検証結果です。
 
-プレビューは別 applicationId・保存領域の minSdk26 / compileSdk37.2 で、本体の minSdk23 / compileSdk37・targetSdk37 を維持します。GeckoView160 と原本 uBlock Origin1.76.4 を内蔵し、debug/release の最終 APK と生成資産672ファイルの一致を確認しました。端末では起動639msと「uBO1.76.4 有効」の表示に加え、修正後の計測3件も4.815秒・失敗/スキップ0で成功しました。保存済みprofileでの標準EasyListのnetwork/cosmetic・画面再生成等に限定した結果で、本体の既存全機能をGeckoへ統合済みという意味ではありません。上記の検証項目を完了しました。
+プレビューは別 applicationId・保存領域の minSdk26 / compileSdk37.2 で、本体の minSdk24（2026-11-20 に 23 から変更）/ compileSdk37・targetSdk37 を維持します。GeckoView160 と原本 uBlock Origin1.76.4 を内蔵し、debug/release の最終 APK と生成資産672ファイルの一致を確認しました。端末では起動639msと「uBO1.76.4 有効」の表示に加え、修正後の計測3件も4.815秒・失敗/スキップ0で成功しました。保存済みprofileでの標準EasyListのnetwork/cosmetic・画面再生成等に限定した結果で、本体の既存全機能をGeckoへ統合済みという意味ではありません。上記の検証項目を完了しました。
 
 ## フェーズ別の状態
 

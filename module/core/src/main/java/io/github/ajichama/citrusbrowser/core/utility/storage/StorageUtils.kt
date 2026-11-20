@@ -26,43 +26,7 @@ import java.io.File
 import java.lang.reflect.InvocationTargetException
 
 
-fun Context.getStorageList(): List<StorageInfo> {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        getStorageListApi24()
-    } else {
-        getStorageListApi21()
-    }
-}
-
-private fun Context.getStorageListApi21(): List<StorageInfo> {
-    val manager = getSystemService(Context.STORAGE_SERVICE) as StorageManager
-    val storageList = mutableListOf<StorageInfo>()
-    try {
-        val getVolumeList = manager.javaClass.getDeclaredMethod("getVolumeList")
-        @Suppress("UNCHECKED_CAST")
-        val volumeList = getVolumeList.invoke(manager) as Array<Any>
-        for (volume in volumeList) {
-            val getPath = volume.javaClass.getDeclaredMethod("getPath")
-            val getUuid = volume.javaClass.getDeclaredMethod("getUuid")
-            val isPrimary = volume.javaClass.getDeclaredMethod("isPrimary")
-            val isRemovable = volume.javaClass.getDeclaredMethod("isRemovable")
-            val path = getPath.invoke(volume) as String
-            val primary = isPrimary.invoke(volume) as Boolean
-            val uuid = if (primary) "primary" else getUuid.invoke(volume) as? String ?: ""
-            val removable = isRemovable.invoke(volume) as Boolean
-            storageList.add(StorageInfo(primary, removable, uuid, path))
-        }
-    } catch (e: ClassCastException) {
-        e.printStackTrace()
-    } catch (e: NoSuchMethodException) {
-        e.printStackTrace()
-    } catch (e: InvocationTargetException) {
-        e.printStackTrace()
-    } catch (e: IllegalAccessException) {
-        e.printStackTrace()
-    }
-    return storageList
-}
+fun Context.getStorageList(): List<StorageInfo> = getStorageListApi24()
 
 @RequiresApi(Build.VERSION_CODES.N)
 private fun Context.getStorageListApi24(): List<StorageInfo> {

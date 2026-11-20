@@ -101,7 +101,7 @@ GeckoViewでWebExtensions機構を内部利用することと、利用者に拡�
 ## 独立した検証構成
 
 - `:module:gecko`がRuntime・Session・内蔵uBO制御を持ち、`:gecko-preview`から実行する。
-- GeckoViewの現安定版はAPI26以上とcompileSdk37.2を要求する。既存API23以上の本体と依存グラフ・保存領域を保ち、検証版だけを別applicationIdで構築する。
+- GeckoViewの現安定版はAPI26以上とcompileSdk37.2を要求する。既存API24以上（2026-11-20 までは API23 以上）の本体と依存グラフ・保存領域を保ち、検証版だけを別applicationIdで構築する。
 - 公式配布のGeckoViewとuBOを版・SHA-256で固定する。取得・展開した資産とビルド出力はDocker Volumeへ置き、ソースツリーへ大量の展開物を作らない。
 - uBOの原典・GPL本文・対応ソースとビルド入力を示す。アプリ同梱uBOの更新と、uBO自身のフィルタリスト更新を混同しない。
 

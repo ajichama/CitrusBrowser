@@ -365,10 +365,10 @@ test('usage_status は記録を判定し、古い記録は stale、Antigravity �
   fs.mkdirSync(dayDir, { recursive: true });
   const now = Date.now();
   const sec = (ms) => Math.floor(ms / 1000);
-  // Claude はステータスラインのキャッシュ（新しい記録、5時間枠 86%）
+  // Claude はステータスラインのキャッシュ（新しい記録、5時間枠 94%）
   fs.writeFileSync(path.join(usageDir, 'claude.json'), JSON.stringify({
     agent: 'claude', source: 'statusline', captured_at: new Date(now - 60_000).toISOString(),
-    windows: [{ kind: 'five_hour', used_pct: 86, resets_at: sec(now + 3600_000) }, { kind: 'seven_day', used_pct: 10, resets_at: sec(now + 86400_000) }],
+    windows: [{ kind: 'five_hour', used_pct: 94, resets_at: sec(now + 3600_000) }, { kind: 'seven_day', used_pct: 10, resets_at: sec(now + 86400_000) }],
   }));
   // Codex は 1時間前の rollout だけ（stale）
   fs.writeFileSync(path.join(dayDir, 'rollout-test.jsonl'), JSON.stringify({

@@ -1,10 +1,10 @@
 # Gecko / uBlock Origin の独立実証
 
-既存の API23 対応ブラウザへ依存を追加せず、`:gecko-preview` からだけこのライブラリを利用します。プレビューは既存の設定・ブックマーク・タブ・Cookie profile を変更しません。本体へのエンジン移植や既存全機能の対応完了を示す構成ではありません。
+既存の API24 対応ブラウザへ依存を追加せず、`:gecko-preview` からだけこのライブラリを利用します。プレビューは既存の設定・ブックマーク・タブ・Cookie profile を変更しません。本体へのエンジン移植や既存全機能の対応完了を示す構成ではありません。
 
 固定したエンジンは Mozilla 公式 Maven の `org.mozilla.geckoview:geckoview:160.0.20261116130455` です。公式 `.module` と実 AAR の SHA-256 は `dba77755f0d02ab4a19f4b8cd63e6a57accf5c44c95a040724ab4a92527e1193` で一致しました。AAR の要件は minSdk26 / compileSdk37.2 / Java17、実 ABI は arm64-v8a・armeabi-v7a・x86_64 です。32bit x86 は含まれません。Docker の既存 SDK37.2 / JDK21 を使い、NDK によるエンジンの自前ビルドは行いません。
 
-SDK37.2 を対応範囲内で使うため、共有ビルドツールは AGP9.5.1 と Gradle9.6.1 を採用します。[AGP9.5 の必要 Gradle は9.6.0以上](https://developer.android.com/build/releases/agp-9-5-0-release-notes)のため、その最小対応9.6系列の修正版を選びました。Gradle 全体の最新版を無関係に追随する更新ではありません。Wrapper は Docker 内の独立一時プロジェクトで正規タスクを2回実行し、公式 ZIP/JAR の SHA-256 を照合して生成します。本体の minSdk23・compileSdk37.0 と Kotlin/Hilt は維持し、SDK 警告の抑止は追加しません。
+SDK37.2 を対応範囲内で使うため、共有ビルドツールは AGP9.5.1 と Gradle9.6.1 を採用します。[AGP9.5 の必要 Gradle は9.6.0以上](https://developer.android.com/build/releases/agp-9-5-0-release-notes)のため、その最小対応9.6系列の修正版を選びました。Gradle 全体の最新版を無関係に追随する更新ではありません。Wrapper は Docker 内の独立一時プロジェクトで正規タスクを2回実行し、公式 ZIP/JAR の SHA-256 を照合して生成します。本体の minSdk24・compileSdk37.0 と Kotlin/Hilt は維持し、SDK 警告の抑止は追加しません。
 
 内蔵 uBO は [AMO 公式配布 1.76.4](https://addons.mozilla.org/firefox/downloads/file/5257481/ublock_origin-1.76.4.xpi) を固定し、SHA-256 `66d0e3f21ce3b32b1bc0a9399b93cb2c9aa598ef18805d92118c76f66e266c1e` を検証します。原本の ID は `uBlock0@raymondhill.net`、GPL は v3.0 only、[対応ソース](https://github.com/gorhill/uBlock/tree/1.76.4)を出典として保持します。
 

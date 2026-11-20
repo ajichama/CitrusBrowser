@@ -1,6 +1,6 @@
 # フィルタ更新ジョブ
 
-WorkManager 2.11.2 の標準 `CoroutineWorker` を使用する。minSdk23 を維持するため、minSdk24 の 2.12 系は採用しない。依存取得は既存の Hilt EntryPoint を使い、WorkManager 専用の Hilt 拡張は追加していない。
+WorkManager 2.11.2 の標準 `CoroutineWorker` を使用する。導入時は minSdk23 だったため、minSdk24 の 2.12 系は採用しなかった（2026-11-20 に本体を minSdk24 にしたので、2.12 系へ更新できる）。依存取得は既存の Hilt EntryPoint を使い、WorkManager 専用の Hilt 拡張は追加していない。
 
 - Application 初期化後とブラウザ再開時に更新要否を確認し、約 1 時間ごとの永続 periodic ジョブでも期限・parser revision・内蔵 asset 版を確認する。OS の省電力制御等により実行時刻は遅れる。
 - 自動更新は購読 ID ごとの unique `KEEP` で重複を抑える。広告ブロック OFF は取得せず終了し、次の設定変更や定期確認で再評価する。Wi-Fi 専用設定を実行前にも確認し、未接続なら指数 backoff で再試行する。無課金回線と Wi-Fi は同一視しない。

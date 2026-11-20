@@ -18,7 +18,6 @@ package io.github.ajichama.citrusbrowser.core.utility.utils
 
 import android.content.Context
 import android.content.res.Configuration
-import android.os.Build
 import android.os.LocaleList
 import java.util.*
 
@@ -26,11 +25,9 @@ fun Context.createLanguageConfig(lang: String?): Configuration {
     val config = resources.configuration
     config.getLocaleIfNeed(lang)?.let {
         config.setLocale(it)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val list = LocaleList(it)
-            LocaleList.setDefault(list)
-            config.setLocales(list)
-        }
+        val list = LocaleList(it)
+        LocaleList.setDefault(list)
+        config.setLocales(list)
     }
     return config
 }
@@ -57,7 +54,4 @@ private fun Configuration.getLocaleIfNeed(lang: String?): Locale? {
     }
 }
 
-@Suppress("DEPRECATION")
-fun Configuration.getSystemLocale(): Locale {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) locales[0] else locale
-}
+fun Configuration.getSystemLocale(): Locale = locales[0]

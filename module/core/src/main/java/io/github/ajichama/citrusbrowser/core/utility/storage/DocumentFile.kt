@@ -48,13 +48,4 @@ fun Uri.toDocumentFile(context: Context): DocumentFile {
     }
 }
 
-private const val PATH_TREE = "tree"
-
-private fun Uri.isTreeUri(): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        DocumentsContract.isTreeUri(this)
-    } else {
-        val paths = pathSegments
-        paths.size >= 2 && PATH_TREE == paths[0]
-    }
-}
+private fun Uri.isTreeUri(): Boolean = DocumentsContract.isTreeUri(this)

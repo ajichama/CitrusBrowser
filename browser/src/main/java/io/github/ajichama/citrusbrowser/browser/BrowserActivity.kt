@@ -600,7 +600,7 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
                 var uri = data.data ?: return
                 val mineType = data.getStringExtra(FastDownloadActivity.EXTRA_MINE_TYPE)
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && uri.scheme == "file") {
+                if (uri.scheme == "file") {
                     val provider = (applicationContext as BrowserApplication).providerManager.downloadFileProvider
                     uri = provider.getUriFromPath(uri.path ?: "")
                 }

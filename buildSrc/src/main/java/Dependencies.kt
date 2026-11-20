@@ -18,11 +18,11 @@
 object Build {
     const val compile_sdk_version = 37
     const val build_tools_version = "37.0.0"
-    const val min_sdk_version = 23
+    const val min_sdk_version = 24
     const val target_sdk_version = 37
 }
 
-// Gecko プレビューだけの要件。既存 API23 対応版の SDK・依存 graph へ混ぜない。
+// Gecko プレビューだけの要件。本体（API24 以上）の SDK・依存 graph へ混ぜない。
 object GeckoPreview {
     const val minSdk = 26
     const val compileSdk = 37
@@ -76,7 +76,7 @@ object Versions {
     const val jsoup = "1.18.3"
     const val re2j = "1.8"
     const val webkit = "1.15.0"
-    // 2.12 系は minSdk24 のため、API23 を維持できる安定版を使う。
+    // 2.11 系は minSdk23 の時期に選んだ版。minSdk24 にしたため 2.12 系へ更新できる（目的ができた時点で更新する）。
     const val workManager = "2.11.2"
 }
 

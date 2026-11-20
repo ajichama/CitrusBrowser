@@ -50,8 +50,8 @@ function rolloutLine(timestamp, primaryPct, secondaryPct, extra = {}) {
 
 test('5時間枠と週枠の閾値で段階を判定する', () => {
   const cases = [
-    [69, 0, 'none'], [70, 0, 'notice'], [84.9, 0, 'notice'], [85, 0, 'checkpoint'], [95, 0, 'stop'],
-    [0, 79, 'none'], [0, 80, 'notice'], [0, 90, 'checkpoint'], [0, 97, 'stop'], [72, 91, 'checkpoint'],
+    [89.9, 0, 'none'], [90, 0, 'notice'], [92.9, 0, 'notice'], [93, 0, 'checkpoint'], [97, 0, 'stop'],
+    [0, 79, 'none'], [0, 80, 'notice'], [0, 90, 'checkpoint'], [0, 97, 'stop'], [85, 91, 'checkpoint'],
   ];
   for (const [five, week, expected] of cases) {
     const result = evaluate('claude', snapshot(five, week), NOW);
@@ -78,15 +78,15 @@ test('古い記録・リセット済みの窓は stale、記録なし・Antigrav
 
 test('notice は同じ窓で30分に1回まで、checkpoint 以上は毎回出す', (t) => {
   const dir = tmpDir(t);
-  const notice = evaluate('claude', snapshot(75, 0), NOW);
+  const notice = evaluate('claude', snapshot(91, 0), NOW);
   assert.equal(shouldNotify('claude', notice, NOW, dir), true);
   assert.equal(shouldNotify('claude', notice, NOW + 10 * 60_000, dir), false);
   // 別エージェント・別の窓は独立して扱う
   assert.equal(shouldNotify('codex', notice, NOW + 10 * 60_000, dir), true);
-  const weekNotice = evaluate('claude', snapshot(75, 85), NOW);
+  const weekNotice = evaluate('claude', snapshot(91, 85), NOW);
   assert.equal(shouldNotify('claude', weekNotice, NOW + 10 * 60_000, dir), true);
   assert.equal(shouldNotify('claude', notice, NOW + 31 * 60_000, dir), true);
-  const checkpoint = evaluate('claude', snapshot(86, 0), NOW);
+  const checkpoint = evaluate('claude', snapshot(94, 0), NOW);
   assert.equal(shouldNotify('claude', checkpoint, NOW, dir), true);
   assert.equal(shouldNotify('claude', checkpoint, NOW, dir), true);
   const stale = evaluate('claude', snapshot(99, 0, { capturedMs: NOW - 60 * 60_000 }), NOW);
@@ -97,13 +97,13 @@ test('Codex の rollout から最後の rate_limits を読み、壊れた行や�
   const text = [
     rolloutLine('2026-11-19T02:50:00.000Z', 10, 1),
     '{"type":"event_msg","payload":{"type":"agent_message","message":"token_count rate_limits"}}',
-    rolloutLine('2026-11-19T02:58:00.000Z', 88, 20),
+    rolloutLine('2026-11-19T02:58:00.000Z', 94, 20),
     '{"broken": "token_count rate_limits',
     '',
   ].join('\n');
   const snap = parseCodexRollout(text);
   assert.equal(snap.captured_at, '2026-11-19T02:58:00.000Z');
-  assert.deepEqual(snap.windows.map((w) => [w.kind, w.used_pct]), [['five_hour', 88], ['seven_day', 20]]);
+  assert.deepEqual(snap.windows.map((w) => [w.kind, w.used_pct]), [['five_hour', 94], ['seven_day', 20]]);
   assert.equal(evaluate('codex', snap, NOW).level, 'checkpoint');
   // 上限到達の記録は stop として扱う
   const reached = parseCodexRollout(rolloutLine('2026-11-19T02:59:00.000Z', 50, 20, { rate_limit_reached_type: 'primary' }));
@@ -159,10 +159,10 @@ test('hook 出力は閾値超過時だけ hookSpecificOutput 形式で、不正�
 
   fs.writeFileSync(path.join(dir, 'claude.json'), JSON.stringify(snapshot(50, 10)));
   assert.equal(runHook(['--agent', 'claude', '--event', 'PostToolUse'], '{}', NOW), '');
-  fs.writeFileSync(path.join(dir, 'claude.json'), JSON.stringify(snapshot(96, 10)));
+  fs.writeFileSync(path.join(dir, 'claude.json'), JSON.stringify(snapshot(98, 10)));
   const out = JSON.parse(runHook(['--agent', 'claude', '--event', 'UserPromptSubmit'], '{}', NOW));
   assert.equal(out.hookSpecificOutput.hookEventName, 'UserPromptSubmit');
-  assert.match(out.hookSpecificOutput.additionalContext, /5時間枠 96%/);
+  assert.match(out.hookSpecificOutput.additionalContext, /5時間枠 98%/);
   assert.match(out.hookSpecificOutput.additionalContext, /中断/);
   assert.equal(runHook(['--agent', 'claude', '--event', 'Stop'], '{}', NOW), '');
   assert.equal(runHook(['--agent', 'other', '--event', 'PostToolUse'], '{}', NOW), '');

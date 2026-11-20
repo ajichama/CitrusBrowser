@@ -19,7 +19,6 @@ package io.github.ajichama.citrusbrowser.legacy.reader
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.text.Html
 import android.text.Spanned
 import android.text.TextUtils
@@ -49,12 +48,7 @@ fun OkHttpClient.decodeToReaderData(context: Context, url: String, userAgent: St
     try {
         val result = fetcher.fetchAndExtract(this, url, 2500, true)
         if (!TextUtils.isEmpty(result.text)) {
-            val html: Spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Html.fromHtml(result.text, Html.FROM_HTML_MODE_LEGACY, Html.ImageGetter { getImage(context, it, url, userAgent) }, null)
-            } else {
-                @Suppress("DEPRECATION")
-                Html.fromHtml(result.text, Html.ImageGetter { getImage(context, it, url, userAgent) }, null)
-            }
+            val html: Spanned = Html.fromHtml(result.text, Html.FROM_HTML_MODE_LEGACY, Html.ImageGetter { getImage(context, it, url, userAgent) }, null)
             return ReaderData(result.title, html)
         }
     } catch (e: Exception) {

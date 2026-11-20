@@ -41,7 +41,7 @@ POMはGradle公開`MavenPomArtifact` APIで取得します。埋込LICENSE/NOTIC
 
 初回のRE2/J 1.8はPOMのURLがHTMLを返すため、[公式リリースタグのLICENSE](https://raw.githubusercontent.com/google/re2j/re2j-1.8/LICENSE)を`texts/re2j-1.8-LICENSE.txt`へ固定しました。更新候補で不足した場合も、このバージョンに対応する確認済み本文を失わないよう、差分を確認して反映してください。
 
-WorkManager 2.11.2の追加時は、新規4座標とTracingの1.0.0から1.2.0への置換を確認しました。既存座標の確認済み通知本文・出典と、ソース由来18件は保持しています。WorkManager 2.12.0はminSdk 24を要求するため、minSdk 23の本アプリでは2.11系を使用します（[公式リリース情報](https://developer.android.com/jetpack/androidx/releases/work)）。
+WorkManager 2.11.2の追加時は、新規4座標とTracingの1.0.0から1.2.0への置換を確認しました。既存座標の確認済み通知本文・出典と、ソース由来18件は保持しています。WorkManager 2.12.0はminSdk 24を要求するため、当時minSdk 23だった本アプリでは2.11系を使用しました（2026-11-20にminSdk 24へ変更し、2.12系へ更新できる状態です）（[公式リリース情報](https://developer.android.com/jetpack/androidx/releases/work)）。
 
 Material 1.14.0への更新時は、Core・ConstraintLayout・CustomView・DynamicAnimation等の推移依存更新、Core ViewTreeとGraphics Shapesの追加、不要になったLegacy Core UtilsとLocalBroadcastManagerの除外を実graphで確認しました。依存総数は102件で変わりませんが、追加の埋込ライセンスを含め114文書へ更新しています。同じ座標の確認済み通知とRE2/Jの固定本文は維持しています。
 

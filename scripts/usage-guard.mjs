@@ -17,7 +17,7 @@ export const AGENTS = ['claude', 'codex', 'antigravity'];
 // additionalContext がモデルの文脈に入るイベントだけを対象にする。
 export const CONTEXT_EVENTS = ['SessionStart', 'UserPromptSubmit', 'PreToolUse', 'PostToolUse', 'SubagentStart'];
 export const THRESHOLDS = {
-  five_hour: { notice: 70, checkpoint: 85, stop: 95 },
+  five_hour: { notice: 90, checkpoint: 93, stop: 97 },
   seven_day: { notice: 80, checkpoint: 90, stop: 97 },
 };
 export const STALE_MS = 15 * 60 * 1000;

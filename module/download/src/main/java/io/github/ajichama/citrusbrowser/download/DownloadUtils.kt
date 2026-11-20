@@ -25,7 +25,6 @@ import android.net.Uri
 import android.os.Build
 import androidx.documentfile.provider.DocumentFile
 import io.github.ajichama.citrusbrowser.core.MIME_TYPE_UNKNOWN
-import io.github.ajichama.citrusbrowser.core.utility.extensions.resolvePath
 import io.github.ajichama.citrusbrowser.core.utility.storage.toDocumentFile
 import io.github.ajichama.citrusbrowser.core.utility.utils.getMimeType
 import io.github.ajichama.citrusbrowser.download.core.data.DownloadFileInfo
@@ -39,18 +38,10 @@ fun createFileOpenIntent(context: Context, uri: Uri, mimeType: String, name: Str
             val provider = (context.applicationContext as BrowserApplication).providerManager.downloadFileProvider
             provider.getUriFromUri(uri)
         }
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> {
+        else -> {
             val provider = (context.applicationContext as BrowserApplication).providerManager.downloadFileProvider
             val path = uri.path ?: ""
             if (uri.scheme == "file") provider.getUriFromPath(path) else provider.getUriFromUri(uri)
-        }
-        else -> {
-            if (uri.scheme == "file") {
-                uri
-            } else {
-                val path = uri.resolvePath(context)
-                if (path != null) Uri.parse("file://$path") else uri
-            }
         }
     }
 

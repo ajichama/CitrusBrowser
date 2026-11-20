@@ -80,7 +80,7 @@
 
 ### 維持すべき技術的決定（変更する場合はユーザーと合意し、本節を更新する）
 
-- **SDK 構成**: 本体は minSdk23 / compileSdk37 / targetSdk37。別 applicationId の `:gecko-preview` / `:module:gecko` だけが minSdk26 / compileSdk37.2 を使い、本体と保存領域を共有しない。
+- **SDK 構成**: 本体は minSdk24 / compileSdk37 / targetSdk37（minSdk は 2026-11-20 に利用者の決定で 23 から 24 へ。理由と各段階の比較は [ADBLOCK_STRATEGY.md](docs/ADBLOCK_STRATEGY.md) 第4節）。別 applicationId の `:gecko-preview` / `:module:gecko` だけが minSdk26 / compileSdk37.2 を使い、本体と保存領域を共有しない。
 - **ビルド**: AGP の built-in Kotlin と、Data Binding を使うモジュールの `com.android.legacy-kapt` を維持する。依存は目的のある更新だけ行い、無関係に Kotlin/Hilt 等を上げない。Gradle Wrapper の配布ZIP SHA-256 固定と Wrapper JAR の公式チェックサム照合を維持する。
 - **OSS 通知**: 固定入力から生成し、通常生成では通信しない。取得候補の更新は明示タスクとレビューで行う。本体とプレビューの通知は別に管理し、Gecko の `about:license` と原本uBOの GPL 通知も保持する。
 - **内蔵uBO**: SHA を検証した原本を改造せずに同梱する。private RPC・拡張 storage を直接書き換えない。uBOの有効表示を、フィルタの準備完了や初回起動の保護の証拠にしない。
@@ -138,8 +138,9 @@
 利用枠（レート制限）の上限で作業が途中で止まらないよう、上限に達する前にビルドが通る状態と台帳の更新を残す。記録は `%USERPROFILE%\.citrus\usage\`（ローカル・非共有）に置き、判定は [`scripts/usage-guard.mjs`](scripts/usage-guard.mjs) が行う。
 
 - 作業開始時と大きな作業の前に `usage_status`（MCP `citrus-collab`）で残量を確認する。Claude Code（[`.claude/settings.json`](.claude/settings.json)）と Codex（[`.agents/hooks/codex-hooks.json`](.agents/hooks/codex-hooks.json) を `.codex/hooks.json` へ複製）は hooks が閾値超過時に自動で警告する。
-- 5時間枠70%以上（週枠80%以上）: 新しい大作業（複数モジュールの変更・全体ビルド）を始めない。
-- 85%以上（週枠90%以上）: 今の変更をビルドが通る状態に戻すか退避し、`handoff_update` で進捗・次の目標・未検証の項目を記録する。保有するロックは第6節どおり `task_release`（`outcome: "paused"`）で解放する。
-- 95%以上（週枠97%以上）、または上限の警告を受けたら: 新しい作業を止め、台帳の更新だけを行って中断する。
+- 5時間枠90%未満（週枠80%未満）: 抑えずに通常どおり進める（2026-11-20 利用者の決定）。
+- 5時間枠90%以上（週枠80%以上）: 新しい大作業（複数モジュールの変更・全体ビルド）を始めない。
+- 93%以上（週枠90%以上）: 今の変更をビルドが通る状態に戻すか退避し、`handoff_update` で進捗・次の目標・未検証の項目を記録する。保有するロックは第6節どおり `task_release`（`outcome: "paused"`）で解放する。
+- 97%以上（週枠97%以上）、または上限の警告を受けたら: 新しい作業を止め、台帳の更新だけを行って中断する。
 - `unavailable` / `stale`（Antigravity は公式の取得手段がないため常に `unavailable`）は残量不明として扱い、作業単位を小さく保ち、区切りごとに台帳を更新する。推定値で判断しない。
 - 中断時は未コミットの変更の有無と、最後に成功した検証コマンドを必ず台帳に残す。
