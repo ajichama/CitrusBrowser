@@ -92,7 +92,27 @@ B 案への示唆: 対象は、効果の大きい数種（IMA・GPT 等）に限
 | 24 に上げる | WebKit の最新版（1.18 系）を使える。差は小さい | Android 6.0 の端末を切る |
 | 26 に上げる | GeckoView（E 案）と揃う。古い OS 向けの分岐を減らせる | Android 7.x の端末も切る |
 
-判断材料として、Android 6〜7 の利用者の割合（公開統計）と、Yuzu Browser の利用者の端末の傾向を調べる必要があります。どちらも未調査です。
+### 調査結果（2026-11-20、詳細はローカルのレポート reports/minsdk-survey-2026-11-20.md）
+
+- 他のブラウザ:
+  - Chrome は Chrome 139 から Android 10（API 29）以上が必要。最終版は Android 6 が 106、Android 7 が 119、Android 8・9 が 138。
+  - Firefox と GeckoView は Firefox 144 から Android 8.0（API 26）以上。
+  - Brave と Opera は Android 10 以上（二次情報）。Edge・Samsung・Vivaldi・DuckDuckGo は未確認。
+- WebView: 139 以降が Android 10 以上という表示がある（APKMirror。公式の告知は未確認）。これが正しければ、Android 9 以下の端末では WebView が更新されず、新しい Web の機能や表示への対応が止まる。古い OS を残しても、Citrus 側では表示の質を保てない。
+- 利用割合: Google の2026年10月のデータでは、Android 6.0 は 0.3%。Android 7〜9 の最新の値と、日本の傾向は未確認。
+- AndroidX: 既定の minSdk は 24（公式、2026-11-18 更新）。androidx.webkit は 1.16.0 から minSdk 24 で、最新の安定版は 1.18.0。
+- Google Play の targetSdk の要件（2026-08-31 までに API 36）は、minSdk とは別の要件。
+
+### 各段階の利点と欠点（調査を踏まえて）
+
+| minSdk | 良くなること | できなくなること |
+|---|---|---|
+| 24 | androidx.webkit 1.16 以降（最新 1.18）と AndroidX の既定に揃う | Android 6.0（約0.3%）を切る |
+| 26 | GeckoView（E 案）と同じ下限になり、本体への併用がしやすい | Android 7.x も切る |
+| 28 | Android 9 未満の分岐を整理できる程度 | Firefox の下限（8.0）を超え、GeckoView 併用の利点が薄れる |
+| 29 | Chrome・Brave・Opera と同じ下限。WebView が更新される端末だけになる | Android 9 以下を切る。利用者数の根拠がまだない |
+
+調査担当の推奨: まず 24 へ上げる。GeckoView を本体へ広げる時点で 26 へ上げる。28・29 は今は勧めない。判断の前に、Google Play の端末分布などで Android 7〜9 の利用者数を測る。
 
 ## 5. プライバシー機能と利便性
 
