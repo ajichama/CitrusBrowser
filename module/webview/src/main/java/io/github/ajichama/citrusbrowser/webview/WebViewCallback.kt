@@ -16,10 +16,9 @@
 
 package io.github.ajichama.citrusbrowser.webview
 
-import android.webkit.JavascriptInterface
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import android.webkit.WebView
+import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
 import kotlin.random.Random
 
 internal class WebViewCallback(
@@ -27,18 +26,23 @@ internal class WebViewCallback(
 ) {
     private val secretKey = Random.nextLong().toString(32)
 
-    fun createInjectScript(): String {
-        return "(function() {document.addEventListener('DOMContentLoaded'," +
-            "function() {$INTERFACE_KEY.onDomContentLoaded(\"$secretKey\")})}())"
+    /**
+     * DOMContentLoaded の通知を受ける窓口を登録する。JavaScript インターフェース（addJavascriptInterface）は使わず、
+     * 文字列だけを受け取る WebMessageListener を使う。通知は主フレームからで、合言葉が一致したものだけを受け付ける。
+     * 対応していない古い WebView では登録せず、onPageFinished 側の処理だけで動く。
+     */
+    fun install(web: WebView) {
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) return
+        WebViewCompat.addWebMessageListener(web, INTERFACE_KEY, setOf("*")) { _, message, _, isMainFrame, _ ->
+            // 呼び出しは UI スレッドで行われる。
+            if (isMainFrame && message.data == secretKey) listener.onDomContentLoaded()
+        }
     }
 
-    @JavascriptInterface
-    fun onDomContentLoaded(secret: String) {
-        if (secretKey != secret) return
-
-        GlobalScope.launch(Dispatchers.Main) {
-            listener.onDomContentLoaded()
-        }
+    fun createInjectScript(): String {
+        return "(function() {var port = window.$INTERFACE_KEY; if (!port) return;" +
+            "document.addEventListener('DOMContentLoaded'," +
+            "function() {port.postMessage(\"$secretKey\")})}())"
     }
 
     companion object {

@@ -165,7 +165,7 @@
         <activity
             android:name="io.github.ajichama.citrusbrowser.legacy.debug.DebugActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="true" />
+            android:exported="false" />
         <activity android:name="io.github.ajichama.citrusbrowser.legacy.debug.DebugFileListActivity" />
         <activity
             android:name="io.github.ajichama.citrusbrowser.legacy.debug.ActivityListActivity"
@@ -199,7 +199,7 @@
         <provider
             android:name="io.github.ajichama.citrusbrowser.provider.DownloadFileProvider"
             android:authorities="${applicationId}.downloadFileProvider"
-            android:exported="true"
+            android:exported="false"
             android:grantUriPermissions="true" />
 
         <activity

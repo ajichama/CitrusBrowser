@@ -35,6 +35,7 @@ if ($VersionName -notmatch '\A[A-Za-z0-9._+-]+\z' -or $VersionCode -notmatch '\A
     throw "APK 出力名に使うアプリ識別子またはバージョンを読み取れません。"
 }
 $ReleaseApkName = "${ApplicationId}_v${VersionName}_${VersionCode}.apk"
+$ReleaseAabName = "${ApplicationId}_v${VersionName}_${VersionCode}.aab"
 
 # 0. Docker デーモンの起動確認とバックグラウンド起動
 $dockerInfoOut = docker info 2>&1 | Out-String
@@ -111,12 +112,13 @@ foreach ($TaskName in $TaskNames) {
         switch -CaseSensitive -Regex ($Matches['apkTask']) {
             '\A(?:assemble|package)Debug\z' { [void]$ExportVariants.Add('debug'); break }
             '\A(?:assemble|package)Release\z' { [void]$ExportVariants.Add('release'); break }
+            '\AbundleRelease\z' { [void]$ExportVariants.Add('bundle'); break }
             '\A(?:assembleDebugAndroidTest|packageDebugAndroidTest|assembleAndroidTest)\z' { [void]$ExportVariants.Add('androidTest'); break }
             '\A(?:assemble|build)\z' { [void]$ExportVariants.Add('debug'); [void]$ExportVariants.Add('release'); break }
         }
     }
 }
-$ExportVariantValue = (@('debug', 'release', 'androidTest', 'geckoPreviewDebug') | Where-Object { $ExportVariants.Contains($_) }) -join ','
+$ExportVariantValue = (@('debug', 'release', 'bundle', 'androidTest', 'geckoPreviewDebug') | Where-Object { $ExportVariants.Contains($_) }) -join ','
 $ExportApk = $ExportVariants.Count -gt 0
 $GradleTaskArguments = @($TaskNames)
 # versions-plugin の更新確認タスクだけ、公式要件の並列実行禁止を固定引数で付ける。
@@ -136,6 +138,14 @@ if [ -n "$CITRUS_EXPORT_VARIANTS" ]; then
     mkdir -p /workspace/release
     IFS=',' read -r -a export_variants <<< "$CITRUS_EXPORT_VARIANTS"
     for variant in "${export_variants[@]}"; do
+        if [ "$variant" = bundle ]; then
+            aab=/build-cache/app/outputs/bundle/release/app-release.aab
+            if [ -f "$aab" ]; then
+                cp -f -- "$aab" "/workspace/release/$CITRUS_RELEASE_AAB_NAME"
+                printf 'Copied AAB: %s\n' "$CITRUS_RELEASE_AAB_NAME"
+            fi
+            continue
+        fi
         case "$variant" in
             debug|release) apk_dir="/build-cache/app/outputs/apk/$variant" ;;
             androidTest) apk_dir="/build-cache/app/outputs/apk/androidTest/debug" ;;
@@ -159,17 +169,28 @@ if [ -n "$CITRUS_EXPORT_VARIANTS" ]; then
 fi
 '@ -replace "`r`n", "`n"
 
-docker run --rm `
-    -v "${WorkspaceRoot}:/workspace" `
-    -v "citrus-gradle-cache:/root/.gradle" `
-    -v "citrus-android-home:/root/.android" `
-    -v "citrus-build-cache:/build-cache" `
-    -v "citrus-buildsrc-gradle:/workspace/buildSrc/.gradle" `
-    -e "JAVA_HOME=$JavaHome" `
-    -e "CITRUS_RELEASE_APK_NAME=$ReleaseApkName" `
-    -e "CITRUS_EXPORT_VARIANTS=$ExportVariantValue" `
-    $ImageName `
-    bash -c $ContainerCmd -- @GradleTaskArguments
+$DockerRunArguments = @(
+    'run', '--rm',
+    '-v', "${WorkspaceRoot}:/workspace",
+    '-v', 'citrus-gradle-cache:/root/.gradle',
+    '-v', 'citrus-android-home:/root/.android',
+    '-v', 'citrus-build-cache:/build-cache',
+    '-v', 'citrus-buildsrc-gradle:/workspace/buildSrc/.gradle'
+)
+# リリース署名の鍵（scripts/release-key.ps1 で作る）は、Release を含むタスクのときだけ読み取り専用でつなぐ。
+# 鍵がなければ、リリースは署名なしのまま出力される。
+if (@($TaskNames | Where-Object { $_ -cmatch 'Release' }).Count -gt 0) {
+    $DockerRunArguments += @('-v', 'citrus-release-key:/release-key:ro')
+}
+$DockerRunArguments += @(
+    '-e', "JAVA_HOME=$JavaHome",
+    '-e', "CITRUS_RELEASE_APK_NAME=$ReleaseApkName",
+    '-e', "CITRUS_RELEASE_AAB_NAME=$ReleaseAabName",
+    '-e', "CITRUS_EXPORT_VARIANTS=$ExportVariantValue",
+    $ImageName,
+    'bash', '-c', $ContainerCmd, '--'
+) + $GradleTaskArguments
+docker @DockerRunArguments
 
 if ($LASTEXITCODE -ne 0) {
     throw "Gradle build failed inside Docker container."

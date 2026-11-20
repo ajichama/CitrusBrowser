@@ -83,6 +83,13 @@ Assert-Condition ($buildCommand.Contains('filename="$CITRUS_RELEASE_APK_NAME"'))
 Assert-Condition (-not $buildCommand.Contains('sed -i')) 'gradlew を直接書き換えないこと'
 Assert-Condition ($WrapperHash -eq (Get-FileHash (Join-Path $WorkspaceRoot 'gradlew')).Hash) 'gradlew の内容を保持すること'
 Assert-Condition (-not ($buildArgs -contains '--no-parallel')) '通常タスクの並列設定を維持すること'
+Assert-Condition (-not ($buildArgs -contains 'citrus-release-key:/release-key:ro')) 'リリース以外のタスクには署名鍵をつながないこと'
+Assert-Condition ($buildCommand.Contains('cp -f -- "$aab" "/workspace/release/$CITRUS_RELEASE_AAB_NAME"')) 'AAB は版付きの名前で取り出すこと'
+
+& $BuildScript -Task ':app:bundleRelease'
+$bundleArgs = @($DockerCalls | Where-Object { $_.Arguments[0] -eq 'run' })[-1].Arguments
+Assert-Condition ($bundleArgs -contains 'citrus-release-key:/release-key:ro') 'リリースのタスクでは署名鍵を読み取り専用でつなぐこと'
+Assert-Condition (@($bundleArgs | Where-Object { $_ -match '^CITRUS_RELEASE_AAB_NAME=[A-Za-z0-9._+-]+\.aab$' }).Count -eq 1) 'AAB の名前を検証して環境変数で渡すこと'
 
 foreach ($nonApkTask in @('help testDebugUnitTest', ':module:adblock:assembleDebug', ':buildSrc:test', ':app:updateDebugOssNotices')) {
     & $BuildScript -Task $nonApkTask
@@ -126,7 +133,9 @@ $ApkSelections = [ordered]@{
     'assembleStaging' = ''
     ':app:packageDemoDebug' = ''
     'assembleDebugUnitTest' = ''
-    ':app:bundleRelease' = ''
+    ':app:bundleRelease' = 'bundle'
+    'bundleRelease assembleRelease' = 'release,bundle'
+    ':module:adblock:bundleRelease' = ''
     'package' = ''
 }
 foreach ($selection in $ApkSelections.GetEnumerator()) {

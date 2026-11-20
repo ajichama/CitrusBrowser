@@ -75,7 +75,7 @@ internal class NormalWebView private constructor(
 
     init {
         isNestedScrollingEnabled = true
-        addJavascriptInterface(webViewCallback, WebViewCallback.INTERFACE_KEY)
+        webViewCallback.install(this)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

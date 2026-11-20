@@ -17,7 +17,7 @@
 3. **Clean Host & Zero Dropbox Pollution (Docker隔離ビルド & Dropbox衛生管理)**:
    - Windowsホスト環境を汚さないため、JDK・Android SDK・Gradle・adb はすべて **Dockerコンテナ (`citrus-android-builder`)** 内で実行する。
    - 本ワークスペースは Dropbox 配下にあるため、各モジュールの `build/` 中間生成物および `.gradle` キャッシュはすべて Docker Named Volume (`citrus-build-cache`, `citrus-gradle-cache`) に隔離し、完成した `.apk` のみを `release/` に出力する（[docker/init.gradle](docker/init.gradle) および [scripts/docker-build.ps1](scripts/docker-build.ps1)）。
-   - Kotlin の永続データも `/build-cache` 内へ隔離する。デバッグ署名鍵と adb 鍵は `citrus-android-home:/root/.android` に保持し、コンテナの再作成で署名が変わることを防ぐ。鍵をソースや公開成果物へ含めない。
+   - Kotlin の永続データも `/build-cache` 内へ隔離する。デバッグ署名鍵と adb 鍵は `citrus-android-home:/root/.android` に保持し、コンテナの再作成で署名が変わることを防ぐ。鍵をソースや公開成果物へ含めない。リリース署名の鍵は Named Volume `citrus-release-key` だけに置き、Release を含むタスクのときだけ読み取り専用でつなぐ（作成・バックアップは scripts/release-key.ps1、手順は [docs/RELEASE.md](docs/RELEASE.md)）。Named Volume の削除禁止の対象に含める。
    - APK の取り出しは既知の root/app の `assemble`・`package` 系・`build` で指定した種類だけ行う。debug・release・androidTest を混ぜず、テスト・設定確認・通知更新・不明 variant ではキャッシュ内の古い APK をコピーしない。
    - 独立プレビューだけは明示した `:gecko-preview:assembleDebug` を `release/gecko-preview-debug.apk` へ取り出す。本体APKの出力先と保存領域は共有しない。
    - `.git`、`release/`、`.agents/handoff/reports` 等には必ず `pwsh -File scripts/setup-dropbox-ignore.ps1` を適用して Dropbox 同期対象から除外する。

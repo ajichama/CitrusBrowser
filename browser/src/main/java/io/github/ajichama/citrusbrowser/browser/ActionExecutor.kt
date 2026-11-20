@@ -689,6 +689,8 @@ class ActionExecutor(
                         val intent = Intent(Intent.ACTION_SEND)
                         intent.type = "image/png"
                         intent.putExtra(Intent.EXTRA_STREAM, provider.getUriForFile(file))
+                        // ファイル提供部分は外部へ公開しないため、共有先へ一時的な読み取りの許可を渡す。
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         try {
                             controller.activity.startActivity(PackageUtils.createChooser(controller.activity, intent, null))
                         } catch (e: ActivityNotFoundException) {
