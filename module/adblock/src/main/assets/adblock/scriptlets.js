@@ -959,12 +959,256 @@
     };
   }
 
-  // json-prune-fetch-response: 条件に合う fetch の JSON 応答から、指定したプロパティを取り除く。
-  scriptlets['json-prune-fetch-response'] = function (args) {
-    var tokens = namedTokens(args, 2);
-    var pruneValue = makePruner(args, tokens.stackToMatch);
-    if (!pruneValue || typeof W.fetch !== 'function' || typeof W.Response !== 'function') return;
-    var matches = tokens.propsToMatch ? requestConditions(tokens.propsToMatch, fetchOptionNames) : function () { return true; };
+  // ---- uBO 方式の JSONPath（wiki の uBO-flavored-JSONPath の公開仕様だけを参照） ----
+  // RFC 9535 の一部（$ / @ / .名前 / ..名前 / [名前] / [番号] / * / [?フィルタ]）と、uBO の拡張
+  // （/正規表現/ の選択、^= $= *= =/…/ の比較、; による連結と {x,y} の数の条件、trusted での代入）に対応する。
+  // 未対応の書き方（範囲指定・論理演算・関数・=call(...)）を含む式は null を返し、何もしない。
+
+  function jsonPathSplitTopLevel(text, separator) {
+    var parts = [];
+    var depth = 0;
+    var quote = '';
+    var start = 0;
+    for (var i = 0; i < text.length; i++) {
+      var c = text.charAt(i);
+      if (c === '\\') { i++; continue; }
+      if (quote) { if (c === quote) quote = ''; continue; }
+      if (c === '"' || c === "'") { quote = c; continue; }
+      if (c === '[' || c === '(' || c === '{') depth++;
+      else if (c === ']' || c === ')' || c === '}') depth--;
+      else if (depth === 0 && c === separator) { parts.push(text.slice(start, i)); start = i + 1; }
+    }
+    parts.push(text.slice(start));
+    return quote || depth !== 0 ? null : parts;
+  }
+
+  // 値の表記（JSON の値、または '…' の文字列）を読む。
+  function jsonPathLiteral(text) {
+    var t = text.trim();
+    if (t.charAt(0) === "'" && t.charAt(t.length - 1) === "'" && t.length >= 2) return { value: t.slice(1, -1).replace(/\\'/g, "'") };
+    try { return { value: JSON.parse(t) }; } catch (e) { return null; }
+  }
+
+  function jsonPathRegex(text) {
+    var m = /^\/(.+)\/([imsu]*)$/.exec(text.trim());
+    if (!m) return null;
+    try { return new RegExp(m[1], m[2]); } catch (e) { return null; }
+  }
+
+  // パス（$ または @ から始まる）を、選択の段の並びにする。
+  function jsonPathParse(text) {
+    var s = text.trim();
+    if (s.charAt(0) !== '$' && s.charAt(0) !== '@') return null;
+    var steps = [];
+    var i = 1;
+    while (i < s.length) {
+      var descendant = false;
+      if (s.startsWith('..', i)) { descendant = true; i += 2; }
+      else if (s.charAt(i) === '.') { i += 1; }
+      else if (s.charAt(i) !== '[') return null;
+      var selectors;
+      if (s.charAt(i) === '[') {
+        var close = -1;
+        var depth = 0;
+        var quote = '';
+        for (var j = i; j < s.length; j++) {
+          var c = s.charAt(j);
+          if (c === '\\') { j++; continue; }
+          if (quote) { if (c === quote) quote = ''; continue; }
+          if (c === '"' || c === "'") { quote = c; continue; }
+          if (c === '[') depth++;
+          else if (c === ']') { depth--; if (depth === 0) { close = j; break; } }
+        }
+        if (close < 0) return null;
+        selectors = jsonPathSelectors(s.slice(i + 1, close));
+        i = close + 1;
+      } else {
+        var m = /^(\*|\/(?:\\.|[^\\/])+\/[imsu]*|[A-Za-z_$][\w$-]*)/.exec(s.slice(i));
+        if (!m) return null;
+        selectors = jsonPathSelectors(m[1].charAt(0) === '/' || m[1] === '*' ? m[1] : JSON.stringify(m[1]));
+        i += m[1].length;
+      }
+      if (!selectors) return null;
+      steps.push({ descendant: descendant, selectors: selectors });
+    }
+    return steps;
+  }
+
+  function jsonPathSelectors(text) {
+    var t = text.trim();
+    if (t.charAt(0) === '?') {
+      var filter = jsonPathFilter(t.slice(1));
+      return filter ? [{ type: 'filter', test: filter }] : null;
+    }
+    var parts = jsonPathSplitTopLevel(t, ',');
+    if (!parts) return null;
+    var out = [];
+    for (var k = 0; k < parts.length; k++) {
+      var p = parts[k].trim();
+      if (p === '*') { out.push({ type: 'wildcard' }); continue; }
+      if (/^-?\d+$/.test(p)) { out.push({ type: 'index', index: Number(p) }); continue; }
+      if (p.charAt(0) === '/') { var re = jsonPathRegex(p); if (!re) return null; out.push({ type: 'regex', re: re }); continue; }
+      var literal = jsonPathLiteral(p);
+      if (!literal || typeof literal.value !== 'string') return null;
+      out.push({ type: 'name', name: literal.value });
+    }
+    return out;
+  }
+
+  // フィルタ: @パス [比較演算子 値]。論理演算・関数は未対応。
+  function jsonPathFilter(text) {
+    var t = text.trim();
+    if (/&&|\|\||^\(|[a-z]+\(/.test(t)) return null;
+    var m = /^(@[^=!<>^$*]*?)\s*(==|!=|<=|>=|<|>|\^=|\$=|\*=|=(?=\/))\s*(.+)$/.exec(t);
+    var path = jsonPathParse(m ? m[1] : t);
+    if (!path) return null;
+    if (!m) return function (node) { return jsonPathSelect(node, path).length > 0; };
+    var op = m[2];
+    var operand = m[3];
+    var re = op === '=' ? jsonPathRegex(operand) : null;
+    var literal = op === '=' ? null : jsonPathLiteral(operand);
+    if (op === '=' ? !re : !literal) return null;
+    return function (node) {
+      return jsonPathSelect(node, path).some(function (entry) {
+        var v = entry.value;
+        switch (op) {
+          case '==': return v === literal.value;
+          case '!=': return v !== literal.value;
+          case '<': return typeof v === typeof literal.value && v < literal.value;
+          case '<=': return typeof v === typeof literal.value && v <= literal.value;
+          case '>': return typeof v === typeof literal.value && v > literal.value;
+          case '>=': return typeof v === typeof literal.value && v >= literal.value;
+          case '^=': return typeof v === 'string' && v.indexOf(String(literal.value)) === 0;
+          case '$=': return typeof v === 'string' && v.slice(-String(literal.value).length) === String(literal.value);
+          case '*=': return typeof v === 'string' && v.indexOf(String(literal.value)) !== -1;
+          case '=': return typeof v === 'string' && re.test(v);
+          default: return false;
+        }
+      });
+    };
+  }
+
+  function jsonPathChildren(value) {
+    if (!isObjectLike(value)) return [];
+    return Object.keys(value).map(function (key) { return { parent: value, key: Array.isArray(value) ? Number(key) : key, value: value[key] }; });
+  }
+
+  // 根の値から段をたどり、選ばれた {parent, key, value} の一覧を返す（件数を制限する）。
+  function jsonPathSelect(rootValue, steps) {
+    var nodes = [{ parent: null, key: null, value: rootValue }];
+    var budget = 20000;
+    for (var i = 0; i < steps.length && nodes.length; i++) {
+      var step = steps[i];
+      var next = [];
+      var visit = function (node) {
+        if (--budget < 0) return;
+        jsonPathChildren(node.value).forEach(function (child) {
+          var hit = step.selectors.some(function (sel) {
+            switch (sel.type) {
+              case 'wildcard': return true;
+              case 'name': return !Array.isArray(node.value) && child.key === sel.name;
+              case 'regex': return !Array.isArray(node.value) && sel.re.test(String(child.key));
+              case 'index': return Array.isArray(node.value) && child.key === (sel.index < 0 ? node.value.length + sel.index : sel.index);
+              case 'filter': return sel.test(child.value);
+              default: return false;
+            }
+          });
+          if (hit) next.push(child);
+          if (step.descendant) visit(child);
+        });
+      };
+      nodes.forEach(visit);
+      if (budget < 0) return [];
+      nodes = next;
+    }
+    return nodes.filter(function (node) { return node.parent !== null; }).concat(steps.length === 0 ? nodes : []);
+  }
+
+  // 連結された式全体を準備する。戻り値は edit(value) 関数（値を直接書き換える）または null。
+  function compileJsonPath(source, trusted) {
+    var text = String(source || '').trim().replace(/^v2:/, '');
+    if (text === '') return null;
+    var chain = jsonPathSplitTopLevel(text, ';');
+    if (!chain) return null;
+    var asserts = [];
+    for (var k = 0; k < chain.length - 1; k++) {
+      var q = /^(.*?)(?:\{(\d*)(?:(,)(\d*))?\})?$/.exec(chain[k].trim());
+      var path = jsonPathParse(q[1]);
+      if (!path) return null;
+      var min = q[2] === undefined ? 1 : (q[2] === '' ? 0 : Number(q[2]));
+      var max = q[2] === undefined ? Infinity : (q[3] ? (q[4] === '' ? Infinity : Number(q[4])) : min);
+      asserts.push({ path: path, min: min, max: max });
+    }
+    var last = chain[chain.length - 1].trim();
+    // 代入は括弧・引用符の外にある最初の = または +=（比較の == 等はフィルタの [] の中にある）。
+    var assignAt = -1;
+    var depth = 0;
+    var quote = '';
+    for (var i = 0; i < last.length; i++) {
+      var c = last.charAt(i);
+      if (c === '\\') { i++; continue; }
+      if (quote) { if (c === quote) quote = ''; continue; }
+      if (c === '"' || c === "'") { quote = c; continue; }
+      if (c === '[') depth++;
+      else if (c === ']') depth--;
+      else if (depth === 0 && c === '=') { assignAt = i; break; }
+    }
+    var target = jsonPathParse(assignAt < 0 ? last : last.slice(0, last.charAt(assignAt - 1) === '+' ? assignAt - 1 : assignAt));
+    if (!target || target.length === 0) return null;
+    var assign = null;
+    if (assignAt >= 0) {
+      // 値の変更は trusted だけ。=call(...) は任意の関数を呼べるため対応しない。
+      if (!trusted) return null;
+      var add = last.charAt(assignAt - 1) === '+';
+      var rhs = last.slice(assignAt + 1).trim();
+      if (/^call\(/.test(rhs)) return null;
+      var replMatch = /^repl\((.*)\)$/.exec(rhs);
+      if (replMatch) {
+        var spec = jsonPathLiteral(replMatch[1]);
+        if (!spec || !isObjectLike(spec.value) || typeof spec.value.replacement !== 'string') return null;
+        var pattern = null;
+        if (typeof spec.value.regex === 'string') { try { pattern = new RegExp(spec.value.regex, 'g'); } catch (e) { return null; } }
+        else if (typeof spec.value.pattern === 'string') pattern = spec.value.pattern;
+        else return null;
+        assign = function (node) {
+          if (typeof node.value !== 'string') return;
+          node.parent[node.key] = typeof pattern === 'string'
+            ? node.value.split(pattern).join(spec.value.replacement) : node.value.replace(pattern, spec.value.replacement);
+        };
+      } else {
+        var literal = jsonPathLiteral(rhs);
+        if (!literal) return null;
+        if (add) {
+          if (!isObjectLike(literal.value) || Array.isArray(literal.value)) return null;
+          assign = function (node) { if (isObjectLike(node.value)) Object.assign(node.value, JSON.parse(JSON.stringify(literal.value))); };
+        } else {
+          assign = function (node) { node.parent[node.key] = JSON.parse(JSON.stringify(literal.value)); };
+        }
+      }
+    }
+    return function (value) {
+      if (!isObjectLike(value)) return value;
+      for (var a = 0; a < asserts.length; a++) {
+        var count = jsonPathSelect(value, asserts[a].path).length;
+        if (count < asserts[a].min || count > asserts[a].max) return value;
+      }
+      var nodes = jsonPathSelect(value, target);
+      if (assign) { nodes.forEach(assign); return value; }
+      // 配列の要素は後ろから取り除き、番号のずれを防ぐ。
+      nodes.sort(function (x, y) { return (typeof y.key === 'number' ? y.key : 0) - (typeof x.key === 'number' ? x.key : 0); });
+      nodes.forEach(function (node) {
+        try {
+          if (Array.isArray(node.parent)) node.parent.splice(node.key, 1); else delete node.parent[node.key];
+        } catch (e) { /* 消せない値は残す */ }
+      });
+      return value;
+    };
+  }
+
+  // fetch・XHR の JSON 応答を書き換える共通部分（json-prune-*-response と json-edit-*-response で使う）。
+  function interceptFetchJson(propsToMatch, transform) {
+    if (typeof W.fetch !== 'function' || typeof W.Response !== 'function') return;
+    var matches = propsToMatch ? requestConditions(propsToMatch, fetchOptionNames) : function () { return true; };
     if (!matches) return;
     proxyFunction(W, 'fetch', function (target, thisArg, callArgs) {
       var input = callArgs[0];
@@ -986,47 +1230,53 @@
           var parsed;
           try { parsed = JSON.parse(text); } catch (e) { return response; }
           if (!isObjectLike(parsed)) return response;
-          var pruned = new W.Response(JSON.stringify(pruneValue(parsed)), {
+          var replaced = new W.Response(JSON.stringify(transform(parsed)), {
             status: response.status, statusText: response.statusText, headers: response.headers
           });
           try {
-            defineProperty(pruned, 'url', { value: response.url });
-            defineProperty(pruned, 'type', { value: response.type });
-            defineProperty(pruned, 'redirected', { value: response.redirected });
+            defineProperty(replaced, 'url', { value: response.url });
+            defineProperty(replaced, 'type', { value: response.type });
+            defineProperty(replaced, 'redirected', { value: response.redirected });
           } catch (e) { /* 定義できない環境では既定の値のまま */ }
-          return pruned;
+          return replaced;
         }, function () { return response; });
       });
     });
-  };
+  }
 
-  // json-prune-xhr-response: 条件に合う XHR の JSON 応答から、指定したプロパティを取り除く。
-  scriptlets['json-prune-xhr-response'] = function (args) {
-    var tokens = namedTokens(args, 2);
-    var pruneValue = makePruner(args, tokens.stackToMatch);
+  var xhrJsonTransforms = null;
+  function interceptXhrJson(propsToMatch, transform) {
     var XHR = W.XMLHttpRequest;
-    if (!pruneValue || typeof XHR !== 'function') return;
-    var matches = tokens.propsToMatch ? requestConditions(tokens.propsToMatch, ['method', 'url']) : function () { return true; };
+    if (typeof XHR !== 'function') return;
+    var matches = propsToMatch ? requestConditions(propsToMatch, ['method', 'url']) : function () { return true; };
     if (!matches) return;
+    var entry = { matches: matches, transform: transform };
+    if (xhrJsonTransforms) { xhrJsonTransforms.push(entry); return; }
+    xhrJsonTransforms = [entry];
     var proto = XHR.prototype;
     var responseGetter = (getOwnDescriptor(proto, 'response') || {}).get;
     var textGetter = (getOwnDescriptor(proto, 'responseText') || {}).get;
     if (!responseGetter || !textGetter) return;
     var targets = new WeakMap();
     proxyFunction(proto, 'open', function (target, thisArg, callArgs) {
-      if (matches({ method: String(callArgs[0] || 'GET'), url: String(callArgs[1] || '') })) targets.set(thisArg, {});
-      else targets.delete(thisArg);
+      var props = { method: String(callArgs[0] || 'GET'), url: String(callArgs[1] || '') };
+      var active = xhrJsonTransforms.filter(function (e) { return e.matches(props); });
+      if (active.length) targets.set(thisArg, { active: active }); else targets.delete(thisArg);
       return reflectApply(target, thisArg, callArgs);
     });
-    // 応答を読む口だけを差し替え、読み終えた応答（readyState 4）のときに一度だけ取り除く。
-    function prunedText(xhr) {
+    function apply(state, parsed) {
+      state.active.forEach(function (e) { parsed = e.transform(parsed); });
+      return parsed;
+    }
+    // 読み終えた応答（readyState 4）のときだけ、一度だけ書き換える。
+    function editedText(xhr) {
       var state = targets.get(xhr);
       var text = reflectApply(textGetter, xhr, []);
       if (!state || xhr.readyState !== 4) return text;
       if (state.text === undefined) {
         try {
           var parsed = JSON.parse(text);
-          state.text = isObjectLike(parsed) ? JSON.stringify(pruneValue(parsed)) : text;
+          state.text = isObjectLike(parsed) ? JSON.stringify(apply(state, parsed)) : text;
         } catch (e) { state.text = text; }
       }
       return state.text;
@@ -1034,18 +1284,55 @@
     try {
       defineProperty(proto, 'responseText', { configurable: true, enumerable: true, get: function () {
         var type = this.responseType;
-        return (type === '' || type === 'text') ? prunedText(this) : reflectApply(textGetter, this, []);
+        return (type === '' || type === 'text') ? editedText(this) : reflectApply(textGetter, this, []);
       } });
       defineProperty(proto, 'response', { configurable: true, enumerable: true, get: function () {
         var type = this.responseType;
         var value = reflectApply(responseGetter, this, []);
-        if (!targets.has(this) || this.readyState !== 4) return value;
-        if (type === '' || type === 'text') return prunedText(this);
-        if (type === 'json') return pruneValue(value);
+        var state = targets.get(this);
+        if (!state || this.readyState !== 4) return value;
+        if (type === '' || type === 'text') return editedText(this);
+        if (type === 'json') {
+          if (state.json === undefined) state.json = isObjectLike(value) ? apply(state, value) : value;
+          return state.json;
+        }
         return value;
       } });
     } catch (e) { /* 置き換えられない環境では何もしない */ }
+  }
+
+  // json-prune-fetch-response / json-prune-xhr-response
+  scriptlets['json-prune-fetch-response'] = function (args) {
+    var tokens = namedTokens(args, 2);
+    var pruneValue = makePruner(args, tokens.stackToMatch);
+    if (pruneValue) interceptFetchJson(tokens.propsToMatch, pruneValue);
   };
+  scriptlets['json-prune-xhr-response'] = function (args) {
+    var tokens = namedTokens(args, 2);
+    var pruneValue = makePruner(args, tokens.stackToMatch);
+    if (pruneValue) interceptXhrJson(tokens.propsToMatch, pruneValue);
+  };
+
+  // json-edit 系: JSONPath で選んだ値を取り除く（trusted 版は値の代入もできる）。
+  function jsonEdit(args, trusted) {
+    var edit = compileJsonPath(args[0], trusted);
+    if (!edit) return;
+    proxyFunction(JSON, 'parse', function (target, thisArg, callArgs) {
+      return edit(reflectApply(target, thisArg, callArgs));
+    });
+  }
+  function jsonEditResponse(args, trusted, kind) {
+    var edit = compileJsonPath(args[0], trusted);
+    if (!edit) return;
+    var tokens = namedTokens(args, 1);
+    if (kind === 'fetch') interceptFetchJson(tokens.propsToMatch, edit); else interceptXhrJson(tokens.propsToMatch, edit);
+  }
+  scriptlets['json-edit'] = function (args) { jsonEdit(args, false); };
+  scriptlets['trusted-json-edit'] = function (args) { jsonEdit(args, true); };
+  scriptlets['json-edit-fetch-response'] = function (args) { jsonEditResponse(args, false, 'fetch'); };
+  scriptlets['trusted-json-edit-fetch-response'] = function (args) { jsonEditResponse(args, true, 'fetch'); };
+  scriptlets['json-edit-xhr-response'] = function (args) { jsonEditResponse(args, false, 'xhr'); };
+  scriptlets['trusted-json-edit-xhr-response'] = function (args) { jsonEditResponse(args, true, 'xhr'); };
 
   // trusted-replace-argument: 指定した関数を呼ぶときの引数（または this）を置き換える（信頼できるリストからだけ届く）。
   scriptlets['trusted-replace-argument'] = function (args) {
@@ -1523,6 +1810,8 @@
     var lower = String(text).toLowerCase();
     var forbidden = ['url(', 'image-set(', '/*', '*/', '\\', '//', '{', '}', '<', 'expression('];
     for (var i = 0; i < forbidden.length; i++) if (lower.indexOf(forbidden[i]) !== -1) return false;
+    // // は空白を挟んでも禁止（wiki の規定）。
+    if (/\/\s*\//.test(lower)) return false;
     return String(text).split(';').filter(function (s) { return s.trim() !== ''; }).every(function (s) {
       return /^-{0,2}[a-zA-Z][a-zA-Z0-9-]*\s*:\s*[^:;]+$/.test(s.trim());
     });

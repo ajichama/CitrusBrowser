@@ -176,6 +176,8 @@ internal object ProceduralFilters {
     private fun isSafeDeclarations(declarations: String): Boolean {
         val lower = declarations.lowercase()
         if (declarations.isBlank() || forbiddenInStyle.any { it in lower }) return false
+        // // は空白を挟んでも禁止（wiki の規定）。
+        if (Regex("/\\s*/").containsMatchIn(lower)) return false
         return declarations.split(';').filter { it.isNotBlank() }.all { DECLARATION.matches(it.trim()) }
     }
 

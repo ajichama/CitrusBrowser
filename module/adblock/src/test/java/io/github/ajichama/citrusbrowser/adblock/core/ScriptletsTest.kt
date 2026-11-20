@@ -76,6 +76,14 @@ class ScriptletsTest {
     }
 
     @Test
+    fun jsonEditIsAcceptedAndItsTrustedVersionOnlyFromTrustedSources() {
+        assertEquals(listOf("json-edit", "v2:\$..ads"), Scriptlets.parse("+js(json-edit, v2:\$..ads)"))
+        assertNull(Scriptlets.parse("+js(trusted-json-edit, v2:\$..ads=0)"))
+        assertEquals(listOf("trusted-json-edit-fetch-response", "v2:\$..ads=0"),
+            Scriptlets.parse("+js(trusted-json-edit-fetch-response, v2:\$..ads=0)", trusted = true))
+    }
+
+    @Test
     fun simpleHtmlScriptFiltersBecomeRemoveNodeTextAndOthersAreDropped() {
         val filters = decode(
             "example.com##^script:has-text(adblock)",

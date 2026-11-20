@@ -66,6 +66,9 @@ object Scriptlets {
         // 第3弾
         add("json-prune-fetch-response")
         add("json-prune-xhr-response")
+        add("json-edit")
+        add("json-edit-fetch-response")
+        add("json-edit-xhr-response")
     }
 
     /**
@@ -81,6 +84,9 @@ object Scriptlets {
         add("trusted-set-local-storage-item")
         add("trusted-set-session-storage-item")
         add("trusted-replace-argument")
+        add("trusted-json-edit")
+        add("trusted-json-edit-fetch-response")
+        add("trusted-json-edit-xhr-response")
     }
 
     private val trustedPrefixes = listOf(

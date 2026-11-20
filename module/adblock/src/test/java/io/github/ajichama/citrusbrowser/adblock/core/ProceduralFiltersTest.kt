@@ -62,6 +62,8 @@ class ProceduralFiltersTest {
             ".a:style(background: url(https://x.example/a.png))",
             ".a:style(color: red} body{display:none)",
             ".a:style(/* x */ color: red)",
+            // // は空白を挟んでも禁止（wiki の規定）。
+            ".a:style(content: \"a/ /b\")",
             ".a:remove():upward(1)",
             "a:if(.b)",
             "a:spath(> b)",

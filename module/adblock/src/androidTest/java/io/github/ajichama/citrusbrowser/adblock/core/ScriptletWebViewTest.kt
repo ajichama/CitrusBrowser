@@ -248,6 +248,25 @@ class ScriptletWebViewTest {
         assertEquals("true", evaluate("r.fetch === '{\"keep\":2}' && r.xhr === '{\"keep\":2}'"))
     }
 
+    @Test fun jsonEditRemovesAndTrustedJsonEditAssignsThroughJsonPath() {
+        install(
+            "blog.esuteru.com##+js(json-edit, v2:\$..items[?@.sponsored==true])",
+            "blog.esuteru.com##+js(trusted-json-edit-fetch-response, v2:\$.config.showAds=false, propsToMatch, data:application/json)",
+            "blog.esuteru.com##+js(json-edit, v2:\$.a=1)",
+            source = "https://ublockorigin.github.io/uAssets/filters/filters.txt",
+        )
+        load("""<script>
+            window.r = {};
+            r.list = JSON.stringify(JSON.parse('{"items":[{"id":1,"sponsored":true},{"id":2,"sponsored":false}],"a":0}'));
+            fetch('data:application/json,' + encodeURIComponent('{"config":{"showAds":true,"theme":"dark"}}'))
+              .then(function (res) { return res.json(); }).then(function (j) { r.fetch = JSON.stringify(j); });
+            </script>""")
+        awaitTrue("window.r && r.fetch !== undefined")
+        // 非 trusted の json-edit は取り除くだけで、代入を含む行（$.a=1）は何もしない。
+        assertEquals("true", evaluate("r.list === '{\"items\":[{\"id\":2,\"sponsored\":false}],\"a\":0}'"))
+        assertEquals("true", evaluate("r.fetch === '{\"config\":{\"showAds\":false,\"theme\":\"dark\"}}'"))
+    }
+
     @Test fun exceptionAndEmptyResultsInjectNothing() {
         install("blog.esuteru.com##+js(set, citrusAdFlag, false)", "blog.esuteru.com#@#+js()")
         load("<script>window.r = { flag: typeof window.citrusAdFlag, done: true };</script>")
