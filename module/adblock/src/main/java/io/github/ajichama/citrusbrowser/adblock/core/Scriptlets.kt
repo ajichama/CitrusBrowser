@@ -71,6 +71,9 @@ object Scriptlets {
         add("json-edit-xhr-response")
         add("prevent-refresh", "refresh-defuser")
         add("xml-prune")
+        add("set-attr")
+        add("prevent-innerHTML")
+        add("m3u-prune")
     }
 
     /**
@@ -97,6 +100,9 @@ object Scriptlets {
         add("trusted-prevent-xhr")
         add("trusted-click-element")
         add("trusted-suppress-native-method")
+        add("trusted-override-element-method")
+        add("trusted-replace-xhr-response")
+        add("trusted-replace-fetch-response", "trusted-rpfr")
     }
 
     private val trustedPrefixes = listOf(

@@ -1323,7 +1323,9 @@
       var isRequest = typeof W.Request === 'function' && input instanceof W.Request;
       var url = isRequest ? input.url : String(input);
       var pending = reflectApply(target, thisArg, callArgs);
-      if (!urlMatches(url)) return pending;
+      var init = callArgs[1] && typeof callArgs[1] === 'object' ? callArgs[1] : {};
+      var method = String(init.method || (isRequest ? input.method : 'GET'));
+      if (!urlMatches(url, method)) return pending;
       return pending.then(function (response) {
         var contentType = '';
         var length = 0;
@@ -1355,7 +1357,7 @@
     if (!textGetter || !responseGetter) return;
     var targets = new WeakMap();
     proxyFunction(proto, 'open', function (target, thisArg, callArgs) {
-      if (urlMatches(String(callArgs[1] || ''))) targets.set(thisArg, {}); else targets.delete(thisArg);
+      if (urlMatches(String(callArgs[1] || ''), String(callArgs[0] || 'GET'))) targets.set(thisArg, {}); else targets.delete(thisArg);
       return reflectApply(target, thisArg, callArgs);
     });
     function edited(xhr, original) {
@@ -1420,6 +1422,228 @@
     };
     interceptFetchText(urlMatches, function (contentType, url) {
       return /xml|dash/i.test(contentType) || /\.(mpd|xml)(\?|$)/i.test(url);
+    }, transform);
+    interceptXhrText(urlMatches, transform);
+  };
+
+  // ---- 第6弾（uBO wiki の Resources-Library の原文だけを参照） ----
+
+  // 読込時と、その後の DOM の変化のたびに apply を呼ぶ（変化はまとめて1回にする）。
+  function observeAndApply(apply) {
+    runAt(2, function () {
+      apply();
+      if (!MutationObserverCtor) return;
+      var pending = false;
+      new MutationObserverCtor(function () {
+        if (pending) return;
+        pending = true;
+        later(function () { pending = false; apply(); }, 0);
+      }).observe(doc, { childList: true, subtree: true });
+    });
+  }
+
+  function validSelector(selector) {
+    try { doc.createDocumentFragment().querySelector(selector); return true; } catch (e) { return false; }
+  }
+
+  // set-attr: 指定した要素の属性を、決められた値（''・true・false・0〜32767）か、同じ要素の別の属性の値（[属性名]）にする。
+  scriptlets['set-attr'] = function (args) {
+    var selector = args[0];
+    var attr = args[1];
+    var raw = args[2] === undefined ? '' : args[2];
+    if (!selector || !attr || !/^[A-Za-z_][\w:.-]*$/.test(attr) || !validSelector(selector)) return;
+    // イベント処理の属性と srcdoc はスクリプトの実行になるため設定しない（本体独自の安全側の制限）。
+    if (/^on/i.test(attr) || /^srcdoc$/i.test(attr)) return;
+    var copyFrom = null;
+    var fixed = null;
+    var copy = /^\[([A-Za-z_][\w:.-]*)\]$/.exec(raw);
+    if (copy) copyFrom = copy[1];
+    else if (raw === '' || raw === "''") fixed = '';
+    else if (raw === 'true' || raw === 'false') fixed = raw;
+    else if (/^\d+$/.test(raw) && Number(raw) < 32768) fixed = String(Number(raw));
+    else return;
+    observeAndApply(function () {
+      var nodes;
+      try { nodes = doc.querySelectorAll(selector); } catch (e) { return; }
+      for (var i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        var value = fixed;
+        if (copyFrom !== null) {
+          if (!el.hasAttribute(copyFrom)) continue;
+          value = el.getAttribute(copyFrom);
+          if (/^\s*(javascript|vbscript):/i.test(value)) continue;
+        }
+        if (el.getAttribute(attr) !== value) el.setAttribute(attr, value);
+      }
+    });
+  };
+
+  // prevent-innerHTML: セレクタに合う要素への innerHTML の代入で、値が条件（! で反転）に合うものを無視する。
+  scriptlets['prevent-innerHTML'] = function (args) {
+    var selector = args[0] === undefined ? '' : args[0];
+    var matches = negatableMatcher(args[1]);
+    if (!matches || (selector !== '' && !validSelector(selector))) return;
+    var proto = W.Element && W.Element.prototype;
+    var descriptor = proto && getOwnDescriptor(proto, 'innerHTML');
+    if (!descriptor || !descriptor.set || !descriptor.get) return;
+    try {
+      defineProperty(proto, 'innerHTML', {
+        configurable: true,
+        enumerable: descriptor.enumerable,
+        get: descriptor.get,
+        set: function (value) {
+          var target = selector === '';
+          if (!target) { try { target = this.matches(selector); } catch (e) { target = false; } }
+          if (target && matches(String(value))) return;
+          reflectApply(descriptor.set, this, [value]);
+        },
+      });
+    } catch (e) { /* 置き換えられない環境では何もしない */ }
+  };
+
+  // set-constant と同じ「安全な定数」の一覧。合わない値は null。
+  function safeConstant(raw) {
+    switch (raw) {
+      case 'undefined': return { value: undefined };
+      case 'null': return { value: null };
+      case 'false': return { value: false };
+      case 'true': return { value: true };
+      case 'noopFunc': return { value: function () {} };
+      case 'trueFunc': return { value: function () { return true; } };
+      case 'falseFunc': return { value: function () { return false; } };
+      case "''": return { value: '' };
+      case '[]': return { value: [] };
+      case '{}': return { value: {} };
+      default:
+        if (!/^\d+$/.test(raw) || Number(raw) > 0x7FFF) return null;
+        return { value: Number(raw) };
+    }
+  }
+
+  // trusted-override-element-method: セレクタに合う要素で呼ばれたメソッドを、空の関数（既定）・例外（throw）・安全な定数に置き換える。
+  scriptlets['trusted-override-element-method'] = function (args) {
+    var path = args[0];
+    var selector = args[1] === undefined ? '' : args[1];
+    var disposition = args[2] === undefined ? '' : args[2];
+    if (!path || !ProxyCtor || (selector !== '' && !validSelector(selector))) return;
+    var result;
+    if (disposition !== '' && disposition !== 'throw') {
+      var constant = safeConstant(disposition);
+      if (!constant) return;
+      result = constant.value;
+    }
+    var parts = path.split('.');
+    var name = parts.pop();
+    var owner = W;
+    for (var i = 0; i < parts.length; i++) {
+      try { owner = owner[parts[i]]; } catch (e) { return; }
+      if (!isObjectLike(owner)) return;
+    }
+    proxyFunction(owner, name, function (target, thisArg, callArgs) {
+      var hit = selector === '';
+      if (!hit) { try { hit = !!thisArg && typeof thisArg.matches === 'function' && thisArg.matches(selector); } catch (e) { hit = false; } }
+      if (!hit) return reflectApply(target, thisArg, callArgs);
+      if (disposition === 'throw') abort();
+      return result;
+    });
+  };
+
+  // trusted-replace-xhr-response / trusted-replace-fetch-response の置き換え。
+  // 第1引数: * は全体、/…/ は正規表現（フラグはそのまま）、それ以外の文字列はすべての出現。第2引数: 置き換える文字列。
+  // includes: 応答にこの文字列・正規表現が含まれる場合だけ置き換える。
+  function responseReplacer(args) {
+    var pattern = args[0];
+    if (pattern === undefined || pattern === '') return null;
+    var replacement = args[1] === undefined ? '' : String(args[1]);
+    var tokens = namedTokens(args, 3);
+    var includes = tokens.includes === undefined ? null : toMatcher(tokens.includes);
+    if (tokens.includes !== undefined && !includes) return null;
+    var replace;
+    if (pattern === '*') {
+      replace = function () { return replacement; };
+    } else {
+      var re = /^\/(.+)\/([gimsu]*)$/.exec(pattern);
+      if (re) {
+        var regex;
+        try { regex = new RegExp(re[1], re[2]); } catch (e) { return null; }
+        replace = function (text) { regex.lastIndex = 0; return text.replace(regex, replacement); };
+      } else {
+        replace = function (text) { return text.split(pattern).join(replacement); };
+      }
+    }
+    return function (text) {
+      if (includes && !includes(text)) return null;
+      var out = replace(text);
+      return out === text ? null : out;
+    };
+  }
+
+  function textLikeType(contentType) {
+    return contentType === '' || /text|json|javascript|xml|html|mpegurl/i.test(contentType);
+  }
+
+  scriptlets['trusted-replace-xhr-response'] = function (args) {
+    var transform = responseReplacer(args);
+    var matches = args[2] === undefined || args[2] === '' ? function () { return true; } : requestConditions(args[2], ['url', 'method']);
+    if (!transform || !matches) return;
+    interceptXhrText(function (url, method) { return matches({ url: url, method: method }); }, transform);
+  };
+
+  // wiki の該当節は見出しだけのため、対になる trusted-replace-xhr-response と同じ引数として扱う（推定）。
+  scriptlets['trusted-replace-fetch-response'] = function (args) {
+    var transform = responseReplacer(args);
+    var matches = args[2] === undefined || args[2] === '' ? function () { return true; } : requestConditions(args[2], fetchOptionNames);
+    if (!transform || !matches) return;
+    interceptFetchText(function (url, method) { return matches({ url: url, method: method }); }, textLikeType, transform);
+  };
+
+  // m3u-prune: .m3u8 の再生リストから広告の区間を取り除く。
+  // 複数行フラグ（m）付きの正規表現は全体に当て、行の途中で始まる・終わる一致は残す。
+  // それ以外は行ごとに照合し、区間の URL 行に当たればその直前の #EXTINF 等も、#EXTINF に当たれば続く URL 行も取り除く。
+  scriptlets['m3u-prune'] = function (args) {
+    var source = args[0];
+    if (!source) return;
+    var urlMatches = toMatcher(args[1] === undefined ? '' : args[1]);
+    if (!urlMatches) return;
+    var whole = null;
+    var lineMatches = null;
+    var re = /^\/(.+)\/([gimsu]*)$/.exec(source);
+    if (re && re[2].indexOf('m') !== -1) {
+      try { whole = new RegExp(re[1], re[2].indexOf('g') === -1 ? re[2] + 'g' : re[2]); } catch (e) { return; }
+    } else {
+      lineMatches = toMatcher(source);
+      if (!lineMatches) return;
+    }
+    var transform = function (text) {
+      if (!/^﻿?\s*#EXTM3U/.test(text)) return null;
+      var out;
+      if (whole) {
+        out = text.replace(whole, function (match) {
+          var offset = arguments[arguments.length - 2];
+          var end = offset + match.length;
+          var startsLine = offset === 0 || text.charAt(offset - 1) === '\n';
+          var endsLine = end === text.length || text.charAt(end) === '\n' || text.charAt(end) === '\r' || match.charAt(match.length - 1) === '\n';
+          return startsLine && endsLine ? '' : match;
+        });
+      } else {
+        var lines = text.split('\n');
+        var kept = [];
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i];
+          if (line.trim() === '' || !lineMatches(line)) { kept.push(line); continue; }
+          if (line.charAt(0) !== '#') {
+            while (kept.length && /^#EXT(INF|-X-BYTERANGE)/.test(kept[kept.length - 1])) kept.pop();
+          } else if (/^#EXTINF/.test(line)) {
+            while (i + 1 < lines.length && /^#EXT-X-BYTERANGE/.test(lines[i + 1])) i++;
+            if (i + 1 < lines.length && lines[i + 1].charAt(0) !== '#') i++;
+          }
+        }
+        out = kept.join('\n');
+      }
+      return out === text ? null : out;
+    };
+    interceptFetchText(urlMatches, function (contentType, url) {
+      return /mpegurl|m3u/i.test(contentType) || /\.m3u8?(\?|$)/i.test(url);
     }, transform);
     interceptXhrText(urlMatches, transform);
   };

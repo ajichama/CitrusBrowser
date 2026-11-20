@@ -375,6 +375,50 @@ class ScriptletWebViewTest {
         assertEquals("true", evaluate("r.suppressed && r.mpd.indexOf('pre-ad-1') === -1 && r.mpd.indexOf('id=\"main\"') !== -1"))
     }
 
+    @Test fun setAttrInnerHtmlOverrideResponseReplaceAndM3uPrune() {
+        install(
+            "blog.esuteru.com##+js(set-attr, img.lazy, src, [data-src])",
+            "blog.esuteru.com##+js(prevent-innerHTML, #box, adblock)",
+            "blog.esuteru.com##+js(trusted-override-element-method, HTMLElement.prototype.click, a.sponsor)",
+            "blog.esuteru.com##+js(trusted-rpfr, '\"adPlacements\"', '\"no_ads\"', application/json)",
+            "blog.esuteru.com##+js(trusted-replace-xhr-response, /ad-[0-9]+/g, removed, text/plain)",
+            "blog.esuteru.com##+js(m3u-prune, ads.example, mpegurl)",
+            source = "https://ublockorigin.github.io/uAssets/filters/filters.txt",
+        )
+        load("""<img class="lazy" data-src="about:blank#lazy"><div id="box"></div><a class="sponsor" id="s">x</a>
+            <script>
+            window.r = {};
+            var box = document.getElementById('box');
+            box.innerHTML = 'please disable adblock';
+            r.blocked = box.innerHTML === '';
+            box.innerHTML = 'hello';
+            r.allowed = box.innerHTML === 'hello';
+            var clicked = false;
+            document.getElementById('s').addEventListener('click', function () { clicked = true; });
+            document.getElementById('s').click();
+            r.clicked = clicked;
+            fetch('data:application/json,' + encodeURIComponent('{"adPlacements":[1]}')).then(function (x) { return x.text(); }).then(function (t) {
+              r.json = t;
+              var x = new XMLHttpRequest();
+              x.open('GET', 'data:text/plain,' + encodeURIComponent('keep ad-12 ad-3'));
+              x.onload = function () {
+                r.xhr = x.responseText;
+                var m3u = '#EXTM3U\n#EXTINF:5,\nhttps://cdn.test/a.ts\n#EXTINF:5,\nhttps://ads.example/b.ts\n#EXTINF:5,\nhttps://cdn.test/c.ts';
+                fetch('data:application/vnd.apple.mpegurl,' + encodeURIComponent(m3u)).then(function (y) { return y.text(); }).then(function (t2) {
+                  r.m3u = t2; r.done = true;
+                });
+              };
+              x.send();
+            });
+            </script>""")
+        awaitTrue("window.r && r.done === true")
+        assertEquals("true", evaluate("r.blocked && r.allowed && r.clicked === false"))
+        assertEquals("\"{\\\"no_ads\\\":[1]}\"", evaluate("r.json"))
+        assertEquals("\"keep removed removed\"", evaluate("r.xhr"))
+        assertEquals("true", evaluate("r.m3u.indexOf('ads.example') === -1 && r.m3u.indexOf('a.ts') !== -1 && r.m3u.indexOf('c.ts') !== -1 && r.m3u.split('#EXTINF').length === 3"))
+        assertEquals("\"about:blank#lazy\"", evaluate("document.querySelector('img.lazy').getAttribute('src')"))
+    }
+
     @Test fun exceptionAndEmptyResultsInjectNothing() {
         install("blog.esuteru.com##+js(set, citrusAdFlag, false)", "blog.esuteru.com#@#+js()")
         load("<script>window.r = { flag: typeof window.citrusAdFlag, done: true };</script>")
