@@ -41,6 +41,12 @@ class AbpDefaultSubscriptionsTest {
     private val easyPrivacy = "https://easylist.to/easylist/easyprivacy.txt"
     private val japanese = "https://filters.adtidy.org/extension/ublock/filters/7.txt"
     private val ublock = "https://ublockorigin.github.io/uAssets/filters/filters.txt"
+    // 版3で無効の候補として加えた Cookie 同意バナー・迷惑要素のリスト。
+    private val annoyances = setOf(
+        "https://ublockorigin.github.io/uAssets/filters/annoyances-cookies.txt",
+        "https://ublockorigin.github.io/uAssets/filters/annoyances-others.txt",
+        "https://secure.fanboy.co.nz/fanboy-cookiemonster.txt",
+    )
 
     @Test
     fun firstInitializationRegistersTheThreeNewDefaultsEnabledWithoutDownloadingLists() = runBlocking {
@@ -69,7 +75,7 @@ class AbpDefaultSubscriptionsTest {
         assertEquals("保存版", original.version)
         assertFalse(privacy.enabled)
         assertEquals(123L, privacy.lastLocalUpdate)
-        assertEquals(setOf(easyList, easyPrivacy, japanese, ublock), fixture.dao.entries.map { it.url }.toSet())
+        assertEquals(setOf(easyList, easyPrivacy, japanese, ublock) + annoyances, fixture.dao.entries.map { it.url }.toSet())
         assertTrue(fixture.dao.entries.single { it.url == japanese }.enabled)
         assertTrue(fixture.dao.entries.single { it.url == ublock }.enabled)
     }
@@ -80,7 +86,7 @@ class AbpDefaultSubscriptionsTest {
         // 移行で有効化して復活させない。追加するのは旧版に無かった EasyPrivacy・AdGuard Japanese・uBlock filters だけ。
         val fixture = Fixture()
         fixture.installer().install(defaults)
-        assertEquals(setOf(easyPrivacy, japanese, ublock), fixture.dao.entries.map { it.url }.toSet())
+        assertEquals(setOf(easyPrivacy, japanese, ublock) + annoyances, fixture.dao.entries.map { it.url }.toSet())
         assertEquals(AbpDefaultSubscriptions.REVISION, fixture.revision)
     }
 
@@ -91,7 +97,7 @@ class AbpDefaultSubscriptionsTest {
         val fixture = Fixture(listOf(kept))
         fixture.revision = 1
         fixture.installer().install(defaults)
-        assertEquals(setOf(japanese, ublock), fixture.dao.entries.map { it.url }.toSet())
+        assertEquals(setOf(japanese, ublock) + annoyances, fixture.dao.entries.map { it.url }.toSet())
         assertSame(kept, fixture.dao.entries.single { it.url == japanese })
         assertFalse(kept.enabled)
         assertTrue(fixture.dao.entries.single { it.url == ublock }.enabled)
@@ -133,7 +139,7 @@ class AbpDefaultSubscriptionsTest {
         assertTrue(fixture.dao.entries.isEmpty())
         fixture.dao.failUrl = null
         fixture.installer().install(defaults)
-        assertEquals(setOf(easyPrivacy, japanese, ublock), fixture.dao.entries.map { it.url }.toSet())
+        assertEquals(setOf(easyPrivacy, japanese, ublock) + annoyances, fixture.dao.entries.map { it.url }.toSet())
         assertEquals(AbpDefaultSubscriptions.REVISION, fixture.revision)
     }
 
@@ -146,10 +152,10 @@ class AbpDefaultSubscriptionsTest {
             fail("移行版の保存失敗を呼出側へ返す必要があります")
         } catch (_: IOException) { }
         assertEquals(0, fixture.revision)
-        assertEquals(3, fixture.dao.entries.size)
+        assertEquals(6, fixture.dao.entries.size)
         fixture.failRevisionWrite = false
         fixture.installer().install(defaults)
-        assertEquals(3, fixture.dao.entries.size)
+        assertEquals(6, fixture.dao.entries.size)
         assertEquals(AbpDefaultSubscriptions.REVISION, fixture.revision)
     }
 

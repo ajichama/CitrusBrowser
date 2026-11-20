@@ -954,8 +954,11 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
 
         oldWeb.setEmbeddedTitleBarMethod(null)
 
+        val closedUrl = oldData.url
         tabManagerIn.remove(target)
         toolbar.notifyChangeWebState()
+        // 自動消去を選んだサイトで、同じサイトのタブがほかになければデータを消す。
+        SiteData.onTabClosed(applicationContext, closedUrl, (0 until tabManagerIn.size()).map { tabManagerIn[it].url })
 
         if (destroy)
             oldWeb.destroy()

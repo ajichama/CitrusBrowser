@@ -75,7 +75,7 @@ object Versions {
     const val mockito = "3.8.0"
     const val jsoup = "1.18.3"
     const val re2j = "1.8"
-    const val webkit = "1.12.1"
+    const val webkit = "1.15.0"
     // 2.12 系は minSdk24 のため、API23 を維持できる安定版を使う。
     const val workManager = "2.11.2"
 }

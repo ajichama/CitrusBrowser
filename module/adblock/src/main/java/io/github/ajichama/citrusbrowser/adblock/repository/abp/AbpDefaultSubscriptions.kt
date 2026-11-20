@@ -24,7 +24,7 @@ import kotlinx.coroutines.sync.withLock
 
 /** URL の追加だけを行い、既存の有効・無効や取得履歴には触れない。 */
 object AbpDefaultSubscriptions {
-    internal const val REVISION = 2
+    internal const val REVISION = 3
     /**
      * 版ごとに、その版で既定へ加えた URL。移行では、利用者の記録した版より新しい版の URL だけを一度追加する。
      * 古い版の URL を再び追加しないので、利用者が削除した購読は復活しない。
@@ -38,6 +38,12 @@ object AbpDefaultSubscriptions {
         ),
         // 反広告ブロック（Ad-Shield 等）への対策が、このリストにだけ含まれる。
         2 to setOf("https://ublockorigin.github.io/uAssets/filters/filters.txt"),
+        // Cookie 同意バナー・迷惑要素のリスト。既定は無効で、利用者が選んで有効にする候補として加える。
+        3 to setOf(
+            "https://ublockorigin.github.io/uAssets/filters/annoyances-cookies.txt",
+            "https://ublockorigin.github.io/uAssets/filters/annoyances-others.txt",
+            "https://secure.fanboy.co.nz/fanboy-cookiemonster.txt",
+        ),
     )
 
     internal fun migrationUrlsAfter(revision: Int): Set<String> =

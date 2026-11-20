@@ -16,6 +16,8 @@
 
 package io.github.ajichama.citrusbrowser.browser
 
+import android.widget.CheckBox
+import android.view.ViewGroup
 import android.os.VibratorManager
 
 import android.content.ActivityNotFoundException
@@ -569,10 +571,50 @@ class ActionExecutor(
                     true
                 }
 
+                // サイト情報: 接続・このページで遮断した数・データの消去・タブを閉じたら自動で消去。
+                val context = controller.activity
+                val container = (v as ViewGroup).getChildAt(0) as ViewGroup
+                val padding = (context.resources.displayMetrics.density * 12).toInt()
+                fun addLine(text: String) {
+                    container.addView(TextView(context).apply { this.text = text; setPadding(0, padding, 0, 0) })
+                }
+                val certificate = tab.mWebView.webView.certificate
+                when {
+                    url.startsWith("https://", ignoreCase = true) -> {
+                        val issuer = certificate?.issuedBy?.let { it.oName.ifEmpty { it.cName } }.orEmpty()
+                        addLine(if (issuer.isNotEmpty()) context.getString(R.string.site_info_secure, issuer) else context.getString(R.string.site_info_secure_unknown))
+                    }
+                    url.startsWith("http://", ignoreCase = true) -> addLine(context.getString(R.string.site_info_insecure))
+                }
+                addLine(context.getString(R.string.site_info_blocked, SiteData.blockedCount(tab.mWebView)))
+                val site = SiteData.site(url)
+                val canClear = site != null && SiteData.isSupported()
+                if (canClear) {
+                    container.addView(CheckBox(context).apply {
+                        text = context.getString(R.string.site_info_clear_on_close, site)
+                        isChecked = SiteData.isClearOnClose(context, site!!)
+                        setOnCheckedChangeListener { _, checked -> SiteData.setClearOnClose(context, site, checked) }
+                    })
+                }
                 AlertDialog.Builder(controller.activity)
                         .setTitle(R.string.page_info)
                         .setView(v)
                         .setPositiveButton(android.R.string.ok, null)
+                        .apply {
+                            if (canClear) setNeutralButton(R.string.site_info_clear) { _, _ ->
+                                AlertDialog.Builder(context)
+                                        .setTitle(R.string.site_info_clear)
+                                        .setMessage(context.getString(R.string.site_info_clear_confirm, site))
+                                        .setPositiveButton(R.string.site_info_clear) { _, _ ->
+                                            SiteData.clear(site!!) {
+                                                Toast.makeText(context, context.getString(R.string.site_info_cleared, site), Toast.LENGTH_SHORT).show()
+                                                tab.mWebView.reload()
+                                            }
+                                        }
+                                        .setNegativeButton(android.R.string.cancel, null)
+                                        .show()
+                            }
+                        }
                         .show()
             }
             SingleAction.COPY_URL -> controller.applicationContextInfo.setClipboardWithToast(controller.getTab(actionTarget).url)
@@ -679,12 +721,12 @@ class ActionExecutor(
                     AlertDialog.Builder(controller.activity)
                             .setItems(R.array.translate_language_list) { _, which ->
                                 val to1 = controller.resourcesByInfo.getStringArray(R.array.translate_language_values)[which]
-                                val url = URLUtil.composeSearchUrl(tab.url, "http://translate.google.com/translate?sl=${from ?: ""}&tl=$to1&u=%s", "%s")
+                                val url = URLUtil.composeSearchUrl(tab.url, "https://translate.google.com/translate?sl=${from ?: ""}&tl=$to1&u=%s", "%s")
                                 controller.loadUrl(tab, url)
                             }
                             .show()
                 } else {
-                    val url = URLUtil.composeSearchUrl(tab.url, "http://translate.google.com/translate?sl=$from&tl=$to&u=%s", "%s")
+                    val url = URLUtil.composeSearchUrl(tab.url, "https://translate.google.com/translate?sl=$from&tl=$to&u=%s", "%s")
                     controller.loadUrl(tab, url)
                 }
             }

@@ -648,11 +648,13 @@ class WebClient(
                 if (host != null) {
                     if (request.isForMainFrame) {
                         web.isBlock = !isWhitePage(request.url)
+                        SiteData.resetBlocked(web)
                     }
 
                     if (web.isBlock) {
                         val filter = isBlock(request.getContentRequest(uri ?: Uri.parse("")))
                         if (filter != null) {
+                            if (!request.isForMainFrame) SiteData.countBlocked(web)
                             return if (request.isForMainFrame) {
                                 createMainFrameDummy(activity, request.url, filter.pattern)
                             } else {
@@ -665,6 +667,7 @@ class WebClient(
 
             miningProtector?.run {
                 if (isBlock(request.getContentRequest(uri ?: Uri.parse("")))) {
+                    SiteData.countBlocked(web)
                     return dummy
                 }
             }

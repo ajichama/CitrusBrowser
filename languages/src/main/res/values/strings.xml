@@ -343,4 +343,12 @@
     <string name="site">Site</string>
     <string name="updating_ad_filters">Updating Ad block filters</string>
     <string name="do_nothing">Do nothing</string>
+    <string name="site_info_secure">Connection: encrypted (https). Certificate issued by: %1$s</string>
+    <string name="site_info_secure_unknown">Connection: encrypted (https)</string>
+    <string name="site_info_insecure">Connection: not encrypted (http)</string>
+    <string name="site_info_blocked">Ads and trackers blocked on this page: %1$d</string>
+    <string name="site_info_clear">Clear site data</string>
+    <string name="site_info_clear_confirm">Clear cookies, stored data and cache for %1$s. You will be signed out of this site.</string>
+    <string name="site_info_cleared">Cleared data for %1$s</string>
+    <string name="site_info_clear_on_close">Clear %1$s data automatically when its tab is closed (if no other tab shows this site)</string>
 </resources>

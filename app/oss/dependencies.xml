@@ -305,9 +305,9 @@
     <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
     <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
   </component>
-  <component id="androidx.webkit:webkit:1.12.1" name="WebKit" url="https://developer.android.com/jetpack/androidx/releases/webkit#1.12.1">
+  <component id="androidx.webkit:webkit:1.15.0" name="WebKit" url="https://developer.android.com/jetpack/androidx/releases/webkit#1.15.0">
     <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
-    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.webkit:webkit:1.12.1!/META-INF/androidx/webkit/webkit/LICENSE.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.webkit:webkit:1.15.0!/META-INF/androidx/webkit/webkit/LICENSE.txt" />
   </component>
   <component id="androidx.window:window:1.0.0" name="Jetpack WindowManager Library" url="https://developer.android.com/jetpack/androidx/releases/window#1.0.0">
     <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
