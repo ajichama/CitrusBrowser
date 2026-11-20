@@ -15,30 +15,28 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.devtools.ksp'
+apply plugin: 'com.android.legacy-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
-    compileSdkVersion Build.compile_sdk_version
+    namespace 'io.github.ajichama.citrusbrowser.search'
+    compileSdk Build.compile_sdk_version
     buildToolsVersion Build.build_tools_version
 
     defaultConfig {
-        minSdkVersion Build.min_sdk_version
-        targetSdkVersion Build.target_sdk_version
-        versionCode 1
-        versionName "1.0"
+        minSdk Build.min_sdk_version
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+    testOptions {
+        targetSdk = Build.target_sdk_version
     }
 
-    kotlinOptions {
-        jvmTarget = "1.8"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     buildTypes {
@@ -51,10 +49,6 @@ android {
     buildFeatures {
         dataBinding true
     }
-
-    kotlinOptions {
-        freeCompilerArgs = ["-XXLanguage:+InlineClasses"]
-    }
 }
 
 repositories {
@@ -62,13 +56,12 @@ repositories {
     mavenCentral()
 }
 
-dependencies {implementation fileTree(dir: 'libs', include: ['*.jar'])
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     testImplementation Libs.junit
     testImplementation Libs.assertk
     testImplementation Libs.mockito
-    testImplementation Libs.powerMockJunit
-    testImplementation Libs.powerMockMockito
     androidTestImplementation Libs.espressoCore
     androidTestImplementation Libs.androidRunner
 
@@ -84,7 +77,7 @@ dependencies {implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation Libs.okio
     implementation Libs.moshi
-    kapt Libs.moshiCodeGen
+    ksp Libs.moshiCodeGen
 
     implementation project(':module:ui')
     implementation project(':module:core')
@@ -100,5 +93,5 @@ dependencies {implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation Libs.kotlin_coroutines_android
 
     implementation Dagger.hilt
-    kapt Dagger.hiltCompiler
+    ksp Dagger.hiltCompiler
 }

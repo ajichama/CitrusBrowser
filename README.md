@@ -1,80 +1,81 @@
-# Yuzu browser
-[![license](https://img.shields.io/github/license/hazuki0x0/YuzuBrowser.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-&nbsp;Stable: [![GitHub release](https://img.shields.io/github/release/hazuki0x0/YuzuBrowser.svg)](https://play.google.com/store/apps/details?id=jp.hazuki.yuzubrowser)
-&nbsp;Latest: [![GitHub release](https://img.shields.io/github/v/release/hazuki0x0/YuzuBrowser?include_prereleases)](https://github.com/hazuki0x0/YuzuBrowser/releases)
+# CitrusBrowser
+
+[![license](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 <img src="app/src/main/ic_launcher-web.png" width="192" height="192">
 
-Yuzu browser is an open source power full web browser.
+**CitrusBrowser** (`io.github.ajichama.citrusbrowser`) は、オープンソースのAndroid向け高機能・高カスタマイズWebブラウザ **[Yuzu Browser](https://github.com/hazuki0x0/YuzuBrowser)**（作者: Hazuki氏）をベースに、最新Android OS（Android 16 / 17）への対応・モダンなアーキテクチャへの刷新・プライバシー強化（トラッカー完全排除）・広告ブロック等の機能進化を行う後継ブラウザプロジェクトです。
 
-You can create your own browser using custom UI and custom buttons.
+---
 
-This browser based on Mikan Browser.
+## 主な特徴・開発方針
 
-## Download and install
-**Android 6.0 or higher is required.**
+- **圧倒的なカスタマイズ性の継承**:
+  - ツールバー配置、ソフトボタン、マルチタッチジェスチャー、カスタムアクション、ユーザースクリプト（UserScript）、リソースブロック等の高度なカスタマイズ機能を継承。
+- **完全トラッカーフリー（ゼロ・テレメトリ）**:
+  - Firebase Analytics / Crashlytics 等の外部解析・追跡SDKを完全に排除。閲覧データや設定はすべて端末ローカルで完結します（詳細は [プライバシーポリシー (Privacy.md)](Privacy.md) を参照）。
+- **最新 Android OS（Android 16 / 17 = API 36 / 37）対応**:
+  - `compileSdk` / `targetSdk` 37、Edge-to-Edge（全画面インセット制御）、Predictive Back（予測型「戻る」ジェスチャー）、権限・ストレージ互換の基盤と、アプリ UI から独立したページ配色を実装。各 OS での実機検証を進めます。
+- **モダンな技術スタックへの段階的刷新**:
+  - Kotlin Coroutines / Flow、Dagger Hilt、Room、WorkManager によるフィルタの永続更新・再試行を使用。Material Design 3 (Material You) への移行と、広告ブロック（AdBlock）の実環境での性能改善は継続課題です。
 
-<a href="https://play.google.com/store/apps/details?id=jp.hazuki.yuzubrowser">
-<img src="https://cloud.githubusercontent.com/assets/15681348/25552469/9d87214c-2cd5-11e7-8ada-6cf0c69df419.png" width="200px"></a>
+## 開発状況
 
-Or prebuilt apk file is here
+版ごとの内容と確認の範囲は [公開進捗 (docs/PROGRESS.md)](docs/PROGRESS.md) にあります。公開した版は [Releases](https://github.com/ajichama/CitrusBrowser/releases) から入手できます（Google Play で公開するまではプレリリース）。
 
-https://github.com/Hazuki0x0/YuzuBrowser/releases
+---
 
-## Theme
-Yuzu Browser supports custom theme.
+## モジュール構成
 
-You can create custom theme with [theme creator app](https://play.google.com/store/apps/details?id=jp.hazuki.yuzubrowser.themecreator).
+| ディレクトリ | 説明 |
+| :--- | :--- |
+| `app/` | アプリケーションエントリ・マニフェスト・DI統合モジュール |
+| `browser/` | メインブラウザ画面・タブ管理モジュール |
+| `module/` | 機能別モジュール群 (`adblock`, `bookmark`, `connecter`, `core`, `download`, `favicon`, `history`, `search`, `ui`, `webview`) |
+| `legacy/` | 旧アーキテクチャ資産（段階的にモダン化・機能モジュールへ移行中） |
+| `libraries/` | 内蔵UI・権限サブライブラリ (`asyncpermissions`, `colorpicker`, `floatingactionbutton`) |
+| `languages/` | 多言語リソース定義モジュール |
+| `buildSrc/` | ビルドバージョン・依存ライブラリ一元管理 (`Dependencies.kt`) |
+| `docker/` | Docker のビルド環境定義 |
 
-You can use it if you have the theme of Mikan Browser.
+---
 
-However, as the theme has been expanded, not all displays change.
+## ビルド方法
 
-#### New theme pack sample
-for version 2.3 or later
+JDK 21 と Android SDK（API 37 を含む）で、Gradle を使ってビルドします。同じ環境を用意する `docker/Dockerfile` もあります。
 
-Just download the theme pack and tap it to import!
+```sh
+# デバッグ APK のビルドと単体テスト
+./gradlew assembleDebug testDebugUnitTest
 
-You can unzip and edit this theme.
+# 本体・単体テスト・計測テスト APK をまとめて検証（実機実行は含まない）
+./gradlew assembleDebug testDebugUnitTest assembleDebugAndroidTest
 
-[Theme material dark](https://github.com/hazuki0x0/YuzuBrowser/releases/download/v3.1.1/theme_material_dark.yuzutheme)
-(default theme)
+# OSS 通知生成処理など、buildSrc の単体テスト
+./gradlew :buildSrc:test
+```
 
-[Theme material light](https://github.com/hazuki0x0/YuzuBrowser/releases/download/v3.1.1/theme_material_light.yuzutheme)
+計測テストの実行には、エミュレーターか実機が必要です。
 
-> Aug. 14, 2017 update for 3.1.1
+---
 
+## ドキュメント・リンク
 
-##### Classic theme sample
-For versions prior to version 2.3
+- [開発の規約と技術的な決定 (DEVELOPMENT.md)](docs/DEVELOPMENT.md)
+- [公開進捗・検証範囲 (docs/PROGRESS.md)](docs/PROGRESS.md)
+- [コントリビューションガイドライン (Contributing.md)](Contributing.md)
+- [プライバシーポリシー (Privacy.md)](Privacy.md)
 
-For installation method and specifications, please check the Readme.txt in the archive.
+---
 
-You should use new theme pack if you are using version 2.3 or later
+## クレジット・謝辞 (Credits)
 
-[Theme material dark](https://github.com/Hazuki0x0/YuzuBrowser/releases/download/v1.1.0/yuzu_theme_material_dark.zip)
+本プロジェクトは [hazuki0x0/YuzuBrowser](https://github.com/hazuki0x0/YuzuBrowser) のソースコードおよびコミット履歴をベースに改変・開発されています。素晴らしいブラウザを開発・公開された Hazuki 氏およびコントリビューターの皆様に深く感謝いたします。
 
-[Theme material light](https://github.com/Hazuki0x0/YuzuBrowser/releases/download/v1.1.0/yuzu_theme_material_light.zip)
+## ライセンス (License)
 
-## Contributing
-Contributions are always welcome
-
-TL;DR
-- Create an issue (except for minor fixes and additional translations/translation fixes).
-- Create a branch for your patch.
-- Create a pull request on the dev branch.
-
-Details are in [Contributing.md](https://github.com/hazuki0x0/YuzuBrowser/blob/dev/Contributing.md)
-
-## Build
-
-    $ git clone https://github.com/Hazuki0x0/YuzuBrowser.git
-    $ cd YuzuBrowser
-    $ ./gradlew build
-
-
-## License
     Copyright (C) 2017-2021 Hazuki
+    Copyright (C) 2026 ajichama
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

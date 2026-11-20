@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 CitrusBrowser contributors. Apache License 2.0. -->
+<resources>
+    <string name="abp_update_completed">Filter update completed.</string>
+    <string name="abp_update_failed">Could not update the filters. Please try again later.</string>
+    <string name="abp_update_skipped">The subscription was removed or disabled. Update skipped.</string>
+    <string name="abp_update_expired">The previous update record is no longer available.</string>
+</resources>

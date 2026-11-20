@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ページの配色だけを指定し、アプリUIのTheme属性は基底Contextから引き継ぐ。 -->
+    <style name="CitrusWebPage.Light" parent="">
+        <item name="android:isLightTheme">true</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+    <style name="CitrusWebPage.Dark" parent="">
+        <item name="android:isLightTheme">false</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+</resources>

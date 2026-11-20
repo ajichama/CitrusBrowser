@@ -23,11 +23,11 @@
 
         <variable
             name="formatter"
-            type="jp.hazuki.yuzubrowser.download.ui.fragment.TimeFormatter" />
+            type="io.github.ajichama.citrusbrowser.download.ui.fragment.TimeFormatter" />
 
         <variable
             name="info"
-            type="jp.hazuki.yuzubrowser.download.core.data.DownloadFileInfo" />
+            type="io.github.ajichama.citrusbrowser.download.core.data.DownloadFileInfo" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

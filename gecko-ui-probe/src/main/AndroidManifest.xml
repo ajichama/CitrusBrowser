@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 CitrusBrowser contributors. Apache License 2.0. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 127.0.0.2 の loopback fixture を待ち受けるためだけに使う。外部への通信は行わない。 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application android:label="Citrus UI probe（開発専用）" android:allowBackup="false" android:testOnly="true">
+        <activity
+            android:name="io.github.ajichama.citrusbrowser.geckouiprobe.ClipboardProbeActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+    </application>
+    <!-- 本体の process/tab を再起動せず、この開発用 APK 自身だけを target にする。 -->
+    <instrumentation
+        android:name="io.github.ajichama.citrusbrowser.geckouiprobe.ClipboardProbeRunner"
+        android:targetPackage="io.github.ajichama.citrusbrowser.geckouiprobe"
+        android:handleProfiling="false"
+        android:functionalTest="true" />
+</manifest>

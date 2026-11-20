@@ -7,7 +7,7 @@
   "local_file_info_disable": "Disabilità",
   "local_file_info_disable_info": "L'accesso è completamente proibito.",
   "local_file_info_sandbox": "Abilita nella sandbox",
-  "local_file_info_sandbox_info": "Consenti l'accesso solo nella memoria esterna e /data/data/jp.hazuki.yuzubrowser/app_public_html.",
+  "local_file_info_sandbox_info": "Consenti l'accesso solo nella memoria esterna e /data/data/io.github.ajichama.citrusbrowser/app_public_html.",
   "local_file_info_enable": "Abilita",
   "local_file_info_enable_info": "Consenti l'accesso a tutti i percorsi accessibili.",
   "insecure": "Impostazioni di contenuto non protetto su https",

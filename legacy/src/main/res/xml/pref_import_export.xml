@@ -2,6 +2,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:title="@string/pref_import_export">
+    <Preference
+        android:key="portable_import"
+        android:title="@string/legacy_import_title"
+        android:summary="@string/legacy_import_summary"
+        app:iconSpaceReserved="false" />
     <PreferenceCategory
         android:title="@string/bookmark"
         app:iconSpaceReserved="false">
@@ -29,7 +34,8 @@
         app:iconSpaceReserved="false">
         <Preference
             android:key="restore_speed_dial"
-            android:title="@string/pref_restore_speed_dial"
+            android:title="@string/legacy_import_merge_dial"
+            android:summary="@string/legacy_import_summary"
             app:iconSpaceReserved="false" />
         <Preference
             android:dialogMessage="@string/pref_backup_speed_dial_confirm"
@@ -45,7 +51,8 @@
         app:iconSpaceReserved="false">
         <Preference
             android:key="restore_settings"
-            android:title="@string/restore_settings"
+            android:title="@string/legacy_import_merge_settings"
+            android:summary="@string/legacy_import_summary"
             app:iconSpaceReserved="false" />
         <Preference
             android:dialogMessage="@string/pref_backup_settings_confirm"

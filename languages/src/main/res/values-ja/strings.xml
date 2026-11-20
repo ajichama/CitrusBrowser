@@ -80,6 +80,9 @@
     <string name="share_image">画像の共有</string>
     <string name="share_image_url">画像のURLを共有</string>
     <string name="open_image_other_app">画像を他のアプリで開く</string>
+    <string name="copy_image">画像をコピー</string>
+    <string name="copy_image_done">画像をコピーしました</string>
+    <string name="copy_image_failed">画像をコピーできませんでした</string>
     <string name="copy_image_url">画像のURLをコピー</string>
     <string name="save_image">画像を保存</string>
     <string name="save_image_as">名前をつけて画像を保存</string>
@@ -266,7 +269,7 @@
 
     <string name="not_bookmark_file">このファイルはHTMLブックマークファイルではありません。</string>
 
-    <string name="open_in_browser">Yuzu Browserで開く</string>
+    <string name="open_in_browser">CitrusBrowserで開く</string>
     <string name="enable_share">共有にこのアプリを表示する</string>
 
     <string name="closed_tab">%1$s を閉じました</string>
@@ -276,7 +279,7 @@
     <string name="theme_import">テーマをインポート</string>
     <string name="theme_management">テーマ管理</string>
     <string name="delete_theme">テーマを削除</string>
-    <string name="theme_importer">Yuzu Browserテーマ インポート</string>
+    <string name="theme_importer">CitrusBrowserテーマ インポート</string>
     <string name="theme_imported">\"%1$s\"をインポートしました</string>
     <string name="theme_installed_version">このバージョンのテーマはインポート済みです</string>
     <string name="theme_unknown_error">不明なエラー</string>
@@ -341,4 +344,13 @@
     <string name="site">サイト</string>
     <string name="updating_ad_filters">広告ブロックフィルタを更新中</string>
     <string name="do_nothing">なにもしない</string>
+    <string name="site_info_secure">接続: 暗号化されています（https）。証明書の発行者: %1$s</string>
+    <string name="site_info_secure_unknown">接続: 暗号化されています（https）</string>
+    <string name="site_info_insecure">接続: 暗号化されていません（http）</string>
+    <string name="site_info_blocked">このページで遮断した広告・追跡: %1$d 件</string>
+    <string name="site_info_clear">サイトのデータを消去</string>
+    <string name="site_info_clear_confirm">%1$s の Cookie・保存データ・キャッシュを消去します。このサイトからはログアウトされます。</string>
+    <string name="site_info_cleared">%1$s のデータを消去しました</string>
+    <string name="site_info_clear_on_close">タブを閉じたら %1$s のデータを自動で消去する（同じサイトのタブがほかにない場合）</string>
+    <string name="site_info_certificate_error">接続: 証明書に問題があります（警告を無視して表示しています）</string>
 </resources>

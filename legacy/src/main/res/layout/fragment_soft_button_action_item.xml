@@ -21,7 +21,7 @@
 
         <variable
             name="viewModel"
-            type="jp.hazuki.yuzubrowser.legacy.action.view.SoftButtonActionDetailViewModel" />
+            type="io.github.ajichama.citrusbrowser.legacy.action.view.SoftButtonActionDetailViewModel" />
 
         <variable
             name="typeName"

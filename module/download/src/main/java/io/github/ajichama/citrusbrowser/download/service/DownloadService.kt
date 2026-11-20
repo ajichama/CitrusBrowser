@@ -1,0 +1,540 @@
+/*
+ * Copyright (C) 2017-2021 Hazuki
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.github.ajichama.citrusbrowser.download.service
+
+import androidx.core.content.IntentCompat
+
+import android.annotation.SuppressLint
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
+import android.content.*
+import android.net.Uri
+import android.os.*
+import android.provider.MediaStore
+import androidx.annotation.StringRes
+import android.content.pm.ServiceInfo
+import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
+import androidx.core.content.ContextCompat
+import androidx.documentfile.provider.DocumentFile
+import dagger.hilt.android.AndroidEntryPoint
+import io.github.ajichama.citrusbrowser.core.utility.extensions.resolvePath
+import io.github.ajichama.citrusbrowser.core.utility.log.ErrorReport
+import io.github.ajichama.citrusbrowser.core.utility.log.Logger
+import io.github.ajichama.citrusbrowser.core.utility.storage.toDocumentFile
+import io.github.ajichama.citrusbrowser.core.utility.utils.createUniqueFileName
+import io.github.ajichama.citrusbrowser.download.*
+import io.github.ajichama.citrusbrowser.download.core.data.DownloadFile
+import io.github.ajichama.citrusbrowser.download.core.data.DownloadFileInfo
+import io.github.ajichama.citrusbrowser.download.core.data.DownloadRequest
+import io.github.ajichama.citrusbrowser.download.core.data.MetaData
+import io.github.ajichama.citrusbrowser.download.core.downloader.Downloader
+import io.github.ajichama.citrusbrowser.download.core.utils.getNotificationString
+import io.github.ajichama.citrusbrowser.download.core.utils.registerMediaScanner
+import io.github.ajichama.citrusbrowser.download.repository.DownloadsDao
+import io.github.ajichama.citrusbrowser.download.service.connection.ServiceClient
+import io.github.ajichama.citrusbrowser.download.service.connection.ServiceCommand
+import io.github.ajichama.citrusbrowser.download.service.connection.ServiceSocket
+import io.github.ajichama.citrusbrowser.download.ui.DownloadListActivity
+import io.github.ajichama.citrusbrowser.ui.extensions.intentFor
+import io.github.ajichama.citrusbrowser.ui.widget.longToast
+import io.github.ajichama.citrusbrowser.ui.widget.toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import javax.inject.Inject
+
+@AndroidEntryPoint
+class DownloadService : Service(), ServiceClient.ServiceClientListener {
+
+    private lateinit var handler: Handler
+    private lateinit var powerManager: PowerManager
+    private lateinit var notificationManager: NotificationManager
+    private lateinit var messenger: Messenger
+
+    private val threadList = mutableListOf<DownloadThread>()
+    private val observers = mutableListOf<Messenger>()
+
+    @Volatile
+    private var isStopping = false
+    /** 受け付けたが、まだスレッドを登録していないダウンロードの数（threadList で同期する）。 */
+    private var pendingStarts = 0
+
+    @Inject
+    lateinit var okHttpClient: OkHttpClient
+
+    @Inject
+    lateinit var downloadsDao: DownloadsDao
+
+    override fun onCreate() {
+        super.onCreate()
+        handler = Handler(Looper.getMainLooper())
+        powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        messenger = Messenger(ServiceClient(this))
+
+        GlobalScope.launch(Dispatchers.IO) {
+            downloadsDao.cleanUp()
+        }
+
+        val filter = IntentFilter(INTENT_ACTION_CANCEL_DOWNLOAD)
+        filter.addAction(INTENT_ACTION_PAUSE_DOWNLOAD)
+
+        ContextCompat.registerReceiver(this, notificationControl, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+    }
+
+    /**
+     * ダウンロードを始めるときだけ前景サービスにする（種類は dataSync）。
+     * ダウンロード一覧の表示（bind だけ）では前景にせず、通知も出さない。
+     */
+    private fun enterForeground() {
+        val notify = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_DOWNLOAD_SERVICE)
+            .setContentTitle(getText(R.string.download_service))
+            .setSmallIcon(R.drawable.ic_citrusbrowser_white)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .build()
+        ServiceCompat.startForeground(
+            this,
+            Int.MIN_VALUE,
+            notify,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC else 0
+        )
+    }
+
+    /** 進行中のダウンロードがなくなったら、前景をやめて通知を消し、bind されていなければ終了する。 */
+    private fun leaveForegroundIfIdle() {
+        synchronized(threadList) {
+            if (threadList.isNotEmpty() || pendingStarts > 0) return
+        }
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        stopSelf()
+    }
+
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        // OS の停止期限まで待機せず、既存の中断処理で状態保存・通知更新を行う。
+        isStopping = true
+        try {
+            synchronized(threadList) {
+                threadList.forEach { it.abort() }
+            }
+        } finally {
+            stopSelf()
+        }
+    }
+
+    override fun onDestroy() {
+        isStopping = true
+        synchronized(threadList) {
+            threadList.forEach {
+                it.abort()
+            }
+        }
+        unregisterReceiver(notificationControl)
+        stopForeground(true)
+        super.onDestroy()
+    }
+
+    override fun onBind(intent: Intent?): IBinder = messenger.binder
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent == null || isStopping) {
+            leaveForegroundIfIdle()
+            return START_NOT_STICKY
+        }
+        // 前景へは要求を受けた時点で同期的に入る。スレッドの準備が済むまでは pendingStarts で終了を防ぐ。
+        synchronized(threadList) { pendingStarts++ }
+        enterForeground()
+        GlobalScope.launch(Dispatchers.IO) {
+            var thread: DownloadThread? = null
+            when (intent.action) {
+                INTENT_ACTION_START_DOWNLOAD -> {
+                    val root = IntentCompat.getParcelableExtra(intent, INTENT_EXTRA_DOWNLOAD_ROOT_URI, Uri::class.java)!!
+                        .toDocumentFile(this@DownloadService)
+                    val file = IntentCompat.getParcelableExtra(intent, INTENT_EXTRA_DOWNLOAD_REQUEST, DownloadFile::class.java)
+                    val metadata = IntentCompat.getParcelableExtra(intent, INTENT_EXTRA_DOWNLOAD_METADATA, MetaData::class.java)
+                    if (file != null) {
+                        thread = FirstDownloadThread(root, file, metadata)
+                    }
+                }
+                INTENT_ACTION_RESTART_DOWNLOAD -> {
+                    val id = intent.getLongExtra(INTENT_EXTRA_DOWNLOAD_ID, -1)
+                    val info = downloadsDao[id]
+                    val root = info.root.toDocumentFile(this@DownloadService)
+                    thread = ReDownloadThread(root, info, DownloadRequest(null, null, null))
+                }
+            }
+
+            val started = synchronized(threadList) {
+                pendingStarts--
+                if (thread != null && !isStopping) {
+                    threadList.add(thread)
+                    true
+                } else {
+                    false
+                }
+            }
+            if (started) thread?.start() else if (!isStopping) handler.post { leaveForegroundIfIdle() }
+        }
+        return START_NOT_STICKY
+    }
+
+    override fun registerObserver(messenger: Messenger) {
+        observers.add(messenger)
+    }
+
+    override fun unregisterObserver(messenger: Messenger) {
+        observers.remove(messenger)
+    }
+
+    override fun update(msg: Message) {
+        val it = observers.iterator()
+        while (it.hasNext()) {
+            try {
+                it.next().send(Message.obtain(msg))
+            } catch (e: RemoteException) {
+                ErrorReport.printAndWriteLog(e)
+                it.remove()
+            }
+        }
+    }
+
+    override fun getDownloadInfo(messenger: Messenger) {
+        val list = synchronized(threadList) { threadList.map { it.info } }
+
+        val it = observers.iterator()
+        while (it.hasNext()) {
+            try {
+                it.next().send(Message.obtain(null, ServiceSocket.GET_DOWNLOAD_INFO, list))
+            } catch (e: RemoteException) {
+                ErrorReport.printAndWriteLog(e)
+                it.remove()
+            }
+        }
+    }
+
+    override fun cancelDownload(id: Long) {
+        synchronized(threadList) {
+            threadList.firstOrNull { id == it.info.id }?.cancel()
+        }
+    }
+
+    override fun pauseDownload(id: Long) {
+        synchronized(threadList) {
+            threadList.firstOrNull { id == it.info.id }?.pause()
+        }
+    }
+
+    private val notificationControl = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            if (intent == null) return
+
+            val id = intent.getLongExtra(INTENT_EXTRA_DOWNLOAD_ID, -1)
+            if (id >= 0) {
+                when (intent.action) {
+                    INTENT_ACTION_CANCEL_DOWNLOAD -> cancelDownload(id)
+                    INTENT_ACTION_PAUSE_DOWNLOAD -> pauseDownload(id)
+                }
+            }
+        }
+    }
+
+    private inner class FirstDownloadThread(
+        private val root: DocumentFile,
+        private val file: DownloadFile,
+        private val metadata: MetaData?,
+    ) : DownloadThread(root, file.request) {
+        override val info: DownloadFileInfo by lazy {
+            val info = DownloadFileInfo(root.uri, file, metadata
+                ?: MetaData(this@DownloadService, okHttpClient, root, file.url, file.request, file.name))
+            // 入力された名前も保存開始時に再確認し、他の中断ファイルを上書きしない。
+            info.copy(name = createUniqueFileName(root, info.name, TMP_FILE_SUFFIX))
+        }
+    }
+
+    private inner class ReDownloadThread(
+        root: DocumentFile,
+        override val info: DownloadFileInfo,
+        request: DownloadRequest,
+    ) : DownloadThread(root, request, isResume = true)
+
+    private abstract inner class DownloadThread(
+        private var root: DocumentFile,
+        private val request: DownloadRequest,
+        private val isResume: Boolean = false,
+    ) : Thread(), Downloader.DownloadListener {
+        abstract val info: DownloadFileInfo
+
+        private val notification = NotificationCompat.Builder(this@DownloadService, NOTIFICATION_CHANNEL_DOWNLOAD_NOTIFY)
+        private val bigTextStyle = NotificationCompat.BigTextStyle()
+
+        private var downloader: Downloader? = null
+
+        private var isActionAdded = false
+        @Volatile
+        private var isAbort = false
+
+        @SuppressLint("WakelockTimeout")
+        override fun run() {
+            if (isAbort) return
+
+            val wakelock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DownloadThread:wakelock")
+            try {
+                prepareThread(wakelock)
+
+                if (checkValidRootDir(info.root)) {
+                    if (!root.exists()) {
+                        failedCheckFolder(info, R.string.download_failed_root_not_exists)
+                        return
+                    } else if (!root.canWrite()) {
+                        failedCheckFolder(info, R.string.download_failed_root_not_writable)
+                        return
+                    }
+                } else {
+                    request.isScopedStorageMode = true
+                    info.resumable = false
+
+                    val values = ContentValues().apply {
+                        put(MediaStore.Downloads.DISPLAY_NAME, info.name)
+                        put(MediaStore.Downloads.MIME_TYPE, info.mimeType)
+                        put(MediaStore.Downloads.IS_PENDING, 1)
+                        put(MediaStore.Downloads.IS_DOWNLOAD, 1)
+                    }
+
+                    val collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                    val itemUri = contentResolver.insert(collection, values)
+                    if (itemUri == null) {
+                        failedCheckFolder(info, R.string.failed)
+                        return
+                    }
+                    info.root = itemUri
+                    root = itemUri.toDocumentFile(this@DownloadService)
+                }
+
+                if (info.id == 0L) {
+                    info.id = downloadsDao.insert(info)
+                } else {
+                    info.state = DownloadFileInfo.STATE_DOWNLOADING
+                    downloadsDao.update(info)
+                }
+
+                val downloader = Downloader.getDownloader(this@DownloadService, okHttpClient, info, request, isResume)
+                downloader.downloadListener = this
+                synchronized(this) {
+                    this.downloader = downloader
+                    // 準備中に停止された場合も、通信開始前に中断要求を引き継ぐ。
+                    if (isAbort) downloader.abort()
+                }
+
+                downloader.download()
+            } finally {
+                // 通信・プロバイダー・DB の例外でも常時起動状態と作業一覧を解放する。
+                endThreaded(wakelock)
+            }
+        }
+
+        fun cancel() = downloader?.cancel()
+
+        fun pause() = downloader?.pause()
+
+        @Synchronized
+        fun abort() {
+            isAbort = true
+            downloader?.abort()
+        }
+
+        override fun onStartDownload(info: DownloadFileInfo) {
+            downloadsDao.update(info)
+            notification.run {
+                setSmallIcon(android.R.drawable.stat_sys_download)
+                setOngoing(false)
+                setContentTitle(info.name)
+                setWhen(info.startTime)
+                setProgress(0, 0, true)
+                setContentIntent(PendingIntent.getActivity(applicationContext, 0, intentFor<DownloadListActivity>(), PendingIntent.FLAG_IMMUTABLE))
+                notificationManager.notify(info.id.toInt(), build())
+            }
+            updateInfo(ServiceSocket.UPDATE, info)
+        }
+
+        override fun onFileDownloaded(info: DownloadFileInfo, downloadedFile: DocumentFile) {
+            if (info.size < 0) {
+                info.size = info.currentSize
+            }
+            downloadsDao.update(info)
+
+            if (request.isScopedStorageMode) {
+                val values = ContentValues().apply {
+                    put(MediaStore.Downloads.IS_PENDING, 0)
+                }
+                // Workaround for samsung device in Android 11
+                try {
+                    contentResolver.update(info.root, values, null, null)
+                } catch (e: IllegalStateException) {
+                    if (Build.MANUFACTURER != "samsung") throw e
+                }
+            } else {
+                root.findFile(info.name)?.uri?.resolvePath(this@DownloadService)
+                    ?.let { registerMediaScanner(it) }
+            }
+
+            NotificationCompat.Builder(this@DownloadService, NOTIFICATION_CHANNEL_DOWNLOAD_NOTIFY).run {
+                setOngoing(false)
+                setContentTitle(info.name)
+                setWhen(System.currentTimeMillis())
+                setProgress(0, 0, false)
+                setAutoCancel(true)
+                setContentText(getText(R.string.download_success))
+                setSmallIcon(android.R.drawable.stat_sys_download_done)
+                setContentIntent(PendingIntent.getActivity(applicationContext, 0, info.createFileOpenIntent(this@DownloadService, downloadedFile), PendingIntent.FLAG_IMMUTABLE))
+                notificationManager.notify(info.id.toInt(), build())
+            }
+            updateInfo(ServiceSocket.UPDATE, info)
+        }
+
+        override fun onFileDownloadFailed(info: DownloadFileInfo, cause: String?) {
+            if (request.isScopedStorageMode) {
+                val file = root
+                if (file.exists()) {
+                    contentResolver.delete(file.uri, null, null)
+                }
+            }
+
+            downloadsDao.update(info)
+            if (cause != null) {
+                handler.post { longToast(cause) }
+                Logger.d("download error", cause)
+            }
+            NotificationCompat.Builder(this@DownloadService, NOTIFICATION_CHANNEL_DOWNLOAD_NOTIFY).run {
+                setOngoing(false)
+                setContentTitle(info.name)
+                setWhen(System.currentTimeMillis())
+                setProgress(0, 0, false)
+                setAutoCancel(true)
+                setContentText(getText(R.string.download_fail))
+                setSmallIcon(android.R.drawable.stat_sys_warning)
+                setContentIntent(PendingIntent.getActivity(applicationContext, 0, intentFor<DownloadListActivity>(), PendingIntent.FLAG_IMMUTABLE))
+                notificationManager.notify(info.id.toInt(), build())
+            }
+            updateInfo(ServiceSocket.UPDATE, info)
+        }
+
+        override fun onFileDownloadAbort(info: DownloadFileInfo) {
+            downloadsDao.update(info)
+            if (info.state and DownloadFileInfo.STATE_PAUSED != 0) {
+                NotificationCompat.Builder(this@DownloadService, NOTIFICATION_CHANNEL_DOWNLOAD_NOTIFY).run {
+                    setOngoing(false)
+                    setContentTitle(info.name)
+                    setWhen(System.currentTimeMillis())
+                    setAutoCancel(true)
+                    setContentText(getText(R.string.download_paused))
+                    setSmallIcon(R.drawable.ic_pause_white_24dp)
+                    setContentIntent(PendingIntent.getActivity(applicationContext, 0, intentFor<DownloadListActivity>(), PendingIntent.FLAG_IMMUTABLE))
+
+                    val resume = Intent(this@DownloadService, DownloadService::class.java).apply {
+                        action = INTENT_ACTION_RESTART_DOWNLOAD
+                        putExtra(INTENT_EXTRA_DOWNLOAD_ID, info.id)
+                    }
+                    addAction(R.drawable.ic_start_white_24dp, getText(R.string.resume_download),
+                        PendingIntent.getService(this@DownloadService, info.id.toInt(), resume, PendingIntent.FLAG_IMMUTABLE))
+                    notificationManager.notify(info.id.toInt(), build())
+                }
+            } else {
+                notificationManager.cancel(info.id.toInt())
+            }
+            updateInfo(ServiceSocket.UPDATE, info)
+        }
+
+        override fun onFileDownloading(info: DownloadFileInfo, progress: Long) {
+            notification.run {
+                setAction(info)
+                if (info.size <= 0) {
+                    setProgress(0, 0, true)
+                } else {
+                    setProgress(1000, (progress * 1000 / info.size).toInt(), false)
+                }
+                setStyle(bigTextStyle.bigText(info.getNotificationString(applicationContext)))
+                notificationManager.notify(info.id.toInt(), build())
+            }
+            updateInfo(ServiceSocket.UPDATE, info)
+        }
+
+        private fun setAction(info: DownloadFileInfo) {
+            if (!isActionAdded) {
+                isActionAdded = true
+                notification.run {
+                    if (info.resumable) {
+                        val pause = Intent(INTENT_ACTION_PAUSE_DOWNLOAD).apply {
+                            setPackage(packageName)
+                            putExtra(INTENT_EXTRA_DOWNLOAD_ID, info.id)
+                        }
+                        addAction(R.drawable.ic_pause_white_24dp, getText(R.string.pause_download),
+                            PendingIntent.getBroadcast(this@DownloadService, info.id.toInt(), pause, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
+                    }
+
+                    val cancel = Intent(INTENT_ACTION_CANCEL_DOWNLOAD).apply {
+                        setPackage(packageName)
+                        putExtra(INTENT_EXTRA_DOWNLOAD_ID, info.id)
+                    }
+                    addAction(R.drawable.ic_cancel_white_24dp, getText(android.R.string.cancel),
+                        PendingIntent.getBroadcast(this@DownloadService, info.id.toInt(), cancel, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
+                }
+            }
+        }
+
+        private fun updateInfo(@ServiceCommand command: Int, info: DownloadFileInfo) {
+            try {
+                messenger.send(Message.obtain(null, command, info))
+            } catch (e: RemoteException) {
+                ErrorReport.printAndWriteLog(e)
+            }
+        }
+
+        @SuppressLint("WakelockTimeout")
+        private fun prepareThread(wakeLock: PowerManager.WakeLock) {
+            wakeLock.acquire()
+        }
+
+        private fun endThreaded(wakeLock: PowerManager.WakeLock) {
+            if (wakeLock.isHeld) wakeLock.release()
+
+            synchronized(threadList) {
+                threadList.remove(this)
+            }
+            handler.post { leaveForegroundIfIdle() }
+        }
+
+        private fun failedCheckFolder(info: DownloadFileInfo, @StringRes message: Int) {
+            info.state = DownloadFileInfo.STATE_UNKNOWN_ERROR
+            downloadsDao.updateWithEmptyRoot(info)
+            handler.post { toast(message) }
+            NotificationCompat.Builder(this@DownloadService, NOTIFICATION_CHANNEL_DOWNLOAD_NOTIFY).run {
+                setOngoing(false)
+                setContentTitle(info.name)
+                setWhen(System.currentTimeMillis())
+                setProgress(0, 0, false)
+                setAutoCancel(true)
+                setContentText(getText(message))
+                setSmallIcon(android.R.drawable.stat_sys_warning)
+                setContentIntent(PendingIntent.getActivity(applicationContext, 0, intentFor<DownloadListActivity>(), PendingIntent.FLAG_IMMUTABLE))
+                notificationManager.notify(info.id.toInt(), build())
+            }
+            updateInfo(ServiceSocket.UPDATE, info)
+        }
+    }
+}

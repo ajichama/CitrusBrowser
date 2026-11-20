@@ -15,3 +15,9 @@
  */
 
 include ':app', ':libraries:floatingactionbutton', ':libraries:colorpicker', ':libraries:asyncpermissions', ':legacy', ':module:ui', ':module:core', ':languages', ':module:webview', ':browser', ':module:favicon', ':module:download', ':module:adblock', ':module:bookmark', ':module:connecter', ':module:history', ':module:search'
+// Gecko/uBO の独立実証。既存本体へは依存させない。
+include ':gecko-preview', ':module:gecko'
+// エンジン共通契約は既存の API23 版からも利用する。
+include ':module:engine-api'
+// 既存アプリを再起動しない、外部依存のない開発専用 UI probe。
+include ':gecko-ui-probe'

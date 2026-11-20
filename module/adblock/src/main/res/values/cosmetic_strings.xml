@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 設定キーと保存値の意味を変えず、画面の文言を有効・無効の実態に合わせる。 -->
+<resources>
+    <string name="ad_block_enabled_summary">Ad blocking is on. Selected filters will apply when you reload a page.</string>
+    <string name="ad_block_disabled_summary">Ad blocking is off. Turn it on to apply the selected filters.</string>
+    <string name="ad_block_filter_scope_summary">Choose filter lists and update them to apply their rules.</string>
+    <string name="ad_block_enable_cosmetic_title">Hide ad elements</string>
+    <string name="ad_block_cosmetic_summary">Use the selected filters to hide ad frames and ads added after the page loads. Reload the page after changing this setting.</string>
+</resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2026 CitrusBrowser contributors. Licensed under the Apache License, Version 2.0.
+     CitrusBrowser 独自の、広告を含まない VAST 3.0 の応答（Ad 要素のない VAST 文書）。根拠は IAB の VAST の公開仕様（2026-11-20 参照）
+     https://github.com/InteractiveAdvertisingBureau/VAST4.x 。他の広告ブロッカーの資源は参照していない。 -->
+<VAST version="3.0"></VAST>

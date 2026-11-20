@@ -1,0 +1,37 @@
+/*
+ * Copyright (C) 2017-2019 Hazuki
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.github.ajichama.citrusbrowser.legacy.toolbar.main
+
+import android.content.Context
+import io.github.ajichama.citrusbrowser.legacy.R
+import io.github.ajichama.citrusbrowser.legacy.action.manager.ActionController
+import io.github.ajichama.citrusbrowser.legacy.action.manager.ActionIconManager
+import io.github.ajichama.citrusbrowser.ui.theme.ThemeData
+
+class UrlBar(context: Context, controller: ActionController, iconManager: ActionIconManager, request_callback: RequestCallback) : UrlBarBase(context, controller, iconManager, R.layout.toolbar_url, request_callback) {
+
+    override fun applyTheme(themeData: ThemeData?) {
+        super.applyTheme(themeData)
+        applyTheme(themeData, centerUrlButton)
+        // 入力欄の面に合わせるが、テーマファイルで明示した文字色は優先する。
+        if (themeData == null || themeData.toolbarTextColor == 0) {
+            val attributes = context.obtainStyledAttributes(intArrayOf(android.R.attr.textColorPrimary))
+            attributes.getColorStateList(0)?.let { centerUrlButton.setTextColor(it) }
+            attributes.recycle()
+        }
+    }
+}

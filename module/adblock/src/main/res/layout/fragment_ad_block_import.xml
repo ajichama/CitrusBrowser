@@ -21,7 +21,7 @@
 
         <variable
             name="viewModel"
-            type="jp.hazuki.yuzubrowser.adblock.ui.original.AdBlockImportViewModel" />
+            type="io.github.ajichama.citrusbrowser.adblock.ui.original.AdBlockImportViewModel" />
     </data>
 
     <RelativeLayout

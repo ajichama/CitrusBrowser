@@ -1,0 +1,84 @@
+/*
+ * Copyright (C) 2017-2020 Hazuki
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.github.ajichama.citrusbrowser.ui.settings.fragment
+
+import android.os.Bundle
+import android.text.TextUtils
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceScreen
+import io.github.ajichama.citrusbrowser.ui.PREFERENCE_FILE_NAME
+import io.github.ajichama.citrusbrowser.ui.R
+
+
+abstract class CitrusBasePreferenceFragment : PreferenceFragmentCompat() {
+    var preferenceResId: Int = 0
+        private set
+
+    abstract fun onCreateCitrusPreferences(savedInstanceState: Bundle?, rootKey: String?)
+
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        preferenceManager.sharedPreferencesName = PREFERENCE_FILE_NAME
+        onCreateCitrusPreferences(savedInstanceState, rootKey)
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        preferenceManager.sharedPreferencesName = PREFERENCE_FILE_NAME
+        // 項目・保存キーは変えず、既存のリスト余白に内側の間隔を加える。
+        val spacing = (8 * resources.displayMetrics.density).toInt()
+        listView.setPaddingRelative(listView.paddingStart + spacing, listView.paddingTop + spacing,
+            listView.paddingEnd + spacing, listView.paddingBottom + spacing * 2)
+        listView.clipToPadding = false
+        setDivider(null)
+        return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val activity = activity ?: return
+
+        preferenceScreen?.run {
+            val key = arguments?.getString(ARG_PREFERENCE_ROOT)
+            val title = if (!key.isNullOrEmpty()) findPreference<Preference>(key)?.title
+                ?: title else title
+            activity.title = if (TextUtils.isEmpty(title)) getText(R.string.pref_settings) else title
+        }
+    }
+
+    override fun addPreferencesFromResource(preferencesResId: Int) {
+        super.addPreferencesFromResource(preferencesResId)
+        this.preferenceResId = preferencesResId
+    }
+
+    override fun setPreferencesFromResource(preferencesResId: Int, key: String?) {
+        super.setPreferencesFromResource(preferencesResId, key)
+        this.preferenceResId = preferencesResId
+    }
+
+    open fun onPreferenceStartScreen(pref: PreferenceScreen): Boolean = false
+
+    protected fun openFragment(fragment: PreferenceFragmentCompat) {
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.container, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+}

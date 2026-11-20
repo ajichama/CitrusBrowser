@@ -25,7 +25,7 @@
         android:summary="@string/reflect_setting_mes"
         app:iconSpaceReserved="false" />
 
-    <jp.hazuki.yuzubrowser.legacy.settings.preference.ThemePreference
+    <io.github.ajichama.citrusbrowser.legacy.settings.preference.ThemePreference
         android:key="theme_setting"
         android:title="@string/theme_setting"
         app:iconSpaceReserved="false" />
@@ -35,9 +35,10 @@
         android:title="@string/theme_management"
         app:iconSpaceReserved="false" />
 
-    <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+    <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
         android:key="web_theme"
         android:title="@string/pref_web_theme_mode"
+        android:summary="@string/page_color_summary"
         android:entries="@array/pref_web_theme_entries"
         android:entryValues="@array/pref_web_theme_values"
         android:defaultValue="0"
@@ -59,7 +60,7 @@
             android:key="toolbar_small_icon"
             android:title="@string/pref_toolbar_small_icon"
             app:iconSpaceReserved="false" />
-        <jp.hazuki.yuzubrowser.ui.preference.SeekbarPreference
+        <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
             android:key="overlay_bottom_alpha"
             android:title="@string/pref_overlay_bottom_alpha"
             app:seekMax="255"
@@ -70,68 +71,68 @@
             android:key="ps_toolbar_tab"
             android:title="@string/pref_tab_bar"
             app:iconSpaceReserved="false">
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:entries="@array/pref_toolbar_location_list"
                 android:entryValues="@array/pref_toolbar_location_values"
                 android:key="toolbar_location_tab"
                 android:title="@string/pref_toolbar_location"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.IntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.IntListPreference
                 android:entryValues="@array/pref_toolbar_location_priority_values"
                 android:key="toolbar_location_priority_tab"
                 android:title="@string/pref_toolbar_location_priority"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:entries="@array/pref_toolbar_location_landscape_list"
                 android:entryValues="@array/pref_toolbar_location_landscape_values"
                 android:key="toolbar_location_l_tab"
                 android:title="@string/pref_toolbar_location_landscape"
                 app:iconSpaceReserved="false" />
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:entries="@array/pref_toolbar_location_landscape_priority_list"
                 android:entryValues="@array/pref_toolbar_location_landscape_priority_values"
                 android:key="toolbar_location_l_priority_tab"
                 android:title="@string/pref_toolbar_location_priority_landscape"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.MultiListIntPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.MultiListIntPreference
                 android:entries="@array/pref_toolbar_visibility_list"
                 android:key="toolbar_visibility_tab"
                 android:max="@integer/pref_toolbar_visibility_count"
                 android:title="@string/pref_toolbar_visibility"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.SeekbarPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
                 android:key="toolbar_size_tab"
                 android:title="@string/pref_toolbar_size"
                 app:seekMax="100"
                 app:seekMin="1"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:entries="@array/pref_tab_type_list"
                 android:entryValues="@array/pref_tab_type_values"
                 android:key="tab_type"
                 android:title="@string/pref_tab_type"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.SeekbarPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
                 android:key="tab_size_x"
                 android:title="@string/pref_tab_size_x"
                 app:seekMax="400"
                 app:seekMin="10"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.SeekbarPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
                 android:key="tab_font_size"
                 android:title="@string/pref_tab_font_size"
                 app:seekMax="50"
                 app:seekMin="1"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:key="show_tab_divider"
                 android:title="@string/pref_show_divider"
                 android:entries="@array/pref_show_divider_list"
@@ -147,46 +148,46 @@
             android:key="ps_toolbar_url"
             android:title="@string/pref_url_bar"
             app:iconSpaceReserved="false">
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:entries="@array/pref_toolbar_location_list"
                 android:entryValues="@array/pref_toolbar_location_values"
                 android:key="toolbar_location_url"
                 android:title="@string/pref_toolbar_location"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.IntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.IntListPreference
                 android:entryValues="@array/pref_toolbar_location_priority_values"
                 android:key="toolbar_location_priority_url"
                 android:title="@string/pref_toolbar_location_priority"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:entries="@array/pref_toolbar_location_landscape_list"
                 android:entryValues="@array/pref_toolbar_location_landscape_values"
                 android:key="toolbar_location_l_url"
                 android:title="@string/pref_toolbar_location_landscape"
                 app:iconSpaceReserved="false" />
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:entries="@array/pref_toolbar_location_landscape_priority_list"
                 android:entryValues="@array/pref_toolbar_location_landscape_priority_values"
                 android:key="toolbar_location_l_priority_url"
                 android:title="@string/pref_toolbar_location_priority_landscape"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.MultiListIntPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.MultiListIntPreference
                 android:entries="@array/pref_toolbar_visibility_list"
                 android:key="toolbar_visibility_url"
                 android:max="@integer/pref_toolbar_visibility_count"
                 android:title="@string/pref_toolbar_visibility"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.SeekbarPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
                 android:key="toolbar_size_url"
                 android:title="@string/pref_toolbar_size"
                 app:seekMax="100"
                 app:seekMin="1"
                 app:iconSpaceReserved="false" />
-            <jp.hazuki.yuzubrowser.ui.preference.SeekbarPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
                 android:key="toolbar_text_size_url"
                 android:title="@string/pref_toolbar_text_size"
                 app:seekMax="50"
@@ -205,40 +206,40 @@
             android:key="ps_toolbar_progress"
             android:title="@string/pref_progress_bar"
             app:iconSpaceReserved="false">
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:entries="@array/pref_toolbar_location_list"
                 android:entryValues="@array/pref_toolbar_location_values"
                 android:key="toolbar_location_progress"
                 android:title="@string/pref_toolbar_location"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.IntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.IntListPreference
                 android:entryValues="@array/pref_toolbar_location_priority_values"
                 android:key="toolbar_location_priority_progress"
                 android:title="@string/pref_toolbar_location_priority"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:entries="@array/pref_toolbar_location_landscape_list"
                 android:entryValues="@array/pref_toolbar_location_landscape_values"
                 android:key="toolbar_location_l_progress"
                 android:title="@string/pref_toolbar_location_landscape"
                 app:iconSpaceReserved="false" />
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:entries="@array/pref_toolbar_location_landscape_priority_list"
                 android:entryValues="@array/pref_toolbar_location_landscape_priority_values"
                 android:key="toolbar_location_l_priority_progress"
                 android:title="@string/pref_toolbar_location_priority_landscape"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.MultiListIntPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.MultiListIntPreference
                 android:entries="@array/pref_toolbar_visibility_list"
                 android:key="toolbar_visibility_progress"
                 android:max="@integer/pref_toolbar_visibility_count"
                 android:title="@string/pref_toolbar_visibility"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.SeekbarPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
                 android:key="toolbar_size_progress"
                 android:title="@string/pref_toolbar_size"
                 app:seekMax="100"
@@ -249,40 +250,40 @@
             android:key="ps_toolbar_custom"
             android:title="@string/pref_custom_bar"
             app:iconSpaceReserved="false">
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:entries="@array/pref_toolbar_location_custom_list"
                 android:entryValues="@array/pref_toolbar_location_custom_values"
                 android:key="toolbar_location_custom1"
                 android:title="@string/pref_toolbar_location"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.IntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.IntListPreference
                 android:entryValues="@array/pref_toolbar_location_priority_values"
                 android:key="toolbar_location_priority_custom1"
                 android:title="@string/pref_toolbar_location_priority"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:entries="@array/pref_toolbar_location_custom_landscape_list"
                 android:entryValues="@array/pref_toolbar_location_custom_landscape_values"
                 android:key="toolbar_location_l_custom1"
                 android:title="@string/pref_toolbar_location_landscape"
                 app:iconSpaceReserved="false" />
-            <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
                 android:entries="@array/pref_toolbar_location_landscape_priority_list"
                 android:entryValues="@array/pref_toolbar_location_landscape_priority_values"
                 android:key="toolbar_location_l_priority_custom1"
                 android:title="@string/pref_toolbar_location_priority_landscape"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.MultiListIntPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.MultiListIntPreference
                 android:entries="@array/pref_toolbar_visibility_list"
                 android:key="toolbar_visibility_custom1"
                 android:max="@integer/pref_toolbar_visibility_count"
                 android:title="@string/pref_toolbar_visibility"
                 app:iconSpaceReserved="false" />
 
-            <jp.hazuki.yuzubrowser.ui.preference.SeekbarPreference
+            <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
                 android:key="toolbar_size_custom1"
                 android:title="@string/pref_toolbar_size"
                 app:seekMax="100"
@@ -307,28 +308,28 @@
         android:title="@string/pref_font_size"
         app:iconSpaceReserved="false">
 
-        <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+        <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
             android:entries="@array/pref_text_size_list"
             android:entryValues="@array/pref_text_size_values"
             android:key="font_size_bookmark"
             android:title="@string/pref_font_bookmark"
             app:iconSpaceReserved="false" />
 
-        <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+        <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
             android:entries="@array/pref_text_size_list"
             android:entryValues="@array/pref_text_size_values"
             android:key="font_size_history"
             android:title="@string/pref_font_history"
             app:iconSpaceReserved="false" />
 
-        <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+        <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
             android:entries="@array/pref_text_size_list"
             android:entryValues="@array/pref_text_size_values"
             android:key="font_size_menu"
             android:title="@string/pref_font_menu"
             app:iconSpaceReserved="false" />
 
-        <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+        <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
             android:entries="@array/pref_text_size_list"
             android:entryValues="@array/pref_text_size_values"
             android:key="font_size_read_it_later"
@@ -346,7 +347,7 @@
         android:title="@string/pref_touch_scrollbar"
         app:iconSpaceReserved="false">
 
-        <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+        <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
             android:entries="@array/pref_touch_scrollbar_list"
             android:entryValues="@array/pref_touch_scrollbar_values"
             android:key="touch_scrollbar"
@@ -360,13 +361,13 @@
 
     </PreferenceScreen>
 
-    <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+    <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
         android:entries="@array/pref_oritentation_list"
         android:entryValues="@array/pref_oritentation_values"
         android:key="oritentation"
         android:title="@string/pref_oritentation"
         app:iconSpaceReserved="false" />
-    <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+    <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
         android:entries="@array/pref_oritentation_list"
         android:entryValues="@array/pref_oritentation_values"
         android:key="web_customview_oritentation"
@@ -377,7 +378,7 @@
         android:key="fullscreen"
         android:title="@string/pref_fullscreen"
         app:iconSpaceReserved="false" />
-    <jp.hazuki.yuzubrowser.ui.preference.StrToIntListPreference
+    <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
         android:entries="@array/pref_fullscreen_mode_list"
         android:entryValues="@array/pref_fullscreen_mode_values"
         android:key="fullscreen_hide_mode"

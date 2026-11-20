@@ -15,35 +15,32 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+apply plugin: 'com.android.legacy-kapt'
 
 android {
-    compileSdkVersion Build.compile_sdk_version
+    namespace 'io.github.ajichama.citrusbrowser.ui'
+    compileSdk Build.compile_sdk_version
     buildToolsVersion Build.build_tools_version
 
     defaultConfig {
-        minSdkVersion Build.min_sdk_version
-        targetSdkVersion Build.target_sdk_version
-        versionCode 1
-        versionName "1.0"
+        minSdk Build.min_sdk_version
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+    testOptions {
+        targetSdk = Build.target_sdk_version
     }
 
-    kotlinOptions {
-        jvmTarget = "1.8"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -64,7 +61,6 @@ dependencies {
     implementation AndroidX.constraintLayout
     implementation AndroidX.fragmentKtx
     implementation AndroidX.fix_preference
-    implementation AndroidX.constraintLayout
     implementation AndroidX.activty
     implementation AndroidX.KTX
     implementation AndroidX.lifecycle
@@ -72,7 +68,6 @@ dependencies {
     implementation Libs.okhttp
     implementation Libs.okio
     implementation Libs.moshi
-    kapt Libs.moshiCodeGen
 
     implementation Libs.kotlin_stdlib
     implementation Libs.kotlin_coroutines

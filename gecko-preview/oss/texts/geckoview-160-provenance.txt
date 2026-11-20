@@ -1,0 +1,16 @@
+GeckoView の配布物と対応ソース
+
+配布座標: org.mozilla.geckoview:geckoview:160.0.20261116130455
+配布元: https://maven.mozilla.org/maven2/
+AAR SHA-256: dba77755f0d02ab4a19f4b8cd63e6a57accf5c44c95a040724ab4a92527e1193
+ライセンス: Mozilla Public License, v. 2.0
+
+公式 Maven POM の SCM に記録された対応ソース:
+https://hg.mozilla.org/releases/mozilla-release/rev/b1145b0710192f716be5f59f5b2dfeed650d5294
+
+出典 POM:
+https://maven.mozilla.org/maven2/org/mozilla/geckoview/geckoview/160.0.20261116130455/geckoview-160.0.20261116130455.pom
+
+この検証アプリは Mozilla の配布 AAR を使用し、Gecko エンジンを改変していません。
+Gecko に含まれる第三者ソフトウェアの著作権表示とライセンスは、プレビューの Gecko 通知（about:license）から確認できます。
+この出典情報は CitrusBrowser 側で追記したもので、Mozilla の原文を置き換えるものではありません。

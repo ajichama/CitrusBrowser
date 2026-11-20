@@ -7,7 +7,7 @@
   "local_file_info_disable": "Deaktivieren",
   "local_file_info_disable_info": "Der Zugriff ist grundsätzlich verwehrt.",
   "local_file_info_sandbox": "Im Sandkasten aktivieren",
-  "local_file_info_sandbox_info": "Zugriff nur auf externen Speicher und /data/data/jp.hazuki.yuzubrowser/app_public_html erlauben.",
+  "local_file_info_sandbox_info": "Zugriff nur auf externen Speicher und /data/data/io.github.ajichama.citrusbrowser/app_public_html erlauben.",
   "local_file_info_enable": "Aktivieren",
   "local_file_info_enable_info": "Zugriff auf alle zugänglichen Pfade erlauben.",
   "insecure": "Einstellungen bei unsicheren Inhalten auf https",

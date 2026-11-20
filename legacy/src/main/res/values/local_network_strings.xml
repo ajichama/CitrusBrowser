@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 CitrusBrowser contributors. Apache License 2.0. -->
+<resources>
+    <string name="local_network_title">Local network access</string>
+    <string name="local_network_granted">OS permission: granted. Tap to open app settings to change it.</string>
+    <string name="local_network_not_granted">OS permission: not granted. Tap when using LAN pages, downloads or subscriptions.</string>
+    <string name="local_network_explanation">This permission allows connections to devices and servers on your local network. Grant it when using LAN pages, downloads or filter subscriptions. It is not requested just for ordinary internet browsing.</string>
+    <string name="local_network_denied_explanation">Local network access was not granted. To use LAN connections, request permission again or check permissions in app settings. Opening app settings is your choice.</string>
+    <string name="local_network_granted_explanation">The OS has granted local network access. To revoke it, change the permission in app settings.</string>
+    <string name="local_network_request">Request permission</string>
+    <string name="local_network_app_settings">Open app settings</string>
+    <string name="local_network_settings_hint">Check the local network access permission in the system app information screen.</string>
+</resources>

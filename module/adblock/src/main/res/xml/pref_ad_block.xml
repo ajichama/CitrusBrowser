@@ -20,12 +20,15 @@
 
     <SwitchPreferenceCompat
         android:key="ad_block"
-        android:title="@string/pref_ad_block_enable" />
+        android:title="@string/pref_ad_block_enable"
+        android:summaryOn="@string/ad_block_enabled_summary"
+        android:summaryOff="@string/ad_block_disabled_summary" />
 
     <Preference
         android:key="abp_list"
         android:dependency="ad_block"
-        android:title="@string/pref_abp_filter"/>
+        android:title="@string/pref_abp_filter"
+        android:summary="@string/ad_block_filter_scope_summary"/>
 
     <Preference
         android:key="black_list"
@@ -49,7 +52,10 @@
 
     <SwitchPreferenceCompat
         android:key="abpUseElementHide"
-        android:title="@string/pref_ad_block_disable_cosmetic_filtering" />
+        android:dependency="ad_block"
+        android:defaultValue="true"
+        android:title="@string/ad_block_enable_cosmetic_title"
+        android:summary="@string/ad_block_cosmetic_summary" />
 
     <SwitchPreferenceCompat
         android:key="abpUpdateWifiOnly"

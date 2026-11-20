@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2026 CitrusBrowser contributors
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FFB832" android:pathData="M 77.3 43.5 C 72.4 35.8 64 31 54 31 C 39.1 31 27 43.1 27 58 C 27 72.9 39.1 85 54 85 C 64 85 72.4 80.2 77.3 72.5 L 67.2 66.2 C 64.5 70.6 59.6 73.5 54 73.5 C 45.4 73.5 38.5 66.6 38.5 58 C 38.5 49.4 45.4 42.5 54 42.5 C 59.6 42.5 64.5 45.4 67.2 49.8 Z" />
+    <path android:fillColor="#B8E46B" android:pathData="M 54 34 C 54 25 63 23 72 27 C 72 36 63 39 54 34 Z" />
+</vector>

@@ -1,20 +1,19 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
-title: ''
+name: 機能要望 (Feature Request)
+about: CitrusBrowser への新機能や改善アイデアを提案します
+title: '[Feature] '
 labels: enhancement
 assignees: ''
-
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## 解決したい課題・背景
+現在の挙動で不便に感じている点や、この機能が必要となる背景・ユースケースを記述してください。
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+## 提案する機能・解決策
+どのような機能やUI・設定項目を追加・改善してほしいか、具体的に記述してください。
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+## 代替案（もしあれば）
+他に検討した方法や、他ブラウザでの類似実装例などがあれば記載してください。
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+## 補足情報・モックアップ
+イメージ図やスクリーンショット等があれば添付してください。

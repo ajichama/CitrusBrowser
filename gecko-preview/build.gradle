@@ -1,0 +1,86 @@
+/* Copyright (C) 2026 CitrusBrowser contributors. Apache License 2.0. */
+apply plugin: 'com.android.application'
+
+// 本体とは別の固定通知を使い、候補更新だけを明示タスクへ分離する。
+def checkAllOss = tasks.register('checkOssNotices')
+def updateAllOss = tasks.register('updateOssNotices')
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        def variantTitle = variant.name.capitalize()
+        def externalArtifacts = variant.runtimeConfiguration.incoming.artifactView {
+            componentFilter { it instanceof org.gradle.api.artifacts.component.ModuleComponentIdentifier }
+        }.artifacts
+        def notices = tasks.register("generate${variantTitle}OssNotices", GenerateOssNotices) {
+            runtimeComponents.set(externalArtifacts.resolvedArtifacts.map { OssRuntimeGraph.coordinates(it) })
+            documentTitle.set('ライブラリのライセンス')
+            inputRoot.set(layout.projectDirectory)
+            fixedInputs.from(fileTree('oss'), fileTree('html/license'))
+            outputDirectory.set(layout.buildDirectory.dir("generated/oss/${variant.name}/assets"))
+            reportDirectory.set(layout.buildDirectory.dir("reports/oss/${variant.name}"))
+        }
+        variant.sources.assets.addGeneratedSourceDirectory(notices, { it.outputDirectory })
+        def checkNotices = tasks.register("check${variantTitle}OssNotices", CheckOssNotices) {
+            reports.from(notices.flatMap { it.reportDirectory.file('missing.txt') })
+        }
+        checkAllOss.configure { dependsOn(checkNotices) }
+        def updateNotices = tasks.register("update${variantTitle}OssNotices", UpdateOssNotices) {
+            runtimeArtifacts = externalArtifacts
+            dependencies = project.dependencies
+            offline.set(gradle.startParameter.offline)
+            outputDirectory.set(layout.buildDirectory.dir("oss-review/${variant.name}"))
+        }
+        updateAllOss.configure { dependsOn(updateNotices) }
+        def verifyPackaging = tasks.register("verify${variantTitle}BuiltinUblockPackaging", VerifyBuiltinUblockPackaging) {
+            // 検証済み生成出力を使い、ダウンロードキャッシュの有無には依存しない。
+            expectedAssets.set(project(':module:gecko').layout.buildDirectory.dir('generated/assets/builtin-ublock'))
+            apkDirectory.set(variant.artifacts.get(com.android.build.api.artifact.SingleArtifact.APK.INSTANCE))
+            reportFile.set(layout.buildDirectory.file("reports/builtin-ublock/${variant.name}.txt"))
+            dependsOn(':module:gecko:prepareBuiltinUblock')
+        }
+        tasks.matching { it.name == "assemble${variantTitle}" }.configureEach { dependsOn(verifyPackaging) }
+    }
+}
+
+repositories {
+    maven {
+        url 'https://maven.mozilla.org/maven2/'
+        content { includeGroup 'org.mozilla.geckoview' }
+    }
+}
+
+android {
+    namespace 'io.github.ajichama.citrusbrowser.geckopreview'
+    compileSdk {
+        version = release(GeckoPreview.compileSdk) {
+            minorApiLevel = GeckoPreview.compileMinorSdk
+        }
+    }
+    defaultConfig {
+        applicationId 'io.github.ajichama.citrusbrowser.geckopreview'
+        minSdk GeckoPreview.minSdk
+        targetSdk Build.target_sdk_version
+        versionCode 1
+        versionName '0.1.0-preview'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildTypes {
+        // debug は実機 arm64 とエミュレーター x86_64 だけを梱包する。release の ABI は変更しない。
+        debug { ndk { abiFilters.addAll(['arm64-v8a', 'x86_64']) } }
+        release { minifyEnabled false }
+    }
+    androidResources {
+        // 最終アプリ側でも _locales を落とさず、他の既定除外を維持する。
+        ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+    }
+}
+
+dependencies {
+    implementation project(':module:gecko')
+    androidTestImplementation Libs.androidTestCore
+    androidTestImplementation Libs.androidRunner
+    androidTestImplementation Libs.androidInstrumentationRunner
+}

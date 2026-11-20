@@ -7,7 +7,7 @@
 
         <variable
             name="model"
-            type="jp.hazuki.yuzubrowser.legacy.databinding.ScrollEditTextModel" />
+            type="io.github.ajichama.citrusbrowser.legacy.databinding.ScrollEditTextModel" />
     </data>
 
     <ScrollView

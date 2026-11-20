@@ -1,0 +1,25 @@
+/* Copyright (C) 2026 CitrusBrowser contributors. Apache License 2.0. */
+apply plugin: 'com.android.application'
+
+android {
+    namespace 'io.github.ajichama.citrusbrowser.geckouiprobe'
+    // Java/framework だけを使い、Kotlin stdlib の自動依存も追加しない。
+    enableKotlin = false
+    compileSdk Build.compile_sdk_version
+    defaultConfig {
+        applicationId 'io.github.ajichama.citrusbrowser.geckouiprobe'
+        minSdk GeckoPreview.minSdk
+        targetSdk Build.target_sdk_version
+        versionCode 1
+        versionName '0.1.0-probe'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+// 開発者が明示ビルド・直接導入する debug APK だけを作る。配布用 release variant は作らない。
+androidComponents {
+    beforeVariants(selector().withBuildType('release')) { variant -> variant.enable = false }
+}

@@ -1,0 +1,48 @@
+/* Copyright (C) 2026 CitrusBrowser contributors. Apache License 2.0. */
+apply plugin: 'com.android.library'
+
+repositories {
+    maven {
+        url 'https://maven.mozilla.org/maven2/'
+        content { includeGroup 'org.mozilla.geckoview' }
+    }
+}
+
+android {
+    namespace 'io.github.ajichama.citrusbrowser.gecko'
+    compileSdk {
+        version = release(GeckoPreview.compileSdk) {
+            minorApiLevel = GeckoPreview.compileMinorSdk
+        }
+    }
+    defaultConfig { minSdk GeckoPreview.minSdk }
+    testOptions { targetSdk = Build.target_sdk_version }
+    androidResources {
+        // 既定の <dir>_* だけを外し、原本の _locales を保持する。他の除外は維持する。
+        ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+def prepareBuiltinUblock = tasks.register('prepareBuiltinUblock', PrepareBuiltinUblock) {
+    extensionVersion.set(GeckoPreview.ublockVersion)
+    archiveSha256.set(GeckoPreview.ublockSha256)
+    archiveUrl.set(GeckoPreview.ublockUrl)
+    sourceUrl.set(GeckoPreview.ublockSource)
+    offline.set(gradle.startParameter.offline)
+    downloadDirectory.set(layout.buildDirectory.dir('builtin-ublock/download'))
+    outputDirectory.set(layout.buildDirectory.dir('generated/assets/builtin-ublock'))
+}
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets.addGeneratedSourceDirectory(prepareBuiltinUblock, { it.outputDirectory })
+    }
+}
+
+dependencies {
+    // Host の公開 API と preview の GeckoView が同じ Gecko 型を利用する。
+    api GeckoPreview.geckoview
+}

@@ -22,11 +22,11 @@
 
         <variable
             name="adapter"
-            type="jp.hazuki.yuzubrowser.search.presentation.search.SearchSuggestAdapter"/>
+            type="io.github.ajichama.citrusbrowser.search.presentation.search.SearchSuggestAdapter"/>
 
         <variable
             name="model"
-            type="jp.hazuki.yuzubrowser.search.presentation.search.SearchViewModel"/>
+            type="io.github.ajichama.citrusbrowser.search.presentation.search.SearchViewModel"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -43,7 +43,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
-        <jp.hazuki.yuzubrowser.ui.widget.recycler.OutSideClickableRecyclerView
+        <io.github.ajichama.citrusbrowser.ui.widget.recycler.OutSideClickableRecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"

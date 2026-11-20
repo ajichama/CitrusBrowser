@@ -15,15 +15,23 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion Integer.parseInt(project.android_compile_sdk_version)
-    buildToolsVersion project.android_build_tools_version
+    namespace 'jp.hazuki.asyncpermissions'
+    compileSdk Build.compile_sdk_version
+    buildToolsVersion Build.build_tools_version
 
     defaultConfig {
-        minSdkVersion Integer.parseInt(project.android_min_sdk_version)
-        targetSdkVersion Integer.parseInt(project.android_target_sdk_version)
+        minSdk Build.min_sdk_version
+    }
+
+    testOptions {
+        targetSdk = Build.target_sdk_version
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 

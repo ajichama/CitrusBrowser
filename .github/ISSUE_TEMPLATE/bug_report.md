@@ -1,32 +1,31 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
+name: 不具合報告 (Bug Report)
+about: CitrusBrowser の不具合・クラッシュを報告します
+title: '[Bug] '
 labels: bug
 assignees: ''
-
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## 不具合の概要
+発生している不具合やクラッシュの内容を簡潔に記述してください。
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+## 再現手順
+問題が発生するまでの操作手順を記載してください：
+1. 「...」を開く
+2. 「...」をタップする
+3. 「...」までスクロールする
+4. エラーが発生する
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## 期待される動作
+本来どのように動作すべきかを記述してください。
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+## スクリーンショット・ログ
+画面のスクリーンショットや、クラッシュ時のログ（logcat）があれば貼り付けてください。
 
-**Device information (please complete the following information):**
- - Device: [e.g. Google Pixel 5]
- - OS: [e.g. Android 11]
- - Browser version [e.g. 6.0.0]
+## 端末・環境情報
+- **端末名**: [例: Google Pixel 9]
+- **Android バージョン**: [例: Android 16 / Android 17]
+- **CitrusBrowser バージョン**: [例: 6.0.2（設定 ＞ ブラウザについて ＞ バージョン から確認）]
 
-**Additional context**
-Add any other context about the problem here.
+## 補足情報
+特定のURLや特定の設定（AdBlock有効時、特定のユーザースクリプト使用時など）でのみ発生する場合は、その詳細を記載してください。

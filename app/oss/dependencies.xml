@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<components version="1">
+  <component id="androidx.activity:activity-ktx:1.9.3" name="Activity Kotlin Extensions" url="https://developer.android.com/jetpack/androidx/releases/activity#1.9.3">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.activity:activity:1.9.3" name="Activity" url="https://developer.android.com/jetpack/androidx/releases/activity#1.9.3">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.annotation:annotation-experimental:1.5.0" name="Experimental annotation" url="https://developer.android.com/jetpack/androidx/releases/annotation#1.5.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.annotation:annotation-experimental:1.5.0!/META-INF/androidx/annotation/annotation-experimental/LICENSE.txt" />
+  </component>
+  <component id="androidx.annotation:annotation-jvm:1.9.1" name="Annotation" url="https://developer.android.com/jetpack/androidx/releases/annotation#1.9.1">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.annotation:annotation-jvm:1.9.1!/META-INF/androidx/annotation/annotation/LICENSE.txt" />
+  </component>
+  <component id="androidx.appcompat:appcompat-resources:1.7.0" name="AppCompat Resources" url="https://developer.android.com/jetpack/androidx/releases/appcompat#1.7.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.appcompat:appcompat:1.7.0" name="AppCompat" url="https://developer.android.com/jetpack/androidx/releases/appcompat#1.7.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.arch.core:core-common:2.2.0" name="Android Arch-Common" url="https://developer.android.com/jetpack/androidx/releases/arch-core#2.2.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.arch.core:core-runtime:2.2.0" name="Android Arch-Runtime" url="https://developer.android.com/jetpack/androidx/releases/arch-core#2.2.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.cardview:cardview:1.0.0" name="Android Support CardView v7" url="http://developer.android.com/tools/extras/support-library.html">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.collection:collection-jvm:1.5.0" name="collections" url="https://developer.android.com/jetpack/androidx/releases/collection#1.5.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.collection:collection-jvm:1.5.0!/META-INF/androidx/collection/collection/LICENSE.txt" />
+  </component>
+  <component id="androidx.collection:collection-ktx:1.5.0" name="Collections Kotlin Extensions" url="https://developer.android.com/jetpack/androidx/releases/collection#1.5.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.collection:collection-ktx:1.5.0!/META-INF/androidx/collection/collection-ktx/LICENSE.txt" />
+  </component>
+  <component id="androidx.concurrent:concurrent-futures-ktx:1.1.0" name="AndroidX Futures Kotlin Extensions" url="https://developer.android.com/topic/libraries/architecture/index.html">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.concurrent:concurrent-futures:1.1.0" name="AndroidX Futures" url="https://developer.android.com/topic/libraries/architecture/index.html">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.constraintlayout:constraintlayout-core:1.1.1" name="ConstraintLayout Core" url="https://developer.android.com/jetpack/androidx/releases/constraintlayout#1.1.1">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.constraintlayout:constraintlayout-core:1.1.1!/META-INF/androidx/constraintlayout/constraintlayout-core/LICENSE.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.constraintlayout:constraintlayout:2.2.1" name="ConstraintLayout" url="https://developer.android.com/jetpack/androidx/releases/constraintlayout#2.2.1">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.constraintlayout:constraintlayout:2.2.1!/META-INF/androidx/constraintlayout/constraintlayout/LICENSE.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.coordinatorlayout:coordinatorlayout:1.1.0" name="Android Support Library Coordinator Layout" url="https://developer.android.com/jetpack/androidx">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.core:core-ktx:1.16.0" name="Core Kotlin Extensions" url="https://developer.android.com/jetpack/androidx/releases/core#1.16.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.core:core-ktx:1.16.0!/META-INF/androidx/core/core-ktx/LICENSE.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.core:core-viewtree:1.0.0" name="androidx.core:core-viewtree" url="https://developer.android.com/jetpack/androidx/releases/core#1.0.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.core:core-viewtree:1.0.0!/META-INF/androidx/core/core-viewtree/LICENSE.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.core:core:1.16.0" name="Core" url="https://developer.android.com/jetpack/androidx/releases/core#1.16.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.core:core:1.16.0!/META-INF/androidx/core/core/LICENSE.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.cursoradapter:cursoradapter:1.0.0" name="Android Support Library Cursor Adapter" url="http://developer.android.com/tools/extras/support-library.html">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.customview:customview-poolingcontainer:1.0.0" name="androidx.customview:poolingcontainer" url="https://developer.android.com/jetpack/androidx/releases/customview#1.0.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.customview:customview:1.2.0" name="Custom View" url="https://developer.android.com/jetpack/androidx/releases/customview#1.2.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.customview:customview:1.2.0!/META-INF/androidx/customview/customview/LICENSE.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.databinding:databinding-adapters:9.5.1" name="databinding-adapters" url="">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.databinding:databinding-common:9.5.1" name="androidx.databinding.databinding-common" url="http://tools.android.com/">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="NOTICE" path="oss/texts/9ff463305b708a8b546b2100a945334e9cd72df1e5d2bd9389d881d9a922ac2d.txt" sha256="9ff463305b708a8b546b2100a945334e9cd72df1e5d2bd9389d881d9a922ac2d" source="androidx.databinding:databinding-common:9.5.1!/NOTICE" />
+  </component>
+  <component id="androidx.databinding:databinding-ktx:9.5.1" name="databinding-ktx" url="">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.databinding:databinding-runtime:9.5.1" name="databinding-runtime" url="">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.databinding:viewbinding:9.5.1" name="viewbinding" url="">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.documentfile:documentfile:1.0.1" name="Android Support Library Document File" url="http://developer.android.com/tools/extras/support-library.html">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.drawerlayout:drawerlayout:1.1.1" name="Android Support Library Drawer Layout" url="https://developer.android.com/jetpack/androidx">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.dynamicanimation:dynamicanimation:1.1.0" name="DynamicAnimation" url="https://developer.android.com/jetpack/androidx/releases/dynamicanimation#1.1.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.dynamicanimation:dynamicanimation:1.1.0!/META-INF/androidx/dynamicanimation/dynamicanimation/LICENSE.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.emoji2:emoji2-views-helper:1.3.0" name="Android Emoji2 Compat view helpers" url="https://developer.android.com/jetpack/androidx/releases/emoji2#1.3.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.emoji2:emoji2:1.3.0" name="Android Emoji2 Compat" url="https://developer.android.com/jetpack/androidx/releases/emoji2#1.3.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.fragment:fragment-ktx:1.8.5" name="Fragment Kotlin Extensions" url="https://developer.android.com/jetpack/androidx/releases/fragment#1.8.5">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.fragment:fragment:1.8.5" name="fragment" url="https://developer.android.com/jetpack/androidx/releases/fragment#1.8.5">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.graphics:graphics-shapes-android:1.0.1" name="Graphics Shapes" url="https://developer.android.com/jetpack/androidx/releases/graphics#1.0.1">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.graphics:graphics-shapes-android:1.0.1!/META-INF/androidx/graphics/graphics-shapes/LICENSE.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.interpolator:interpolator:1.0.0" name="Android Support Library Interpolators" url="http://developer.android.com/tools/extras/support-library.html">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.lifecycle:lifecycle-common-java8:2.8.7" name="Lifecycle-Common for Java 8" url="https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.7">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.lifecycle:lifecycle-common-jvm:2.8.7" name="Lifecycle-Common" url="https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.7">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.7" name="LiveData Core Kotlin Extensions" url="https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.7">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.lifecycle:lifecycle-livedata-core:2.8.7" name="Lifecycle LiveData Core" url="https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.7">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.lifecycle:lifecycle-livedata:2.8.7" name="Lifecycle LiveData" url="https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.7">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.lifecycle:lifecycle-process:2.8.7" name="Lifecycle Process" url="https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.7">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.lifecycle:lifecycle-runtime-android:2.8.7" name="Lifecycle Runtime" url="https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.7">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.7" name="Lifecycle Kotlin Extensions" url="https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.7">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.lifecycle:lifecycle-service:2.8.7" name="Lifecycle Service" url="https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.7">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.lifecycle:lifecycle-viewmodel-android:2.8.7" name="Lifecycle ViewModel" url="https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.7">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7" name="Lifecycle ViewModel Kotlin Extensions" url="https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.7">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7" name="Lifecycle ViewModel with SavedState" url="https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.7">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.lifecycle:lifecycle-viewmodel:2.8.7" name="Lifecycle ViewModel" url="https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.7">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.loader:loader:1.0.0" name="Android Support Library loader" url="http://developer.android.com/tools/extras/support-library.html">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.preference:preference-ktx:1.2.1" name="Android Preferences KTX" url="https://developer.android.com/jetpack/androidx/releases/preference#1.2.1">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.preference:preference:1.2.1" name="AndroidX Preference" url="https://developer.android.com/jetpack/androidx/releases/preference#1.2.1">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.print:print:1.0.0" name="Android Support Library Print" url="http://developer.android.com/tools/extras/support-library.html">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.profileinstaller:profileinstaller:1.4.0" name="Profile Installer" url="https://developer.android.com/jetpack/androidx/releases/profileinstaller#1.4.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.profileinstaller:profileinstaller:1.4.0!/META-INF/androidx/profileinstaller/profileinstaller/LICENSE.txt" />
+  </component>
+  <component id="androidx.recyclerview:recyclerview:1.3.2" name="Android Support RecyclerView" url="https://developer.android.com/jetpack/androidx/releases/recyclerview#1.3.2">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.resourceinspection:resourceinspection-annotation:1.0.1" name="Android Resource Inspection - Annotations" url="https://developer.android.com/jetpack/androidx/releases/resourceinspection#1.0.1">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.room:room-common-jvm:2.8.5" name="Room-Common" url="https://developer.android.com/jetpack/androidx/releases/room#2.8.5">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.room:room-common-jvm:2.8.5!/META-INF/androidx/room/room-common/LICENSE.txt" />
+  </component>
+  <component id="androidx.room:room-ktx:2.8.5" name="Room Kotlin Extensions" url="https://developer.android.com/jetpack/androidx/releases/room#2.8.5">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.room:room-ktx:2.8.5!/META-INF/androidx/room/room-ktx/LICENSE.txt" />
+  </component>
+  <component id="androidx.room:room-runtime-android:2.8.5" name="Room-Runtime" url="https://developer.android.com/jetpack/androidx/releases/room#2.8.5">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.room:room-runtime-android:2.8.5!/META-INF/androidx/room/room-runtime/LICENSE.txt" />
+  </component>
+  <component id="androidx.savedstate:savedstate-ktx:1.2.1" name="SavedState Kotlin Extensions" url="https://developer.android.com/jetpack/androidx/releases/savedstate#1.2.1">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.savedstate:savedstate:1.2.1" name="Saved State" url="https://developer.android.com/jetpack/androidx/releases/savedstate#1.2.1">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.slidingpanelayout:slidingpanelayout:1.2.0" name="Android Support Library Sliding Pane Layout" url="https://developer.android.com/jetpack/androidx/releases/slidingpanelayout#1.2.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.sqlite:sqlite-android:2.6.2" name="SQLite" url="https://developer.android.com/jetpack/androidx/releases/sqlite#2.6.2">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.sqlite:sqlite-android:2.6.2!/META-INF/androidx/sqlite/sqlite/LICENSE.txt" />
+  </component>
+  <component id="androidx.sqlite:sqlite-framework-android:2.6.2" name="SQLite Framework Integration" url="https://developer.android.com/jetpack/androidx/releases/sqlite#2.6.2">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.sqlite:sqlite-framework-android:2.6.2!/META-INF/androidx/sqlite/sqlite-framework/LICENSE.txt" />
+  </component>
+  <component id="androidx.startup:startup-runtime:1.1.1" name="Android App Startup Runtime" url="https://developer.android.com/jetpack/androidx/releases/startup#1.1.1">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.swiperefreshlayout:swiperefreshlayout:1.1.0" name="Android Support Library Custom View" url="https://developer.android.com/jetpack/androidx">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.tracing:tracing-ktx:1.2.0" name="Android Tracing Runtime Kotlin Extensions" url="https://developer.android.com/jetpack/androidx/releases/tracing#1.2.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.tracing:tracing:1.2.0" name="Android Tracing" url="https://developer.android.com/jetpack/androidx/releases/tracing#1.2.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.transition:transition:1.5.0" name="Transition" url="https://developer.android.com/jetpack/androidx/releases/transition#1.5.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.vectordrawable:vectordrawable-animated:1.1.0" name="Android Support AnimatedVectorDrawable" url="https://developer.android.com/jetpack/androidx">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.vectordrawable:vectordrawable:1.1.0" name="Android Support VectorDrawable" url="https://developer.android.com/jetpack/androidx">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.versionedparcelable:versionedparcelable:1.1.1" name="VersionedParcelable" url="http://developer.android.com/tools/extras/support-library.html">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.viewpager2:viewpager2:1.1.0-beta02" name="ViewPager2" url="https://developer.android.com/jetpack/androidx/releases/viewpager2#1.1.0-beta02">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.viewpager:viewpager:1.0.0" name="Android Support Library View Pager" url="http://developer.android.com/tools/extras/support-library.html">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.webkit:webkit:1.15.0" name="WebKit" url="https://developer.android.com/jetpack/androidx/releases/webkit#1.15.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.webkit:webkit:1.15.0!/META-INF/androidx/webkit/webkit/LICENSE.txt" />
+  </component>
+  <component id="androidx.window:window:1.0.0" name="Jetpack WindowManager Library" url="https://developer.android.com/jetpack/androidx/releases/window#1.0.0">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="androidx.work:work-runtime:2.11.2" name="WorkManager Runtime" url="https://developer.android.com/jetpack/androidx/releases/work#2.11.2">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0.txt" sha256="809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0" source="androidx.work:work-runtime:2.11.2!/META-INF/androidx/work/work-runtime/LICENSE.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="ca.barrenechea.header-decor:header-decor:0.2.8" name="Header decor Library" url="https://github.com/edubarr/header-decor">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="com.github.turing-tech:MaterialScrollBar:13.3.4" name="turing-tech/MaterialScrollBar" url="https://github.com/turing-tech/MaterialScrollBar">
+    <license name="Apache License 2.0" url="https://api.github.com/licenses/apache-2.0" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="com.google.android.material:material:1.14.0" name="Material Components for Android" url="https://github.com/material-components/material-components-android">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="com.google.code.findbugs:jsr305:3.0.2" name="FindBugs-jsr305" url="http://findbugs.sourceforge.net/">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="com.google.dagger:dagger-lint-aar:2.60.1" name="Dagger Lint Rules AAR Distribution" url="https://github.com/google/dagger">
+    <license name="Apache 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="com.google.dagger:dagger:2.60.1" name="Dagger" url="https://github.com/google/dagger">
+    <license name="Apache 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="com.google.dagger:hilt-android:2.60.1" name="Hilt Android" url="https://github.com/google/dagger">
+    <license name="Apache 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="com.google.dagger:hilt-core:2.60.1" name="Hilt Core" url="https://github.com/google/dagger">
+    <license name="Apache 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="com.google.errorprone:error_prone_annotations:2.15.0" name="error-prone annotations" url="">
+    <license name="Apache 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="com.google.guava:listenablefuture:1.0" name="Guava ListenableFuture only" url="">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="com.google.re2j:re2j:1.8" name="RE2/J" url="http://github.com/google/re2j">
+    <license name="Go License" url="https://golang.org/LICENSE" />
+    <document kind="LICENSE" path="oss/texts/re2j-1.8-LICENSE.txt" sha256="26a6133577cc8e48d7c002ac4d4a554786e7c0e1732e10f2db205e5e494c411b" source="https://raw.githubusercontent.com/google/re2j/re2j-1.8/LICENSE" />
+  </component>
+  <component id="com.squareup.moshi:moshi:1.15.2" name="moshi" url="https://github.com/square/moshi/">
+    <license name="The Apache Software License, Version 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="com.squareup.okhttp3:okhttp:4.12.0" name="okhttp" url="https://square.github.io/okhttp/">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="NOTICE" path="oss/texts/8a9c58fbded5ea3474315e4a9824ca8b1486098a1a03e897e0b19419d5e1876a.txt" sha256="8a9c58fbded5ea3474315e4a9824ca8b1486098a1a03e897e0b19419d5e1876a" source="com.squareup.okhttp3:okhttp:4.12.0!/okhttp3/internal/publicsuffix/NOTICE" />
+  </component>
+  <component id="com.squareup.okio:okio-jvm:3.9.1" name="okio" url="https://github.com/square/okio/">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="jakarta.inject:jakarta.inject-api:2.0.1" name="Jakarta Dependency Injection" url="https://github.com/eclipse-ee4j/injection-api">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="jakarta.inject:jakarta.inject-api:2.0.1!/META-INF/LICENSE.txt" />
+    <document kind="NOTICE" path="oss/texts/992ed62dd3ee17d73ce6a4a5e02dd0fed9eb326bf386aa5304e6a512214df540.txt" sha256="992ed62dd3ee17d73ce6a4a5e02dd0fed9eb326bf386aa5304e6a512214df540" source="jakarta.inject:jakarta.inject-api:2.0.1!/META-INF/NOTICE.md" />
+  </component>
+  <component id="javax.inject:javax.inject:1" name="javax.inject" url="http://code.google.com/p/atinject/">
+    <license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="org.jetbrains.kotlin:kotlin-parcelize-runtime:2.4.21" name="Parcelize Runtime" url="https://kotlinlang.org/">
+    <license name="Apache-2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22" name="Kotlin Stdlib Jdk7" url="https://kotlinlang.org/">
+    <license name="The Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22" name="Kotlin Stdlib Jdk8" url="https://kotlinlang.org/">
+    <license name="The Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="org.jetbrains.kotlin:kotlin-stdlib:2.4.21" name="Kotlin Stdlib" url="https://kotlinlang.org/">
+    <license name="Apache-2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2" name="kotlinx-coroutines-android" url="https://github.com/Kotlin/kotlinx.coroutines">
+    <license name="Apache-2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2" name="kotlinx-coroutines-core" url="https://github.com/Kotlin/kotlinx.coroutines">
+    <license name="Apache-2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="org.jetbrains:annotations:23.0.0" name="JetBrains Java Annotations" url="https://github.com/JetBrains/java-annotations">
+    <license name="The Apache Software License, Version 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+  <component id="org.jsoup:jsoup:1.18.3" name="jsoup Java HTML Parser" url="https://jsoup.org/">
+    <license name="The MIT License" url="https://jsoup.org/license" />
+    <document kind="LICENSE" path="oss/texts/7b175df01644812d2163a51c0cf1a2d1b93433585dabd2a4a80494f84cba085a.txt" sha256="7b175df01644812d2163a51c0cf1a2d1b93433585dabd2a4a80494f84cba085a" source="org.jsoup:jsoup:1.18.3!/META-INF/LICENSE" />
+  </component>
+  <component id="org.jspecify:jspecify:1.0.0" name="JSpecify annotations" url="http://jspecify.org/">
+    <license name="The Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <document kind="LICENSE" path="oss/texts/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30.txt" sha256="cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30" source="http://www.apache.org/licenses/LICENSE-2.0.txt" />
+  </component>
+</components>

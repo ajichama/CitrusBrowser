@@ -1,0 +1,150 @@
+/*
+ * Copyright (C) 2017-2019 Hazuki
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.github.ajichama.citrusbrowser.search.presentation.settings
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.MenuProvider
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
+import io.github.ajichama.citrusbrowser.favicon.FaviconManager
+import io.github.ajichama.citrusbrowser.search.R
+import io.github.ajichama.citrusbrowser.search.databinding.SearchSettingsFragmentBinding
+import io.github.ajichama.citrusbrowser.search.model.provider.SearchUrl
+import io.github.ajichama.citrusbrowser.ui.dialog.DeleteDialogCompat
+import io.github.ajichama.citrusbrowser.ui.widget.recycler.RecyclerMenu
+import javax.inject.Inject
+
+@AndroidEntryPoint
+class SearchUrlListFragment : Fragment(), SearchSettingDialog.OnUrlEditedListener, RecyclerMenu.OnRecyclerMenuListener, DeleteDialogCompat.OnDelete, SearchUrlAdapter.OnSearchUrlClickListener {
+
+    private lateinit var binding: SearchSettingsFragmentBinding
+    private val viewModel by viewModels<SearchSettingsViewModel>(factoryProducer = { factory })
+
+    @Inject
+    internal lateinit var factory: SearchSettingsViewModel.Factory
+
+    @Inject
+    internal lateinit var faviconManager: FaviconManager
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val activity = requireActivity()
+
+        viewModel.removedItem.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
+            Snackbar.make(binding.root, R.string.deleted, Snackbar.LENGTH_SHORT)
+                .setAction(R.string.undo) {
+                    viewModel.resetRemovedItem()
+                }
+                .show()
+        }
+        viewModel.onFabClick.observe(viewLifecycleOwner) {
+            SearchSettingDialog.newInstance(-1, null).show(childFragmentManager, "edit")
+        }
+
+        val binding = binding
+        binding.lifecycleOwner = this
+        binding.adapter = SearchUrlAdapter(faviconManager, this)
+        binding.model = viewModel
+
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
+        val touchHelper = ItemTouchHelper(viewModel.touchHelperCallback)
+        binding.recyclerView.addItemDecoration(touchHelper)
+        touchHelper.attachToRecyclerView(binding.recyclerView)
+
+        viewModel.init()
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.add(Menu.NONE, MENU_RESET, Menu.NONE, R.string.search_reset_defaults)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (menuItem.itemId != MENU_RESET) return false
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.search_reset_defaults)
+                    .setMessage(R.string.search_reset_defaults_message)
+                    .setPositiveButton(R.string.search_reset_defaults) { _, _ ->
+                        val message = if (viewModel.resetToDefaults()) R.string.search_reset_defaults_done else R.string.search_reset_defaults_failed
+                        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+                return true
+            }
+        }, viewLifecycleOwner)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.onResume()
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return SearchSettingsFragmentBinding.inflate(inflater, container, false).let {
+            binding = it
+            it.root
+        }
+    }
+
+    override fun onEdit(position: Int, searchUrl: SearchUrl) {
+        SearchSettingDialog.newInstance(position, searchUrl).show(childFragmentManager, "edit")
+    }
+
+    override fun onOpenMenu(view: View, position: Int) {
+        RecyclerMenu(requireActivity(), view, position, this, viewModel).show()
+    }
+
+    override fun onUrlEdited(index: Int, url: SearchUrl) {
+        if (index >= 0) {
+            viewModel.update(index, url)
+        } else {
+            viewModel.add(url)
+        }
+    }
+
+    override fun onDeleteClicked(position: Int) {
+        if (viewModel.size > 1) {
+            DeleteDialogCompat.newInstance(context, R.string.confirm, R.string.confirm_delete_search_url, position)
+                .show(childFragmentManager, "delete")
+        }
+    }
+
+    override fun onDelete(position: Int) {
+        if (viewModel.size > position) {
+            viewModel.remove(position)
+        }
+    }
+
+    private companion object {
+        const val MENU_RESET = 1
+    }
+}

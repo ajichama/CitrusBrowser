@@ -21,7 +21,7 @@
 
         <variable
             name="model"
-            type="jp.hazuki.yuzubrowser.legacy.debug.file.FileEditViewModel" />
+            type="io.github.ajichama.citrusbrowser.legacy.debug.file.FileEditViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

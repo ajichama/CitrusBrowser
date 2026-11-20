@@ -6,7 +6,7 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <jp.hazuki.yuzubrowser.ui.widget.FullFillTextView
+    <io.github.ajichama.citrusbrowser.ui.widget.FullFillTextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

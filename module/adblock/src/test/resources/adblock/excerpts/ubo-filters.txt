@@ -1,0 +1,67 @@
+! 出典: uBlock filters (https://ublockorigin.github.io/uAssets/filters/filters.txt と同ディレクトリの filters-general.txt / filters-2021.txt / filters-2022.txt, 2026-11-18 版)
+! ライセンス: GPLv3 (https://github.com/uBlockOrigin/uAssets/blob/master/LICENSE)。単体テスト専用の抜粋で APK には含めない。
+! 前半40行は filters.txt 有効行からの等間隔抽出、後半は構文別に選んだ実在行。
+! --- sampled ---
+*_ad_$media,domain=youtube.com,3p
+indiatoday.in,intoday.in###adbocker_alt
+usatoday.com##.gnt_n:style(top: 0 !important; margin-top: 0 !important;)
+*/plugin/advertisement/$image
+alrincon.com##+js(aopr, open)
+pornxs.com##+js(acs, ExoLoader)
+pornhd.com,pornhdin.com##+js(aopr, ExoLoader.serve)
+angrybirdsnest.com##+js(set, adblock, false)
+sextingforum.net##+js(aopw, stagedPopUnder)
+@@||schwaebische.de/*/ad$script,1p
+tubous.com###good_money
+tubsexer.*##.table
+@@||storage.oraclecloud.com/*/smartclip-services/sc_player/$script,1p
+||googlesyndication.com/pagead/js/adsbygoogle.js$script,redirect=noopjs:10,domain=arlinadzgn.com|idntheme.com
+vinaurl.*##+js(ra, onmousemove, button)
+||voirfilms.*/sw.js
+duellinksmeta.com##div.ad-slot
+twatis.com##+js(aopr, ExoLoader.addZone)
+caminspector.net,camvideos.org##.place
+@@||wordgames.com^$ghide
+freecoursesite.com##+js(nostif, show)
+watchfree.*###vpnvpn
+dutchycorp.*##[class$="-page"] center > p
+link-to.net##.ad-block-1
+diariodenavarra.es##+js(aeld, DOMContentLoaded, /adblock/i)
+produktion.de##+js(set, adblock, false)
+*$image,domain=krunker.io,redirect-rule=1x1.gif
+softwarecrackguru.com##+js(aopw, downloadJSAtOnload)
+washingtonpost.com##+js(acs, document.createElement, 'overlay')
+@@||footprint.net^$xhr,domain=prod-player.tf1.fr
+pornclassic.tube,tubepornclassic.com##div[style="width: 300px; height: 250px;"]
+coinlyhub.com##div.highlight
+@@||jwpcdn.com/player/$script,domain=digisport.ro
+@@||naruto-arena.net^$script,1p
+cybertechng.com##+js(set, go_popup, {})
+@@||evileaks.*^$ghide
+||imasdk.googleapis.com/js/sdkloader/ima3.js$script,redirect=noopjs,domain=881903.com
+hostingunlock.com##+js(acs, $, show)
+atdhe.*##+js(popads-dummy)
+@@||sledujserialy.*^$script,1p
+! --- targeted ---
+||static.clmbtech.com^$script,important,domain=indiatimes.com
+*/fuckadblock-$script,redirect=fuckadblock.js-3.2.0:5
+||uim.tifbs.net/js/*.js$script,redirect=noopjs,domain=gmx.*|web.de
+@@*$ghide,domain=web.de|gmx.*
+||topblockchainsolutions.*^$all
+||malayalam.samayam.com/*/amazon_widget.cms?type=amazondeal$frame
+||cdn.jsdelivr.net/npm/@rimiti/abm@latest/dist/$script,css,3p
+||dogsprotectedfeed.info^$popup,doc
+||namethatporn.com/assets/imgs/1x1.gif$badfilter
+@@||ad.yieldlab.net^$script,domain=spiegel.de,badfilter
+||indiatimes.com^$image,redirect-rule=1x1.gif
+*$script,3p,from=ovagames.com,to=~facebook.net|~fbcdn.net
+||fastlane.rubiconproject.com^$removeparam,domain=aternos.org
+wetteronline.*##^script:has-text(runCount)
+/sw.js?puid=$script,1p
+||html-load.com^$important,domain=agriculture.com|learnreligions.com|napjainkportal.hu|netflixlife.com|travelandleisure.com
+||html-load.com^$script,xhr,redirect=noopjs,domain=neowin.net|razzball.com
+||acacdn.com^$script,redirect-rule=noopjs
+*$frame,3p,denyallow=google.com|gstatic.com,domain=txxx.*
+||fake-square.com^$all
+@@||g.doubleclick.net/tag/js/gpt.js$script,redirect-rule,domain=pomponik.pl
+||imasdk.googleapis.com/js/sdkloader/ima3.js$script,domain=ottwow.com,redirect=google-ima.js

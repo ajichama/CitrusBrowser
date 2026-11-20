@@ -15,31 +15,29 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'kotlin-parcelize'
-apply plugin: 'kotlin-kapt'
+apply plugin: 'com.android.legacy-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
-    compileSdkVersion Build.compile_sdk_version
+    namespace 'io.github.ajichama.citrusbrowser.adblock'
+    compileSdk Build.compile_sdk_version
     buildToolsVersion Build.build_tools_version
 
     defaultConfig {
-        minSdkVersion Build.min_sdk_version
-        targetSdkVersion Build.target_sdk_version
-        versionCode 1
-        versionName "1.0"
+        minSdk Build.min_sdk_version
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    testOptions {
+        targetSdk = Build.target_sdk_version
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = "1.8"
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     buildTypes {
@@ -65,6 +63,8 @@ dependencies {
     androidTestImplementation Libs.espressoCore
     androidTestImplementation Libs.androidTestCore
     androidTestImplementation Libs.androidRunner
+    // scriptlet の文書開始時の注入（addDocumentStartJavaScript）を計測テストでだけ使う。
+    androidTestImplementation AndroidX.webkit
     testImplementation Libs.mockito
 
     implementation AndroidX.appcompat
@@ -77,22 +77,23 @@ dependencies {
     implementation AndroidX.roomKtx
     implementation AndroidX.fix_preference
     implementation AndroidX.fragmentKtx
-    kapt AndroidX.roomCompiler
+    implementation AndroidX.workRuntime
+    ksp AndroidX.roomCompiler
 
     implementation Libs.kotlin_stdlib
     implementation Libs.kotlin_coroutines
     implementation Libs.kotlin_coroutines_android
 
     implementation Dagger.hilt
-    kapt Dagger.hiltCompiler
-
-    implementation Libs.kvs_schema
-    kapt Libs.kvs_schema_compiler
+    ksp Dagger.hiltCompiler
 
     implementation project(':module:core')
     implementation project(':module:ui')
     implementation project(':languages')
     implementation project(':libraries:floatingactionbutton')
+
+    // XML で TouchScrollBar と msb_* 属性を直接使うため、このモジュール自身にも宣言する。
+    implementation Libs.materialScrollBar
 
     implementation Libs.re2j
     implementation Libs.okhttp

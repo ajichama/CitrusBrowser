@@ -16,7 +16,7 @@
   -->
 
 <resources>
-    <string name="copyright" translatable="false">©2017-2021 Hazuki</string>
+    <string name="copyright" translatable="false">©2026 ajichama / Based on Yuzu Browser (©2017-2021 Hazuki)</string>
 
     <integer-array name="pref_tab_type_values">
         <item>0</item>
@@ -197,6 +197,7 @@
         <item>@string/share_image</item>
         <item>@string/share_image_url</item>
         <item>@string/open_image_other_app</item>
+        <item>@string/copy_image</item>
         <item>@string/copy_image_url</item>
         <item>@string/save_image</item>
         <item>@string/save_image_as</item>
@@ -216,6 +217,7 @@
         <item>-158</item>
         <item>-150</item>
         <item>-151</item>
+        <item>-164</item>
         <item>-152</item>
         <item>-159</item>
         <item>-153</item>
@@ -246,6 +248,7 @@
         <item>@string/share_image</item>
         <item>@string/share_image_url</item>
         <item>@string/open_image_other_app</item>
+        <item>@string/copy_image</item>
         <item>@string/copy_image_url</item>
         <item>@string/save_image</item>
         <item>@string/save_image_as</item>
@@ -276,6 +279,7 @@
         <item>-158</item>
         <item>-150</item>
         <item>-151</item>
+        <item>-164</item>
         <item>-152</item>
         <item>-159</item>
         <item>-153</item>
@@ -401,17 +405,15 @@
     </integer-array>
 
     <string-array name="pref_web_theme_entries">
-        <item>@string/pref_light_theme</item>
-        <item>@string/pref_dark_theme</item>
-        <item>@string/pref_force_web_dark_mode</item>
-        <item>@string/pref_force_dark_mode</item>
+        <item>@string/page_color_light</item>
+        <item>@string/page_color_site_dark</item>
+        <item>@string/page_color_auto_dark</item>
     </string-array>
 
     <integer-array name="pref_web_theme_values">
         <item>0</item>
         <item>1</item>
         <item>2</item>
-        <item>3</item>
     </integer-array>
 
     <string-array name="pref_navigation_bar_entries">

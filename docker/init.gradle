@@ -1,0 +1,10 @@
+// Docker ビルド環境用 Gradle 初期化スクリプト
+// 全モジュールの中間生成物 (build/) を Linux Volume (/build-cache) へ隔離し、
+// ソースのフォルダに生成物を置かないようにします。
+
+gradle.projectsLoaded {
+    rootProject.allprojects { proj ->
+        def safePath = proj.path == ":" ? "root" : proj.path.substring(1).replace(":", "_")
+        proj.layout.buildDirectory.set(new File("/build-cache/${safePath}"))
+    }
+}

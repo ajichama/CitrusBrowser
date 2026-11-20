@@ -15,25 +15,27 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.devtools.ksp'
+apply plugin: 'com.android.legacy-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
-    compileSdkVersion Build.compile_sdk_version
+    namespace 'io.github.ajichama.citrusbrowser.browser'
+    compileSdk Build.compile_sdk_version
 
     defaultConfig {
-        minSdkVersion Build.min_sdk_version
-        targetSdkVersion Build.target_sdk_version
-        versionCode 1
-        versionName "1.0"
+        minSdk Build.min_sdk_version
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    testOptions {
+        targetSdk = Build.target_sdk_version
+    }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     buildTypes {
@@ -73,7 +75,6 @@ dependencies {
     implementation Libs.okhttp
     implementation Libs.okio
     implementation Libs.moshi
-    kapt Libs.moshiCodeGen
 
     implementation 'com.github.turing-tech:MaterialScrollBar:13.3.4'
     implementation project(':libraries:asyncpermissions')
@@ -95,5 +96,5 @@ dependencies {
     implementation Libs.kotlin_coroutines_android
 
     implementation Dagger.hilt
-    kapt Dagger.hiltCompiler
+    ksp Dagger.hiltCompiler
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 旧通知のソース由来18項目を継承。著作権・本文は旧生成物および専用HTMLを保持。 -->
+<sources version="1">
+  <source id="dummy:mikanbrowser:+" html="html/license/MikanBrowserLicense.html" sha256="eae6516f298ab3f6f5236fd33ddb6f05a6a85cbae8a433e842cf58c89d384640"/>
+  <source id="dummy:webview-in-coordinator-layout:+" html="oss/sources/68e4fe05d804e01f.html" sha256="be122bf3aea001aacd5af64475499df37257233293cf5fe24d933a65875650a2"/>
+  <source id="dummy:NetCipher:+" html="oss/sources/5027e258695f5ca6.html" sha256="9714f224dd89abb521ebc4cf3ce9dfd1264f810f04c8cebe242571de398d7614"/>
+  <source id="dummy:FloatingActionButton:+" html="oss/sources/d917946da6066f79.html" sha256="f333b68fbc11d51a225b1b623ccf1d0dd9c24bf04d1741e6e5bdd434bdd65ae3"/>
+  <source id="dummy:Chromium:+" html="oss/sources/54cbac8c3ecd863f.html" sha256="57a70dfbebc3fbda92728fd56370fcc66475d8f257dae899460e6e27b91959d2"/>
+  <source id="dummy:Gochiusearch:+" html="oss/sources/c7c5080eb99c1542.html" sha256="0389b52d196d76f5a2d8e1a16f78db4d8d31d3c2f105e1f99c79abfd498e814a"/>
+  <source id="dummy:Apache_Hive:+" html="oss/sources/9a63351f3018caa2.html" sha256="eb1bc94891afc984aefe55f3bb055863a9f431c7d969d738ab5f2c7f1c49e145"/>
+  <source id="dummy:Guava:+" html="oss/sources/321633a539d27f2a.html" sha256="5a69cedc5a0aecc3102dc22aa29efdaa5b37624391b958ee826de3b7c91a0006"/>
+  <source id="dummy:Recycler Fast Scroll:+" html="oss/sources/b87ae362a64ac892.html" sha256="c94e97d649332f5908d5b08c731384ef30f9904b9a5398c8d5a154f3186ec063"/>
+  <source id="dummy:Snacktory:+" html="oss/sources/cb5ffd94a9a66694.html" sha256="5567a63d4a5e0f8a9fcfff60ed594eb6d8d2348241a16a008ac9d4a51a178ef9"/>
+  <source id="dummy:colorpicker:+" html="oss/sources/d0452cfa56d342ad.html" sha256="dddefdd52b4ba22b38bc99ba72d077ab17449d6f80e883ef4b9ca09f51b6494c"/>
+  <source id="dummy:AsyncPermissions:+" html="oss/sources/7b9f4fed4a4a33d0.html" sha256="3070291251e4576dfe8759f8aa3438e40f0513572bf40abef99f67d10b0cbc8e"/>
+  <source id="dummy:No Coin:+" html="oss/sources/dfc82c3f6673be08.html" sha256="c521be19534173a1990071bcf786b4195fd6a7e2d411e9615fecd0f14cf4a3e7"/>
+  <source id="dummy:NoCoin adblock:+" html="oss/sources/33aafd4b5e71d203.html" sha256="7dc5f3bd86e82106187ada88df27760ce6177d4c1b661851eaa3eba06e55af33"/>
+  <source id="dummy:Greasemonkey:+" html="oss/sources/7f6ac41394e2adec.html" sha256="bb19504b6bd89eba739dfec52c6e4caaddf85b67a4441b72249979c9789deac4"/>
+  <source id="dummy:MaterialProgressBar:+" html="oss/sources/d2eb0b5dfc14a290.html" sha256="3e492ad807a1df2874aec3bdb4e74a6187d224e244668aecfe3012c7b3f4af17"/>
+  <source id="com.google.re2j:re2j:+" html="oss/sources/58bbdf1af8032907.html" sha256="d45bb5eda30778f5c9ec8a18049b9a53faa410a75c58102210af5a94bcfe6d1c"/>
+  <source id="dummy:jquery:+" html="oss/sources/4272bf263bb3a646.html" sha256="38f7e991fd751a7fc41a227509e0ad95c03433846095dba09391a3315e74cd17"/>
+</sources>

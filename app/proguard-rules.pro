@@ -1,11 +1,5 @@
-# Add project specific ProGuard rules here.
-# By default, the flags in this file are appended to flags specified
-# in /home/kento/android/sdk/tools/proguard/proguard-android.txt
-# You can edit the include path and order by changing the proguardFiles
-# directive in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# アプリ固有の縮小・難読化ルールを定義する。
+# Android 標準ルールの選択と適用順は build.gradle の proguardFiles で設定する。
 
 # Add any project specific keep options here:
 
@@ -16,7 +10,7 @@
 #   public *;
 #}
 
--keep class jp.hazuki.yuzubrowser.legacy.utils.view.behavior.** { *; }
+-keep class io.github.ajichama.citrusbrowser.legacy.utils.view.behavior.** { *; }
 
 -keepattributes *Annotation*,EnclosingMethod,Signature
 -keep @com.fasterxml.jackson.annotation.JsonIgnoreProperties class * { *; }
@@ -68,3 +62,11 @@
 
 # OkHttp platform used only on JVM and when Conscrypt dependency is available.
 -dontwarn okhttp3.internal.platform.ConscryptPlatform
+
+# 取込時の反射列挙に使うフィールドだけを残す。名前では検索しないため難読化は許可する。
+-keepclassmembers,allowobfuscation class io.github.ajichama.citrusbrowser.legacy.action.SingleAction {
+    public static final int *;
+}
+-keepclassmembers,allowobfuscation class io.github.ajichama.citrusbrowser.ui.settings.AppPrefs {
+    public static io.github.ajichama.citrusbrowser.ui.settings.container.** *;
+}

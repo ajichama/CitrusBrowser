@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 CitrusBrowser contributors. Apache License 2.0. -->
+<resources>
+    <string name="legacy_import_title">Yuzu Browser から移行</string>
+    <string name="legacy_import_summary">書き出したバックアップを選び、取り込む項目を確認して追加・統合します。</string>
+    <string name="legacy_import_help">Yuzu Browser の「設定 → インポート/エクスポート」で、設定のバックアップ（.yuzubackup）、ブックマーク（.dat または HTML）、別途スピードダイヤル（.yuzudial）を書き出してください。現在の Citrus の出力と単独設定 XML にも対応します。\n\n設定・ボタン・検索プロバイダー・UA・サイト別設定・内蔵の明暗テーマ、ブックマーク、スピードダイヤル、ユーザースクリプト、手書き/マルチタッチジェスチャーを選択して取り込めます。設定は一致キーと操作だけ上書き、他の構成は既存優先で追加します。ブックマークは新フォルダ、ダイヤルは同一 URL の既存項目を保持します。\n\n外部テーマ資産は旧バックアップに含まれないため現在のテーマを保持します。履歴・ダウンロード・保存先の権限・未知の DB/キャッシュ・Java バイナリは対象外です。依存するカテゴリを選ばない内部操作参照は除外します。スクリプトは信頼できる出力だけ選択してください。\n\n通常の保存失敗では直前値への復旧を試みますが、電源断・プロセス強制終了をまたぐ全データの一括原子性は保証できません。元の書き出しを保管してください。旧アプリの私有領域は読みません。</string>
+    <string name="legacy_import_select">書き出したファイルを選ぶ</string>
+    <string name="legacy_import_review">取り込む項目を選択</string>
+    <string name="legacy_import_settings">設定: キー %1$d 件・操作ファイル %2$d 件を上書き。検索/UA/サイト別設定 %3$d 件は既存優先で追加</string>
+    <string name="legacy_import_bookmarks">ブックマーク: %1$d 件を新フォルダへ追加。既存項目は保持</string>
+    <string name="legacy_import_dial">スピードダイヤル: %1$d 件を統合。同じ URL の既存項目は保持</string>
+    <string name="legacy_import_confirm">選択した項目を取り込む</string>
+    <string name="legacy_import_choose">取込対象を1つ以上選んでください。</string>
+    <string name="legacy_import_folder">取り込んだブックマーク</string>
+    <string name="legacy_import_preparing">書き出しファイルを検証しています…</string>
+    <string name="legacy_import_applying">選択したデータを取り込んでいます… 完了までお待ちください。画面を戻っても適用・復旧は継続します。</string>
+    <string name="legacy_import_result">ブックマーク %1$d 件、スピードダイヤル %2$d 件を追加しました。同一 URL %3$d 件は既存項目を保持しました。</string>
+    <string name="legacy_import_restart">設定を統合しました。ボタン・ツールバーを含む全設定の反映には再起動が必要です。</string>
+    <string name="legacy_import_restart_now">再起動する</string>
+    <string name="legacy_import_restart_later">後で</string>
+    <string name="legacy_import_normalization_warning">一部の設定をすぐに再読込できませんでした。再起動して設定を確認してください。</string>
+    <string name="legacy_import_invalid">ファイルを読み込めないか、形式を検証できませんでした。データは取り込んでいません。形式・サイズ・空き容量を確認してください。</string>
+    <string name="legacy_import_apply_failed">取り込みに失敗し、直前のデータへ戻しました。元の書き出しを保管したまま、空き容量を確認して再度お試しください。</string>
+    <string name="legacy_import_recovery">取り込みと復旧を完了できず、アプリ内に復旧用の退避を保持しました。元の書き出しを保管し、追加の変更をせず保存データを確認してください。</string>
+    <string name="legacy_import_merge_dial">書き出したスピードダイヤルを追加・統合</string>
+    <string name="legacy_import_result_config">構成 %1$d 件・スクリプト %2$d 件・ジェスチャー %3$d 件を追加。重複 %4$d 件を保持、未対応/未選択の依存参照 %5$d 件を除外しました。</string>
+    <string name="legacy_import_merge_settings">書き出したバックアップから選択して統合</string>
+    <string name="legacy_import_gestures">ジェスチャー: %1$d 件。同じ線・指の軌跡の既存操作を保持し追加。内部 ID は付け替え</string>
+    <string name="legacy_import_scripts">ユーザースクリプト: %1$d 件。同じ名前と名前空間の既存コード・有効状態を保持。信頼するコードのみ選択</string>
+    <string name="legacy_import_read_later">後で読む: %1$d 件の保存ページを追加。同じページは既存を保持</string>
+    <string name="legacy_import_skipped_files">書き出しの中の %1$,d 個のファイル（ページのキャッシュ・閲覧履歴・アプリの内部データなど）は、移行の対象ではないため読み込みません。</string>
+    <string name="legacy_import_excluded_items">書き出しのデータのうち、Citrus で使えない %1$,d 件の項目（未対応の操作・空の URL パターンなど）は取り込みません。</string>
+    <string name="legacy_import_result_read_later">後で読む %1$d 件を追加しました。</string>
+</resources>

@@ -15,23 +15,56 @@
  */
 
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.devtools.ksp'
+apply plugin: 'com.android.legacy-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
-apply plugin: 'com.cookpad.android.plugin.license-tools'
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
+
+// 公開Android Components APIでvariantの生成assetsを登録する。
+// 通常ビルドは固定通知だけを読み、更新候補の取得は明示タスクに限定する。
+def checkAllOss = tasks.register('checkOssNotices')
+def updateAllOss = tasks.register('updateOssNotices')
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        def variantTitle = variant.name.capitalize()
+        def runtime = variant.runtimeConfiguration
+        // プロジェクトの資産はソース由来通知へ分離し、AGPの副次artifactを無指定選択しない。
+        def externalArtifacts = runtime.incoming.artifactView {
+            componentFilter { it instanceof org.gradle.api.artifacts.component.ModuleComponentIdentifier }
+        }.artifacts
+        def notices = tasks.register("generate${variantTitle}OssNotices", GenerateOssNotices) {
+            runtimeComponents.set(externalArtifacts.resolvedArtifacts.map { OssRuntimeGraph.coordinates(it) })
+            inputRoot.set(layout.projectDirectory)
+            fixedInputs.from(fileTree('oss'), fileTree('html/license'))
+            outputDirectory.set(layout.buildDirectory.dir("generated/oss/${variant.name}/assets"))
+            reportDirectory.set(layout.buildDirectory.dir("reports/oss/${variant.name}"))
+        }
+        variant.sources.assets?.addGeneratedSourceDirectory(notices, { it.outputDirectory })
+        def checkNotices = tasks.register("check${variantTitle}OssNotices", CheckOssNotices) {
+            reports.from(notices.flatMap { it.reportDirectory.file('missing.txt') })
+        }
+        def updateNotices = tasks.register("update${variantTitle}OssNotices", UpdateOssNotices) {
+            runtimeArtifacts = externalArtifacts
+            dependencies = project.dependencies
+            offline.set(gradle.startParameter.offline)
+            outputDirectory.set(layout.buildDirectory.dir("oss-review/${variant.name}"))
+        }
+        checkAllOss.configure { dependsOn(checkNotices) }
+        updateAllOss.configure { dependsOn(updateNotices) }
+    }
+}
 
 def gitHash = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
 def buildTime = new Date().format("yyyy-MM-dd'T'HH:mm:ssXXX")
 
 android {
-    compileSdkVersion Build.compile_sdk_version
+    namespace 'io.github.ajichama.citrusbrowser'
+    compileSdk Build.compile_sdk_version
     buildToolsVersion Build.build_tools_version
+
     defaultConfig {
-        applicationId "jp.hazuki.yuzubrowser"
-        minSdkVersion Build.min_sdk_version
-        targetSdkVersion Build.target_sdk_version
+        applicationId "io.github.ajichama.citrusbrowser"
+        minSdk Build.min_sdk_version
+        targetSdk Build.target_sdk_version
         versionCode AppVersions.version_code
         versionName AppVersions.version_name
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -44,72 +77,51 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+
+    // リリース署名の鍵は、Docker の専用ボリューム（citrus-release-key、/release-key に読み取り専用でつなぐ）に置く。
+    // 鍵と設定はソースに置かない。鍵がなければ署名なしで出力する。
+    def releaseKeyProperties = new File(System.getenv('CITRUS_RELEASE_KEY_DIR') ?: '/release-key', 'release.properties')
+    if (releaseKeyProperties.isFile()) {
+        def releaseKey = new Properties()
+        releaseKeyProperties.withInputStream { releaseKey.load(it) }
+        signingConfigs {
+            release {
+                storeFile new File(releaseKeyProperties.parentFile, releaseKey.getProperty('storeFile'))
+                storePassword releaseKey.getProperty('storePassword')
+                keyAlias releaseKey.getProperty('keyAlias')
+                keyPassword releaseKey.getProperty('keyPassword')
+            }
+        }
     }
 
     buildTypes {
         release {
+            if (releaseKeyProperties.isFile()) signingConfig signingConfigs.release
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            manifestPlaceholders = [crashlyticsCollectionEnabled:"true"]
-            lintOptions {
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            lint {
                 disable 'MissingTranslation', 'GoogleAppIndexingWarning', 'ClickableViewAccessibility'
             }
         }
         debug {
-            ext.enableCrashlytics = false
-            ext.alwaysUpdateBuildId = false
             applicationIdSuffix ".debug"
             resValue "string", "package_name", "${defaultConfig.applicationId}.debug"
-            manifestPlaceholders = [crashlyticsCollectionEnabled:"false"]
         }
     }
-    packagingOptions {
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/CHANGES'
-        exclude 'META-INF/README.md'
-    }
-
-    applicationVariants.all { variant ->
-        if (variant.buildType.name == "release") {
-            variant.outputs.each { output ->
-                if (output.outputFileName.endsWith('.apk')) {
-                    // Rename APK
-                    def applicationId = defaultConfig.applicationId
-                    def versionCode = defaultConfig.versionCode
-                    def versionName = defaultConfig.versionName
-                    output.outputFileName = "${applicationId}_v${versionName}_${versionCode}.apk"
-                }
-            }
+    packaging {
+        resources {
+            excludes += ['META-INF/LICENSE', 'META-INF/CHANGES', 'META-INF/README.md']
         }
     }
 
     buildFeatures {
         dataBinding true
-    }
-}
-
-// must be after the plugin is applied otherwise no tasks will be found
-android.applicationVariants.all { variant ->
-    def googleTask = tasks.findByName("process${variant.name.capitalize()}GoogleServices")
-    googleTask.enabled = "debug" != variant.name
-}
-
-buildscript {
-    repositories {
-        maven { url 'https://maven.fabric.io/public' }
-        maven { url "https://plugins.gradle.org/m2/" }
-        jcenter()
-    }
-
-    dependencies {
-        classpath 'io.fabric.tools:gradle:1.31.2'
-        classpath 'gradle.plugin.com.cookpad.android.plugin:plugin:1.2.6'
+        buildConfig true
+        resValues true
     }
 }
 
@@ -122,9 +134,11 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     testImplementation Libs.junit
     androidTestImplementation Libs.espressoCore
+    androidTestImplementation Libs.androidRunner
+    androidTestImplementation AndroidX.workRuntime
+    androidTestImplementation Libs.kotlin_coroutines
 
     implementation Libs.moshi
-    kapt Libs.moshiCodeGen
     implementation Libs.okhttp
 
     implementation AndroidX.appcompat
@@ -149,13 +163,5 @@ dependencies {
     implementation Libs.kotlin_stdlib
 
     implementation Dagger.hilt
-    kapt Dagger.hiltCompiler
-
-    // Import the BoM for the Firebase platform
-    implementation platform('com.google.firebase:firebase-bom:26.5.0')
-
-    // Declare the dependencies for the Crashlytics and Analytics libraries
-    // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation 'com.google.firebase:firebase-crashlytics-ktx'
-    implementation 'com.google.firebase:firebase-analytics-ktx'
+    ksp Dagger.hiltCompiler
 }
