@@ -18,6 +18,11 @@ package io.github.ajichama.citrusbrowser.search.presentation.settings
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.MenuProvider
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -72,6 +77,25 @@ class SearchUrlListFragment : Fragment(), SearchSettingDialog.OnUrlEditedListene
         touchHelper.attachToRecyclerView(binding.recyclerView)
 
         viewModel.init()
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menu.add(Menu.NONE, MENU_RESET, Menu.NONE, R.string.search_reset_defaults)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (menuItem.itemId != MENU_RESET) return false
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.search_reset_defaults)
+                    .setMessage(R.string.search_reset_defaults_message)
+                    .setPositiveButton(R.string.search_reset_defaults) { _, _ ->
+                        val message = if (viewModel.resetToDefaults()) R.string.search_reset_defaults_done else R.string.search_reset_defaults_failed
+                        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+                return true
+            }
+        }, viewLifecycleOwner)
     }
 
     override fun onPause() {
@@ -118,5 +142,9 @@ class SearchUrlListFragment : Fragment(), SearchSettingDialog.OnUrlEditedListene
         if (viewModel.size > position) {
             viewModel.remove(position)
         }
+    }
+
+    private companion object {
+        const val MENU_RESET = 1
     }
 }

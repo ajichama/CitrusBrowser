@@ -229,6 +229,13 @@
         android:summary="@string/pref_share_unkown_scheme_summary"
         app:iconSpaceReserved="false" />
 
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="open_app_links"
+        android:title="@string/pref_open_app_links"
+        android:summary="@string/pref_open_app_links_summary"
+        app:iconSpaceReserved="false" />
+
     <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
         android:key="auto_tab_save_delay"
         android:title="@string/pref_auto_tab_save_delay"

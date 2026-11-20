@@ -357,6 +357,49 @@ class WebClient(
     private val lastRewrites = java.util.WeakHashMap<CustomWebView, Pair<String, Long>>()
 
     private val mWebViewClient = object : CustomWebViewClient() {
+        override fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri, method: String?, isForMainFrame: Boolean, userGesture: Boolean, isRedirect: Boolean): Boolean {
+            if (isForMainFrame) {
+                // 押したリンクから始まった移動は、続くリダイレクト先も対象にする（Chrome と同じ）。
+                // 例: m.x.com → mobile.twitter.com（X アプリの既定ドメイン）→ Play ストア。
+                val now = android.os.SystemClock.elapsedRealtime()
+                if (userGesture && !isRedirect) gestureNavigations[web] = now
+                val fromGesture = userGesture || (isRedirect && gestureNavigations[web]?.let { now - it < GESTURE_REDIRECT_WINDOW_MS } == true)
+                if (fromGesture && openInDefaultApp(web, uri)) {
+                    gestureNavigations.remove(web)
+                    return true
+                }
+            }
+            return shouldOverrideUrlLoading(web, url, uri, method, isForMainFrame)
+        }
+
+        /**
+         * Chrome と同じく、リンクを押した移動の行き先に App Links の既定アプリ（ブラウザ以外）があれば、そのアプリで開く。
+         * 例: X の「アプリで開く」は https://m.x.com/…?launch_app_store=true へのリンクで、ブラウザで読むと Play ストアへ転送される。
+         * FLAG_ACTIVITY_REQUIRE_NON_BROWSER は、ブラウザ以外の既定の対応アプリがある場合だけ起動し、なければ例外になる（選択画面は出さない）。
+         * 同じホスト内の移動は、サイト内の閲覧を妨げないよう対象外にする。
+         */
+        private val gestureNavigations = java.util.WeakHashMap<CustomWebView, Long>()
+
+        private fun openInDefaultApp(web: CustomWebView, uri: Uri): Boolean {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R || !AppPrefs.open_app_links.get()) return false
+            val scheme = uri.scheme?.lowercase(Locale.ENGLISH)
+            if (scheme != "http" && scheme != "https") return false
+            val host = uri.host ?: return false
+            val currentHost = web.url?.let { Uri.parse(it).host }
+            if (currentHost != null && currentHost.equals(host, ignoreCase = true)) return false
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+                .addCategory(Intent.CATEGORY_BROWSABLE)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REQUIRE_NON_BROWSER)
+            return try {
+                activity.startActivity(intent)
+                true
+            } catch (e: ActivityNotFoundException) {
+                false
+            } catch (e: SecurityException) {
+                false
+            }
+        }
+
         override fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri, method: String?, isForMainFrame: Boolean): Boolean {
             // removeparam・urlskip: 主フレームの GET のページ移動だけを書き換える（iframe の移動・POST は変えない）。
             if (isForMainFrame && method.equals("GET", ignoreCase = true)) {
@@ -1281,3 +1324,4 @@ class WebClient(
 
 /** 同じタブで同じ書き換えを繰り返さない時間。 */
 private const val REWRITE_REPEAT_WINDOW_MS = 5_000L
+private const val GESTURE_REDIRECT_WINDOW_MS = 10_000L

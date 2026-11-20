@@ -83,7 +83,7 @@ class ImportArchiveTest {
         val bytes = ByteArrayOutputStream().also { output -> ZipOutputStream(output).use { zip ->
             zip.putNextEntry(ZipEntry(ImportArchive.PREFERENCES)); zip.write("<map></map>".toByteArray()); zip.closeEntry()
             zip.putNextEntry(ZipEntry(ImportArchive.BOOKMARK)); zip.write("[]".toByteArray()); zip.closeEntry()
-            repeat(600) { zip.putNextEntry(ZipEntry("app_readItLater/$it")); zip.write(ByteArray(64)); zip.closeEntry() }
+            repeat(600) { zip.putNextEntry(ZipEntry("cache/http/$it")); zip.write(ByteArray(64)); zip.closeEntry() }
             zip.putNextEntry(ZipEntry("shared_prefs/com.example.app:profile.xml")); zip.write("<map/>".toByteArray()); zip.closeEntry()
             zip.putNextEntry(ZipEntry("app_webview/cache/data")); repeat(4097) { zip.write(ByteArray(8192)) }; zip.closeEntry()
         } }.toByteArray()

@@ -36,5 +36,8 @@ interface IReadItLaterProvider {
         const val COL_TIME = 0
         const val COL_URL = 1
         const val COL_TITLE = 2
+
+        /** ContentResolver.call で索引を読み直させる（取り込みで索引ファイルを書き換えた後に使う）。 */
+        const val RELOAD = "reload"
     }
 }

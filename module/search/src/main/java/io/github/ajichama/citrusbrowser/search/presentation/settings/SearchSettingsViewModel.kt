@@ -16,6 +16,9 @@
 
 package io.github.ajichama.citrusbrowser.search.presentation.settings
 
+import io.github.ajichama.citrusbrowser.ui.settings.AppPrefs
+import io.github.ajichama.citrusbrowser.search.model.provider.SearchSuggestProviders
+import io.github.ajichama.citrusbrowser.search.R
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -61,6 +64,22 @@ internal class SearchSettingsViewModel(
     fun remove(index: Int) {
         useCase.removeAt(index)
         updateList()
+    }
+
+    /** 検索エンジンの一覧と既定の検索 URL を、初回起動時と同じ Citrus の初期値に戻す。 */
+    fun resetToDefaults(): Boolean {
+        val app = getApplication<Application>()
+        val urls = app.resources.getStringArray(R.array.default_search_url)
+        val titles = app.resources.getStringArray(R.array.default_search_url_name)
+        val colors = app.resources.getIntArray(R.array.default_search_url_color)
+        val providers = SearchSuggestProviders(0, 0, ArrayList())
+        urls.indices.forEach { providers.add(SearchUrl(titles[it], urls[it], colors[it])) }
+        if (!useCase.replaceAll(providers.toSettings())) return false
+        AppPrefs.search_url.set(urls.first())
+        AppPrefs.commit(app, AppPrefs.search_url)
+        removedItem.value = null
+        updateList()
+        return true
     }
 
     fun resetRemovedItem() {

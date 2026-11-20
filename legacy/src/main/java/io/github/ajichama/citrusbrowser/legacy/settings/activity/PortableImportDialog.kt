@@ -19,6 +19,7 @@ package io.github.ajichama.citrusbrowser.legacy.settings.activity
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
@@ -36,6 +37,7 @@ internal class PortableImportDialog : DialogFragment() {
         if (args.getBoolean("complete")) {
             val message = getString(R.string.legacy_import_result, args.getInt("bookmarks"), args.getInt("added"), args.getInt("duplicates")) +
                 "\n" + getString(R.string.legacy_import_result_config, args.getInt("configs"), args.getInt("scripts"), args.getInt("gestures"), args.getInt("preserved"), args.getInt("ignored")) +
+                (if (args.getInt("readLater") > 0) "\n" + getString(R.string.legacy_import_result_read_later, args.getInt("readLater")) else "") +
                 (if (args.getBoolean("restart")) "\n\n" + getString(R.string.legacy_import_restart) else "") +
                 (if (args.getBoolean("warning")) "\n\n" + getString(R.string.legacy_import_normalization_warning) else "")
             return AlertDialog.Builder(requireContext()).setTitle(R.string.succeed).setMessage(message)
@@ -50,12 +52,26 @@ internal class PortableImportDialog : DialogFragment() {
             ImportCategory.SpeedDial -> getString(R.string.legacy_import_dial, args.getInt("dial"))
             ImportCategory.Scripts -> getString(R.string.legacy_import_scripts, args.getInt("scripts"))
             ImportCategory.Gestures -> getString(R.string.legacy_import_gestures, args.getInt("gestures"))
+            ImportCategory.ReadItLater -> getString(R.string.legacy_import_read_later, args.getInt("readLater"))
         } }.toTypedArray()
         val choices = savedInstanceState?.getBooleanArray("selected") ?: BooleanArray(categories.size)
         selected = choices
+        // 読み込まないファイル（キャッシュ等）と、取り込むデータの中で除外する項目を分けて、一覧の下に説明する。
+        val notes = listOfNotNull(
+            args.getInt("skippedFiles").takeIf { it > 0 }?.let { getString(R.string.legacy_import_skipped_files, it) },
+            args.getInt("ignored").takeIf { it > 0 }?.let { getString(R.string.legacy_import_excluded_items, it) },
+        )
+        val padding = (resources.displayMetrics.density * 24).toInt()
+        val noteView = notes.takeIf { it.isNotEmpty() }?.let { lines ->
+            TextView(requireContext()).apply {
+                text = lines.joinToString("\n\n")
+                setPadding(padding, padding / 2, padding, 0)
+            }
+        }
         return AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.legacy_import_review, args.getInt("ignored")))
+            .setTitle(R.string.legacy_import_review)
             .setMultiChoiceItems(labels, choices) { _, which, checked -> choices[which] = checked }
+            .apply { if (noteView != null) setView(noteView) }
             .setPositiveButton(R.string.legacy_import_confirm) { _, _ ->
                 val chosen = categories.filterIndexed { index, _ -> choices[index] }.toSet()
                 if (chosen.isEmpty()) { model.cancelPreview(); Toast.makeText(requireContext(), R.string.legacy_import_choose, Toast.LENGTH_LONG).show() }
@@ -73,6 +89,7 @@ internal class PortableImportDialog : DialogFragment() {
                 putStringArrayList("categories", ArrayList(value.categories.map { it.name }))
                 putInt("prefs", value.preferences); putInt("actions", value.actions); putInt("bookmarks", value.bookmarks)
                 putInt("dial", value.speedDial); putInt("ignored", value.ignored)
+                putInt("readLater", value.readItLater); putInt("skippedFiles", value.skippedFiles)
                 putInt("configs", value.configurations); putInt("scripts", value.scripts); putInt("gestures", value.gestures)
             }
         }
@@ -83,6 +100,7 @@ internal class PortableImportDialog : DialogFragment() {
                 putBoolean("warning", value.normalizationWarning)
                 putInt("configs", value.settingsAdded); putInt("scripts", value.scriptsAdded); putInt("gestures", value.gesturesAdded)
                 putInt("preserved", value.preserved); putInt("ignored", value.ignored)
+                putInt("readLater", value.readItLaterAdded)
             }
         }
     }

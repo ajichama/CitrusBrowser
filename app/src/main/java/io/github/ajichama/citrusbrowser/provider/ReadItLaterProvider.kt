@@ -226,6 +226,11 @@ class ReadItLaterProvider : ContentProvider() {
         return cursor
     }
 
+    override fun call(method: String, arg: String?, extras: android.os.Bundle?): android.os.Bundle? {
+        if (method == IReadItLaterProvider.RELOAD) synchronized(index) { index.load() }
+        return null
+    }
+
     override fun update(p0: Uri, p1: ContentValues?, p2: String?, p3: Array<out String>?): Int {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

@@ -44,6 +44,9 @@ internal object ImportArchive {
         val entries: Int = 65_536,
         val stagedEntryBytes: Long = 32L * 1024 * 1024,
         val stagedTotalBytes: Long = 64L * 1024 * 1024,
+        // 後で読むの保存ページ。実例で219件・合計約356MB、最大約12MB。
+        val pageEntryBytes: Long = 64L * 1024 * 1024,
+        val pageTotalBytes: Long = 1L shl 30,
         val skippedTotalBytes: Long = 4L shl 30,
     )
 
@@ -54,6 +57,7 @@ internal object ImportArchive {
         val files = linkedMapOf<String, File>()
         var total = 0L
         var skipped = 0L
+        var pages = 0L
         var ignored = 0
         fun copy(source: InputStream, name: String?) {
             val destination = name?.let { File.createTempFile("entry-", ".data", directory) }
@@ -67,7 +71,10 @@ internal object ImportArchive {
                         if (read < 0) break
                         if (read == 0) continue
                         count += read
-                        if (name != null) {
+                        if (name != null && ImportReadItLater.isPage(name)) {
+                            pages += read
+                            if (count > limits.pageEntryBytes || pages > limits.pageTotalBytes) throw IOException("後で読むのページが上限サイズを超えています。")
+                        } else if (name != null) {
                             total += read
                             if (count > limits.stagedEntryBytes || total > limits.stagedTotalBytes) throw IOException("バックアップの展開サイズが上限を超えています。")
                         } else {
@@ -170,7 +177,8 @@ internal object ImportArchive {
     private fun logicalName(path: String): String? = when {
         path == BOOKMARK || path == PREFERENCES || path == DIAL || path == ImportScript.PATH ||
             path == io.github.ajichama.citrusbrowser.search.repository.SearchImport.PATH ||
-            path in ImportUserSettings.paths || path in ImportGestures.paths -> path
+            path in ImportUserSettings.paths || path in ImportGestures.paths ||
+            path == ImportReadItLater.INDEX || ImportReadItLater.isPage(path) -> path
         path == "speeddial1.db" -> DIAL
         path.matches(Regex("app_(${actionFolders.joinToString("|")})/[0-9]+\\.dat")) -> path
         else -> null

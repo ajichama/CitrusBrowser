@@ -83,6 +83,9 @@ open class CustomWebViewClientWrapper(private val customWebView: CustomWebView) 
     override fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri, method: String?, isForMainFrame: Boolean): Boolean =
             webViewClient?.shouldOverrideUrlLoading(customWebView, url, uri, method, isForMainFrame) ?: false
 
+    override fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri, method: String?, isForMainFrame: Boolean, userGesture: Boolean, isRedirect: Boolean): Boolean =
+            webViewClient?.shouldOverrideUrlLoading(customWebView, url, uri, method, isForMainFrame, userGesture, isRedirect) ?: false
+
     override fun onPageCommitVisible(web: CustomWebView, url: String) {
         webViewClient?.onPageCommitVisible(customWebView, url)
     }

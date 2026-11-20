@@ -95,6 +95,10 @@
     <string name="pref_oritentation_sensor">センサー</string>
     <string name="pref_oritentation_no_sensor">センサーに従わない</string>
     <string name="pref_search_url">検索エンジンのURL設定</string>
+    <string name="search_reset_defaults">初期値に戻す</string>
+    <string name="search_reset_defaults_message">検索エンジンの一覧と、既定の検索エンジンを Citrus の初期値（Google・Bing・Yahoo! JAPAN・DuckDuckGo、既定は Google）に戻します。追加・編集した検索エンジンは消えます。</string>
+    <string name="search_reset_defaults_done">検索エンジンを初期値に戻しました</string>
+    <string name="search_reset_defaults_failed">初期値に戻せませんでした。現在の設定はそのままです</string>
     <string name="pref_search_url_error">%sがありません</string>
     <string name="pref_lpress_settings">ロングタップ設定</string>
     <string name="pref_lpress_link">リンク</string>
@@ -293,6 +297,8 @@
 
     <string name="pref_share_unkown_scheme">未知のスキームを共有</string>
     <string name="pref_share_unkown_scheme_summary">未知のURLスキームを他のアプリで開きます</string>
+    <string name="pref_open_app_links">リンクを対応アプリで開く</string>
+    <string name="pref_open_app_links_summary">リンクを押したとき、行き先を開く既定のアプリ（X・Instagram・YouTube など、ブラウザ以外）があれば、そのアプリで開きます。同じサイト内の移動は対象外です（Android 11 以降）</string>
 
     <string name="pref_speed_dial_setting">スピードダイアル設定</string>
     <string name="pref_edit_speeddial">スピードダイアルの編集</string>

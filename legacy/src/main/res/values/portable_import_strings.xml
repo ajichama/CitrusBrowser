@@ -5,7 +5,7 @@
     <string name="legacy_import_summary">Select an exported backup. Choose the data to merge before importing.</string>
     <string name="legacy_import_help">In Yuzu Browser, open Settings → Import/Export. Export a settings backup (.yuzubackup), bookmarks (.dat or HTML), and speed dial separately (.yuzudial). Current Citrus exports and standalone settings XML are also accepted.\n\nSelect settings, button actions, search providers, user agents, site rules, built-in light/dark themes, bookmarks, speed dial, user scripts and gestures. Matching supported keys/actions overwrite current values; other configuration keeps existing items. Bookmarks go into a new folder; matching speed dial URLs are kept.\n\nExternal theme assets are absent from the old backup, so your current theme is kept. History, downloads, storage grants, unknown databases/caches and Java binary data are excluded. Internal actions with an unselected dependency are skipped. Select scripts only from exports you trust.\n\nOrdinary save failures attempt to restore the previous values. Changes across databases and files are not fully atomic across power loss or forced process termination. Keep the original export. No other app private storage is accessed.</string>
     <string name="legacy_import_select">Select export</string>
-    <string name="legacy_import_review">Choose data (unsupported items skipped: %1$d)</string>
+    <string name="legacy_import_review">Choose data to import</string>
     <string name="legacy_import_settings">Settings: overwrite %1$d supported keys and %2$d action files; add %3$d provider/UA/site entries, keeping existing items</string>
     <string name="legacy_import_bookmarks">Bookmarks: add %1$d items in a new folder; keep existing bookmarks</string>
     <string name="legacy_import_dial">Speed dial: merge %1$d items; keep existing matching URLs</string>
@@ -27,4 +27,8 @@
     <string name="legacy_import_merge_settings">Select data to merge from an exported backup</string>
     <string name="legacy_import_gestures">Gestures: %1$d items. Keep existing actions for matching strokes/finger traces; remap internal IDs</string>
     <string name="legacy_import_scripts">User scripts: %1$d items. Keep existing code and enabled state with the same name/namespace. Trust the code before selecting</string>
+    <string name="legacy_import_read_later">Read it later: add %1$d saved pages. Keep existing matching pages</string>
+    <string name="legacy_import_skipped_files">%1$,d files in the backup (page cache, browsing history, internal app data, etc.) are not part of the migration and will not be read.</string>
+    <string name="legacy_import_excluded_items">%1$,d items in the backup data cannot be used by Citrus (unsupported actions, empty URL patterns, etc.) and will be skipped.</string>
+    <string name="legacy_import_result_read_later">Added %1$d read-it-later pages.</string>
 </resources>

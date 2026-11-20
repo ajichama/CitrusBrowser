@@ -95,6 +95,10 @@
     <string name="pref_oritentation_sensor">Sensor</string>
     <string name="pref_oritentation_no_sensor">No sensor</string>
     <string name="pref_search_url">Search engine URL settings</string>
+    <string name="search_reset_defaults">Reset to defaults</string>
+    <string name="search_reset_defaults_message">Reset the search engine list and the default search engine to Citrus defaults (Google, Bing, Yahoo! JAPAN, DuckDuckGo; Google by default). Added or edited search engines will be removed.</string>
+    <string name="search_reset_defaults_done">Search engines were reset to defaults</string>
+    <string name="search_reset_defaults_failed">Could not reset. The current settings are unchanged</string>
     <string name="pref_search_url_error">%s not found</string>
     <string name="pref_lpress_settings">Long press settings</string>
     <string name="pref_lpress_link">Link</string>
@@ -293,6 +297,8 @@
 
     <string name="pref_share_unkown_scheme">Share unknown scheme</string>
     <string name="pref_share_unkown_scheme_summary">Open an unknown URL scheme with another application</string>
+    <string name="pref_open_app_links">Open links in apps</string>
+    <string name="pref_open_app_links_summary">When you tap a link, open it in the default non-browser app for that address (such as X, Instagram or YouTube). Links within the same site stay in the browser (Android 11+)</string>
 
     <string name="pref_speed_dial_setting">SpeedDial settings</string>
     <string name="pref_edit_speeddial">Edit speed dial</string>

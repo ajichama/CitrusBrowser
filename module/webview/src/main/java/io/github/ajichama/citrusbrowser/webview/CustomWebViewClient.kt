@@ -147,6 +147,10 @@ open class CustomWebViewClient : WebViewClient() {
     open fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri, method: String?, isForMainFrame: Boolean): Boolean =
         shouldOverrideUrlLoading(web, url, uri)
 
+    /** 利用者の操作（タップ等）を伴う移動か、サーバーのリダイレクトかも分かる場合の入口。 */
+    open fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri, method: String?, isForMainFrame: Boolean, userGesture: Boolean, isRedirect: Boolean): Boolean =
+        shouldOverrideUrlLoading(web, url, uri, method, isForMainFrame)
+
     @Suppress("OverridingDeprecatedMember")
     override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
         return if (view is CustomWebView)
@@ -157,7 +161,8 @@ open class CustomWebViewClient : WebViewClient() {
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
         return if (view is CustomWebView)
-            shouldOverrideUrlLoading(view as CustomWebView, request.url.toString(), request.url, request.method, request.isForMainFrame)
+            shouldOverrideUrlLoading(view as CustomWebView, request.url.toString(), request.url, request.method, request.isForMainFrame,
+                request.hasGesture(), request.isRedirect)
         else
             false
     }

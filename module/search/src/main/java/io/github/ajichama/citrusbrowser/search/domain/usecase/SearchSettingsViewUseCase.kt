@@ -97,6 +97,15 @@ internal class SearchSettingsViewUseCase(
         return true
     }
 
+    /** 編集中の内容を捨てて、渡した一覧で置き換える（初期値に戻す）。保存できた場合だけ画面の一覧も替える。 */
+    fun replaceAll(settings: SearchSettings): Boolean {
+        if (!repository.save(settings)) return false
+        providers = SearchSuggestProviders(settings.snapshot())
+        baseline = settings.snapshot()
+        modified = false
+        return true
+    }
+
     fun reloadIfClean(): Boolean {
         if (modified) return false
         val latest = repository.load()

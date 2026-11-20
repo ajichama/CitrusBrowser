@@ -33,6 +33,7 @@ import io.github.ajichama.citrusbrowser.legacy.userjs.UserScriptDatabase
 import io.github.ajichama.citrusbrowser.search.model.provider.SearchSettings
 import io.github.ajichama.citrusbrowser.search.repository.SearchImport
 import io.github.ajichama.citrusbrowser.ui.BrowserApplication
+import io.github.ajichama.citrusbrowser.ui.provider.IReadItLaterProvider
 import io.github.ajichama.citrusbrowser.ui.settings.AppPrefs
 import java.io.Closeable
 import java.io.File
@@ -41,12 +42,14 @@ import java.io.ByteArrayOutputStream
 import java.util.Properties
 import java.util.UUID
 
-internal enum class ImportCategory { Settings, Bookmarks, SpeedDial, Scripts, Gestures }
+internal enum class ImportCategory { Settings, Bookmarks, SpeedDial, Scripts, Gestures, ReadItLater }
 internal data class ImportPreview(val preferences: Int, val actions: Int, val bookmarks: Int, val speedDial: Int, val ignored: Int,
-    val categories: Set<ImportCategory>, val configurations: Int = 0, val scripts: Int = 0, val gestures: Int = 0)
+    val categories: Set<ImportCategory>, val configurations: Int = 0, val scripts: Int = 0, val gestures: Int = 0,
+    // ignored は取り込むデータの中で除外する項目。skippedFiles はキャッシュ・履歴など、移行の対象外として読み込まないファイル。
+    val readItLater: Int = 0, val skippedFiles: Int = 0)
 internal data class ImportResult(val bookmarks: Int, val speedDialAdded: Int, val speedDialDuplicates: Int, val restart: Boolean,
     val normalizationWarning: Boolean = false, val settingsAdded: Int = 0, val scriptsAdded: Int = 0,
-    val gesturesAdded: Int = 0, val preserved: Int = 0, val ignored: Int = 0)
+    val gesturesAdded: Int = 0, val preserved: Int = 0, val ignored: Int = 0, val readItLaterAdded: Int = 0)
 
 /** 検証済み計画を明示選択で適用する。DB とファイル間の強制終了時の完全原子性は保証しない。 */
 internal class PortableImport private constructor(
@@ -54,7 +57,8 @@ internal class PortableImport private constructor(
     private val actionFiles: Map<String, ByteArray>, private val bookmarks: List<BookmarkImport.Item>?,
     private val speedDial: List<ImportedSpeedDial>?, private val search: SearchSettings?,
     private val userSettings: List<ImportUserSettings.Prepared>, private val scripts: List<ImportScript.Row>?,
-    private val gestures: List<ImportGestures.PairData>, private val multi: ByteArray?, val preview: ImportPreview,
+    private val gestures: List<ImportGestures.PairData>, private val multi: ByteArray?,
+    private val readItLater: ImportReadItLater.Prepared?, val preview: ImportPreview,
 ) : Closeable {
     private var keepRecovery = false
     private var applied = false
@@ -72,6 +76,8 @@ internal class PortableImport private constructor(
         val useDial = ImportCategory.SpeedDial in selected
         val useScripts = ImportCategory.Scripts in selected
         val useGestures = ImportCategory.Gestures in selected
+        val useReadItLater = ImportCategory.ReadItLater in selected
+        val createdPages = arrayListOf<File>()
         if (useBookmark) readCurrent(ImportArchive.BOOKMARK, 8 * 1024 * 1024)
         val manager = if (useBookmark) BookmarkManager.getInstance(context) else null
         if (manager != null && (manager.file.exists() || File(manager.file.path + ".bak").exists()) && !manager.load())
@@ -166,6 +172,21 @@ internal class PortableImport private constructor(
                         ignored += incoming.second - ImportGestures.multi(multi).second
                     }
                 }
+                var readItLaterAdded = 0
+                if (useReadItLater) {
+                    val current = readCurrent(ImportReadItLater.INDEX, 8 * 1024 * 1024)?.let(ImportReadItLater::read).orEmpty()
+                    val merged = ImportReadItLater.merge(current, readItLater!!) { time -> target(ImportReadItLater.pagePath(time)).exists() }
+                    // 保存ページは新しい名前で置くだけで、既存のファイルは上書きしない。索引は他のファイルと同じ手順で更新する。
+                    merged.pages.forEach { (source, time) ->
+                        val page = target(ImportReadItLater.pagePath(time))
+                        page.parentFile?.mkdirs()
+                        if (page.exists()) throw IOException("後で読むの保存先が既にあります。")
+                        createdPages += page
+                        if (!source.renameTo(page)) source.copyTo(page)
+                    }
+                    if (merged.added > 0) changes[target(ImportReadItLater.INDEX)] = merged.index
+                    readItLaterAdded = merged.added; preserved += merged.duplicates
+                }
                 writtenValues = values
                 beforePrefs = prefs.all.filterKeys { it in values }.mapValues { (_, value) -> if (value is Set<*>) value.toSet() else value }
                 val prefsFile = target(ImportArchive.PREFERENCES)
@@ -186,16 +207,25 @@ internal class PortableImport private constructor(
                 }
                 return ImportResult(if (useBookmark) BookmarkImport.count(bookmarks.orEmpty()) else 0,
                     dialAdded, if (useDial) speedDial.orEmpty().size - dialAdded else 0, useSettings || useGestures || useScripts,
-                    settingsAdded = settingsAdded, scriptsAdded = scriptsAdded, gesturesAdded = gesturesAdded, preserved = preserved, ignored = ignored)
+                    settingsAdded = settingsAdded, scriptsAdded = scriptsAdded, gesturesAdded = gesturesAdded, preserved = preserved, ignored = ignored,
+                    readItLaterAdded = readItLaterAdded)
             }
             val result = if (targets.isEmpty()) merge(null) { } else ImportSqlite.transaction(File(staging, "transaction.db"), targets, ::merge)
             // 正常完了時だけ、その処理が作った退避を削除する。
             runCatching { recovery.deleteRecursively() }
             recoveryDirectory = null
             if (useDial && result.speedDialAdded > 0) runCatching { SpeedDialHtml.clearCache(context) }
+            // 後で読むの一覧はプロバイダーがメモリに持つ。読み直さないと、次の保存で取り込んだ分を上書きしてしまう。
+            if (result.readItLaterAdded > 0) runCatching {
+                (context as? BrowserApplication)?.providerManager?.readItLaterProvider?.editUri?.let {
+                    context.contentResolver.call(it, IReadItLaterProvider.RELOAD, null, null)
+                }
+            }
             return result
         } catch (error: Exception) {
             keepRecovery = files.recoveryRequired || databaseCommitAttempted
+            // 索引を元に戻せた場合だけ、置いた保存ページを消す。復旧が必要な状態では索引が参照している可能性があるため残す。
+            if (!keepRecovery) createdPages.forEach { runCatching { it.delete() } }
             if (preferenceWriteAttempted) {
                 try {
                     val current = prefs.all
@@ -260,7 +290,7 @@ internal class PortableImport private constructor(
                 val archive = (app.contentResolver.openInputStream(uri) ?: throw IOException("文書を開けません。"))
                     .use { ImportArchive.stage(it, staging) }
                 val preferences = archive.files[ImportArchive.PREFERENCES]?.readBytes()?.let(ImportPreferences::parse)?.let(ImportPreferences::known)
-                var ignored = archive.ignored + (preferences?.ignored ?: 0)
+                var ignored = preferences?.ignored ?: 0
                 val actions = linkedMapOf<String, ByteArray>()
                 archive.files.filterKeys { it.startsWith("app_action1_") }.forEach { (path, file) ->
                     val validated = ImportActions.validate(path, file.readBytes())
@@ -282,18 +312,23 @@ internal class PortableImport private constructor(
                 val multi = archive.files[ImportGestures.MULTI]?.readBytes()
                 val parsedMulti = multi?.let { ImportGestures.multi(it) }
                 ignored += parsedMulti?.second ?: 0
+                val readItLater = ImportReadItLater.prepare(archive.files[ImportReadItLater.INDEX]?.readBytes(), archive.files)
+                ignored += readItLater.ignored
                 val categories = buildSet {
                     if (!preferences?.values.isNullOrEmpty() || actions.isNotEmpty() || search != null || userSettings.isNotEmpty()) add(ImportCategory.Settings)
                     if (bookmarks != null) add(ImportCategory.Bookmarks)
                     if (dial != null) add(ImportCategory.SpeedDial)
                     if (scripts != null) add(ImportCategory.Scripts)
                     if (gestures.isNotEmpty() || multi != null) add(ImportCategory.Gestures)
+                    if (readItLater.items.isNotEmpty()) add(ImportCategory.ReadItLater)
                 }
                 if (categories.isEmpty()) throw IOException("対応する取込対象がありません。")
                 return PortableImport(app, staging, preferences?.values, actions, bookmarks, dial, search, userSettings, scripts, gestures, multi,
+                    readItLater.takeIf { it.items.isNotEmpty() },
                     ImportPreview(preferences?.values?.size ?: 0, actions.size, bookmarks?.let(BookmarkImport::count) ?: 0, dial?.size ?: 0, ignored, categories,
                         (search?.items?.size ?: 0) + userSettings.sumOf { it.count }, scripts?.size ?: 0,
-                        gestures.sumOf { it.entries.sumOf { entry -> entry.samples.size } } + (parsedMulti?.first?.size ?: 0)))
+                        gestures.sumOf { it.entries.sumOf { entry -> entry.samples.size } } + (parsedMulti?.first?.size ?: 0),
+                        readItLater = readItLater.items.size, skippedFiles = archive.ignored))
             } catch (error: Throwable) { staging.deleteRecursively(); throw error }
         }
     }
