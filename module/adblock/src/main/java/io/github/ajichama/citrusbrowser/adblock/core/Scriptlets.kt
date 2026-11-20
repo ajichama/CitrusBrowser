@@ -69,6 +69,7 @@ object Scriptlets {
         add("json-edit")
         add("json-edit-fetch-response")
         add("json-edit-xhr-response")
+        add("prevent-refresh", "refresh-defuser")
     }
 
     /**
@@ -91,6 +92,9 @@ object Scriptlets {
         add("trusted-replace-outbound-text")
         add("trusted-set-cookie")
         add("trusted-set-attr")
+        add("trusted-prevent-fetch")
+        add("trusted-prevent-xhr")
+        add("trusted-click-element")
     }
 
     private val trustedPrefixes = listOf(

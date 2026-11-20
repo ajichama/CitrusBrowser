@@ -291,6 +291,32 @@ class ScriptletWebViewTest {
         assertEquals("false", evaluate("document.getElementById('target').hasAttribute('onclick')"))
     }
 
+    @Test fun trustedPreventXhrClickElementAndPreventRefresh() {
+        install(
+            "blog.esuteru.com##+js(trusted-prevent-xhr, data:text/plain, 'ok:{\"ads\":0}')",
+            "blog.esuteru.com##+js(trusted-click-element, '#cmp-accept, 200, #cmp-close')",
+            "blog.esuteru.com##+js(trusted-click-element, #never, cookie:citrus_absent)",
+            "blog.esuteru.com##+js(refresh-defuser)",
+            source = "https://ublockorigin.github.io/uAssets/filters/filters.txt",
+        )
+        load("""<meta http-equiv="refresh" content="1;url=http://blog.esuteru.com/moved">
+            <button id="cmp-accept" onclick="r.accept = (r.accept || 0) + 1">同意</button>
+            <button id="cmp-close" onclick="r.close = Date.now()">閉じる</button>
+            <button id="never" onclick="r.never = 1">押されない</button>
+            <script>
+            window.r = { start: Date.now() };
+            var x = new XMLHttpRequest();
+            x.open('GET', 'data:text/plain,original');
+            x.onload = function () { r.xhr = x.responseText; };
+            x.send();
+            </script>""")
+        awaitTrue("window.r && r.xhr !== undefined && r.close !== undefined")
+        assertEquals("true", evaluate("r.xhr === 'ok:{\"ads\":0}' && r.accept === 1 && r.close - r.start >= 150 && r.never === undefined"))
+        // meta refresh（1秒）で別のページへ移らない。
+        Thread.sleep(2000)
+        assertEquals("\"http://blog.esuteru.com/\"", evaluate("location.href"))
+    }
+
     @Test fun exceptionAndEmptyResultsInjectNothing() {
         install("blog.esuteru.com##+js(set, citrusAdFlag, false)", "blog.esuteru.com#@#+js()")
         load("<script>window.r = { flag: typeof window.citrusAdFlag, done: true };</script>")

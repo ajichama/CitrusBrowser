@@ -548,7 +548,8 @@
   }
 
   // 応答本文の指示（true / emptyObj / emptyArr / emptyStr / length:min[-max]）。未知の指示は空文字列。
-  function responseBody(directive) {
+  // trusted の場合は、未知の指示をそのまま応答本文として使う（trusted-prevent-fetch / trusted-prevent-xhr）。
+  function responseBody(directive, trusted) {
     var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     function randomText(n) { var s = ''; for (var i = 0; i < n; i++) s += chars.charAt(Math.floor(Math.random() * chars.length)); return s; }
     switch (directive) {
@@ -563,7 +564,7 @@
       var high = Math.min(m[2] ? Number(m[2]) : low, 500000);
       return randomText(low + Math.floor(Math.random() * (Math.max(high, low) - low + 1)));
     }
-    return '';
+    return trusted && directive !== undefined && directive !== 'emptyStr' ? String(directive) : '';
   }
 
   // 応答の種類（ok / type / statusText）。JSON 文字列、または type の値だけを受け付ける。外側の引用符は外す。
@@ -576,7 +577,7 @@
     return { type: text };
   }
 
-  scriptlets['prevent-fetch'] = function (args) {
+  scriptlets['prevent-fetch'] = function (args, trusted) {
     var matches = requestConditions(args[0], fetchOptionNames);
     if (!matches || typeof W.fetch !== 'function' || typeof W.Response !== 'function') return;
     var directive = args[1] === undefined ? '' : args[1];
@@ -591,7 +592,7 @@
         if (name !== 'url' && name !== 'method' && init[name] !== undefined) props[name] = init[name];
       }
       if (!matches(props)) return reflectApply(target, thisArg, callArgs);
-      var response = new W.Response(responseBody(directive), { status: 200, statusText: shape.statusText === undefined ? 'OK' : String(shape.statusText) });
+      var response = new W.Response(responseBody(directive, trusted), { status: 200, statusText: shape.statusText === undefined ? 'OK' : String(shape.statusText) });
       try {
         defineProperty(response, 'url', { value: props.url });
         if (shape.type !== undefined) defineProperty(response, 'type', { value: String(shape.type) });
@@ -601,7 +602,7 @@
     });
   };
 
-  scriptlets['prevent-xhr'] = function (args) {
+  scriptlets['prevent-xhr'] = function (args, trusted) {
     var matches = requestConditions(args[0], ['method', 'url']);
     var XHR = W.XMLHttpRequest;
     if (!matches || typeof XHR !== 'function') return;
@@ -615,7 +616,7 @@
       var props = requests.get(thisArg);
       if (!props || !matches(props)) return reflectApply(target, thisArg, callArgs);
       // 通信せず、空の応答を受け取ったように振る舞う。
-      var text = responseBody(directive);
+      var text = responseBody(directive, trusted);
       var type = thisArg.responseType;
       var body = text;
       if (type === 'json') { try { body = JSON.parse(text); } catch (e) { body = null; } }
@@ -977,6 +978,131 @@
   }
 
   // ---- trusted の第2弾（uBO wiki の Resources-Library の原文だけを参照） ----
+
+  scriptlets['trusted-prevent-fetch'] = function (args) { scriptlets['prevent-fetch'](args, true); };
+  scriptlets['trusted-prevent-xhr'] = function (args) { scriptlets['prevent-xhr'](args, true); };
+
+  // prevent-refresh（refresh-defuser）: meta の refresh による再読込を、その時刻に window.stop() で止める。
+  scriptlets['prevent-refresh'] = function (args) {
+    var seconds = args[0] === undefined || args[0] === '' ? null : parseFloat(args[0]);
+    if (seconds !== null && !(seconds >= 0)) return;
+    runAt(2, function () {
+      var delay = seconds;
+      if (delay === null) {
+        var meta = doc.querySelector('meta[http-equiv="refresh" i]');
+        if (!meta) return;
+        delay = parseFloat(String(meta.getAttribute('content') || '').split(/[;,]/)[0]);
+        if (!(delay >= 0)) return;
+      }
+      later(function () { try { W.stop(); } catch (e) { /* 止められない環境では何もしない */ } }, Math.max(0, delay * 1000 - 100));
+    });
+  };
+
+  // 括弧・角括弧・引用符の外にあるカンマで区切る。
+  function splitDirectives(text) {
+    var parts = [];
+    var depth = 0;
+    var quote = '';
+    var start = 0;
+    for (var i = 0; i < text.length; i++) {
+      var c = text.charAt(i);
+      if (c === '\\') { i++; continue; }
+      if (quote) { if (c === quote) quote = ''; continue; }
+      if (c === '"' || c === "'") { quote = c; continue; }
+      if (c === '(' || c === '[') depth++;
+      else if (c === ')' || c === ']') depth--;
+      else if (depth === 0 && c === ',') { parts.push(text.slice(start, i).trim()); start = i + 1; }
+    }
+    parts.push(text.slice(start).trim());
+    return parts.filter(Boolean);
+  }
+
+  // trusted-click-element: 指示（セレクタ・when-visible:・xpath:・>>>・待ち時間の数値）を左から順に処理してクリックする。
+  // 条件（cookie:・localStorage:、先頭 ! で否定）がすべて合うときだけ行い、10秒で打ち切る。
+  scriptlets['trusted-click-element'] = function (args) {
+    if (!args[0]) return;
+    var directives = splitDirectives(args[0]);
+    var conditions = args[1] ? splitDirectives(args[1]) : [];
+    var startDelay = args[2] === undefined || args[2] === '' ? 0 : parseInt(args[2], 10);
+    if (!(startDelay >= 0) || directives.length === 0) return;
+    var conditionMet = function (condition) {
+      var negate = condition.charAt(0) === '!';
+      var body = negate ? condition.slice(1) : condition;
+      var m = /^(cookie|localStorage):(.+)$/.exec(body);
+      if (!m) return false;
+      var spec = m[2];
+      var entries = [];
+      if (m[1] === 'cookie') {
+        entries = doc.cookie.split(';').map(function (s) { return s.trim(); }).filter(Boolean);
+      } else {
+        try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); entries.push(k + '=' + localStorage.getItem(k)); } } catch (e) { entries = []; }
+      }
+      var hit;
+      var re = /^\/(.+)\/([imsu]*)$/.exec(spec);
+      if (re) {
+        var regex;
+        try { regex = new RegExp(re[1], re[2]); } catch (e) { return false; }
+        hit = entries.some(function (entry) { return regex.test(entry); });
+      } else {
+        var eq = spec.indexOf('=');
+        var key = eq < 0 ? spec : spec.slice(0, eq);
+        var value = eq < 0 ? null : spec.slice(eq + 1);
+        hit = entries.some(function (entry) {
+          var at = entry.indexOf('=');
+          var name = at < 0 ? entry : entry.slice(0, at);
+          return name === key && (value === null || entry.slice(at + 1) === value);
+        });
+      }
+      return hit !== negate;
+    };
+    var find = function (directive) {
+      var visible = false;
+      var text = directive;
+      if (text.indexOf('when-visible:') === 0) { visible = true; text = text.slice(13); }
+      var el = null;
+      try {
+        if (text.indexOf('xpath:') === 0) {
+          el = doc.evaluate(text.slice(6), doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        } else {
+          var parts = text.split('>>>');
+          var scope = doc;
+          for (var i = 0; i < parts.length && scope; i++) {
+            el = scope.querySelector(parts[i].trim());
+            scope = i < parts.length - 1 ? (el && el.shadowRoot) : null;
+          }
+        }
+      } catch (e) { return null; }
+      if (!el || el.nodeType !== 1) return null;
+      if (visible) {
+        var rect = el.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return null;
+      }
+      return el;
+    };
+    var deadline = 0;
+    var index = 0;
+    var step = function () {
+      if (Date.now() > deadline) return;
+      while (index < directives.length && /^\d+$/.test(directives[index])) {
+        var wait = Number(directives[index++]);
+        later(step, wait);
+        return;
+      }
+      if (index >= directives.length) return;
+      var el = find(directives[index]);
+      if (!el) { later(step, 100); return; }
+      try { el.click(); } catch (e) { /* 続ける */ }
+      index++;
+      if (index < directives.length) later(step, 0);
+    };
+    runAt(2, function () {
+      later(function () {
+        if (!conditions.every(conditionMet)) return;
+        deadline = Date.now() + 10000;
+        step();
+      }, startDelay);
+    });
+  };
 
   // 文字列中の $now$ / $currentDate$ / $currentISODate$ を置き換える（trusted-set-cookie の値）。
   function expandTimeKeywords(text) {
