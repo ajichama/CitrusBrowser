@@ -33,7 +33,9 @@ data class Blocker(
     fun rewriteNavigation(url: Uri): String? {
         val rewriter = navigation?.takeUnless { it.isEmpty } ?: return null
         if (isWhitePage(url)) return null
-        return rewriter.rewrite(ContentRequest(url, url, ContentRequest.TYPE_DOCUMENT, false), url.toString())
+        val request = ContentRequest(url, url, ContentRequest.TYPE_DOCUMENT, false)
+        // urlskip は、-blocked を付けない限り、遮断される移動には適用しない（wiki の規定）。
+        return rewriter.rewrite(request, url.toString(), blocked = isBlock(request) != null)
     }
 
 

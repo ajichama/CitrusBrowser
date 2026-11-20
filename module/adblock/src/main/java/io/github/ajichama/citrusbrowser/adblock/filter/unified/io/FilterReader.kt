@@ -148,7 +148,8 @@ class FilterReader(private val input: InputStream) {
                 }
             }
 
-            val filter = when (actualType) {
+            // 保存済みの巨大な正規表現は、読み込み時のスレッドではスタックが足りないことがある。その行だけを捨てる。
+            val filter = try { when (actualType) {
                 FILTER_TYPE_CONTAINS -> ContainsFilter(pattern, contentType, domains, thirdParty, ignoreCase)
                 FILTER_TYPE_HOST -> HostFilter(pattern, contentType, ignoreCase, domains, thirdParty)
                 FILTER_TYPE_CONTAINS_HOST -> ContainsHostFilter(pattern, contentType, ignoreCase, domains, thirdParty)
@@ -161,6 +162,8 @@ class FilterReader(private val input: InputStream) {
                 FILTER_TYPE_JVM_REGEX_HOST -> RegexHostFilter(pattern, contentType, ignoreCase, domains, thirdParty)
                 FILTER_TYPE_PATTERN -> PatternMatchFilter(pattern, contentType, ignoreCase, domains, thirdParty)
                 else -> break@loop
+            } } catch (e: StackOverflowError) {
+                continue@loop
             }
             yield(if (ruleKey != null) NetworkRuleFilter(filter, ruleKey, 0, constraints) else filter)
         }

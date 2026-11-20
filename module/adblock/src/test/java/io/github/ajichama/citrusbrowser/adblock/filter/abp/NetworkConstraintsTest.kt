@@ -103,6 +103,25 @@ class NetworkConstraintsTest {
         assertTrue(decode("||g.example^\$script,redirect=google-ima.js").blackList.isEmpty())
     }
 
+    @Test
+    fun aRegexThatOverflowsTheStackIsDroppedInsteadOfCrashingTheApp() {
+        // 端末の作業スレッド（約1MB）で起きた StackOverflowError を、小さなスタックのスレッドで再現する。
+        var result: Any? = "未実行"
+        var thrown: Throwable? = null
+        val pattern = "(".repeat(20000) + "a" + ")".repeat(20000)
+        val thread = Thread(null, {
+            try {
+                result = io.github.ajichama.citrusbrowser.adblock.filter.unified.createRegexFilter(pattern, ContentRequest.TYPE_SCRIPT, true, null, -1)
+            } catch (error: Throwable) {
+                thrown = error
+            }
+        }, "small-stack", 16 * 1024)
+        thread.start()
+        thread.join()
+        assertNull("例外を外へ出さない", thrown)
+        assertNull("コンパイルできない正規表現の行は捨てる", result)
+    }
+
     private fun blocker(roundTrip: Boolean, vararg lines: String): Blocker {
         val set = decode(*lines)
         val deny = if (roundTrip) roundTrip(set.blackList) else set.blackList

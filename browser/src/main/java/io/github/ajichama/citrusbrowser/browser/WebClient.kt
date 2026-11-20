@@ -354,19 +354,36 @@ class WebClient(
         }
     }
 
+    private val lastRewrites = java.util.WeakHashMap<CustomWebView, Pair<String, Long>>()
+
     private val mWebViewClient = object : CustomWebViewClient() {
-        override fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri, method: String?): Boolean {
-            // removeparam・urlskip: GET のページ移動だけを書き換える（POST のフォーム送信は変えない）。
-            if (method == null || method.equals("GET", ignoreCase = true)) {
+        override fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri, method: String?, isForMainFrame: Boolean): Boolean {
+            // removeparam・urlskip: 主フレームの GET のページ移動だけを書き換える（iframe の移動・POST は変えない）。
+            if (isForMainFrame && method.equals("GET", ignoreCase = true)) {
                 val scheme = uri.scheme?.lowercase()
                 if (scheme == "http" || scheme == "https") {
-                    adBlockController?.rewriteNavigation(uri)?.let { rewritten ->
+                    rewriteNavigation(web, uri)?.let { rewritten ->
+                        // 書き換えた URL にも、新規タブ・URL パターン・他アプリの判定を通常どおり適用する。
+                        if (shouldOverrideUrlLoading(web, rewritten, Uri.parse(rewritten))) return true
                         web.loadUrl(rewritten)
                         return true
                     }
                 }
             }
             return shouldOverrideUrlLoading(web, url, uri)
+        }
+
+        /**
+         * 書き換え後の URL。サーバーが外した引数を付け直してリダイレクトし続ける場合などに備え、
+         * 同じタブで同じ書き換えを短い間に繰り返さない。
+         */
+        private fun rewriteNavigation(web: CustomWebView, uri: Uri): String? {
+            val rewritten = adBlockController?.rewriteNavigation(uri) ?: return null
+            val now = android.os.SystemClock.elapsedRealtime()
+            val last = lastRewrites[web]
+            if (last != null && last.first == rewritten && now - last.second < REWRITE_REPEAT_WINDOW_MS) return null
+            lastRewrites[web] = rewritten to now
+            return rewritten
         }
 
         override fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri): Boolean {
@@ -1261,3 +1278,6 @@ class WebClient(
         private const val TAG = "WebClient"
     }
 }
+
+/** 同じタブで同じ書き換えを繰り返さない時間。 */
+private const val REWRITE_REPEAT_WINDOW_MS = 5_000L

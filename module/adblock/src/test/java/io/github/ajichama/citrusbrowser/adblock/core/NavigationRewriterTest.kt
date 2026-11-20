@@ -80,6 +80,24 @@ class NavigationRewriterTest {
         assertNull(trusted.rewriteNavigation(uri("https://bad.example/?x=1&y=2")))
     }
 
+    @Test
+    fun urlSkipSkipsBlockedNavigationsUnlessMarkedAndRegexesAreLinearTime() {
+        val blocker = rules(decode(listOf(
+            "||t.example/go\$urlskip=?url",
+            "||b.example/go\$urlskip=?url -blocked",
+            "||t.example^\$document",
+            "||b.example^\$document",
+        ), trustedSource))
+        // 遮断される移動には、-blocked を付けない限り urlskip を適用しない（wiki の規定）。
+        assertNull(blocker.rewriteNavigation(uri("https://t.example/go?url=https%3A%2F%2Fexample.org%2F")))
+        assertEquals("https://example.org/", blocker.rewriteNavigation(uri("https://b.example/go?url=https%3A%2F%2Fexample.org%2F")))
+        // re2j で照合するため、後方参照のような指定は受け付けず、入れ子の繰り返しでも時間がかからない。
+        assertFalse(NavigationRewriter.isValidRemoveParam("/(a)\\1/"))
+        val started = System.nanoTime()
+        NavigationRewriter.removeParams("https://a.example/?" + "a".repeat(5000) + "b=1", "/^(a+)+\$/")
+        assertTrue((System.nanoTime() - started) / 1_000_000 < 1000)
+    }
+
     private fun decode(lines: List<String>, source: String?) =
         AbpFilterDecoder().decode(lines.joinToString("\n").reader().buffered(), source)
 

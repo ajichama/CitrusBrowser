@@ -317,6 +317,25 @@ class ScriptletWebViewTest {
         assertEquals("\"http://blog.esuteru.com/\"", evaluate("location.href"))
     }
 
+    @Test fun unchangedJsonResponsesStayIdenticalAndDangerousAttributesAreRefused() {
+        install(
+            "blog.esuteru.com##+js(json-prune-fetch-response, ads, , propsToMatch, data:application/json)",
+            "blog.esuteru.com##+js(trusted-set-attr, #link, href, javascript:alert(1))",
+            "blog.esuteru.com##+js(trusted-set-attr, #frame, srcdoc, x)",
+            source = "https://ublockorigin.github.io/uAssets/filters/filters.txt",
+        )
+        load("""<a id="link" href="#ok">リンク</a><iframe id="frame"></iframe><script>
+            window.r = {};
+            // ads を含まない応答は作り直さない（2^53 を超える数値の表記を保つ）。
+            fetch('data:application/json,' + encodeURIComponent('{"id":12345678901234567890}'))
+              .then(function (res) { return res.text(); }).then(function (t) { r.text = t; });
+            </script>""")
+        awaitTrue("window.r && r.text !== undefined")
+        assertEquals("true", evaluate("r.text === '{\"id\":12345678901234567890}'"))
+        Thread.sleep(300)
+        assertEquals("true", evaluate("document.getElementById('link').getAttribute('href') === '#ok' && !document.getElementById('frame').hasAttribute('srcdoc')"))
+    }
+
     @Test fun exceptionAndEmptyResultsInjectNothing() {
         install("blog.esuteru.com##+js(set, citrusAdFlag, false)", "blog.esuteru.com#@#+js()")
         load("<script>window.r = { flag: typeof window.citrusAdFlag, done: true };</script>")

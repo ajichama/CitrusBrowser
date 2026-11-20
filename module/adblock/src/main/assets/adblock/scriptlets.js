@@ -766,7 +766,7 @@
       }
       prune.forEach(function (parts) {
         if (parts.length === 0) return;
-        visitPath(value, parts, 0, function (owner, key) { try { delete owner[key]; } catch (e) { /* 消せない値は残す */ } });
+        visitPath(value, parts, 0, function (owner, key) { try { delete owner[key]; transformChanged = true; } catch (e) { /* 消せない値は残す */ } });
       });
       return value;
     };
@@ -947,6 +947,9 @@
 
   // ---- 第3弾（uBO wiki の Resources-Library の公開仕様だけを参照） ----
 
+  // 直前の書き換えで値を変えたか。応答を作り直すのは変えたときだけにする（大きな数値の精度などを保つ）。
+  var transformChanged = false;
+
   // json-prune の引数（削除するパス・必須のパス・呼び出し履歴の条件）から、値を取り除く関数を作る。
   function makePruner(args, stackSource) {
     if (args[0] === undefined || args[0] === '' || /\[-\]|\{-\}/.test(args[0])) return null;
@@ -971,7 +974,7 @@
       }
       prune.forEach(function (parts) {
         if (parts.length === 0) return;
-        visitPath(value, parts, 0, function (owner, key) { try { delete owner[key]; } catch (e) { /* 消せない値は残す */ } });
+        visitPath(value, parts, 0, function (owner, key) { try { delete owner[key]; transformChanged = true; } catch (e) { /* 消せない値は残す */ } });
       });
       return value;
     };
@@ -986,16 +989,26 @@
   scriptlets['prevent-refresh'] = function (args) {
     var seconds = args[0] === undefined || args[0] === '' ? null : parseFloat(args[0]);
     if (seconds !== null && !(seconds >= 0)) return;
-    runAt(2, function () {
-      var delay = seconds;
-      if (delay === null) {
-        var meta = doc.querySelector('meta[http-equiv="refresh" i]');
-        if (!meta) return;
-        delay = parseFloat(String(meta.getAttribute('content') || '').split(/[;,]/)[0]);
-        if (!(delay >= 0)) return;
-      }
-      later(function () { try { W.stop(); } catch (e) { /* 止められない環境では何もしない */ } }, Math.max(0, delay * 1000 - 100));
-    });
+    var handled = false;
+    var observer = null;
+    // meta refresh を見つけた時点から数え、再読込の少し前に止める。meta がないページでは何もしない。
+    var check = function () {
+      if (handled) return;
+      var meta = doc.querySelector('meta[http-equiv="refresh" i]');
+      if (!meta) return;
+      handled = true;
+      if (observer) observer.disconnect();
+      var delay = seconds !== null ? seconds : parseFloat(String(meta.getAttribute('content') || '').split(/[;,]/)[0]);
+      if (!(delay >= 0)) return;
+      var stop = function () { try { W.stop(); } catch (e) { /* 止められない環境では何もしない */ } };
+      if (delay * 1000 <= 100) stop(); else later(stop, delay * 1000 - 100);
+    };
+    if (MutationObserverCtor) {
+      observer = new MutationObserverCtor(check);
+      observer.observe(doc, { childList: true, subtree: true });
+    }
+    runAt(2, check);
+    runAt(3, function () { if (observer) observer.disconnect(); });
   };
 
   // 括弧・角括弧・引用符の外にあるカンマで区切る。
@@ -1213,7 +1226,8 @@
     var value = args[2] === undefined ? '' : args[2];
     if (!selector || !attr || !/^[A-Za-z_][\w:.-]*$/.test(attr)) return;
     // イベント処理の属性（onclick 等）はスクリプトの実行になるため設定しない（本体独自の安全側の制限）。
-    if (/^on/i.test(attr)) return;
+    if (/^on/i.test(attr) || /^srcdoc$/i.test(attr)) return;
+    if (/^\s*(javascript|data|vbscript):/i.test(value)) return;
     try { doc.createDocumentFragment().querySelector(selector); } catch (e) { return; }
     var apply = function () {
       var nodes;
@@ -1368,15 +1382,17 @@
     return Object.keys(value).map(function (key) { return { parent: value, key: Array.isArray(value) ? Number(key) : key, value: value[key] }; });
   }
 
+  // フィルタの中の探索も含め、1回の評価で訪れるノードの上限（式全体で共有する）。
+  var jsonPathBudget = 0;
+
   // 根の値から段をたどり、選ばれた {parent, key, value} の一覧を返す（件数を制限する）。
   function jsonPathSelect(rootValue, steps) {
     var nodes = [{ parent: null, key: null, value: rootValue }];
-    var budget = 20000;
     for (var i = 0; i < steps.length && nodes.length; i++) {
       var step = steps[i];
       var next = [];
       var visit = function (node) {
-        if (--budget < 0) return;
+        if (--jsonPathBudget < 0) return;
         jsonPathChildren(node.value).forEach(function (child) {
           var hit = step.selectors.some(function (sel) {
             switch (sel.type) {
@@ -1393,7 +1409,7 @@
         });
       };
       nodes.forEach(visit);
-      if (budget < 0) return [];
+      if (jsonPathBudget < 0) return [];
       nodes = next;
     }
     return nodes.filter(function (node) { return node.parent !== null; }).concat(steps.length === 0 ? nodes : []);
@@ -1463,11 +1479,24 @@
     }
     return function (value) {
       if (!isObjectLike(value)) return value;
+      jsonPathBudget = 20000;
       for (var a = 0; a < asserts.length; a++) {
         var count = jsonPathSelect(value, asserts[a].path).length;
-        if (count < asserts[a].min || count > asserts[a].max) return value;
+        if (jsonPathBudget < 0 || count < asserts[a].min || count > asserts[a].max) return value;
       }
-      var nodes = jsonPathSelect(value, target);
+      var found = jsonPathSelect(value, target);
+      if (jsonPathBudget < 0) return value;
+      // 祖先と子孫の両方から同じ値に届いた場合などに、同じ要素を二度処理しない。
+      var seen = new Map();
+      var nodes = found.filter(function (node) {
+        var keys = seen.get(node.parent);
+        if (!keys) { keys = new Set(); seen.set(node.parent, keys); }
+        if (keys.has(node.key)) return false;
+        keys.add(node.key);
+        return true;
+      });
+      if (nodes.length === 0) return value;
+      transformChanged = true;
       if (assign) { nodes.forEach(assign); return value; }
       // 配列の要素は後ろから取り除き、番号のずれを防ぐ。
       nodes.sort(function (x, y) { return (typeof y.key === 'number' ? y.key : 0) - (typeof x.key === 'number' ? x.key : 0); });
@@ -1505,7 +1534,10 @@
           var parsed;
           try { parsed = JSON.parse(text); } catch (e) { return response; }
           if (!isObjectLike(parsed)) return response;
-          var replaced = new W.Response(JSON.stringify(transform(parsed)), {
+          transformChanged = false;
+          var edited = transform(parsed);
+          if (!transformChanged) return response;
+          var replaced = new W.Response(JSON.stringify(edited), {
             status: response.status, statusText: response.statusText, headers: response.headers
           });
           try {
@@ -1551,7 +1583,9 @@
       if (state.text === undefined) {
         try {
           var parsed = JSON.parse(text);
-          state.text = isObjectLike(parsed) ? JSON.stringify(apply(state, parsed)) : text;
+          transformChanged = false;
+          var edited = isObjectLike(parsed) ? apply(state, parsed) : parsed;
+          state.text = transformChanged ? JSON.stringify(edited) : text;
         } catch (e) { state.text = text; }
       }
       return state.text;

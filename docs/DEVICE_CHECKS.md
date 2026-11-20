@@ -26,6 +26,16 @@
 
 本体の設定リンク回帰は、起動追跡を修正した同じテストで公開旧版が11.651秒で失敗し、修正版へのデータ保持更新後は2.132秒で成功しました。1件で3つの内部リンクを確認しています。起動追跡に失敗していた最初の実行は製品の回帰証拠に含めません。
 
+## 2026-11-19〜20の広告ブロック拡張（エミュレーター）
+
+環境は Docker 上のエミュレーター（API 37、WebView 145.0.7632.218、英語ロケール）で、実機ではない。いずれも1回の観察として扱う。
+
+- 計測（広告モジュールの ScriptletWebViewTest・CosmeticFilteringWebViewTest・AbpDefaultSubscriptionsIntegrationTest）は、変更のたびに実行して最終的に17件（ScriptletWebViewTest 10件・CosmeticFilteringWebViewTest 7件）が成功した。procedural、trusted の scriptlet、無音の音声の再生、fetch・XHR の JSON 応答の書き換え、JSONPath、trusted-click-element、prevent-refresh を、外部と通信しない fixture で確かめた。
+- 実サイト（やらおん！・オタコム・はちま起稿）: トップは procedural・通信の条件・trusted・監査の修正・引用符の解析変更の後に、記事ページは 2026-11-20 に確認し、広告0・誤遮断なし（オタコム記事上部のサイト自前の Amazon 枠は残る）。
+- はちま起稿の Ad-Shield（html-load.com）は、uBlock filters の rmnt と通信の遮断で止まる（2026-11-19 に DevTools で確認）。
+- 書き換え（removeparam・urlskip）は、リンクからの移動が壊れないことだけを確認した。既定のリストには主フレームに当たる removeparam がなく、書き換えそのものの実地の確認は未実施。
+- 未実施: 実機（SO-51D）、性能（長いページ・iframe の多いページでの表示の遅れとメモリ）、別 origin・about:blank の iframe でのブリッジの扱い、古い WebView。
+
 ## 2026-11-19の scriptlet 第2弾と5リスト（エミュレーター）
 
 環境は Docker 上のエミュレーター（API 37、WebView 145.0.7632.218）で、実機ではない。

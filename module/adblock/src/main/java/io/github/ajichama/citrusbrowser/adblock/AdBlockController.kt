@@ -155,9 +155,9 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
         return if (calls.isEmpty()) ScriptletInjection.EMPTY else Scriptlets.toJson(calls)
     }
 
-    /** 主フレームの GET の移動先を書き換える（removeparam・urlskip）。読み込み中は長く待たない。 */
+    /** 主フレームの GET の移動先を書き換える（removeparam・urlskip）。UI スレッドから呼ぶため、読み込み中は待たない。 */
     fun rewriteNavigation(url: Uri): String? {
-        if (!loadGate.awaitAtMost(SCRIPTLET_WAIT_MS)) return null
+        if (!loadGate.awaitAtMost(0)) return null
         return adBlocker?.rewriteNavigation(url)
     }
 

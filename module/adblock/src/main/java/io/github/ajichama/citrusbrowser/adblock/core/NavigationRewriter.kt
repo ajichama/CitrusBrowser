@@ -18,6 +18,7 @@ package io.github.ajichama.citrusbrowser.adblock.core
 
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.NetworkRuleFilter
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.UnifiedFilter
+import com.google.re2j.Pattern
 import java.net.URI
 import java.net.URLDecoder
 import java.util.Base64
@@ -33,8 +34,8 @@ class NavigationRewriter internal constructor(rules: List<UnifiedFilter>, except
 
     val isEmpty: Boolean get() = rules.isEmpty()
 
-    /** 書き換えた URL。書き換えない場合は null。 */
-    fun rewrite(request: ContentRequest, url: String): String? {
+    /** 書き換えた URL。書き換えない場合は null。[blocked] は、この移動が遮断の対象か。 */
+    fun rewrite(request: ContentRequest, url: String, blocked: Boolean = false): String? {
         if (rules.isEmpty()) return null
         val matched = rules.filter { it.isMatch(request) }
         if (matched.isEmpty()) return null
@@ -45,7 +46,8 @@ class NavigationRewriter internal constructor(rules: List<UnifiedFilter>, except
             return modifier !in excepted && kind !in excepted
         }
         // urlskip（中継先の URL を取り出す）を先に、次に removeparam を適用する。
-        matched.mapNotNull { it.constraints?.modifier }.filter { it.startsWith("urlskip=") && allowed(it) }.forEach { modifier ->
+        matched.mapNotNull { it.constraints?.modifier }.filter { it.startsWith("urlskip=") && allowed(it) }
+            .filter { !blocked || it.split(' ').contains("-blocked") }.forEach { modifier ->
             skip(url, modifier.removePrefix("urlskip="))?.let { return it }
         }
         var current = url
@@ -69,7 +71,7 @@ class NavigationRewriter internal constructor(rules: List<UnifiedFilter>, except
         fun isValidRemoveParam(value: String?): Boolean {
             if (value.isNullOrEmpty()) return true
             if (value.startsWith('~') || value.contains('|') && !value.startsWith('/')) return false
-            if (value.startsWith('/')) return value.length > 2 && value.endsWith('/') && runCatching { Regex(value.substring(1, value.length - 1)) }.isSuccess
+            if (value.startsWith('/')) return value.length > 2 && value.endsWith('/') && compile(value.substring(1, value.length - 1)) != null
             return value.none { it.isWhitespace() || it == '&' || it == '=' }
         }
 
@@ -83,12 +85,12 @@ class NavigationRewriter internal constructor(rules: List<UnifiedFilter>, except
             val base = beforeHash.substring(0, queryIndex)
             val params = beforeHash.substring(queryIndex + 1).split('&').filter { it.isNotEmpty() }
             val regex = if (value.length > 2 && value.startsWith('/') && value.endsWith('/')) {
-                runCatching { Regex(value.substring(1, value.length - 1)) }.getOrNull() ?: return url
+                compile(value.substring(1, value.length - 1)) ?: return url
             } else null
             val kept = params.filterNot { param ->
                 when {
                     value.isEmpty() -> true
-                    regex != null -> regex.containsMatchIn(decode(param))
+                    regex != null -> regex.matcher(decode(param)).find()
                     else -> decode(param.substringBefore('=')) == value
                 }
             }
@@ -105,9 +107,11 @@ class NavigationRewriter internal constructor(rules: List<UnifiedFilter>, except
                     step.startsWith("?") -> queryValue(current, step.substring(1)) ?: return null
                     step.startsWith("&") -> queryName(current, step.substring(1).toIntOrNull() ?: return null) ?: return null
                     step == "#" -> current.substringAfter('#', "").takeIf { it.isNotEmpty() } ?: return null
-                    step.startsWith("/") && step.length > 2 && step.endsWith("/") ->
-                        (runCatching { Regex(step.substring(1, step.length - 1)) }.getOrNull() ?: return null)
-                            .find(current)?.groupValues?.getOrNull(1) ?: return null
+                    step.startsWith("/") && step.length > 2 && step.endsWith("/") -> {
+                        val matcher = (compile(step.substring(1, step.length - 1)) ?: return null).matcher(current)
+                        if (!matcher.find() || matcher.groupCount() < 1) return null
+                        matcher.group(1) ?: return null
+                    }
                     step == "+https" -> when {
                         current.startsWith("http://", ignoreCase = true) -> "https://" + current.substring(7)
                         Regex("^[a-zA-Z][a-zA-Z0-9+.-]*:").containsMatchIn(current) -> current
@@ -125,6 +129,15 @@ class NavigationRewriter internal constructor(rules: List<UnifiedFilter>, except
             if ((scheme != "http" && scheme != "https") || parsed.host.isNullOrEmpty()) return null
             return current.takeIf { it != url }
         }
+
+        private val patterns = java.util.concurrent.ConcurrentHashMap<String, Pattern>()
+
+        /**
+         * リストの正規表現は re2j（線形時間）で扱い、一度だけコンパイルする。
+         * java.util.regex の後方参照等による暴走（ReDoS）を、移動のたびに UI スレッドで起こさないため。
+         */
+        private fun compile(source: String): Pattern? = patterns[source] ?: runCatching { Pattern.compile(source) }.getOrNull()
+            ?.also { if (patterns.size < 4096) patterns[source] = it }
 
         private fun queryParams(url: String): List<String> {
             val query = url.substringBefore('#').substringAfter('?', "")

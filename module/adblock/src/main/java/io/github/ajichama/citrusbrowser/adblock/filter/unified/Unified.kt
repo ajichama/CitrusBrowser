@@ -49,6 +49,8 @@ fun createRegexFilter(filter: String, contentType: Int, ignoreCase: Boolean, dom
         return Re2Filter(filter, contentType, ignoreCase, domains, thirdParty)
     } catch (e: PatternSyntaxException) {
         // 外部リストの正規表現は、実行時間が保証される RE2 の対応範囲に限定する。
+    } catch (e: StackOverflowError) {
+        // 巨大な正規表現は RE2 のコンパイルが再帰でスタックを使い切る。アプリを落とさず、その行だけを捨てる。
     }
     return null
 }
