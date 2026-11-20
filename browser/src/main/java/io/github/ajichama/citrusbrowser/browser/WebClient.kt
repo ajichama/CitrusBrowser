@@ -591,6 +591,8 @@ class WebClient(
         }
 
         override fun doUpdateVisitedHistory(web: CustomWebView, url: String, isReload: Boolean) {
+            // プライベートタブは履歴に残さない（#15）。
+            if (web.isPrivate) return
             val data = controller.getTabOrNull(web)?.originalUrl ?: return
 
             browserHistoryManager?.add(data)
@@ -864,7 +866,7 @@ class WebClient(
 
             data.onReceivedTitle(title)
 
-            browserHistoryManager?.update(data.originalUrl, title)
+            if (!web.isPrivate) browserHistoryManager?.update(data.originalUrl, title)
         }
 
         override fun onReceivedIcon(web: CustomWebView, icon: Bitmap) {

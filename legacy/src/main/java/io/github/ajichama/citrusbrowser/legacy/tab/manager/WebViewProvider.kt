@@ -20,5 +20,6 @@ import io.github.ajichama.citrusbrowser.webview.CustomWebView
 import io.github.ajichama.citrusbrowser.webview.WebViewType
 
 interface WebViewProvider {
-    fun makeWebView(@WebViewType cacheType: Int): CustomWebView
+    /** [privateTab] が true なら、プライベートタブの WebView を作る（#15）。 */
+    fun makeWebView(@WebViewType cacheType: Int, privateTab: Boolean): CustomWebView
 }

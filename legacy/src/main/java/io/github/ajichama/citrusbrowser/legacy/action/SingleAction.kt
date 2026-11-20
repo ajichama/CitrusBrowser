@@ -128,6 +128,8 @@ open class SingleAction : Parcelable {
         const val CLOSE_ALL_RIGHT = 10016
         const val RESTORE_TAB = 10020
         const val REPLICATE_TAB = 10021
+        /** 新しいプライベートタブ（#15）。 */
+        const val NEW_PRIVATE_TAB = 10030
         const val SHOW_SEARCHBOX = 35000
         const val PASTE_SEARCHBOX = 35001
         const val PASTE_GO = 35002
@@ -191,6 +193,8 @@ open class SingleAction : Parcelable {
         const val LPRESS_OPEN_BG = -12
         const val LPRESS_OPEN_NEW_RIGHT = -13
         const val LPRESS_OPEN_BG_RIGHT = -14
+        /** リンクをプライベートタブで開く（#15）。 */
+        const val LPRESS_OPEN_PRIVATE = -15
         const val LPRESS_SHARE = -50
         const val LPRESS_OPEN_OTHERS = -51
         const val LPRESS_COPY_URL = -52

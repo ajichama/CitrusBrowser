@@ -29,6 +29,8 @@ class BrowserTabManager(private val tabManager: TabManager, private val controll
 
     override fun add(web: CustomWebView, @TabType type: Int): MainTabData {
         val tab = add(web, toolbarManager.addNewTabView())
+        // プライベートタブの印（#15）。保存の一覧から外すために使う。
+        tab.tabIndexData.isPrivateTab = web.isPrivate
         tab.tabType = type
         if (type == TabType.WINDOW) {
             tab.parent = tabManager.getIndexData(tabManager.currentTabNo).id

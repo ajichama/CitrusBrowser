@@ -130,6 +130,10 @@ class ActionExecutor(
                         controller.openInRightNewTab(url, TabType.WINDOW)
                         return true
                     }
+                    SingleAction.LPRESS_OPEN_PRIVATE -> {
+                        controller.openInNewPrivateTab(url)
+                        return true
+                    }
                     SingleAction.LPRESS_OPEN_BG_RIGHT -> {
                         controller.openInRightBgTab(url, TabType.WINDOW)
                         return true
@@ -304,6 +308,10 @@ class ActionExecutor(
                     }
                     SingleAction.LPRESS_OPEN_NEW_RIGHT -> {
                         target.webView.requestFocusNodeHref(WebSrcImageOpenRightNewTabHandler(controller).obtainMessage())//TODO check stratActionMode's Nullpo exception
+                        return true
+                    }
+                    SingleAction.LPRESS_OPEN_PRIVATE -> {
+                        controller.openInNewPrivateTab(url)
                         return true
                     }
                     SingleAction.LPRESS_OPEN_BG_RIGHT -> {
@@ -751,6 +759,7 @@ class ActionExecutor(
                 }
             }
             SingleAction.NEW_TAB -> controller.openInNewTab(AppPrefs.home_page.get(), TabType.DEFAULT)
+            SingleAction.NEW_PRIVATE_TAB -> controller.openInNewPrivateTab(AppPrefs.home_page.get())
             SingleAction.CLOSE_TAB -> if (!controller.removeTab(actionTarget)) {
                 checkAndRun((action as CloseTabSingleAction).defaultAction, target)
             }

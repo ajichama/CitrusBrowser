@@ -130,6 +130,7 @@ class ActionIconManager(val info: BrowserInfo) {
             SingleAction.OPEN_URL -> return info.resourcesByInfo.getDrawable(R.drawable.ic_book_white_24dp, info.themeByInfo)
             SingleAction.TRANSLATE_PAGE -> return info.resourcesByInfo.getDrawable(R.drawable.ic_g_translate_white_24px, info.themeByInfo)
             SingleAction.NEW_TAB -> return info.resourcesByInfo.getDrawable(R.drawable.ic_add_box_white_24dp, info.themeByInfo)
+            SingleAction.NEW_PRIVATE_TAB -> return info.resourcesByInfo.getDrawable(R.drawable.ic_add_box_white_24dp, info.themeByInfo)
             SingleAction.CLOSE_TAB -> return info.resourcesByInfo.getDrawable(R.drawable.ic_minas_box_white_24dp, info.themeByInfo)
             SingleAction.CLOSE_ALL -> return info.resourcesByInfo.getDrawable(R.drawable.ic_minas_box_white_24dp, info.themeByInfo)
             SingleAction.CLOSE_AUTO_SELECT -> return info.resourcesByInfo.getDrawable(R.drawable.ic_minas_box_white_24dp, info.themeByInfo)

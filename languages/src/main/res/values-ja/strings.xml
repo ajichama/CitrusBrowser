@@ -63,6 +63,8 @@
     <string name="open_bg">バックグラウンドで開く</string>
     <string name="open_new_right">新しいタブで右に開く</string>
     <string name="open_bg_right">バックグラウンドで右に開く</string>
+    <string name="open_private_tab">プライベートタブで開く</string>
+    <string name="private_tab_unsupported">プライベートタブを使うには、Android System WebView の更新（119 以降）が必要です。</string>
     <string name="share">共有</string>
     <string name="open_other_app">他のアプリで開く</string>
     <string name="copy_url">URLをコピー</string>

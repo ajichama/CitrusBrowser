@@ -113,6 +113,7 @@ import io.github.ajichama.citrusbrowser.ui.utils.*
 import io.github.ajichama.citrusbrowser.ui.widget.PointerView
 import io.github.ajichama.citrusbrowser.webview.CustomWebHistoryItem
 import io.github.ajichama.citrusbrowser.webview.CustomWebView
+import io.github.ajichama.citrusbrowser.webview.PrivateBrowsing
 import io.github.ajichama.citrusbrowser.webview.WebViewFactory
 import io.github.ajichama.citrusbrowser.webview.WebViewType
 import io.github.ajichama.citrusbrowser.webview.listener.OnScrollChangedListener
@@ -263,6 +264,8 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
         }
 
         userActionManager = UserActionManager(this, this, actionController, iconManager)
+        // 前回の終了時に残ったプライベートタブのデータを消す（プライベートタブは次の起動へ持ち越さない）。
+        if (PrivateBrowsing.isSupported()) PrivateBrowsing.deleteData()
         tabManagerIn = BrowserTabManager(TabManagerFactory.newInstance(this, webViewFactory, faviconManager), this)
         webClient = WebClient(this, this, abpDatabase, webPermissionsDao, faviconManager)
 
@@ -948,7 +951,9 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
             outState.putInt(TAB_TYPE, oldData.tabType)
             // プライベートモードで閉じたタブは、ファイルに残さない。
             val stateUrl = oldData.url.orEmpty()
-            closedTabs.push(ClosedTabs.Entry(outState, stateUrl, oldData.title.orEmpty(), oldData.tabType, !isPrivateMode && stateUrl.isNotEmpty()))
+            // プライベートモード・プライベートタブで閉じたタブは、ファイルに残さない。
+            val persist = !isPrivateMode && !oldWeb.isPrivate && stateUrl.isNotEmpty()
+            closedTabs.push(ClosedTabs.Entry(outState, stateUrl, oldData.title.orEmpty(), oldData.tabType, persist))
         }
 
         oldWeb.setEmbeddedTitleBarMethod(null)
@@ -957,11 +962,31 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
         tabManagerIn.remove(target)
         toolbar.notifyChangeWebState()
         // 自動消去を選んだサイトで、同じサイトのタブがほかになければデータを消す。
-        SiteData.onTabClosed(applicationContext, closedUrl, (0 until tabManagerIn.size()).map { tabManagerIn[it].url })
+        if (!oldWeb.isPrivate) {
+            SiteData.onTabClosed(applicationContext, closedUrl, (0 until tabManagerIn.size()).map { tabManagerIn[it].url })
+        }
 
         if (destroy)
             oldWeb.destroy()
+        // 最後のプライベートタブを閉じたら、プライベートタブの Cookie・サイトのデータを消す。
+        if (oldWeb.isPrivate && (0 until tabManagerIn.size()).none { tabManagerIn.getIndexData(it).isPrivateTab }) {
+            deletePrivateDataWhenReleased(0)
+        }
         return true
+    }
+
+    /**
+     * WebView の破棄は少し遅れて終わるため、プロファイルが使用中のうちは時間をおいてやり直す。
+     * 途中でプライベートタブを開き直したらやめる。消せなかった分は、次の起動時に消える。
+     */
+    private fun deletePrivateDataWhenReleased(attempt: Int) {
+        val delays = longArrayOf(500, 2000, 5000, 15000)
+        if (attempt >= delays.size) return
+        binding.root.postDelayed({
+            if (isActivityDestroyed) return@postDelayed
+            if ((0 until tabManagerIn.size()).any { tabManagerIn.getIndexData(it).isPrivateTab }) return@postDelayed
+            if (!PrivateBrowsing.deleteData()) deletePrivateDataWhenReleased(attempt + 1)
+        }, delays[attempt])
     }
 
     private fun getNewTabNo(no: Int, oldData: MainTabData): Int {
@@ -1260,8 +1285,13 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
         return addNewTab(webViewFactory.mode, type)
     }
 
-    private fun addNewTab(@WebViewType cacheType: Int, @TabType type: Int): MainTabData {
-        val web = makeWebView(cacheType)
+    /**
+     * [privateTab] が null なら、プライベートタブから開いたリンク・ポップアップ（TabType.WINDOW）をプライベートタブにする（#15）。
+     */
+    private fun addNewTab(@WebViewType cacheType: Int, @TabType type: Int, privateTab: Boolean? = null): MainTabData {
+        val inherit = type == TabType.WINDOW && tabManagerIn.size() > 0 &&
+            tabManagerIn.getIndexData(tabManagerIn.currentTabNo)?.isPrivateTab == true
+        val web = makeWebView(cacheType, privateTab ?: inherit)
         // TODO: Restore this when Google fixes the bug where the WebView is blank after calling onPause followed by onResume.
         //        if (AppPrefs.pause_web_tab_change.get())
         //            web.onPause();
@@ -1280,8 +1310,9 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
         return true
     }
 
-    override fun makeWebView(@WebViewType cacheType: Int): CustomWebView {
-        val web = webViewFactory.create(this, cacheType)
+    override fun makeWebView(@WebViewType cacheType: Int, privateTab: Boolean): CustomWebView {
+        val usePrivate = privateTab && PrivateBrowsing.isSupported()
+        val web = webViewFactory.create(if (usePrivate) PrivateBrowsing.PrivateContext(this) else this, cacheType)
         web.view.id = View.generateViewId()
         web.webView.isFocusableInTouchMode = true
         web.webView.isFocusable = true
@@ -1296,7 +1327,14 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
             AppPrefs.accept_cookie.get() && AppPrefs.accept_cookie_private.get()
         else
             AppPrefs.accept_cookie.get()
-        web.setAcceptThirdPartyCookies(CookieManager.getInstance(), enableCookie && AppPrefs.accept_third_cookie.get())
+        if (web.isPrivate) {
+            // プライベートタブは、通常のタブと別の Cookie の保存先（プロファイル）を使う。
+            val cookies = PrivateBrowsing.cookieManager() ?: CookieManager.getInstance()
+            cookies.setAcceptCookie(AppPrefs.accept_cookie.get() && AppPrefs.accept_cookie_private.get())
+            web.setAcceptThirdPartyCookies(cookies, AppPrefs.accept_cookie.get() && AppPrefs.accept_third_cookie.get())
+        } else {
+            web.setAcceptThirdPartyCookies(CookieManager.getInstance(), enableCookie && AppPrefs.accept_third_cookie.get())
+        }
         return web
     }
 
@@ -1311,7 +1349,7 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
     override fun openInNewTab(tab: MainTabData) {
         val bundle = Bundle()
         tab.mWebView.saveState(bundle)
-        openNewTab(webViewFactory.getMode(bundle), bundle.getInt(TAB_TYPE, tab.tabType)).run {
+        openNewTab(webViewFactory.getMode(bundle), bundle.getInt(TAB_TYPE, tab.tabType), tab.mWebView.isPrivate).run {
             mWebView.restoreState(bundle)
             mWebView.identityId = id
             url = tab.url
@@ -1324,6 +1362,14 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
         loadUrl(openNewTab(type), url, shouldOpenInNewTab)
     }
 
+    override fun openInNewPrivateTab(url: String) {
+        if (!PrivateBrowsing.isSupported()) {
+            Toast.makeText(applicationContext, R.string.private_tab_unsupported, Toast.LENGTH_LONG).show()
+            return
+        }
+        loadUrl(openNewTab(webViewFactory.mode, TabType.DEFAULT, true), url, false)
+    }
+
     private fun openInNewTab(state: Bundle) {
         openNewTab(webViewFactory.getMode(state), state.getInt(TAB_TYPE, 0)).mWebView.restoreState(state)
     }
@@ -1332,8 +1378,8 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
         return openNewTab(webViewFactory.mode, type)
     }
 
-    private fun openNewTab(@WebViewType cacheType: Int, @TabType type: Int): MainTabData {
-        val tab = addNewTab(cacheType, type)
+    private fun openNewTab(@WebViewType cacheType: Int, @TabType type: Int, privateTab: Boolean? = null): MainTabData {
+        val tab = addNewTab(cacheType, type, privateTab)
         setCurrentTab(tabManagerIn.lastTabNo)
         toolbar.scrollTabRight()
         return tab

@@ -160,6 +160,7 @@
         <item>@string/open_bg</item>
         <item>@string/open_new_right</item>
         <item>@string/open_bg_right</item>
+        <item>@string/open_private_tab</item>
         <item>@string/share_link</item>
         <item>@string/open_link_other_app</item>
         <item>@string/copy_link_url</item>
@@ -177,6 +178,7 @@
         <item>-12</item>
         <item>-13</item>
         <item>-14</item>
+        <item>-15</item>
         <item>-50</item>
         <item>-51</item>
         <item>-52</item>
@@ -234,6 +236,7 @@
         <item>@string/open_bg</item>
         <item>@string/open_new_right</item>
         <item>@string/open_bg_right</item>
+        <item>@string/open_private_tab</item>
         <item>@string/share_link</item>
         <item>@string/open_link_other_app</item>
         <item>@string/copy_link_url</item>
@@ -266,6 +269,7 @@
         <item>-12</item>
         <item>-13</item>
         <item>-14</item>
+        <item>-15</item>
         <item>-50</item>
         <item>-51</item>
         <item>-52</item>

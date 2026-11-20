@@ -55,6 +55,7 @@
         <item>@string/action_open_url</item>
         <item>@string/action_translate_page</item>
         <item>@string/action_new_tab</item>
+        <item>@string/action_new_private_tab</item>
         <item>@string/action_close_tab</item>
         <item>@string/action_close_all</item>
         <item>@string/action_close_others</item>

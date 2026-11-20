@@ -149,4 +149,15 @@ public class TabIndexData implements Serializable {
     public void setPinning(boolean pinning) {
         this.pinning = pinning;
     }
+
+    // プライベートタブ（#15）。ファイルへは保存しない（実行中だけの印）。
+    private transient boolean privateTab;
+
+    public boolean isPrivateTab() {
+        return privateTab;
+    }
+
+    public void setPrivateTab(boolean privateTab) {
+        this.privateTab = privateTab;
+    }
 }
