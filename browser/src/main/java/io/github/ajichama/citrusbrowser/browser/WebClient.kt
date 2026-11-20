@@ -277,7 +277,8 @@ class WebClient(
         setting.useWideViewPort = AppPrefs.web_wideview.get()
         setting.displayZoomButtons = AppPrefs.show_zoom_button.get()
         setting.cacheMode = AppPrefs.web_cache.get()
-        setting.javaScriptCanOpenWindowsAutomatically = AppPrefs.web_popup.get()
+        // ポップアップは onCreateWindow で判定する（ブロックしたことを知らせ、その場で許可できるようにするため）。
+        setting.javaScriptCanOpenWindowsAutomatically = true
         setting.layoutAlgorithm = WebSettings.LayoutAlgorithm.valueOf(AppPrefs.layout_algorithm.get())
         setting.loadsImagesAutomatically = !AppPrefs.block_web_images.get()
 
@@ -882,9 +883,29 @@ class WebClient(
 
 
         override fun onCreateWindow(view: CustomWebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
+            // 利用者の操作によらないポップアップは、設定で許可したとき・許可したサイトだけ開く（Issue #11）。
+            if (!isUserGesture && !AppPrefs.web_popup.get()) {
+                val site = SiteData.popupSite(view.url)
+                if (site == null || !SiteData.isPopupAllowed(controller.activity, site)) {
+                    notifyPopupBlocked(site)
+                    return false
+                }
+            }
             controller.checkNewTabLink(AppPrefs.newtab_blank.get(), resultMsg.obj as WebView.WebViewTransport)
             resultMsg.sendToTarget()
             return true
+        }
+
+        private fun notifyPopupBlocked(site: String?) {
+            val root = controller.activity.findViewById<android.view.View>(android.R.id.content) ?: return
+            val bar = com.google.android.material.snackbar.Snackbar.make(root, R.string.popup_blocked, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
+            if (site != null) {
+                bar.setAction(R.string.popup_allow) {
+                    SiteData.setPopupAllowed(controller.activity, site, true)
+                    Toast.makeText(controller.activity, controller.activity.getString(R.string.popup_allowed_retry, site), Toast.LENGTH_LONG).show()
+                }
+            }
+            bar.show()
         }
 
         override fun onCloseWindow(web: CustomWebView) {
@@ -1113,15 +1134,7 @@ class WebClient(
                                     val file = DownloadFile(items[2], null, DownloadRequest(null, data.mWebView.webSettings.userAgentString, null))
                                     controller.activity.download(getDownloadFolderUri(controller.applicationContextInfo), file, null)
                                 }
-                                "3" -> {
-                                    val downloader = FastDownloadActivity
-                                        .intent(controller.activity,
-                                            items[2],
-                                            data.mWebView.url,
-                                            data.mWebView.getUserAgent(),
-                                            ".jpg")
-                                    controller.startActivity(downloader, BrowserController.REQUEST_SHARE_IMAGE)
-                                }
+                                "3" -> ImageClipboard.share(controller.activity, controller.okHttpClient, items[2], null, null)
                                 "4" -> ImageClipboard.copy(controller.activity, controller.okHttpClient, items[2], null, null)
                             }
                         }

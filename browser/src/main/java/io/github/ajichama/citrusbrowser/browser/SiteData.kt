@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger
 internal object SiteData {
     private const val PREFS = "site_data"
     private const val KEY_CLEAR_ON_CLOSE = "clear_on_close"
+    private const val KEY_POPUP_ALLOWED = "popup_allowed"
 
     private val blocked = Collections.synchronizedMap(WeakHashMap<Any, AtomicInteger>())
     // WebView は、警告を無視して進んだホストをプロセスが動いている間は覚えていて、再読込では警告を出さない。そのためホスト単位で記録する。
@@ -76,6 +77,19 @@ internal object SiteData {
         val current = prefs(context).getStringSet(KEY_CLEAR_ON_CLOSE, emptySet()).orEmpty().toMutableSet()
         if (enabled) current += site else current -= site
         prefs(context).edit().putStringSet(KEY_CLEAR_ON_CLOSE, current).apply()
+    }
+
+    /** ポップアップの許可の単位。通常は登録可能なドメイン、IP アドレスや社内のホスト名ではホスト名。 */
+    fun popupSite(url: String?): String? = site(url) ?: url?.toHttpUrlOrNull()?.host
+
+    /** 利用者の操作によらないポップアップを、このサイトでは開くか。 */
+    fun isPopupAllowed(context: Context, site: String): Boolean =
+        site in prefs(context).getStringSet(KEY_POPUP_ALLOWED, emptySet()).orEmpty()
+
+    fun setPopupAllowed(context: Context, site: String, allowed: Boolean) {
+        val current = prefs(context).getStringSet(KEY_POPUP_ALLOWED, emptySet()).orEmpty().toMutableSet()
+        if (allowed) current += site else current -= site
+        prefs(context).edit().putStringSet(KEY_POPUP_ALLOWED, current).apply()
     }
 
     /** タブを閉じた後に呼ぶ。自動消去を選んだサイトで、同じサイトのタブがほかに開いていなければ消す。 */

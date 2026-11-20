@@ -203,7 +203,7 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
     override var isActivityPaused: Boolean = true
         private set
 
-    private var closedTabs: ArrayDeque<Bundle>? = null
+    private val closedTabs by lazy { ClosedTabs(java.io.File(filesDir, ClosedTabs.FILE_NAME)) }
     private var webViewFindDialog: WebViewFindDialog? = null
     private var webViewPageFastScroller: WebViewPageFastScroller? = null
     private var webViewAutoScrollManager: WebViewAutoScrollManager? = null
@@ -396,6 +396,8 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
     override fun onResume() {
         super.onResume()
         isResumed = true
+        // 設定画面で履歴を消したときは、閉じたタブの記録も消す。
+        closedTabs.dropIfFileDeleted()
     }
 
     override fun onPostResume() {
@@ -919,9 +921,6 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
 
     private fun addTab(index: Int, tab: MainTabData) {
         tabManager.addTab(index, tab)
-        if (AppPrefs.save_closed_tab.get()) {
-            closedTabs?.poll()
-        }
     }
 
     override fun removeTab(target: Int, error: Boolean, destroy: Boolean): Boolean {
@@ -947,9 +946,9 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
             val outState = Bundle()
             oldWeb.saveState(outState)
             outState.putInt(TAB_TYPE, oldData.tabType)
-            if (closedTabs == null)
-                closedTabs = ArrayDeque()
-            closedTabs!!.push(outState)
+            // プライベートモードで閉じたタブは、ファイルに残さない。
+            val stateUrl = oldData.url.orEmpty()
+            closedTabs.push(ClosedTabs.Entry(outState, stateUrl, oldData.title.orEmpty(), oldData.tabType, !isPrivateMode && stateUrl.isNotEmpty()))
         }
 
         oldWeb.setEmbeddedTitleBarMethod(null)
@@ -1100,14 +1099,16 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
     }
 
     override fun restoreTab() {
-        val bundle = closedTabs?.poll()
-        if (bundle == null) {
+        val closed = closedTabs.poll()
+        if (closed == null) {
             if (AppPrefs.save_closed_tab.get())
                 Toast.makeText(applicationContext, R.string.tab_restored_failed, Toast.LENGTH_SHORT).show()
             else
                 Toast.makeText(applicationContext, R.string.tab_restored_setting_error, Toast.LENGTH_LONG).show()
         } else {
-            openInNewTab(bundle)
+            // 同じ起動中に閉じたタブは戻る・進むの履歴ごと、アプリの終了をまたいだタブは URL から開き直す。
+            val state = closed.state
+            if (state != null) openInNewTab(state) else openInNewTab(closed.url, closed.tabType, false)
             Toast.makeText(applicationContext, R.string.tab_restored_succeed, Toast.LENGTH_SHORT).show()
         }
     }

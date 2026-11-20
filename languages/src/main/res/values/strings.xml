@@ -82,6 +82,7 @@
     <string name="share_image">Share image</string>
     <string name="share_image_url">Share image URL</string>
     <string name="open_image_other_app">Open image in another app</string>
+    <string name="share_image_failed">Could not share the image</string>
     <string name="copy_image">Copy image</string>
     <string name="copy_image_done">Image copied</string>
     <string name="copy_image_failed">Could not copy the image</string>
@@ -353,6 +354,10 @@
     <string name="site_info_clear">Clear site data</string>
     <string name="site_info_clear_confirm">Clear cookies, stored data and cache for %1$s. You will be signed out of this site.</string>
     <string name="site_info_cleared">Cleared data for %1$s</string>
+    <string name="site_info_allow_popup">Allow pop-ups from %1$s</string>
+    <string name="popup_blocked">Pop-up blocked</string>
+    <string name="popup_allow">Allow</string>
+    <string name="popup_allowed_retry">Pop-ups are allowed for %1$s. Please try again.</string>
     <string name="site_info_clear_on_close">Clear %1$s data automatically when its tab is closed (if no other tab shows this site)</string>
     <string name="site_info_certificate_error">Connection: the certificate has a problem (shown after you ignored the warning)</string>
 </resources>

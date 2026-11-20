@@ -268,6 +268,7 @@ public class AppData {
         settingInitialValue(context, AppPrefs.getPreference(context), moshi, abpDatabase);
         io.github.ajichama.citrusbrowser.search.repository.SearchDefaults.migrateLegacyDefaults(context, moshi);
         io.github.ajichama.citrusbrowser.legacy.action.manager.LongPressMenuMigration.migrate(context);
+        DefaultsMigration.migrate(context);
         return true;
     }
 }
