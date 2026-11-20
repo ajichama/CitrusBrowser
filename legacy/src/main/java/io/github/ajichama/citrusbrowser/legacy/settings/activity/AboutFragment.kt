@@ -57,12 +57,13 @@ class AboutFragment : CitrusPreferenceFragment() {
             true
         }
 
-        // CitrusBrowser リポジトリのプライバシーポリシー (Privacy.md) を表示
+        // GitHub Pages で公開しているプライバシーポリシーを表示する（Play Console に登録する URL と同じ）。日本語以外は英語版。
         findPreference<Preference>("privacy_policy")!!.setOnPreferenceClickListener {
             startActivity(Intent().apply {
                 setClassName(requireContext(), Constants.activity.MAIN_BROWSER)
                 action = Constants.intent.ACTION_OPEN_DEFAULT
-                data = Uri.parse("https://github.com/ajichama/CitrusBrowser/blob/main/Privacy.md")
+                val page = if (resources.configuration.locales[0].language == "ja") "" else "en.html"
+                data = Uri.parse("https://ajichama.github.io/CitrusBrowser/privacy/$page")
             })
             true
         }

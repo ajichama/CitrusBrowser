@@ -197,6 +197,7 @@
         <item>@string/share_image</item>
         <item>@string/share_image_url</item>
         <item>@string/open_image_other_app</item>
+        <item>@string/copy_image</item>
         <item>@string/copy_image_url</item>
         <item>@string/save_image</item>
         <item>@string/save_image_as</item>
@@ -216,6 +217,7 @@
         <item>-158</item>
         <item>-150</item>
         <item>-151</item>
+        <item>-164</item>
         <item>-152</item>
         <item>-159</item>
         <item>-153</item>
@@ -246,6 +248,7 @@
         <item>@string/share_image</item>
         <item>@string/share_image_url</item>
         <item>@string/open_image_other_app</item>
+        <item>@string/copy_image</item>
         <item>@string/copy_image_url</item>
         <item>@string/save_image</item>
         <item>@string/save_image_as</item>
@@ -276,6 +279,7 @@
         <item>-158</item>
         <item>-150</item>
         <item>-151</item>
+        <item>-164</item>
         <item>-152</item>
         <item>-159</item>
         <item>-153</item>

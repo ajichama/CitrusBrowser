@@ -1,51 +1,8 @@
-# CitrusBrowser プライバシーポリシー
+# CitrusBrowser プライバシーポリシー / Privacy Policy
 
-本プライバシーポリシーは、**CitrusBrowser**（開発・管理: [ajichama](https://github.com/ajichama/CitrusBrowser)、以下「本アプリ」）における利用者情報の取り扱いおよび端末権限（パーミッション）の利用目的について定めるものです。
+プライバシーポリシーは GitHub Pages で公開しています（Google Play に登録する URL と同じです）。
 
----
+- 日本語: https://ajichama.github.io/CitrusBrowser/privacy/
+- English: https://ajichama.github.io/CitrusBrowser/privacy/en.html
 
-## 1. 利用者情報の収集・外部送信について（ゼロ・テレメトリ方針）
-
-**本アプリは、開発者による個人情報の収集、利用統計データの収集（Analytics）、およびクラッシュレポートの自動外部送信（Crashlytics 等）を一切行いません。**
-
-- 本アプリには広告トラッカーや解析用サードパーティSDK（Firebase Analytics / Crashlytics / Fabric 等）は一切組み込まれていません。
-- 閲覧履歴、ブックマーク、Cookie、保存された設定データ等はすべて**利用者の端末内（ローカルストレージ）にのみ保存**され、開発者のサーバーへ送信されることはありません。
-
----
-
-## 2. 端末権限（パーミッション）の利用目的
-
-本アプリは、Webブラウザとしての機能を提供するために以下の端末権限を使用します。これらの権限によって取得された情報は端末内でのブラウザ動作および利用者が明示的にアクセスしたWebサイトの機能提供にのみ使用され、開発者が収集することはありません。
-
-- **`INTERNET` / `ACCESS_NETWORK_STATE`**:
-  - Webページの閲覧、検索、ファイルのダウンロード、および広告ブロックフィルタの更新に必要です。
-- **`READ_EXTERNAL_STORAGE` / `WRITE_EXTERNAL_STORAGE`**（対象OSバージョンのみ）:
-  - Web上のファイルや画像のダウンロード保存、および設定・ブックマークデータのバックアップ／復元に必要です。
-- **`ACCESS_COARSE_LOCATION` / `ACCESS_FINE_LOCATION`（位置情報）**:
-  - 地図サイト等、利用者が位置情報の利用を許可したWebサイトへ現在地を提供するために使用します（端末またはブラウザ設定からいつでも拒否可能です）。
-- **`CAMERA`（カメラ） / `RECORD_AUDIO`（マイク） / `MODIFY_AUDIO_SETTINGS`**:
-  - WebRTC 等を用いたビデオ通話・音声入力対応Webサイトで、利用者が明示的に許可した場合にのみ使用します（いつでも拒否可能です）。
-- **`WAKE_LOCK` / `FOREGROUND_SERVICE`**:
-  - 動画再生中の画面スリープ防止、およびバックグラウンドでのファイルダウンロード継続のために使用します。
-- **`INSTALL_SHORTCUT`**:
-  - Webページのショートカットをホーム画面に追加する機能のために使用します。
-
----
-
-## 3. 外部Webサイトおよび検索エンジンへのアクセス
-
-利用者が本アプリを通じて閲覧する外部Webサイト、検索エンジン（Google、Bing、DuckDuckGo 等）、またはサードパーティのフィルタ配信元（AdBlock リスト等）における個人情報の取り扱いについては、それぞれのサービス提供者のプライバシーポリシーが適用されます。本アプリの開発者は、移動先の外部サイトのコンテンツやプライバシー慣行について一切の責任を負いません。
-
----
-
-## 4. 免責事項
-
-本アプリは Apache License 2.0 のもと「現状有姿（AS IS）」で提供されます。本アプリの利用により生じたいかなる損害についても、開発者は法令上の義務がある場合を除き責任を負いません。
-
----
-
-## 5. プライバシーポリシーの変更およびお問い合わせ
-
-本ポリシーの内容は、法令の改正や本アプリの機能変更に応じて改定される場合があります。改定後のポリシーは本リポジトリ（[Privacy.md](https://github.com/ajichama/CitrusBrowser/blob/main/Privacy.md)）に掲載された時点で効力を生じます。
-
-本ポリシーまたは本アプリの動作に関するご質問・ご報告は、GitHub リポジトリの [Issues](https://github.com/ajichama/CitrusBrowser/issues) よりお願いいたします。
+ページの原稿は [docs/privacy/](docs/privacy/) にあります。

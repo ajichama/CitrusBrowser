@@ -82,6 +82,9 @@
     <string name="share_image">Share image</string>
     <string name="share_image_url">Share image URL</string>
     <string name="open_image_other_app">Open image in another app</string>
+    <string name="copy_image">Copy image</string>
+    <string name="copy_image_done">Image copied</string>
+    <string name="copy_image_failed">Could not copy the image</string>
     <string name="copy_image_url">Copy image URL</string>
     <string name="save_image">Save image</string>
     <string name="save_image_as">Save image As…</string>

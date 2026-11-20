@@ -131,6 +131,8 @@ internal class PortableImport private constructor(
                         val encoded = ImportActions.validate(path, bytes, remap)
                         if (encoded == null) ignored++ else changes[target(path)] = encoded
                     }
+                    // 取り込んだ長押しメニューにも、後から加えた項目（画像をコピー）を次の起動で足す。
+                    if (actionFiles.isNotEmpty()) io.github.ajichama.citrusbrowser.legacy.action.manager.LongPressMenuMigration.resetAfterImport(context)
                     if (search != null) {
                         val current = readCurrent(SearchImport.PATH, 2 * 1024 * 1024)?.let { SearchImport.decode(it, moshi) }
                             ?: SearchSettings(0, 0, emptyList())

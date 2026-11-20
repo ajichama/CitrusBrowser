@@ -215,6 +215,8 @@ open class SingleAction : Parcelable {
         const val LPRESS_ADD_IMAGE_BLACK_LIST = -161
         const val LPRESS_ADD_WHITE_LIST = -162
         const val LPRESS_ADD_IMAGE_WHITE_LIST = -163
+        /** 画像を、画像としてクリップボードへコピーする（CitrusBrowser で追加）。 */
+        const val LPRESS_COPY_IMAGE = -164
 
         @JvmStatic
         fun makeInstance(id: Int): SingleAction {

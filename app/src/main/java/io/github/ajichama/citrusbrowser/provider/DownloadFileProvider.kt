@@ -127,7 +127,8 @@ class DownloadFileProvider : ContentProvider() {
 
         val splitIndex = path!!.indexOf('/', 1)
         val tag = path.substring(1, splitIndex)
-        path = Uri.decode(path.substring(splitIndex + 1))
+        // 絶対パスの先頭の / は URI に含めない（旧形式の file//storage/… も受け付ける）。
+        path = "/" + Uri.decode(path.substring(splitIndex + 1)).trimStart('/')
 
         if (PATH != tag) {
             throw IllegalArgumentException("No files supported by provider at $uri")
@@ -169,7 +170,9 @@ class DownloadFileProvider : ContentProvider() {
         private const val URI_MODE_KEY = "q"
 
         fun getUriFromPath(filePath: String): Uri {
-            val path = PATH + '/'.toString() + Uri.encode(filePath, "/")
+            // file//storage/… のような二重のスラッシュは、Android が読み取りのときに正規化するため、
+            // 共有・クリップボードで渡した許可の URI と一致しなくなる。先頭の / を除いて組み立てる。
+            val path = PATH + '/'.toString() + Uri.encode(filePath.trimStart('/'), "/")
             return Uri.Builder().scheme(SCHEME).authority(AUTHORITY).encodedPath(path).build()
         }
 

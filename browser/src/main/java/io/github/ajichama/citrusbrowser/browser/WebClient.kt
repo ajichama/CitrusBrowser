@@ -1122,6 +1122,7 @@ class WebClient(
                                             ".jpg")
                                     controller.startActivity(downloader, BrowserController.REQUEST_SHARE_IMAGE)
                                 }
+                                "4" -> ImageClipboard.copy(controller.activity, controller.okHttpClient, items[2], null, null)
                             }
                         }
                         return true

@@ -221,6 +221,15 @@ class ActionExecutor(
                         controller.applicationContextInfo.setClipboardWithToast(url)
                         return true
                     }
+                    SingleAction.LPRESS_COPY_IMAGE -> {
+                        if (url.startsWith("blob:")) {
+                            // blob の画像は、ページ内で data: の URL に変えてから受け取る（WebClient の種別 4）。
+                            target.webView.webView.evaluateJavascript(controller.activity.getBlobDownloadJavaScript(url, controller.secretKey, 4), null)
+                        } else {
+                            ImageClipboard.copy(controller.activity, controller.okHttpClient, url, target.webView.getUserAgent(), target.webView.url)
+                        }
+                        return true
+                    }
                     SingleAction.LPRESS_SAVE_IMAGE_AS -> {
                         if (url.startsWith("blob:")) {
                             target.webView.saveBlob(url, 1)
@@ -353,6 +362,15 @@ class ActionExecutor(
                     }
                     SingleAction.LPRESS_COPY_IMAGE_URL -> {
                         controller.applicationContextInfo.setClipboardWithToast(url)
+                        return true
+                    }
+                    SingleAction.LPRESS_COPY_IMAGE -> {
+                        if (url.startsWith("blob:")) {
+                            // blob の画像は、ページ内で data: の URL に変えてから受け取る（WebClient の種別 4）。
+                            target.webView.webView.evaluateJavascript(controller.activity.getBlobDownloadJavaScript(url, controller.secretKey, 4), null)
+                        } else {
+                            ImageClipboard.copy(controller.activity, controller.okHttpClient, url, target.webView.getUserAgent(), target.webView.url)
+                        }
                         return true
                     }
                     SingleAction.LPRESS_SAVE_IMAGE_AS -> {

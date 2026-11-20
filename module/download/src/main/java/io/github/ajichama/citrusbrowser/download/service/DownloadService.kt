@@ -73,6 +73,8 @@ class DownloadService : Service(), ServiceClient.ServiceClientListener {
 
     @Volatile
     private var isStopping = false
+    /** 受け付けたが、まだスレッドを登録していないダウンロードの数（threadList で同期する）。 */
+    private var pendingStarts = 0
 
     @Inject
     lateinit var okHttpClient: OkHttpClient
@@ -87,12 +89,6 @@ class DownloadService : Service(), ServiceClient.ServiceClientListener {
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         messenger = Messenger(ServiceClient(this))
 
-        val notify = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_DOWNLOAD_SERVICE)
-            .setContentTitle(getText(R.string.download_service))
-            .setSmallIcon(R.drawable.ic_citrusbrowser_white)
-            .setPriority(NotificationCompat.PRIORITY_MIN)
-            .build()
-
         GlobalScope.launch(Dispatchers.IO) {
             downloadsDao.cleanUp()
         }
@@ -101,13 +97,33 @@ class DownloadService : Service(), ServiceClient.ServiceClientListener {
         filter.addAction(INTENT_ACTION_PAUSE_DOWNLOAD)
 
         ContextCompat.registerReceiver(this, notificationControl, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+    }
 
+    /**
+     * ダウンロードを始めるときだけ前景サービスにする（種類は dataSync）。
+     * ダウンロード一覧の表示（bind だけ）では前景にせず、通知も出さない。
+     */
+    private fun enterForeground() {
+        val notify = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_DOWNLOAD_SERVICE)
+            .setContentTitle(getText(R.string.download_service))
+            .setSmallIcon(R.drawable.ic_citrusbrowser_white)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .build()
         ServiceCompat.startForeground(
             this,
             Int.MIN_VALUE,
             notify,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC else 0
         )
+    }
+
+    /** 進行中のダウンロードがなくなったら、前景をやめて通知を消し、bind されていなければ終了する。 */
+    private fun leaveForegroundIfIdle() {
+        synchronized(threadList) {
+            if (threadList.isNotEmpty() || pendingStarts > 0) return
+        }
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     override fun onTimeout(startId: Int, fgsType: Int) {
@@ -138,9 +154,12 @@ class DownloadService : Service(), ServiceClient.ServiceClientListener {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null || isStopping) {
-            stopSelf()
+            leaveForegroundIfIdle()
             return START_NOT_STICKY
         }
+        // 前景へは要求を受けた時点で同期的に入る。スレッドの準備が済むまでは pendingStarts で終了を防ぐ。
+        synchronized(threadList) { pendingStarts++ }
+        enterForeground()
         GlobalScope.launch(Dispatchers.IO) {
             var thread: DownloadThread? = null
             when (intent.action) {
@@ -161,15 +180,16 @@ class DownloadService : Service(), ServiceClient.ServiceClientListener {
                 }
             }
 
-            if (thread != null) {
-                synchronized(threadList) {
-                    if (isStopping) return@launch
+            val started = synchronized(threadList) {
+                pendingStarts--
+                if (thread != null && !isStopping) {
                     threadList.add(thread)
+                    true
+                } else {
+                    false
                 }
-                thread.start()
-            } else {
-                stopSelf()
             }
+            if (started) thread?.start() else if (!isStopping) handler.post { leaveForegroundIfIdle() }
         }
         return START_NOT_STICKY
     }
@@ -495,10 +515,8 @@ class DownloadService : Service(), ServiceClient.ServiceClientListener {
 
             synchronized(threadList) {
                 threadList.remove(this)
-                if (threadList.isEmpty()) {
-                    stopSelf()
-                }
             }
+            handler.post { leaveForegroundIfIdle() }
         }
 
         private fun failedCheckFolder(info: DownloadFileInfo, @StringRes message: Int) {

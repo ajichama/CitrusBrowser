@@ -80,6 +80,9 @@
     <string name="share_image">画像の共有</string>
     <string name="share_image_url">画像のURLを共有</string>
     <string name="open_image_other_app">画像を他のアプリで開く</string>
+    <string name="copy_image">画像をコピー</string>
+    <string name="copy_image_done">画像をコピーしました</string>
+    <string name="copy_image_failed">画像をコピーできませんでした</string>
     <string name="copy_image_url">画像のURLをコピー</string>
     <string name="save_image">画像を保存</string>
     <string name="save_image_as">名前をつけて画像を保存</string>

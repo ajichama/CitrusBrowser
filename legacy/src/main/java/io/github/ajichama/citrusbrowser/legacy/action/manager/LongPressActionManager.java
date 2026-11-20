@@ -74,6 +74,7 @@ public class LongPressActionManager extends SingleActionManager {
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_IMAGE_BG));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SHARE_IMAGE_URL));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_IMAGE_OTHERS));
+                list.add(SingleAction.makeInstance(SingleAction.LPRESS_COPY_IMAGE));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_COPY_IMAGE_URL));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SAVE_IMAGE_AS));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_GOOGLE_IMAGE_SEARCH));
@@ -112,6 +113,7 @@ public class LongPressActionManager extends SingleActionManager {
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_IMAGE_BG));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SHARE_IMAGE_URL));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_IMAGE_OTHERS));
+                list.add(SingleAction.makeInstance(SingleAction.LPRESS_COPY_IMAGE));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_COPY_IMAGE_URL));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SAVE_IMAGE_AS));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_GOOGLE_IMAGE_SEARCH));

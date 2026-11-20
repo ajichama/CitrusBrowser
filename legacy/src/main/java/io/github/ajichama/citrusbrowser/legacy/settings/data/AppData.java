@@ -142,6 +142,7 @@ public class AppData {
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SHARE_IMAGE));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SHARE_IMAGE_URL));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_IMAGE_OTHERS));
+                list.add(SingleAction.makeInstance(SingleAction.LPRESS_COPY_IMAGE));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_COPY_IMAGE_URL));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SAVE_IMAGE));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SAVE_IMAGE_AS));
@@ -169,6 +170,7 @@ public class AppData {
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SHARE_IMAGE));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SHARE_IMAGE_URL));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_IMAGE_OTHERS));
+                list.add(SingleAction.makeInstance(SingleAction.LPRESS_COPY_IMAGE));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_COPY_IMAGE_URL));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SAVE_IMAGE));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SAVE_IMAGE_AS));
@@ -265,6 +267,7 @@ public class AppData {
         AppPrefs.load(context);
         settingInitialValue(context, AppPrefs.getPreference(context), moshi, abpDatabase);
         io.github.ajichama.citrusbrowser.search.repository.SearchDefaults.migrateLegacyDefaults(context, moshi);
+        io.github.ajichama.citrusbrowser.legacy.action.manager.LongPressMenuMigration.migrate(context);
         return true;
     }
 }
