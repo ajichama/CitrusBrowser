@@ -606,11 +606,12 @@ class ActionExecutor(
                         setOnCheckedChangeListener { _, checked -> SiteData.setClearOnClose(context, site, checked) }
                     })
                 }
-                if (site != null && !AppPrefs.web_popup.get()) {
+                val popupSite = SiteData.popupSite(url)
+                if (popupSite != null && !AppPrefs.web_popup.get()) {
                     container.addView(CheckBox(context).apply {
-                        text = context.getString(R.string.site_info_allow_popup, site)
-                        isChecked = SiteData.isPopupAllowed(context, site)
-                        setOnCheckedChangeListener { _, checked -> SiteData.setPopupAllowed(context, site, checked) }
+                        text = context.getString(R.string.site_info_allow_popup, popupSite)
+                        isChecked = SiteData.isPopupAllowed(context, popupSite)
+                        setOnCheckedChangeListener { _, checked -> SiteData.setPopupAllowed(context, popupSite, checked) }
                     })
                 }
                 AlertDialog.Builder(controller.activity)

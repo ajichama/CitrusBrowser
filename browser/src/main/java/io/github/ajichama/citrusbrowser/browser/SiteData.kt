@@ -79,6 +79,9 @@ internal object SiteData {
         prefs(context).edit().putStringSet(KEY_CLEAR_ON_CLOSE, current).apply()
     }
 
+    /** ポップアップの許可の単位。通常は登録可能なドメイン、IP アドレスや社内のホスト名ではホスト名。 */
+    fun popupSite(url: String?): String? = site(url) ?: url?.toHttpUrlOrNull()?.host
+
     /** 利用者の操作によらないポップアップを、このサイトでは開くか。 */
     fun isPopupAllowed(context: Context, site: String): Boolean =
         site in prefs(context).getStringSet(KEY_POPUP_ALLOWED, emptySet()).orEmpty()

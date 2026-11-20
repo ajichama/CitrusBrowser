@@ -885,7 +885,7 @@ class WebClient(
         override fun onCreateWindow(view: CustomWebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
             // 利用者の操作によらないポップアップは、設定で許可したとき・許可したサイトだけ開く（Issue #11）。
             if (!isUserGesture && !AppPrefs.web_popup.get()) {
-                val site = SiteData.site(view.url)
+                val site = SiteData.popupSite(view.url)
                 if (site == null || !SiteData.isPopupAllowed(controller.activity, site)) {
                     notifyPopupBlocked(site)
                     return false
