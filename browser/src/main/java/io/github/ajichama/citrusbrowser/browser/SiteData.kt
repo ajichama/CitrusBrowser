@@ -29,11 +29,20 @@ internal object SiteData {
     private const val KEY_CLEAR_ON_CLOSE = "clear_on_close"
 
     private val blocked = Collections.synchronizedMap(WeakHashMap<Any, AtomicInteger>())
+    // WebView は、警告を無視して進んだホストをプロセスが動いている間は覚えていて、再読込では警告を出さない。そのためホスト単位で記録する。
+    private val certificateErrorHosts = Collections.synchronizedSet(HashSet<String>())
 
     /** 主フレームの読み込み開始で、そのタブの遮断数を0に戻す。 */
     fun resetBlocked(web: Any) {
         blocked[web] = AtomicInteger()
     }
+
+    /** 証明書の警告を利用者が無視して進んだ。 */
+    fun markCertificateError(url: String?) {
+        url?.toHttpUrlOrNull()?.host?.let { certificateErrorHosts += it }
+    }
+
+    fun hadCertificateError(url: String?): Boolean = url?.toHttpUrlOrNull()?.host?.let { it in certificateErrorHosts } == true
 
     fun countBlocked(web: Any) {
         synchronized(blocked) { blocked.getOrPut(web) { AtomicInteger() } }.incrementAndGet()

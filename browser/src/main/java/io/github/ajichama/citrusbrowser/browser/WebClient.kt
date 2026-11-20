@@ -363,6 +363,8 @@ class WebClient(
                 // 例: m.x.com → mobile.twitter.com（X アプリの既定ドメイン）→ Play ストア。
                 val now = android.os.SystemClock.elapsedRealtime()
                 if (userGesture && !isRedirect) gestureNavigations[web] = now
+                // 操作を伴わない新しい移動（ページの script による自動遷移など）では、押した記録を引き継がない。
+                if (!userGesture && !isRedirect) gestureNavigations.remove(web)
                 val fromGesture = userGesture || (isRedirect && gestureNavigations[web]?.let { now - it < GESTURE_REDIRECT_WINDOW_MS } == true)
                 if (fromGesture && openInDefaultApp(web, uri)) {
                     gestureNavigations.remove(web)
@@ -381,13 +383,22 @@ class WebClient(
         private val gestureNavigations = java.util.WeakHashMap<CustomWebView, Long>()
 
         private fun openInDefaultApp(web: CustomWebView, uri: Uri): Boolean {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R || !AppPrefs.open_app_links.get()) return false
+            // Android 12 以降は、検証済みのドメイン（App Links）だけが既定のアプリになる。11 以前は対象外にする。
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || !AppPrefs.open_app_links.get()) return false
+            // プライベートモードでは、閲覧先を外部のアプリへ渡さない。
+            if (controller.isPrivateMode || AppPrefs.private_mode.get()) return false
             val scheme = uri.scheme?.lowercase(Locale.ENGLISH)
             if (scheme != "http" && scheme != "https") return false
-            val host = uri.host ?: return false
-            val currentHost = web.url?.let { Uri.parse(it).host }
-            if (currentHost != null && currentHost.equals(host, ignoreCase = true)) return false
-            val intent = Intent(Intent.ACTION_VIEW, uri)
+            val url = uri.toString()
+            // 同じサイト（登録可能ドメイン。www と m 等のサブドメイン違いを含む）の中の移動は対象外。
+            val site = SiteData.site(url) ?: uri.host ?: return false
+            val currentSite = web.url?.let { SiteData.site(it) ?: Uri.parse(it).host }
+            if (currentSite != null && currentSite.equals(site, ignoreCase = true)) return false
+            // URL パターン（新しいタブ・他アプリで開く等）に当たる移動は、その設定を優先する。
+            if (patternManager.list.any { it.action !is WebSettingPatternAction && it.isMatchUrl(url) }) return false
+            // removeparam・urlskip を当てた URL を渡し、追跡用の引数を外部のアプリへ渡さない。
+            val target = adBlockController?.rewriteNavigation(uri)?.let(Uri::parse) ?: uri
+            val intent = Intent(Intent.ACTION_VIEW, target)
                 .addCategory(Intent.CATEGORY_BROWSABLE)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REQUIRE_NON_BROWSER)
             return try {
@@ -484,6 +495,8 @@ class WebClient(
         }
 
         override fun onPageFinished(web: CustomWebView, url: String) {
+            // ページが確定したら、押したリンクの記録（リダイレクトをアプリで開く判定）を終える。
+            gestureNavigations.remove(web)
             controller.onPageFinished()
             val data = controller.getTabOrNull(web) ?: return
             // DOMContentLoaded の橋渡しが間に合わなかったページでも要素フィルタを適用する。
@@ -612,7 +625,11 @@ class WebClient(
                 AlertDialog.Builder(activity)
                     .setTitle(R.string.ssl_error_title)
                     .setView(view)
-                    .setPositiveButton(android.R.string.ok) { _, _ -> handler.proceed() }
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        // ページ情報で「暗号化されています」と表示しないよう、警告を無視して進んだことを記録する。
+                        SiteData.markCertificateError(error.url)
+                        handler.proceed()
+                    }
                     .setNegativeButton(android.R.string.cancel) { _, _ -> handler.cancel() }
                     .setOnCancelListener { handler.cancel() }
                     .show()

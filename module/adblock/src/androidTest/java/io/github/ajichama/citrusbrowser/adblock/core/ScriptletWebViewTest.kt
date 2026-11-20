@@ -385,7 +385,7 @@ class ScriptletWebViewTest {
             "blog.esuteru.com##+js(m3u-prune, ads.example, mpegurl)",
             source = "https://ublockorigin.github.io/uAssets/filters/filters.txt",
         )
-        load("""<img class="lazy" data-src="about:blank#lazy"><div id="box"></div><a class="sponsor" id="s">x</a>
+        load("""<img class="lazy" data-src="about:blank#lazy"><img class="lazy" id="bad" data-src="&#1;java&#9;scr&#10;ipt:void(0)"><div id="box"></div><a class="sponsor" id="s">x</a>
             <script>
             window.r = {};
             var box = document.getElementById('box');
@@ -417,6 +417,8 @@ class ScriptletWebViewTest {
         assertEquals("\"keep removed removed\"", evaluate("r.xhr"))
         assertEquals("true", evaluate("r.m3u.indexOf('ads.example') === -1 && r.m3u.indexOf('a.ts') !== -1 && r.m3u.indexOf('c.ts') !== -1 && r.m3u.split('#EXTINF').length === 3"))
         assertEquals("\"about:blank#lazy\"", evaluate("document.querySelector('img.lazy').getAttribute('src')"))
+        // 制御文字・タブ・改行を挟んだ javascript: は複写しない。
+        assertEquals("true", evaluate("document.getElementById('bad').getAttribute('src') === null"))
     }
 
     @Test fun exceptionAndEmptyResultsInjectNothing() {

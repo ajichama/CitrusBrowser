@@ -580,6 +580,7 @@ class ActionExecutor(
                 }
                 val certificate = tab.mWebView.webView.certificate
                 when {
+                    SiteData.hadCertificateError(url) -> addLine(context.getString(R.string.site_info_certificate_error))
                     url.startsWith("https://", ignoreCase = true) -> {
                         val issuer = certificate?.issuedBy?.let { it.oName.ifEmpty { it.cName } }.orEmpty()
                         addLine(if (issuer.isNotEmpty()) context.getString(R.string.site_info_secure, issuer) else context.getString(R.string.site_info_secure_unknown))

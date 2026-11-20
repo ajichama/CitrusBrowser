@@ -74,6 +74,7 @@ object Scriptlets {
         add("set-attr")
         add("prevent-innerHTML")
         add("m3u-prune")
+        add("set-cookie-reload")
     }
 
     /**
@@ -103,6 +104,7 @@ object Scriptlets {
         add("trusted-override-element-method")
         add("trusted-replace-xhr-response")
         add("trusted-replace-fetch-response", "trusted-rpfr")
+        add("trusted-set-cookie-reload")
     }
 
     private val trustedPrefixes = listOf(

@@ -51,6 +51,10 @@ class ScriptletsTest {
         // trusted の scriptlet（rpnt は trusted-replace-node-text の別名）と未実装の名前は破棄する。
         assertNull(Scriptlets.parse("+js(rpnt, script, a, b)"))
         assertNull(Scriptlets.parse("+js(nobab)"))
+        // Cookie 同意バナーのリストで使われる、reload 付きの別名。trusted 版は信頼できるリストからだけ受け付ける。
+        assertEquals(listOf("set-cookie-reload", "cookie_accepted", "1"), Scriptlets.parse("+js(set-cookie-reload, cookie_accepted, 1)"))
+        assertNull(Scriptlets.parse("+js(trusted-set-cookie-reload, consent, yes)"))
+        assertEquals(listOf("trusted-set-cookie-reload", "consent", "yes"), Scriptlets.parse("+js(trusted-set-cookie-reload, consent, yes)", trusted = true))
         assertEquals(listOf("prevent-window-open", "ads"), Scriptlets.parse("+js(nowoif, ads)"))
         assertEquals(listOf("window.name-defuser"), Scriptlets.parse("+js(window.name-defuser.js)"))
         assertNull(Scriptlets.parse("+js(set, a"))

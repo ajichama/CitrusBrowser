@@ -1219,6 +1219,18 @@
     }
   };
 
+  // set-cookie-reload: wiki の記述どおり、set-cookie に reload, 1 を付けたものとして扱う。
+  scriptlets['set-cookie-reload'] = function (args) {
+    var list = [args[0], args[1], args[2] === undefined ? '' : args[2]];
+    scriptlets['set-cookie'](list.concat(args.slice(3), ['reload', '1']));
+  };
+
+  // trusted-set-cookie-reload: wiki の記述どおり、trusted-set-cookie に reload, 1 を付けたものとして扱う。
+  scriptlets['trusted-set-cookie-reload'] = function (args) {
+    var list = [args[0], args[1], args[2] === undefined ? '' : args[2], args[3] === undefined ? '' : args[3]];
+    scriptlets['trusted-set-cookie'](list.concat(args.slice(4), ['reload', '1']));
+  };
+
   // trusted-set-attr: 指定した要素に属性を設定する（読込時と、その後の DOM の変化のたび）。
   scriptlets['trusted-set-attr'] = function (args) {
     var selector = args[0];
@@ -1227,7 +1239,7 @@
     if (!selector || !attr || !/^[A-Za-z_][\w:.-]*$/.test(attr)) return;
     // イベント処理の属性（onclick 等）はスクリプトの実行になるため設定しない（本体独自の安全側の制限）。
     if (/^on/i.test(attr) || /^srcdoc$/i.test(attr)) return;
-    if (/^\s*(javascript|data|vbscript):/i.test(value)) return;
+    if (isScriptUrl(value) || /^data:/i.test(value.replace(/[\u0000-\u0020]/g, ''))) return;
     try { doc.createDocumentFragment().querySelector(selector); } catch (e) { return; }
     var apply = function () {
       var nodes;
@@ -1334,10 +1346,12 @@
           length = Number(response.headers.get('content-length')) || 0;
         } catch (e) { return response; }
         if (!acceptsType(contentType, url) || length > 8 * 1024 * 1024) return response;
+        if (response.type === 'opaque' || response.type === 'opaqueredirect' || [101, 204, 205, 304].indexOf(response.status) !== -1) return response;
         return response.clone().text().then(function (text) {
           var edited = transform(text);
           if (edited === null || edited === text) return response;
-          var replaced = new W.Response(edited, { status: response.status, statusText: response.statusText, headers: response.headers });
+          var replaced;
+          try { replaced = new W.Response(edited, { status: response.status, statusText: response.statusText, headers: response.headers }); } catch (e) { return response; }
           try {
             defineProperty(replaced, 'url', { value: response.url });
             defineProperty(replaced, 'type', { value: response.type });
@@ -1442,6 +1456,12 @@
     });
   }
 
+  // URL として使われたときにスクリプトを実行する値か。ブラウザは前後の制御文字・空白と、途中のタブ・改行を無視して解釈する。
+  function isScriptUrl(value) {
+    var normalized = String(value).replace(/[\t\n\r]/g, '').replace(/^[\u0000-\u0020]+/, '');
+    return /^(javascript|vbscript):/i.test(normalized);
+  }
+
   function validSelector(selector) {
     try { doc.createDocumentFragment().querySelector(selector); return true; } catch (e) { return false; }
   }
@@ -1471,7 +1491,7 @@
         if (copyFrom !== null) {
           if (!el.hasAttribute(copyFrom)) continue;
           value = el.getAttribute(copyFrom);
-          if (/^\s*(javascript|vbscript):/i.test(value)) continue;
+          if (isScriptUrl(value)) continue;
         }
         if (el.getAttribute(attr) !== value) el.setAttribute(attr, value);
       }
@@ -1619,7 +1639,8 @@
       var out;
       if (whole) {
         out = text.replace(whole, function (match) {
-          var offset = arguments[arguments.length - 2];
+          var last = arguments[arguments.length - 1];
+          var offset = last !== null && typeof last === 'object' ? arguments[arguments.length - 3] : arguments[arguments.length - 2];
           var end = offset + match.length;
           var startsLine = offset === 0 || text.charAt(offset - 1) === '\n';
           var endsLine = end === text.length || text.charAt(end) === '\n' || text.charAt(end) === '\r' || match.charAt(match.length - 1) === '\n';
