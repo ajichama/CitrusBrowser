@@ -99,8 +99,15 @@ class NetworkConstraintsTest {
         for (frame in 0 until 4) {
             assertEquals(listOf(0xFF, 0xFB, 0x90, 0xC0), (0 until 4).map { mp3[frame * 417 + it].toInt() and 0xFF })
         }
-        // 未知の資源（代替スクリプト）は行ごと破棄する。
-        assertTrue(decode("||g.example^\$script,redirect=google-ima.js").blackList.isEmpty())
+        // 独自に作った代替スクリプトは、種類と番号を保存の往復でも保つ。未知の代替スクリプトは行ごと破棄する。
+        val ima = roundTrip(decode("||imasdk.example/js/sdkloader/ima3.js\$script,redirect=google-ima.js").blackList).single()
+        assertEquals(ContentRequest.REDIRECT_SURROGATE, ima.contentType and ContentRequest.REDIRECT_MASK)
+        assertEquals(ContentRequest.SURROGATE_GOOGLE_IMA, ima.contentType and ContentRequest.SURROGATE_MASK)
+        assertTrue(decode("||g.example^\$script,redirect=googlesyndication_adsbygoogle.js").blackList.isEmpty())
+        // redirect-rule で決めた代替スクリプトも、別のルールで遮断したときに番号ごと受け渡す。
+        val rule = blocker(roundTrip = true, "||ima.example^\$script,redirect-rule=google-ima.js", "||ima.example/sdk.js\$script")
+        val surrogate = requireNotNull(rule.isBlock(request("https://ima.example/sdk.js", "https://page.test/")))
+        assertEquals(ContentRequest.REDIRECT_SURROGATE or ContentRequest.SURROGATE_GOOGLE_IMA, surrogate.contentType and ContentRequest.REDIRECT_RESOURCE_MASK)
     }
 
     @Test

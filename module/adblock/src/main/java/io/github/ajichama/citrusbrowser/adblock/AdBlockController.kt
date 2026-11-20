@@ -112,6 +112,10 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
             ContentRequest.REDIRECT_IMAGE -> return WebResourceResponse("image/png", null, ByteArrayInputStream(dummyImage))
             ContentRequest.REDIRECT_FRAME -> return WebResourceResponse("text/html", "UTF-8", EmptyInputStream())
             ContentRequest.REDIRECT_AUDIO -> return WebResourceResponse("audio/mpeg", null, ByteArrayInputStream(silentAudio))
+            ContentRequest.REDIRECT_SURROGATE -> {
+                val script = Surrogates.script(context, filter?.contentType ?: 0)
+                return WebResourceResponse("application/javascript", "UTF-8", script?.let(::ByteArrayInputStream) ?: EmptyInputStream())
+            }
             ContentRequest.REDIRECT_EMPTY -> return WebResourceResponse("text/plain", "UTF-8", EmptyInputStream())
         }
         val mimeType = getMimeType(uri.toString())

@@ -49,7 +49,7 @@ data class Blocker(
         if (filter != null) {
             if (filter.contentType and ContentRequest.REDIRECT_MASK != 0) return filter
             // redirect は遮断の付加処理なので、別ルールによる important 遮断にも適用する。
-            val redirect = denys[request]?.contentType?.and(ContentRequest.REDIRECT_MASK) ?: 0
+            val redirect = denys[request]?.contentType?.and(ContentRequest.REDIRECT_RESOURCE_MASK) ?: 0
             return withRedirect(filter, if (redirect != 0) redirect else redirectRuleFor(request))
         }
 
@@ -62,7 +62,7 @@ data class Blocker(
     }
 
     private fun redirectRuleFor(request: ContentRequest): Int =
-        redirectRules[request]?.contentType?.and(ContentRequest.REDIRECT_MASK) ?: 0
+        redirectRules[request]?.contentType?.and(ContentRequest.REDIRECT_RESOURCE_MASK) ?: 0
 
     private fun withRedirect(filter: ContentFilter, redirect: Int): ContentFilter =
         if (redirect != 0) RedirectedBlockFilter(filter, redirect) else filter

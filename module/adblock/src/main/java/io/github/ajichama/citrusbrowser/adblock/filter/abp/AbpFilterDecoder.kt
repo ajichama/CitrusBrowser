@@ -354,7 +354,7 @@ class AbpFilterDecoder {
                             }
                             "redirect", "redirect-rule" -> {
                                 if (!blocking || inverse || value == null || redirectType != 0) return
-                                // 既知の空資源だけを近似する。未知の資源（各種の代替スクリプト等）は行ごと破棄する。
+                                // 既知の空資源と、独自に作った代替スクリプトだけを扱う。未知の資源は行ごと破棄する。
                                 // 末尾の `:数字` は優先度の指定なので外す。
                                 redirectType = when (value.replace(Regex(":\\d+$"), "")) {
                                     "empty", "noop.txt", "nooptext" -> ContentRequest.REDIRECT_EMPTY
@@ -364,6 +364,7 @@ class AbpFilterDecoder {
                                     "3x2.png", "3x2-transparent.png", "32x32.png", "32x32-transparent.png" -> ContentRequest.REDIRECT_IMAGE
                                     "noopframe", "noop.html" -> ContentRequest.REDIRECT_FRAME
                                     "noopmp3-0.1s", "noop-0.1s.mp3" -> ContentRequest.REDIRECT_AUDIO
+                                    "google-ima.js", "google-ima3" -> ContentRequest.REDIRECT_SURROGATE or ContentRequest.SURROGATE_GOOGLE_IMA
                                     else -> return
                                 }
                                 redirectRule = option == "redirect-rule"

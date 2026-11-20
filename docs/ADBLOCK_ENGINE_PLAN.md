@@ -47,6 +47,7 @@ uBlock filters の対応状況（2026-11-19 取得分、子リスト展開後）
 - **クラッシュの修正（2026-11-20）**: uBlock filters を既定にした 11-19 以降、巨大な正規表現のルールを re2j でコンパイルする際に作業スレッドのスタック（約1MB）が溢れ、フィルタの読み込み時にアプリが落ちていた（エミュレーターで6回）。コンパイル時の StackOverflowError を解析時・読み込み時の両方で捕捉し、その行だけを捨てる。修正後、エミュレーターで起動を3回繰り返してクラッシュ0。
 - 第5弾（2026-11-20、wiki の原文だけを参照）: xml-prune（fetch・XHR の XML から、セレクタまたは xpath(…) に合う要素・属性を取り除く。XML と示された応答と .mpd・.xml の URL だけ）、trusted-suppress-native-method（引数の条件に合う組み込み関数の呼び出しを中断または無効化）。trusted-create-html は wiki に節がないため対象外。構文の版を19へ進めた。
 - 第6弾（2026-11-20、wiki の原文だけを参照）: set-attr（値は空・true・false・0〜32767・[別の属性]。on…・srcdoc は拒否）、prevent-innerHTML、m3u-prune（行単位、または複数行フラグの正規表現で行全体の一致だけ）、trusted-override-element-method、trusted-replace-xhr-response、trusted-replace-fetch-response（wiki の節は見出しだけのため XHR 版と同じ引数と推定）。構文の版を20へ。uBlock filters の破棄行は 722 → 672。
+- 代替スクリプト（2026-11-20、B 案）: google-ima.js を、Google の公開 API リファレンス（IMA SDK for HTML5）だけを根拠に独自に作った（assets/adblock/surrogates/。冒頭に参照した URL と日付を記録）。広告を要求すると広告のない AdsManager を渡し、start() で本編の再開と全広告の完了を知らせる。redirect・redirect-rule の資源の種類 0x0700_0000 と番号 SURROGATE_MASK で表す。構文の版を22へ。uBlock filters の破棄行は 672 → 542。
 - 独立監査で残した課題: ドメインのない `#@#+js(...)`（汎用の例外）は破棄している。`rmnt` に `stay` を付けると、要素の追加のたびに部分木をたどる。許可ページの判定は主フレームの通信の横取りで更新するため、横取りのない遷移（戻る操作など）では前のページの判定が残る。about:blank の iframe で固定スクリプトが動くかは未確認。
 - 保存は要素フィルタの束に同居させ、構文の版を5へ進めて旧キャッシュを再生成する。
 - 反広告ブロック（Ad-Shield）: livedoor 系の対策（`html-load.com` の遮断と `rmnt`）は uBlock filters にあり、既定の3リスト（EasyList・EasyPrivacy・AdGuard Japanese）には無い。uBlock filters を購読すれば本体でも効くことをエミュレーターで確認した（[実機確認](DEVICE_CHECKS.md)）。既定の購読に加えるかは未決定。

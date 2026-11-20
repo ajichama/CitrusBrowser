@@ -234,8 +234,8 @@ internal class AbpFilterStore(
     private fun bundleFile(entityId: Int) = File(directory, "abp_$entityId.zip")
 
     companion object {
-        // 解釈の変更時に更新する。旧キャッシュは新しい束の公開成功まで保持する。5: scriptlet（+js）の保存を追加。6: scriptlet の第2弾を追加。7: procedural の要素フィルタを追加。8: 通信の追加条件と redirect-rule を追加。9: trusted の scriptlet を追加。10: procedural の CSS の並び・続きを受け付ける。11: 無音の音声の資源を追加。12: ##^script:has-text を rmnt で代用。13: scriptlet の第3弾を追加。14: 監査の指摘（denyallow・HTML フィルタの例外・制御文字）を反映。15: json-edit 系を追加。16: removeparam・urlskip を追加。17: 単一引用符の引数と trusted の第2弾。18: trusted-prevent-*・prevent-refresh・trusted-click-element。19: xml-prune・trusted-suppress-native-method。20: set-attr・prevent-innerHTML・m3u-prune・trusted-override-element-method・trusted-replace-xhr/fetch-response。21: set-cookie-reload・trusted-set-cookie-reload。
-        const val PARSER_REVISION = 21
+        // 解釈の変更時に更新する。旧キャッシュは新しい束の公開成功まで保持する。5: scriptlet（+js）の保存を追加。6: scriptlet の第2弾を追加。7: procedural の要素フィルタを追加。8: 通信の追加条件と redirect-rule を追加。9: trusted の scriptlet を追加。10: procedural の CSS の並び・続きを受け付ける。11: 無音の音声の資源を追加。12: ##^script:has-text を rmnt で代用。13: scriptlet の第3弾を追加。14: 監査の指摘（denyallow・HTML フィルタの例外・制御文字）を反映。15: json-edit 系を追加。16: removeparam・urlskip を追加。17: 単一引用符の引数と trusted の第2弾。18: trusted-prevent-*・prevent-refresh・trusted-click-element。19: xml-prune・trusted-suppress-native-method。20: set-attr・prevent-innerHTML・m3u-prune・trusted-override-element-method・trusted-replace-xhr/fetch-response。21: set-cookie-reload・trusted-set-cookie-reload。22: 代替スクリプト google-ima.js。
+        const val PARSER_REVISION = 22
         private const val MANIFEST = "manifest.properties"
         private val PREFIXES = listOf(ABP_PREFIX_DENY, ABP_PREFIX_ALLOW, ABP_PREFIX_DISABLE_ELEMENT_PAGE, ABP_PREFIX_ELEMENT)
         private val publicationLock = Any()

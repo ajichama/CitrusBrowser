@@ -18,7 +18,7 @@ class RealListExcerptTest {
     fun japaneseListAcceptsSupportedNetworkExtensions() = verify("adguard-jp", 54, 1)
 
     @Test
-    fun ublockListAcceptsNetworkExtensionsAndOnlyImplementedScriptlets() = verify("ubo-filters", 62, 5)
+    fun ublockListAcceptsNetworkExtensionsAndOnlyImplementedScriptlets() = verify("ubo-filters", 62, 4)
 
     private fun verify(name: String, expectedLines: Int, expectedDiscarded: Int) {
         val lines = javaClass.getResourceAsStream("/adblock/excerpts/$name.txt")!!.bufferedReader().use { reader ->
@@ -38,6 +38,7 @@ class RealListExcerptTest {
         // 通信の条件（entity の domain・denyallow・to・redirect-rule・redirect の優先度）を受け付けた（adguard-jp 3→1、ubo-filters 14→7）。
         // 未知の資源（fuckadblock.js・google-ima.js）と、要素非表示の例外に entity を使う行は引き続き破棄する。
         // 単純な HTML フィルタ（##^script:has-text）は rmnt で代用して受け付けた（ubo-filters 7→6）。
+        // 独自に作った代替スクリプト google-ima.js の redirect を受け付けた（ubo-filters 5→4）。fuckadblock.js は引き続き破棄する。
         // removeparam（ページ移動の書き換え）を受け付けた（ubo-filters 6→5）。$xhr だけを対象にする removeparam は効かないため破棄する。
         assertEquals("$name: 対応構文と拒否すべき構文の双方を見直してください", expectedDiscarded, discarded)
         println("EXCERPT $name active=${lines.size} discarded=$discarded")
