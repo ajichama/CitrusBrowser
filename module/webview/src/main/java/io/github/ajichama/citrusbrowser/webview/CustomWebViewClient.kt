@@ -143,6 +143,10 @@ open class CustomWebViewClient : WebViewClient() {
 
     open fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri): Boolean = false
 
+    /** 要求の方式が分かる場合の入口。既定では従来の入口へ渡す。 */
+    open fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri, method: String?): Boolean =
+        shouldOverrideUrlLoading(web, url, uri)
+
     @Suppress("OverridingDeprecatedMember")
     override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
         return if (view is CustomWebView)
@@ -153,7 +157,7 @@ open class CustomWebViewClient : WebViewClient() {
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
         return if (view is CustomWebView)
-            shouldOverrideUrlLoading(view as CustomWebView, request.url.toString(), request.url)
+            shouldOverrideUrlLoading(view as CustomWebView, request.url.toString(), request.url, request.method)
         else
             false
     }

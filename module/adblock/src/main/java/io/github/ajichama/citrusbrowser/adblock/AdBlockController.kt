@@ -81,7 +81,7 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
                             CosmeticFiltering(network.await().cosmetic, css, scriptlets)
                         } else null
                         val rules = network.await()
-                        Pair(Blocker(allowPage.await(), rules.allow, rules.deny, rules.important, rules.redirectRules), cosmetic)
+                        Pair(Blocker(allowPage.await(), rules.allow, rules.deny, rules.important, rules.redirectRules, rules.navigation), cosmetic)
                     }
                 }
                 loadGate.publish(ticket) {
@@ -153,6 +153,12 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
         if (!loadGate.awaitAtMost(SCRIPTLET_WAIT_MS)) return ScriptletInjection.EMPTY
         val calls = elementBlocker?.scriptlets(uri) ?: return ScriptletInjection.EMPTY
         return if (calls.isEmpty()) ScriptletInjection.EMPTY else Scriptlets.toJson(calls)
+    }
+
+    /** 主フレームの GET の移動先を書き換える（removeparam・urlskip）。読み込み中は長く待たない。 */
+    fun rewriteNavigation(url: Uri): String? {
+        if (!loadGate.awaitAtMost(SCRIPTLET_WAIT_MS)) return null
+        return adBlocker?.rewriteNavigation(url)
     }
 
     fun loadScript(url: Uri): String? {

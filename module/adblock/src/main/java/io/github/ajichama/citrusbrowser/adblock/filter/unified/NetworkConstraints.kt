@@ -32,6 +32,8 @@ internal class NetworkConstraints(
     val denyAllow: String? = null,
     val requestDomains: String? = null,
     val methods: String? = null,
+    /** `removeparam[=値]` または `urlskip=手順`。遮断せず、主フレームの移動の URL を書き換える。 */
+    val modifier: String? = null,
 ) {
     private val page = pageDomains?.let(::HostCondition)
     private val deny = denyAllow?.split('|')?.map { it.trim().lowercase(Locale.ROOT) }?.filter { it.isNotEmpty() }
@@ -53,7 +55,8 @@ internal class NetworkConstraints(
     }
 
     /** 保存形式。各欄は `\u001F` で区切る（値に含まれない文字）。 */
-    fun encode(): String = listOf(pageDomains, denyAllow, requestDomains, methods).joinToString(SEPARATOR) { it ?: "" }
+    fun encode(): String = (listOf(pageDomains, denyAllow, requestDomains, methods) + listOfNotNull(modifier))
+        .joinToString(SEPARATOR) { it ?: "" }
 
     override fun equals(other: Any?): Boolean = other is NetworkConstraints && encode() == other.encode()
     override fun hashCode(): Int = encode().hashCode()
@@ -91,9 +94,10 @@ internal class NetworkConstraints(
         fun decode(text: String): NetworkConstraints? {
             if (text.isEmpty()) return null
             val parts = text.split(SEPARATOR)
-            if (parts.size != 4) return null
-            fun part(index: Int) = parts[index].takeIf { it.isNotEmpty() }
-            return NetworkConstraints(part(0), part(1), part(2), part(3))
+            // 4欄（条件だけ）または、書き換えの指定を加えた5欄。
+            if (parts.size != 4 && parts.size != 5) return null
+            fun part(index: Int) = parts.getOrNull(index)?.takeIf { it.isNotEmpty() }
+            return NetworkConstraints(part(0), part(1), part(2), part(3), parts.getOrNull(4))
         }
 
         private val HOST = Regex("[a-z0-9.-]+")

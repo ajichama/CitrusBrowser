@@ -355,6 +355,20 @@ class WebClient(
     }
 
     private val mWebViewClient = object : CustomWebViewClient() {
+        override fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri, method: String?): Boolean {
+            // removeparam・urlskip: GET のページ移動だけを書き換える（POST のフォーム送信は変えない）。
+            if (method == null || method.equals("GET", ignoreCase = true)) {
+                val scheme = uri.scheme?.lowercase()
+                if (scheme == "http" || scheme == "https") {
+                    adBlockController?.rewriteNavigation(uri)?.let { rewritten ->
+                        web.loadUrl(rewritten)
+                        return true
+                    }
+                }
+            }
+            return shouldOverrideUrlLoading(web, url, uri)
+        }
+
         override fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri): Boolean {
             val data = controller.getTabOrNull(web) ?: return true
 

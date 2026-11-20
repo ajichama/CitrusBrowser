@@ -19,6 +19,7 @@ package io.github.ajichama.citrusbrowser.adblock.filter.abp
 import com.google.re2j.Pattern
 import io.github.ajichama.citrusbrowser.adblock.*
 import io.github.ajichama.citrusbrowser.adblock.core.ContentRequest
+import io.github.ajichama.citrusbrowser.adblock.core.NavigationRewriter
 import io.github.ajichama.citrusbrowser.adblock.core.ProceduralFilters
 import io.github.ajichama.citrusbrowser.adblock.core.Scriptlets
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.*
@@ -77,7 +78,7 @@ class AbpFilterDecoder {
                             trusted,
                         )
                     } else {
-                        trimmedLine.decodeFilter(black, white, elementDisableFilter)
+                        trimmedLine.decodeFilter(black, white, elementDisableFilter, trusted)
                     }
                 }
             }
@@ -210,8 +211,10 @@ class AbpFilterDecoder {
         blackList: MutableList<UnifiedFilter>,
         whiteList: MutableList<UnifiedFilter>,
         elementFilterList: MutableList<UnifiedFilter>,
+        trusted: Boolean = false,
     ) {
         var contentType = 0
+        var modifier: String? = null
         var ignoreCase = true
         var domain: String? = null
         var thirdParty = -1
@@ -320,6 +323,17 @@ class AbpFilterDecoder {
                                 if (!NetworkConstraints.isValidHostList(value, allowNegation = true, allowEntity = true)) return
                                 requestDomains = value
                             }
+                            "removeparam", "queryprune" -> {
+                                // 遮断しない書き換え。他の書き換え・redirect と同じ行には書けない（wiki の規定）。
+                                if (inverse || modifier != null || !NavigationRewriter.isValidRemoveParam(value)) return
+                                modifier = if (value.isNullOrEmpty()) "removeparam" else "removeparam=$value"
+                            }
+                            "urlskip" -> {
+                                // wiki の規定どおり、信頼できる出典のリストだけで受け付ける。
+                                if (!trusted || inverse || value.isNullOrBlank() || modifier != null) return
+                                if (!NavigationRewriter.isValidSkipSteps(value)) return
+                                modifier = "urlskip=$value"
+                            }
                             "method" -> {
                                 if (inverse || value.isNullOrBlank() || methods != null) return
                                 if (!NetworkConstraints.isValidMethodList(value)) return
@@ -366,7 +380,11 @@ class AbpFilterDecoder {
 
         val domains = domain?.domainsToDomainMap('|')
         if (filter.isEmpty() && optionsIndex < 0) return
-        if (contentType == 0) {
+        if (modifier != null && (redirectType != 0 || cosmeticType != 0 || flags and ContentRequest.FLAG_IMPORTANT != 0)) return
+        if (contentType == 0 && modifier != null) {
+            // 書き換えはページ移動（document）に適用するため、種別を指定しない行も document を含める。
+            contentType = ContentRequest.TYPE_NETWORK_ALL
+        } else if (contentType == 0) {
             contentType = ContentRequest.TYPE_NETWORK_ALL
             // 種別未指定の通信ルールは、ABP と同じく本文ページ（document）と popup を含めない。
             // EasyList 等の汎用パス規則で記事ページ自体を遮断画面へ置き換えないため。
@@ -376,12 +394,14 @@ class AbpFilterDecoder {
             }
         }
         contentType = contentType and excludedTypes.inv()
+        // 書き換えは主フレームのページ移動にだけ適用できる。document を含まない行（$xhr 等）は効かないため破棄する。
+        if (modifier != null && contentType and ContentRequest.TYPE_DOCUMENT == 0) return
         if (contentType == 0 || (cosmeticType != 0 && flags and ContentRequest.FLAG_IMPORTANT != 0)) return
         if (cosmeticType != 0 && redirectType != 0) return
         flags = flags or redirectType
         if (redirectRule) flags = flags or ContentRequest.FLAG_REDIRECT_RULE
-        val constraints = if (entityDomains != null || denyAllow != null || requestDomains != null || methods != null) {
-            NetworkConstraints(entityDomains, denyAllow, requestDomains, methods)
+        val constraints = if (entityDomains != null || denyAllow != null || requestDomains != null || methods != null || modifier != null) {
+            NetworkConstraints(entityDomains, denyAllow, requestDomains, methods, modifier)
         } else null
         // denyallow は domain= との組み合わせが必須（wiki の規定）。単独では全サイトに広がるため行ごと破棄する。
         if (denyAllow != null && domain == null && entityDomains == null) return

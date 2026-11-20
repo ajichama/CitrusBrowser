@@ -7,6 +7,7 @@
 
 package io.github.ajichama.citrusbrowser.adblock.core
 
+import io.github.ajichama.citrusbrowser.adblock.filter.unified.NetworkRuleFilter
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.UnifiedFilter
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.disabledRuleKeys
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.withoutBadFilters
@@ -18,13 +19,17 @@ internal class NetworkFilterRules(
     cosmeticControls: List<UnifiedFilter>,
 ) {
     private val disabled = disabledRuleKeys(denies, allows, cosmeticControls)
-    private val allDenies = withoutBadFilters(denies, disabled)
+    // removeparam・urlskip は遮断せず、ページ移動の書き換えだけに使う。
+    private fun isModifier(filter: UnifiedFilter) = (filter as? NetworkRuleFilter)?.constraints?.modifier != null
+    private val allAllows = withoutBadFilters(allows, disabled)
+    private val allDenies = withoutBadFilters(denies, disabled).filterNot(::isModifier)
+    val navigation = NavigationRewriter(withoutBadFilters(denies, disabled).filter(::isModifier), allAllows.filter(::isModifier))
     // redirect-rule はそれ自体では遮断しないため、遮断用の入れ物に入れない。
     private val blocking = allDenies.filter { it.contentType and ContentRequest.FLAG_REDIRECT_RULE == 0 }
     val redirectRules = container(allDenies.filter { it.contentType and ContentRequest.FLAG_REDIRECT_RULE != 0 })
     val important = blockingContainer(blocking.filter { it.contentType and ContentRequest.FLAG_IMPORTANT != 0 })
     val deny = blockingContainer(blocking.filter { it.contentType and ContentRequest.FLAG_IMPORTANT == 0 })
-    val allow = container(withoutBadFilters(allows, disabled))
+    val allow = container(allAllows.filterNot(::isModifier))
     val cosmetic = container(withoutBadFilters(cosmeticControls, disabled))
 
     private fun blockingContainer(filters: List<UnifiedFilter>): FilterContainer {

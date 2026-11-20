@@ -26,7 +26,16 @@ data class Blocker(
     private val important: FilterContainer = FilterContainer(),
     /** `$redirect-rule=`。遮断が決まったときだけ、返す資源を選ぶ。 */
     private val redirectRules: FilterContainer = FilterContainer(),
+    /** `$removeparam`・`$urlskip`。主フレームのページ移動の URL だけを書き換える。 */
+    private val navigation: NavigationRewriter? = null,
 ) {
+    /** 書き換えた移動先。許可したページや、当てはまるルールがない場合は null。 */
+    fun rewriteNavigation(url: Uri): String? {
+        val rewriter = navigation?.takeUnless { it.isEmpty } ?: return null
+        if (isWhitePage(url)) return null
+        return rewriter.rewrite(ContentRequest(url, url, ContentRequest.TYPE_DOCUMENT, false), url.toString())
+    }
+
 
     fun isBlock(request: ContentRequest): ContentFilter? {
         val pageRequest = request.copy(url = request.pageUrl)
