@@ -29,18 +29,31 @@ internal object ImportArchive {
     const val PREFERENCES = "shared_prefs/main_preference.xml"
     const val DIAL = "databases/speeddial1.db"
     const val HTML = "bookmarks.html"
-    private const val MAX_TOTAL = 64L * 1024 * 1024
-    private const val MAX_ENTRY = 32L * 1024 * 1024
-    private const val MAX_ENTRIES = 512
     val actionFolders = setOf("action1_btn", "action1_sbtn_ary", "action1_custombar", "action1_menu",
         "action1_hbtn", "action1_tab", "action1_flick", "action1_double_flick", "action1_lpress", "action1_qc", "action1_webswipe")
 
     data class Staged(val files: Map<String, File>, val ignored: Int)
 
-    fun stage(input: InputStream, directory: File): Staged {
+    /**
+     * 取込の上限。Yuzu の標準バックアップはアプリのデータ領域をまるごと含む（実例で約1万件・展開約400MB）。
+     * 取り出すのは既知の小さなファイルだけなので、取り出す分と読み飛ばす分で上限を分ける。
+     * 読み飛ばす分も ZIP の整合性を確かめるために展開するため、合計に上限を置く（展開爆弾で処理が終わらないことを防ぐ）。
+     */
+    internal data class Limits(
+        val archiveBytes: Long = 1L shl 30,
+        val entries: Int = 65_536,
+        val stagedEntryBytes: Long = 32L * 1024 * 1024,
+        val stagedTotalBytes: Long = 64L * 1024 * 1024,
+        val skippedTotalBytes: Long = 4L shl 30,
+    )
+
+    fun stage(input: InputStream, directory: File): Staged = stage(input, directory, Limits())
+
+    internal fun stage(input: InputStream, directory: File, limits: Limits): Staged {
         require(directory.isDirectory)
         val files = linkedMapOf<String, File>()
         var total = 0L
+        var skipped = 0L
         var ignored = 0
         fun copy(source: InputStream, name: String?) {
             val destination = name?.let { File.createTempFile("entry-", ".data", directory) }
@@ -54,8 +67,13 @@ internal object ImportArchive {
                         if (read < 0) break
                         if (read == 0) continue
                         count += read
-                        total += read
-                        if (count > MAX_ENTRY || total > MAX_TOTAL) throw IOException("バックアップの展開サイズが上限を超えています。")
+                        if (name != null) {
+                            total += read
+                            if (count > limits.stagedEntryBytes || total > limits.stagedTotalBytes) throw IOException("バックアップの展開サイズが上限を超えています。")
+                        } else {
+                            skipped += read
+                            if (skipped > limits.skippedTotalBytes) throw IOException("バックアップの展開サイズが上限を超えています。")
+                        }
                         output?.write(buffer, 0, read)
                     }
                 } finally { output?.close() }
@@ -86,13 +104,13 @@ internal object ImportArchive {
                             val count = stream.read(buffer)
                             if (count < 0) break
                             compressed += count
-                            if (compressed > MAX_TOTAL) throw IOException("バックアップが上限サイズを超えています。")
+                            if (compressed > limits.archiveBytes) throw IOException("バックアップが上限サイズを超えています。")
                             output.write(buffer, 0, count)
                         }
                     }
                     val centralNames = ZipFile(archive).use { zip ->
-                        val list = zip.entries().asSequence().take(MAX_ENTRIES + 1).map { checkedPath(it.name) }.toList()
-                        if (list.size > MAX_ENTRIES || list.toSet().size != list.size) throw IOException("ZIP の構成が不正です。")
+                        val list = zip.entries().asSequence().take(limits.entries + 1).map { checkedPath(it.name) }.toList()
+                        if (list.size > limits.entries || list.toSet().size != list.size) throw IOException("ZIP の構成が不正です。")
                         list.toSet()
                     }
                     ZipInputStream(archive.inputStream()).use { zip ->
@@ -100,15 +118,15 @@ internal object ImportArchive {
                     var entries = 0
                     while (true) {
                         val entry = zip.nextEntry ?: break
-                        if (++entries > MAX_ENTRIES) throw IOException("バックアップ内のファイル数が上限を超えています。")
+                        if (++entries > limits.entries) throw IOException("バックアップ内のファイル数が上限を超えています。")
                         val path = checkedPath(entry.name)
                         if (!names.add(path)) throw IOException("バックアップ内に重複したファイルがあります。")
                         if (entry.isDirectory) {
                             // directory 名の圧縮 payload も上限を通してから閉じる。
-                            val before = total
+                            val before = skipped
                             copy(zip, null)
                             ignored--
-                            if (total != before) throw IOException("ディレクトリにデータが含まれています。")
+                            if (skipped != before) throw IOException("ディレクトリにデータが含まれています。")
                             zip.closeEntry()
                             continue
                         }
@@ -140,7 +158,9 @@ internal object ImportArchive {
 
     private fun checkedPath(value: String): String {
         val path = value.removeSuffix("/")
-        if (path.isEmpty() || path.startsWith('/') || path.contains('\\') || path.contains(':') ||
+        // 名前のとおりに書き出すことはない。Yuzu のデータ領域には「:」を含むファイル名があるため、
+        // ドライブ名・スキームに見える先頭の区切りだけを拒否する。
+        if (path.isEmpty() || path.startsWith('/') || path.contains('\\') || path.substringBefore('/').contains(':') ||
             path.split('/').any { it.isEmpty() || it == "." || it == ".." } || path.any { it.code < 32 }) {
             throw IOException("バックアップ内のパスが不正です。")
         }

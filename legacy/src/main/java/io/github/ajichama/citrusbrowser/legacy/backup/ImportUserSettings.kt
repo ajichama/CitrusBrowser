@@ -78,9 +78,10 @@ internal object ImportUserSettings {
                 if (type !in setOf(1, 3, 4)) { ignored++; return@forEach }
                 val attributes = objectValue(entry[2])
                 if (attributes.keys.any { it !in setOf("0", "1") }) { ignored++; return@forEach }
-                val pattern = BrowserSchemeCompat.normalizeUrl(text(attributes["0"], 4096).also {
-                    if (it.isBlank()) throw IOException("URL パターンが空です。")
-                })
+                val rawPattern = text(attributes["0"], 4096)
+                // Yuzu は空のパターンも保存できる（実際の書き出しにあった）。当たる範囲が定まらないため、その項目だけを除外する。
+                if (rawPattern.isBlank()) { ignored++; return@forEach }
+                val pattern = BrowserSchemeCompat.normalizeUrl(rawPattern)
                 // 既存実装と同じ glob / [Java regexp] を構文確認する。URL との照合は実行しない。
                 try { WebUtils.makeUrlPatternWithThrow(factory, pattern) }
                 catch (error: IllegalArgumentException) { throw IOException("URL パターンが不正です。", error) }

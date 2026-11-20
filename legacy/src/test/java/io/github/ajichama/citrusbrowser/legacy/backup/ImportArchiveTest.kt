@@ -70,9 +70,26 @@ class ImportArchiveTest {
     @Test fun directoryPayloadIsRejectedAndCompressedUnknownPayloadIsStillBounded() {
         assertThrows(IOException::class.java) { stage(archive("cache/" to byteArrayOf(1))) }
         val bytes = ByteArrayOutputStream().also { output -> ZipOutputStream(output).use { zip ->
-            zip.putNextEntry(ZipEntry("cache/data")); repeat(4097) { zip.write(ByteArray(8192)) }; zip.closeEntry()
+            zip.putNextEntry(ZipEntry(ImportArchive.BOOKMARK)); zip.write("[]".toByteArray()); zip.closeEntry()
+            zip.putNextEntry(ZipEntry("cache/data")); repeat(129) { zip.write(ByteArray(8192)) }; zip.closeEntry()
         } }.toByteArray()
-        assertThrows(IOException::class.java) { stage(bytes) }
+        // 取り出さない項目も、展開した合計は上限で止める。
+        val limits = ImportArchive.Limits(skippedTotalBytes = 1024L * 1024)
+        assertThrows(IOException::class.java) { ImportArchive.stage(ByteArrayInputStream(bytes), temp.newFolder(), limits) }
+        assertEquals(setOf(ImportArchive.BOOKMARK), stage(bytes).files.keys)
+    }
+    @Test fun aFullYuzuDataBackupStagesOnlyTheKnownSmallFiles() {
+        // 本物の Yuzu の書き出しは、データ領域をまるごと含む（多数のファイル、32MiB を超える取り出さない項目、名前に「:」）。
+        val bytes = ByteArrayOutputStream().also { output -> ZipOutputStream(output).use { zip ->
+            zip.putNextEntry(ZipEntry(ImportArchive.PREFERENCES)); zip.write("<map></map>".toByteArray()); zip.closeEntry()
+            zip.putNextEntry(ZipEntry(ImportArchive.BOOKMARK)); zip.write("[]".toByteArray()); zip.closeEntry()
+            repeat(600) { zip.putNextEntry(ZipEntry("app_readItLater/$it")); zip.write(ByteArray(64)); zip.closeEntry() }
+            zip.putNextEntry(ZipEntry("shared_prefs/com.example.app:profile.xml")); zip.write("<map/>".toByteArray()); zip.closeEntry()
+            zip.putNextEntry(ZipEntry("app_webview/cache/data")); repeat(4097) { zip.write(ByteArray(8192)) }; zip.closeEntry()
+        } }.toByteArray()
+        val result = stage(bytes)
+        assertEquals(setOf(ImportArchive.PREFERENCES, ImportArchive.BOOKMARK), result.files.keys)
+        assertEquals(602, result.ignored)
     }
     @Test fun centralEntryLimitIsAppliedBeforeStagingAnyPayload() {
         val bytes = ByteArrayOutputStream().also { output -> ZipOutputStream(output).use { zip ->
@@ -80,7 +97,7 @@ class ImportArchiveTest {
             repeat(512) { zip.putNextEntry(ZipEntry("unknown-$it")); zip.closeEntry() }
         } }.toByteArray()
         val directory = temp.newFolder()
-        assertThrows(IOException::class.java) { ImportArchive.stage(ByteArrayInputStream(bytes), directory) }
+        assertThrows(IOException::class.java) { ImportArchive.stage(ByteArrayInputStream(bytes), directory, ImportArchive.Limits(entries = 512)) }
         assertTrue(directory.listFiles()!!.isEmpty())
     }
     @Test fun crcMismatchAndJavaBinaryAreRejected() {

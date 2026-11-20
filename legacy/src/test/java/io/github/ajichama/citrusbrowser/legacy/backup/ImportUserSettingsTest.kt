@@ -92,6 +92,12 @@ class ImportUserSettingsTest {
         assertEquals(1, merged.duplicates)
     }
 
+    @Test fun emptyPatternsFromARealYuzuExportAreExcludedInsteadOfRejectingTheFile() {
+        // Yuzu の実際の書き出しにあった形（空のパターンが2件）。
+        val imported = prepare(patterns, """[[4,0,{"0":"safe.test/*","1":false}],[1,{"0":1},{"0":"","1":true}],[1,{"0":1},{"0":" ","1":true}]]""")
+        assertEquals(1, imported.count)
+        assertEquals(2, imported.ignored)
+    }
     @Test fun futureImportedActionsAreCountedButUnknownExistingDataIsNeverDropped() {
         val json = """[[99,null,{"0":"future.test/*","1":true}],[4,0,{"0":"safe.test/*","1":true}]]"""
         val imported = prepare(patterns, json)

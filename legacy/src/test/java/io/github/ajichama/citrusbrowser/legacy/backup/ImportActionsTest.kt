@@ -34,6 +34,11 @@ class ImportActionsTest {
         assertNotNull(ImportActions.validate("app_action1_btn/1.dat", supported))
         assertNull(ImportActions.validate("app_action1_btn/1.dat", "[[[999999,null]],[],[],[],[],[]]".toByteArray()))
     }
+    @Test fun actionsWithANullParameterFromARealYuzuExportKeepTheirDefaults() {
+        // Yuzu の実際の書き出しにあった形。検索ボックス表示は null を読まずに戻るため、以前はファイル全体が不正になった。
+        assertNotNull(ImportActions.validate("app_action1_btn/64.dat", "[[[35000,null]],[],[],[],[],[]]".toByteArray()))
+        assertNotNull(ImportActions.validate("app_action1_tab/3.dat", "[[35000,null],[5001,null]]".toByteArray()))
+    }
     @Test fun nestedUnknownCustomActionsAreAlsoExcludedAndMalformedJsonIsRejected() {
         assertNull(ImportActions.validate("app_action1_btn/1.dat", """[[[100000,{"0":[[999999,null]],"1":"custom"}]],[],[],[],[],[]]""".toByteArray()))
         assertThrows(Exception::class.java) { ImportActions.validate("app_action1_btn/1.dat", "[[[1020,".toByteArray()) }

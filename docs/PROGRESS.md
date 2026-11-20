@@ -10,7 +10,7 @@
 
 当初、API37エミュレーターはSurfaceFlingerが `!rcEnc->featureInfo()->hasReadColorBufferDma` で繰り返し異常終了しました。原因は、cmdline-tools 12.0 で作ったAVDに `target=android-0` が書かれ、エミュレーターがAPIを誤認して描画機能を有効にしなかったことでした。cmdline-tools 23.0 でAVDを作り直すと `target=android-37.0` になり、72.9秒で起動し、SurfaceFlingerの異常終了は0件でした。API37.2・16KB版の起動は未確認です。詳細は[エミュレーター環境](../docker/emulator/README.md)を参照してください。
 
-比較基準`f5f2ae8b`は独立レビューと通常単体247件・buildSrc15件、debug・全計測APK・releaseのR8/lintを通過しています。Google.comでの日本語・記号検索、メニュー・設定・IMEの一部も実機で確認しました。Yuzuの書出しは未作成で実データ取込は未確認です。広告対策はサイト個別ルールを追加する方針から、汎用処理を内蔵する方針へ修正しています。[内蔵uBOの検証計画](ADBLOCK_ENGINE_PLAN.md)と[改善一覧](IMPROVEMENT_PLAN.md)を参照してください。
+比較基準`f5f2ae8b`は独立レビューと通常単体247件・buildSrc15件、debug・全計測APK・releaseのR8/lintを通過しています。Google.comでの日本語・記号検索、メニュー・設定・IMEの一部も実機で確認しました。2026-11-20に実機のYuzu Browserの書出し（標準バックアップと別書出しのスピードダイヤル）を本体へ取り込めることを確認しました（[実機確認](DEVICE_CHECKS.md)）。広告対策はサイト個別ルールを追加する方針から、汎用処理を内蔵する方針へ修正しています。[内蔵uBOの検証計画](ADBLOCK_ENGINE_PLAN.md)と[改善一覧](IMPROVEMENT_PLAN.md)を参照してください。
 
 11月18日の変更では AGP9.5.1 / Gradle9.6.1 と独立した Gecko/uBO プレビューを追加しました。全体ビルドは4分52秒・2,225 tasks、最終の標準タスク再検証も1分35秒・1,411 tasksで成功し、通常249件・buildSrc25件を保持しています。JUnit XMLは失敗・error・スキップ0で、全計測APKと明示指定のプレビューdebugも生成・出力しました。通信を切った通知再生成も16秒・11 tasksで成功しました。これは比較基準の公開`f5f2ae8b`の247件・15件・実機41件とは別の検証結果です。
 
@@ -37,7 +37,7 @@
 | Phase 5: 判定・索引 | main frame・画像・script・不明種別を分離。PSL の null、IPv6、IDN、単一ラベル host の第三者判定を修正。部分一致・例外の索引漏れと同一 bucket の重複走査を修正。11月16日の基準版では内蔵800ルール・43要求で直接照合との一致を確認 | 実サイトの誤遮断、大規模リスト・端末の性能測定が残る。基準版のfallbackは41%。今回の追加ルールへの測定値として扱わず、JVMの比較回数を実環境の速度向上率とみなさない |
 | Phase 5: モバイル広告 | 公開版の実WebView回帰7件成功。今回の変更で設定反映と初回主文書判定を修正し、広告単体86件成功。設定リンク3aliasの実機1件は旧版失敗→修正版成功 | 公開版で既知枠の非表示を確認したが別系統広告が残存。汎用uBO互換の成功とは扱わず、独立プレビューで検証する。[対応仕様](../module/adblock/COSMETIC_FILTERING.md) |
 | Phase 5: 内蔵uBOプレビュー | 本体と独立したGeckoView160/原本uBO1.76.4を内蔵。生成資産672ファイルを最終APKと照合。保存済みprofileの実機3件で標準EasyListのnetwork/cosmetic ON/OFF・top/child、同session/DOMの画面再生成、同process再launch時の無効状態等を確認 | 新規profileの初回cold起動・実OS/process再起動・scriptlet・procedural・MyFilters・popup実描画は未確認。本体統合完了とはしない。[検証計画](ADBLOCK_ENGINE_PLAN.md) |
-| データ移行 | 旧設定・ブックマーク・別書出しのスピードダイヤル・検索・UA/URL別設定・スクリプト・ジェスチャーを検証後に統合。既存を保持し参照IDを対応付け、通常失敗時は自己所有の変更を復旧 | 実際のYuzu書出しは未確認。外部テーマ画像・他アプリのSAF権限等は移せない。跨る保存領域の電源断原子性は保証しない。[対応形式と制約](../legacy/IMPORT_COMPATIBILITY.md) |
+| データ移行 | 旧設定・ブックマーク・別書出しのスピードダイヤル・検索・UA/URL別設定・スクリプト・ジェスチャーを検証後に統合。既存を保持し参照IDを対応付け、通常失敗時は自己所有の変更を復旧 | 実際のYuzu書出し1件（実機SO-51D）で全カテゴリを確認。外部テーマ画像・他アプリのSAF権限等は移せない。跨る保存領域の電源断原子性は保証しない。[対応形式と制約](../legacy/IMPORT_COMPATIBILITY.md) |
 | Google検索 | 既定をgoogle.comへ更新。検索単体21件と公開版の実機4件が成功。端末で日本語・記号の検索結果も確認 | 詳細な候補操作・他OSは未確認。独自URLは保持。[検索仕様](../module/search/SEARCH_COMPATIBILITY.md) |
 | Material UI | Material3のViewsテーマ、検索・設定・メニュー・アドレス欄・ホームを更新。公開版で明暗部品の計測2件とメニュー・設定・IME表示の限定スモーク成功 | 文字拡大・日本語文字合成・全画面/全テーマ・既存カスタマイズの全操作は未確認。[機能対応表](../module/ui/MATERIAL_UI.md) |
 
@@ -120,7 +120,7 @@ JDK・SDK・Gradle は Docker 内だけで実行します。中間生成物・Ko
 
 1. 比較基準版の41件と新しい設定反映1件・独立プレビュー3件の実機結果を保持する。[内蔵uBO検証](ADBLOCK_ENGINE_PLAN.md)では、新規profile・実process再起動・拡張構文等の未検証範囲を確認し、本体の既存機能を保持する統合を段階的に進める。
 2. Android17のLAN許可・拒否、他OS、HTTPの実時間再試行・回線切替・プロセス/OS再起動、Doze、IME・権限・ダウンロード・戻る操作を確認する。人工HTTP2件は端末内だけのテストであり、外部購読や実際の再起動を代用しない。
-3. Yuzuの実書出しを端末上で作成・選択して取込確認する。既存機能を維持するエンジン境界と、実リスト・端末での遅延/メモリを検証する。
+3. 既存機能を維持するエンジン境界と、実リスト・端末での遅延/メモリを検証する。
 4. UIの残る画面と本番用署名・配布準備を進める。独立レビュー・Docker検証・GitHub反映を継続する。
 
 ## 原典とライセンス

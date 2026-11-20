@@ -75,6 +75,9 @@ class Action : ArrayList<SingleAction>, Parcelable, JsonConvertable {
                 val id = reader.nextInt()
 
                 val action = SingleAction.makeInstance(id, reader)
+                // 付加情報が null の操作（Yuzu の実際の書き出しに [35000,null] がある）は、
+                // 一部の操作が null を読まずに戻るため、ここで読み飛ばして既定値のまま扱う。
+                if (reader.peek() == JsonReader.Token.NULL) reader.nextNull<Any>()
                 if (reader.peek() != JsonReader.Token.END_ARRAY) return false
                 reader.endArray()
                 add(action)

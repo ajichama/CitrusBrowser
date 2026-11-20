@@ -59,12 +59,23 @@ class CitrusBrowserApplication : Application(), BrowserApplication {
         browserState.isNeedLoad = false
         ErrorReportServer.initialize(this)
         AppData.init(this, moshi, abpDatabase)
-        io.github.ajichama.citrusbrowser.adblock.service.AbpUpdateScheduler.initialize(this)
+        // WorkManager は主プロセスでだけ自動で初期化される。再起動用の別プロセス（:restart_process）で
+        // 更新を予約するとアプリが落ちるため、主プロセスに限る。
+        if (isMainProcess()) io.github.ajichama.citrusbrowser.adblock.service.AbpUpdateScheduler.initialize(this)
         ErrorReportServer.setDetailedLog(AppPrefs.detailed_log.get())
         if (AppPrefs.slow_rendering.get()) {
             WebView.enableSlowWholeDocumentDraw()
         }
         Logger.isDebug = BuildConfig.DEBUG
+    }
+
+    private fun isMainProcess(): Boolean {
+        val name = if (android.os.Build.VERSION.SDK_INT >= 28) {
+            Application.getProcessName()
+        } else {
+            runCatching { java.io.File("/proc/self/cmdline").readText().trimEnd(Char(0)) }.getOrNull()
+        }
+        return name.isNullOrEmpty() || name == packageName
     }
 
     override fun attachBaseContext(base: Context) {
