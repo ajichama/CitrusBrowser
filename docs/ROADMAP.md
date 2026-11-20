@@ -2,7 +2,7 @@
 
 更新日: 2026-11-20（同日夜に、一次資料で再精査）。現代のブラウザ（Firefox・Vivaldi・Brave・Chrome 等）との比較調査を元にした、今後の機能の候補です。需要と実装量を見て、着手するかを決めます。調査の詳細は、ローカルのレポート `.agents/handoff/reports/browser-feature-survey-2026-11-20.md` にあります（Git 管理外）。
 
-GitHub の Issue に登録できるようになったら、各項目を Issue へ移します。
+各候補は GitHub の Issue に登録しました（2026-11-20）。表の番号の右の # が Issue の番号です。議論や優先度の変更は Issue で行います。
 
 ## 実装済み（2026-11-20）
 
@@ -17,16 +17,16 @@ GitHub の Issue に登録できるようになったら、各項目を Issue �
 
 | 番号 | 機能 | 内容 | WebView での実現性 | 実装量 | 利便性への影響 |
 |---|---|---|---|---|---|
-| 4 | HTTPS 優先モード | http のページを https で開き、失敗したら http に戻す | 主文書の URL の書き換えで可（WebView に専用の設定はない） | 中 | 古いサイトで開くのが遅くなる場合がある。初期値はオフを想定 |
-| 5 | ピクチャーインピクチャー | 動画の全画面表示から PiP に切り替える | onShowCustomView と Activity の PiP の組み合わせで可 | 小〜中 | なし（利用者の操作で切り替える） |
-| 6a | タブのミュート | タブごとに音を消す | MUTE_AUDIO（webkit 1.15.0 で可、WebView 122 以降） | 小 | なし |
-| 6b | メディア通知とバックグラウンド再生 | 通知から再生・停止。画面を消しても再生を続ける | JS で再生状態を拾い、Media3 で通知を出す（条件付きで可。minSdk 24 なので Media3 1.12 以降も使える） | 中 | 電池の消費が増える。初期値はオフを想定 |
-| 8a | プロファイル・プライベートタブの Cookie 分離 | ログイン状態をプロファイルごとに分ける | MULTI_PROFILE（webkit 1.9 以降で可、WebView 119 以降。minSdk とは関係しない） | 大 | 既存のタブの保存形式に影響する。移行の設計が必要 |
-| 8b | タブグループ | タブをまとめて名前を付ける | 可（UI とタブの保存形式の拡張） | 大 | タブの保存形式に版付けが必要。タブの復元を壊さないこと |
-| 9 | Global Privacy Control | サイトに「追跡しないで」を伝える | Profile の addCustomHeader（webkit 1.15.0 で可、WebView 142 以降）で全リクエストにヘッダーを付けられる。Sec- で始まるヘッダー（Sec-GPC）を付けられるかは未確認 | 小 | なし |
-| 10 | uBO が既定で有効にしている追加のリスト | unbreak・quick-fixes・privacy・badware・urlhaus と、URL の追跡用パラメータを消すリストの購読 | 可（購読の候補に加える。破棄行の計測が必要） | 小 | 誤遮断を直すリスト（unbreak・quick-fixes）は利便性を上げる |
+| 4 [#1](https://github.com/ajichama/CitrusBrowser/issues/1) | HTTPS 優先モード | http のページを https で開き、失敗したら http に戻す | 主文書の URL の書き換えで可（WebView に専用の設定はない） | 中 | 古いサイトで開くのが遅くなる場合がある。初期値はオフを想定 |
+| 5 [#2](https://github.com/ajichama/CitrusBrowser/issues/2) | ピクチャーインピクチャー | 動画の全画面表示から PiP に切り替える | onShowCustomView と Activity の PiP の組み合わせで可 | 小〜中 | なし（利用者の操作で切り替える） |
+| 6a [#3](https://github.com/ajichama/CitrusBrowser/issues/3) | タブのミュート | タブごとに音を消す | MUTE_AUDIO（webkit 1.15.0 で可、WebView 122 以降） | 小 | なし |
+| 6b [#4](https://github.com/ajichama/CitrusBrowser/issues/4) | メディア通知とバックグラウンド再生 | 通知から再生・停止。画面を消しても再生を続ける | JS で再生状態を拾い、Media3 で通知を出す（条件付きで可。minSdk 24 なので Media3 1.12 以降も使える） | 中 | 電池の消費が増える。初期値はオフを想定 |
+| 8a [#5](https://github.com/ajichama/CitrusBrowser/issues/5) | プロファイル・プライベートタブの Cookie 分離 | ログイン状態をプロファイルごとに分ける | MULTI_PROFILE（webkit 1.9 以降で可、WebView 119 以降。minSdk とは関係しない） | 大 | 既存のタブの保存形式に影響する。移行の設計が必要 |
+| 8b [#6](https://github.com/ajichama/CitrusBrowser/issues/6) | タブグループ | タブをまとめて名前を付ける | 可（UI とタブの保存形式の拡張） | 大 | タブの保存形式に版付けが必要。タブの復元を壊さないこと |
+| 9 [#7](https://github.com/ajichama/CitrusBrowser/issues/7) | Global Privacy Control | サイトに「追跡しないで」を伝える | Profile の addCustomHeader（webkit 1.15.0 で可、WebView 142 以降）で全リクエストにヘッダーを付けられる。Sec- で始まるヘッダー（Sec-GPC）を付けられるかは未確認 | 小 | なし |
+| 10 [#8](https://github.com/ajichama/CitrusBrowser/issues/8) | uBO が既定で有効にしている追加のリスト | unbreak・quick-fixes・privacy・badware・urlhaus と、URL の追跡用パラメータを消すリストの購読 | 可（購読の候補に加える。破棄行の計測が必要） | 小 | 誤遮断を直すリスト（unbreak・quick-fixes）は利便性を上げる |
 
-ほかの候補:
+ほかの候補（まとめて [#9](https://github.com/ajichama/CitrusBrowser/issues/9)）:
 
 - 未使用タブの自動クローズ
 - ページの読み上げ（リーダーモードの本文を TTS で読む）

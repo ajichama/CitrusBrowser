@@ -20,6 +20,7 @@ import android.net.Uri
 import android.webkit.WebResourceRequest
 import io.github.ajichama.citrusbrowser.adblock.core.ContentRequest
 import io.github.ajichama.citrusbrowser.adblock.core.RequestClassification
+import io.github.ajichama.citrusbrowser.adblock.core.requestOrigin
 
 const val BROADCAST_ACTION_UPDATE_AD_BLOCK_DATA = "io.github.ajichama.citrusbrowser.adblock.broadcast.update.adblock"
 
@@ -36,3 +37,6 @@ fun WebResourceRequest.getContentRequest(pageUri: Uri): ContentRequest {
     return ContentRequest(url, effectivePageUri, RequestClassification.contentType(isForMainFrame, url.scheme, url.path, requestHeaders),
         isThirdParty(effectivePageUri), method ?: "GET")
 }
+
+/** 差し替えた応答に付ける、要求元のオリジン（Origin ヘッダー、なければページのオリジン）。 */
+fun WebResourceRequest.getRequestOrigin(pageUri: Uri): String? = requestOrigin(requestHeaders, getAdBlockPageUri(pageUri))

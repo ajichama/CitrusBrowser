@@ -62,8 +62,10 @@ class AbpDefaultSubscriptionsIntegrationTest {
             val existingId = dao.inset(existing).toInt()
             AbpDefaultSubscriptions.migrate(context, database)
             val rows = dao.getAll()
-            assertEquals(setOf(EASY_LIST, EASY_PRIVACY, JAPANESE, UBLOCK), rows.map { it.url }.toSet())
-            assertEquals(4, rows.size)
+            // 版3で加えた Cookie 同意・迷惑要素のリストは、無効の購読候補として追加する。
+            assertEquals(setOf(EASY_LIST, EASY_PRIVACY, JAPANESE, UBLOCK) + ANNOYANCES, rows.map { it.url }.toSet())
+            assertEquals(7, rows.size)
+            assertTrue(rows.filter { it.url in ANNOYANCES }.none { it.enabled })
             val unchanged = dao.getById(existingId)!!
             assertEquals(EASY_LIST, unchanged.url)
             assertFalse(unchanged.enabled)
@@ -82,8 +84,8 @@ class AbpDefaultSubscriptionsIntegrationTest {
             dao.delete(rows.single { it.url == EASY_PRIVACY })
             AbpDefaultSubscriptions.migrate(context, database)
             val afterDeletion = dao.getAll()
-            assertEquals(setOf(EASY_LIST, JAPANESE, UBLOCK), afterDeletion.map { it.url }.toSet())
-            assertEquals(3, afterDeletion.size)
+            assertEquals(setOf(EASY_LIST, JAPANESE, UBLOCK) + ANNOYANCES, afterDeletion.map { it.url }.toSet())
+            assertEquals(6, afterDeletion.size)
             assertFalse(dao.getById(existingId)!!.enabled)
             assertEquals(AbpDefaultSubscriptions.REVISION, AdBlockPref.get(context).defaultSubscriptionsRevision)
         }
@@ -121,5 +123,10 @@ class AbpDefaultSubscriptionsIntegrationTest {
         private const val EASY_PRIVACY = "https://easylist.to/easylist/easyprivacy.txt"
         private const val JAPANESE = "https://filters.adtidy.org/extension/ublock/filters/7.txt"
         private const val UBLOCK = "https://ublockorigin.github.io/uAssets/filters/filters.txt"
+        private val ANNOYANCES = setOf(
+            "https://ublockorigin.github.io/uAssets/filters/annoyances-cookies.txt",
+            "https://ublockorigin.github.io/uAssets/filters/annoyances-others.txt",
+            "https://secure.fanboy.co.nz/fanboy-cookiemonster.txt",
+        )
     }
 }

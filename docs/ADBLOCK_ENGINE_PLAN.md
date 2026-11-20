@@ -48,6 +48,13 @@ uBlock filters の対応状況（2026-11-19 取得分、子リスト展開後）
 - 第5弾（2026-11-20、wiki の原文だけを参照）: xml-prune（fetch・XHR の XML から、セレクタまたは xpath(…) に合う要素・属性を取り除く。XML と示された応答と .mpd・.xml の URL だけ）、trusted-suppress-native-method（引数の条件に合う組み込み関数の呼び出しを中断または無効化）。trusted-create-html は wiki に節がないため対象外。構文の版を19へ進めた。
 - 第6弾（2026-11-20、wiki の原文だけを参照）: set-attr（値は空・true・false・0〜32767・[別の属性]。on…・srcdoc は拒否）、prevent-innerHTML、m3u-prune（行単位、または複数行フラグの正規表現で行全体の一致だけ）、trusted-override-element-method、trusted-replace-xhr-response、trusted-replace-fetch-response（wiki の節は見出しだけのため XHR 版と同じ引数と推定）。構文の版を20へ。uBlock filters の破棄行は 722 → 672。
 - 代替スクリプト（2026-11-20、B 案）: google-ima.js を、Google の公開 API リファレンス（IMA SDK for HTML5）だけを根拠に独自に作った（assets/adblock/surrogates/。冒頭に参照した URL と日付を記録）。広告を要求すると広告のない AdsManager を渡し、start() で本編の再開と全広告の完了を知らせる。redirect・redirect-rule の資源の種類 0x0700_0000 と番号 SURROGATE_MASK で表す。構文の版を22へ。uBlock filters の破棄行は 672 → 542。
+- 代替資源の第2弾（2026-11-20、B 案）: 公開文書だけを根拠に、次を独自に作った（各ファイルの冒頭に URL と日付を記録）。構文の版を23へ。uBlock filters の破棄行は 542 → 491。エミュレーター（API 37）の WebView で5件の計測テストが成功。
+  - googlesyndication_adsbygoogle.js: AdSense の `push` を受け付け、広告枠に `data-ad-status="unfilled"` を付ける（AdSense ヘルプ）。
+  - fuckadblock.js-3.2.0（nofab.js）: FuckAdBlock・BlockAdBlock の README（MIT）の API どおりに動き、常に「検知しなかった」と知らせる。
+  - noopvast-2.0/3.0/4.0・noopvmap-1.0: Ad・AdBreak を含まない VAST・VMAP（IAB の公開仕様・XSD）。
+  - noop-1s.mp4（noopmp4-1s）: 自作の無音 MP3 のフレームを39個入れた約1秒の MP4。生成は tools/adblock/make-noop-mp4.mjs。
+  - 差し替えた応答には、要求元のオリジンを許す CORS のヘッダーを付ける（別オリジンの fetch・XHR でもページが読めるように。中身は独自の資源だけ）。
+  - 作らなかったもの: prebid-ads.js・nobab2.js・hd-main.js 等は、ページが何を確かめるかがサイトごとに違い、公開 API 文書から決められないため、行ごと破棄を続ける。
 - 独立監査で残した課題: ドメインのない `#@#+js(...)`（汎用の例外）は破棄している。`rmnt` に `stay` を付けると、要素の追加のたびに部分木をたどる。許可ページの判定は主フレームの通信の横取りで更新するため、横取りのない遷移（戻る操作など）では前のページの判定が残る。about:blank の iframe で固定スクリプトが動くかは未確認。
 - 保存は要素フィルタの束に同居させ、構文の版を5へ進めて旧キャッシュを再生成する。
 - 反広告ブロック（Ad-Shield）: livedoor 系の対策（`html-load.com` の遮断と `rmnt`）は uBlock filters にあり、既定の3リスト（EasyList・EasyPrivacy・AdGuard Japanese）には無い。uBlock filters を購読すれば本体でも効くことをエミュレーターで確認した（[実機確認](DEVICE_CHECKS.md)）。既定の購読に加えるかは未決定。

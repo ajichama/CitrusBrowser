@@ -52,11 +52,22 @@ data class ContentRequest(
         internal const val REDIRECT_FRAME = 0x0500_0000
         /** 自作の約0.1秒の無音 MP3（assets/adblock/noop-0.1s.mp3）。 */
         internal const val REDIRECT_AUDIO = 0x0600_0000
-        /** 独自の代替スクリプト（assets/adblock/surrogates/）。どのスクリプトかは SURROGATE_MASK の番号で表す。 */
+        /** 独自の代替資源（スクリプト・空の VAST/VMAP・無音の MP4。Surrogates を参照）。どの資源かは SURROGATE_MASK の番号で表す。 */
         internal const val REDIRECT_SURROGATE = 0x0700_0000
         internal const val SURROGATE_MASK = 0x00F0_0000
         /** google.ima（Interactive Media Ads SDK for HTML5）の代替。 */
         internal const val SURROGATE_GOOGLE_IMA = 0x0010_0000
+        /** AdSense の広告コード（adsbygoogle.js）の代替。 */
+        internal const val SURROGATE_ADSBYGOOGLE = 0x0020_0000
+        /** FuckAdBlock・BlockAdBlock（広告ブロックの検知）の代替。 */
+        internal const val SURROGATE_FUCKADBLOCK = 0x0030_0000
+        /** 広告を含まない VAST 2.0・3.0・4.0 と VMAP 1.0 の応答。 */
+        internal const val SURROGATE_VAST2 = 0x0040_0000
+        internal const val SURROGATE_VAST3 = 0x0050_0000
+        internal const val SURROGATE_VAST4 = 0x0060_0000
+        internal const val SURROGATE_VMAP1 = 0x0070_0000
+        /** 約1秒の無音の MP4。 */
+        internal const val SURROGATE_NOOP_MP4 = 0x0080_0000
         /** redirect の資源を表すビット（種類と代替スクリプトの番号）。 */
         internal const val REDIRECT_RESOURCE_MASK = REDIRECT_MASK or SURROGATE_MASK
 

@@ -104,20 +104,12 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
         return adBlocker?.isBlock(contentRequest)
     }
 
-    fun createDummy(uri: Uri, filter: ContentFilter? = null): WebResourceResponse {
-        // 原本の資源集を取り込まず、既知の空資源だけを種別に合わせて返す。
-        when (filter?.contentType?.and(ContentRequest.REDIRECT_MASK)) {
-            ContentRequest.REDIRECT_SCRIPT -> return WebResourceResponse("application/javascript", "UTF-8", EmptyInputStream())
-            ContentRequest.REDIRECT_STYLE -> return WebResourceResponse("text/css", "UTF-8", EmptyInputStream())
-            ContentRequest.REDIRECT_IMAGE -> return WebResourceResponse("image/png", null, ByteArrayInputStream(dummyImage))
-            ContentRequest.REDIRECT_FRAME -> return WebResourceResponse("text/html", "UTF-8", EmptyInputStream())
-            ContentRequest.REDIRECT_AUDIO -> return WebResourceResponse("audio/mpeg", null, ByteArrayInputStream(silentAudio))
-            ContentRequest.REDIRECT_SURROGATE -> {
-                val script = Surrogates.script(context, filter?.contentType ?: 0)
-                return WebResourceResponse("application/javascript", "UTF-8", script?.let(::ByteArrayInputStream) ?: EmptyInputStream())
-            }
-            ContentRequest.REDIRECT_EMPTY -> return WebResourceResponse("text/plain", "UTF-8", EmptyInputStream())
-        }
+    /**
+     * 遮断した要求への応答。redirect の資源があればそれを返す。
+     * origin（要求元のオリジン）を渡すと、別オリジンへの fetch・XHR でもページが資源を読めるよう CORS のヘッダーを付ける。
+     */
+    fun createDummy(uri: Uri, filter: ContentFilter? = null, origin: String? = null): WebResourceResponse {
+        redirectResponse(filter)?.let { return it.allowingOrigin(origin) }
         val mimeType = getMimeType(uri.toString())
         return if (mimeType.startsWith("image/")) {
             WebResourceResponse("image/png", null, ByteArrayInputStream(dummyImage))
@@ -125,6 +117,20 @@ class AdBlockController(private val context: Context, private val abpDao: AbpDao
             dummy
         }
     }
+
+    // 原本の資源集を取り込まず、既知の空資源と独自の代替資源だけを種別に合わせて返す。毎回新しい応答を作る。
+    private fun redirectResponse(filter: ContentFilter?): WebResourceResponse? =
+        when (filter?.contentType?.and(ContentRequest.REDIRECT_MASK)) {
+            ContentRequest.REDIRECT_SCRIPT -> WebResourceResponse("application/javascript", "UTF-8", EmptyInputStream())
+            ContentRequest.REDIRECT_STYLE -> WebResourceResponse("text/css", "UTF-8", EmptyInputStream())
+            ContentRequest.REDIRECT_IMAGE -> WebResourceResponse("image/png", null, ByteArrayInputStream(dummyImage))
+            ContentRequest.REDIRECT_FRAME -> WebResourceResponse("text/html", "UTF-8", EmptyInputStream())
+            ContentRequest.REDIRECT_AUDIO -> WebResourceResponse("audio/mpeg", null, ByteArrayInputStream(silentAudio))
+            ContentRequest.REDIRECT_SURROGATE -> Surrogates.resource(filter.contentType)?.let { Surrogates.response(context, it) }
+                ?: WebResourceResponse("text/plain", "UTF-8", EmptyInputStream())
+            ContentRequest.REDIRECT_EMPTY -> WebResourceResponse("text/plain", "UTF-8", EmptyInputStream())
+            else -> null
+        }
 
     fun createMainFrameDummy(context: Context, uri: Uri, pattern: String): WebResourceResponse {
         val builder = StringBuilder("<meta charset=utf-8>" +

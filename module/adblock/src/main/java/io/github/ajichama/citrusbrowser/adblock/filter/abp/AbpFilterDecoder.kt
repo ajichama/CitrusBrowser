@@ -22,6 +22,7 @@ import io.github.ajichama.citrusbrowser.adblock.core.ContentRequest
 import io.github.ajichama.citrusbrowser.adblock.core.NavigationRewriter
 import io.github.ajichama.citrusbrowser.adblock.core.ProceduralFilters
 import io.github.ajichama.citrusbrowser.adblock.core.Scriptlets
+import io.github.ajichama.citrusbrowser.adblock.core.Surrogates
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.*
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.element.*
 import io.github.ajichama.citrusbrowser.core.utility.extensions.forEachLine
@@ -356,7 +357,7 @@ class AbpFilterDecoder {
                                 if (!blocking || inverse || value == null || redirectType != 0) return
                                 // 既知の空資源と、独自に作った代替スクリプトだけを扱う。未知の資源は行ごと破棄する。
                                 // 末尾の `:数字` は優先度の指定なので外す。
-                                redirectType = when (value.replace(Regex(":\\d+$"), "")) {
+                                redirectType = when (val name = value.replace(Regex(":\\d+$"), "")) {
                                     "empty", "noop.txt", "nooptext" -> ContentRequest.REDIRECT_EMPTY
                                     "noopjs", "noop.js" -> ContentRequest.REDIRECT_SCRIPT
                                     "noopcss", "noop.css" -> ContentRequest.REDIRECT_STYLE
@@ -364,8 +365,7 @@ class AbpFilterDecoder {
                                     "3x2.png", "3x2-transparent.png", "32x32.png", "32x32-transparent.png" -> ContentRequest.REDIRECT_IMAGE
                                     "noopframe", "noop.html" -> ContentRequest.REDIRECT_FRAME
                                     "noopmp3-0.1s", "noop-0.1s.mp3" -> ContentRequest.REDIRECT_AUDIO
-                                    "google-ima.js", "google-ima3" -> ContentRequest.REDIRECT_SURROGATE or ContentRequest.SURROGATE_GOOGLE_IMA
-                                    else -> return
+                                    else -> Surrogates.redirectType(name) ?: return
                                 }
                                 redirectRule = option == "redirect-rule"
                             }

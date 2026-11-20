@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2026 CitrusBrowser contributors. Licensed under the Apache License, Version 2.0.
+     CitrusBrowser 独自の、広告枠（AdBreak）を含まない VMAP 1.0 の応答。根拠は IAB の VMAP の公開スキーマ（2026-11-20 参照）
+     https://github.com/InteractiveAdvertisingBureau/vmap/blob/master/xsd/vmap.xsd （名前空間、version は必須、AdBreak は minOccurs="0"）。 -->
+<vmap:VMAP xmlns:vmap="http://www.iab.net/videosuite/vmap" version="1.0"></vmap:VMAP>

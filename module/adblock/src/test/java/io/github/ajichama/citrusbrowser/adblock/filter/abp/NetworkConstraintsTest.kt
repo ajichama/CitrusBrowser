@@ -21,6 +21,7 @@ import io.github.ajichama.citrusbrowser.adblock.core.Blocker
 import io.github.ajichama.citrusbrowser.adblock.core.ContentRequest
 import io.github.ajichama.citrusbrowser.adblock.core.FilterContainer
 import io.github.ajichama.citrusbrowser.adblock.core.NetworkFilterRules
+import io.github.ajichama.citrusbrowser.adblock.core.Surrogates
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.NetworkRuleFilter
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.UnifiedFilter
 import io.github.ajichama.citrusbrowser.adblock.filter.unified.io.FilterReader
@@ -103,7 +104,33 @@ class NetworkConstraintsTest {
         val ima = roundTrip(decode("||imasdk.example/js/sdkloader/ima3.js\$script,redirect=google-ima.js").blackList).single()
         assertEquals(ContentRequest.REDIRECT_SURROGATE, ima.contentType and ContentRequest.REDIRECT_MASK)
         assertEquals(ContentRequest.SURROGATE_GOOGLE_IMA, ima.contentType and ContentRequest.SURROGATE_MASK)
-        assertTrue(decode("||g.example^\$script,redirect=googlesyndication_adsbygoogle.js").blackList.isEmpty())
+        assertTrue(decode("||g.example^\$script,redirect=prebid-ads.js").blackList.isEmpty())
+        // 資源名と別名（優先度の指定つきを含む）を、対応する独自の資源へ対応づける。資源のファイルも揃っていること。
+        val names = mapOf(
+            "googlesyndication_adsbygoogle.js" to ContentRequest.SURROGATE_ADSBYGOOGLE,
+            "googlesyndication.com/adsbygoogle.js" to ContentRequest.SURROGATE_ADSBYGOOGLE,
+            "fuckadblock.js-3.2.0" to ContentRequest.SURROGATE_FUCKADBLOCK,
+            "nofab.js" to ContentRequest.SURROGATE_FUCKADBLOCK,
+            "noopvast-2.0" to ContentRequest.SURROGATE_VAST2,
+            "noop-vast3.xml" to ContentRequest.SURROGATE_VAST3,
+            "noopvast-4.0" to ContentRequest.SURROGATE_VAST4,
+            "noopvmap-1.0" to ContentRequest.SURROGATE_VMAP1,
+            "noop-1s.mp4:10" to ContentRequest.SURROGATE_NOOP_MP4,
+            "noopmp4-1s" to ContentRequest.SURROGATE_NOOP_MP4,
+        )
+        for ((name, number) in names) {
+            val filter = roundTrip(decode("||r.example^\$xhr,media,script,redirect=$name").blackList).single()
+            assertEquals(name, ContentRequest.REDIRECT_SURROGATE or number, filter.contentType and ContentRequest.REDIRECT_RESOURCE_MASK)
+            val resource = requireNotNull(Surrogates.resource(filter.contentType))
+            assertTrue(resource.asset, listOf(java.io.File("src/main/" + "assets/" + resource.asset), java.io.File("module/adblock/src/main/assets/" + resource.asset)).any { it.isFile })
+        }
+        // 無音の MP4 は、ftyp・mdat・moov の順で、MP3 のフレーム（417バイト）を39個含む。
+        val mp4 = listOf(java.io.File("src/main/assets/adblock/noop-1s.mp4"), java.io.File("module/adblock/src/main/assets/adblock/noop-1s.mp4"))
+            .first { it.isFile }.readBytes()
+        assertEquals("ftyp", String(mp4, 4, 4, Charsets.ISO_8859_1))
+        assertEquals("mdat", String(mp4, 32, 4, Charsets.ISO_8859_1))
+        assertEquals(8 + 39 * 417, java.nio.ByteBuffer.wrap(mp4, 28, 4).int)
+        assertEquals("moov", String(mp4, 28 + 8 + 39 * 417 + 4, 4, Charsets.ISO_8859_1))
         // redirect-rule で決めた代替スクリプトも、別のルールで遮断したときに番号ごと受け渡す。
         val rule = blocker(roundTrip = true, "||ima.example^\$script,redirect-rule=google-ima.js", "||ima.example/sdk.js\$script")
         val surrogate = requireNotNull(rule.isBlock(request("https://ima.example/sdk.js", "https://page.test/")))
