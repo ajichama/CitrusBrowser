@@ -14,6 +14,10 @@ pwsh -File scripts/release-key.ps1 New       # 鍵がなければ作る（既に
 pwsh -File scripts/release-key.ps1 Backup    # 既定は %USERPROFILE%\.citrus\release-key-backup（作業フォルダ・Dropbox へは複製しない）
 ```
 
+## 版番号
+
+CitrusBrowser としての版は 1.0.0 から始めます（2026-11-21。Yuzu Browser の最終版 6.0.2 の番号は引き継がない）。内部の版番号（versionCode）は「主版×1000000＋副版×1000＋修正版」で、1.0.0 は 1000000 です。旧版の移行処理が Yuzu の番号（410010 等）と比べているため、内部の版番号は常にそれより大きく保ちます。定義は buildSrc/src/main/java/Dependencies.kt の AppVersions です。
+
 ## ビルド
 
 ```powershell
