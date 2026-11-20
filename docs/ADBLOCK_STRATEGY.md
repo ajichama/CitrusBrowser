@@ -48,7 +48,7 @@
 | C. 対応範囲を絞る | EasyList・AdGuard JP を中心に、uBO 独自の書き方は効果の大きいものだけにする | 保守の負担が最も小さい | 動画サイトや広告ブロック検知への対策は弱くなる |
 | D. 本体を GPLv3 にして uBO の資源を取り込む | uBO の scriptlet と代替スクリプトを、そのまま同梱・同期する | 互換性が最も高く、追従は同期で済む | アプリ全体のライセンスが GPLv3 に変わる（Yuzu の Apache-2.0 コードとは組み合わせられる）。2026-11-19 の決定を覆すことになる |
 | E. 本体の表示エンジンを GeckoView＋uBO 原本にする | gecko-preview の路線を本体へ広げる（engine-api の方向） | uBO の機能をすべて使える。拡張機能も動く | APK が大きくなる。WebView 前提の機能を移す作業が大きい。minSdk 26 以上が必要 |
-| F. 外部の広告ブロックエンジンを使う | 例: Brave の adblock-rust（ライセンスは要確認）を NDK で組み込む | 照合部分の保守を外部に任せられる | ライセンス、とくに scriptlet 資源の出どころの確認が必要。Rust のビルドを Docker に入れる必要がある |
+| F. 外部の広告ブロックエンジンを使う | 例: Brave の adblock-rust（MPL-2.0）を NDK で組み込む | 照合部分の保守を外部に任せられる | scriptlet 資源は別に用意する必要がある（Brave は uBO の資源を本体とは別の配信物にしている）。Rust のビルドを Docker に入れる必要がある |
 
 ### 提案
 
@@ -63,24 +63,26 @@ F は、ライセンスの調査結果次第です。
 
 当面は B 案で進める（利用者の承認）。他のブラウザの方式と今後のリスクを考慮しながら進める。
 
-### 他のブラウザの方式と、今後のリスク（2026-11-20 の調査、詳細はローカルのレポート reports/adblock-browsers-survey-2026-11-20.md）
+### 他のブラウザの方式と、今後のリスク（2026-11-20 調査、同日夜に一次資料で再精査。詳細はローカルのレポート reports/adblock-browsers-survey-2026-11-20.md）
 
-- Firefox・Edge（Android）: uBO の原本を拡張機能として使い、本体とは分けている。E 案に近い形。
-- Brave: エンジンは adblock-rust（MPL-2.0）、資源集は adblock-resources（MPL-2.0）。資源集の README に uBO 由来の資源の区分があり、GPLv3 との整合のさせ方は未確認。
-- Samsung Internet: 外部アプリがブラウザ側の Content Blocking API を使う方式で、複雑なルールは使えない。Vivaldi は内蔵の遮断（実装の詳細は未確認）。
-- Yuzu Browser・BerryBrowser: 内部の実装は公式の資料に届かず、未確認。
-- AdGuard Scriptlets: GPL-3.0。Apache-2.0 でも提供しているという報告があるが、根拠が EULA の記載だけのため要確認。
-- Apache-2.0 の本体に uBO の GPLv3 資源を混ぜた例は見つからなかった。B 案のように、独自に書いて出どころを記録する方式は、他社の実情と矛盾しない。
+- Yuzu Browser: 要求を照合して空の応答を返し、要素は JS で削除する方式。scriptlet と $redirect はない。最終コミットは 2021-03、最終リリースは v6.0.2（2021-03-01）。Google Play の掲載ページは 404。
+- BerryBrowser（Android）: Ejimax による Yuzu 派生のアプリで、ソースは非公開。2026-10-30 にも更新がある。リストの構成は未確認。前回の調査は、iOS の別アプリ（Berry Dark Browser）と混同していた。
+- Firefox・Edge（Android）: uBO の原本を拡張機能として使い、本体とは分けている。E 案に近い形。Firefox（Android）の uBO は公式に対応し、推奨に指定されている。
+- Brave: エンジンの adblock-rust と資源集の adblock-resources は、どちらも MPL-2.0。uBO の資源は別のパッケージング用リポジトリで取り込み、本体とは別の配信物として実行時に配っている。
+- Vivaldi（Android）: 内蔵ブロッカーは 8.3（2026-11-05）で4段階の方式に作り直された。エンジンとライセンスは未確認。
+- Samsung Internet: 外部アプリがブラウザ側の Content Blocking API を使う方式で、複雑なルールは使えない。
+- AdGuard Scriptlets・tsurlfilter・ExtendedCss: GPL-3.0 のみ。前回の「Apache-2.0 でも提供」は誤りで、AdGuard の EULA の「二重」は商用ライセンスとオープンソースの二重の意味。Apache-2.0 なのは DnsLibs だけ。
+- Apache-2.0 で使える既製の scriptlet は見つからなかった。B 案のように独自に書いて出どころを記録する方式は、むしろ妥当性が増した。クリーンルームで開かない対象に、uBO に加えて AdGuard のソースも含める。
 
 今後のリスク（上位）:
 
-1. ライセンス: 代替スクリプトを作るときは、参照した公開 API 文書の URL と日付を記録し、uBO の資源を見ながら書かない。
-2. 法的な動向: ドイツの Axel Springer 対 Eyeo 訴訟は、2025年8月に連邦通常裁判所（BGH）が著作権に関する判断を差し戻した。2026年の差戻し審の結果は未確認で、今後も注視する。
-3. 反広告ブロック: YouTube 型の検知は更新が続き、恒久的な回避策はないとされる。応答を書き換えられない WebView 本体は構造的に不利なため、YouTube 型と Ad-Shield 型は B 案の成功条件に含めない。
-4. Google Play: 「他のアプリの広告を妨げる」行為の禁止は、ブラウザ内の遮断には及ばないと読むのが通説。ただし公式の明言は確認できていない。
-5. リストの配布: EasyList は GPLv3 以降と CC BY-SA の二重、AdGuard の各リストは GPL-3.0。同梱すると条件（帰属表示・同一条件）が及ぶため、現状どおり実行時に購読して取得する方式を続ける。uAssets・Fanboy のリストの正確なライセンスは未確認。
+1. ライセンス: 代替スクリプトを作るときは、参照した公開 API 文書の URL と日付を記録し、uBO・AdGuard の資源は見ずに書く。
+2. 法的な動向: ドイツの Axel Springer 対 Eyeo 訴訟は、2025-07-31 に連邦通常裁判所（BGH）が著作権に関する判断を差し戻した（I ZR 131/23、全文公開）。差戻し審の結果は未確認で、今後も注視する。
+3. 反広告ブロック: YouTube 型の検知は更新が続き、恒久的な回避策はないとされる。応答を書き換えられない WebView 本体は構造的に不利なため、YouTube 型と Ad-Shield 型は B 案の成功条件に含めず、YouTube は E 案（GeckoView＋uBO 原本）に任せる。SSAI（サーバー側の広告挿入）の展開範囲は未確認。
+4. Google Play: 開発者ポリシーの文面に、ブラウザがページ内の広告を遮断することへの言及はない（他のアプリの広告を妨げる行為の禁止が、ブラウザ内の遮断に及ぶとは書かれていない）。
+5. リストの配布: uAssets（uBlock filters）と AdGuard の各リストは GPL-3.0、EasyList・EasyPrivacy は GPLv3 と CC BY-SA の二重、Fanboy の Cookie List は CC BY 3.0。豆腐フィルタはライセンスがなく、営利目的の使用を禁じている。同梱すると条件が及ぶため、現状どおり実行時に購読して取得する方式を続ける。
 
-B 案への示唆: 対象は、効果の大きい数種（IMA・GPT 等）に限る。追従の作業を減らす効果は薄いため、中長期は C 案（範囲を絞る）か、E 案（GeckoView＋uBO 原本の併用）を検討する。
+B 案への示唆: 対象は、効果の大きい数種（IMA・GPT 等）に限る。追従の作業を減らす効果は薄いため、中長期は本体を C 案＋B 案、YouTube などは E 案という分担が現実的。
 
 ## 4. 関連する議題: サポートする Android の範囲（minSdk）
 
@@ -92,27 +94,26 @@ B 案への示唆: 対象は、効果の大きい数種（IMA・GPT 等）に限
 | 24 に上げる | WebKit の最新版（1.18 系）を使える。差は小さい | Android 6.0 の端末を切る |
 | 26 に上げる | GeckoView（E 案）と揃う。古い OS 向けの分岐を減らせる | Android 7.x の端末も切る |
 
-### 調査結果（2026-11-20、詳細はローカルのレポート reports/minsdk-survey-2026-11-20.md）
+### 調査結果（2026-11-20 調査、同日夜に一次資料で再精査。詳細はローカルのレポート reports/minsdk-survey-2026-11-20.md）
 
-- 他のブラウザ:
-  - Chrome は Chrome 139 から Android 10（API 29）以上が必要。最終版は Android 6 が 106、Android 7 が 119、Android 8・9 が 138。
-  - Firefox と GeckoView は Firefox 144 から Android 8.0（API 26）以上。
-  - Brave と Opera は Android 10 以上（二次情報）。Edge・Samsung・Vivaldi・DuckDuckGo は未確認。
-- WebView: 139 以降が Android 10 以上という表示がある（APKMirror。公式の告知は未確認）。これが正しければ、Android 9 以下の端末では WebView が更新されず、新しい Web の機能や表示への対応が止まる。古い OS を残しても、Citrus 側では表示の質を保てない。
-- 利用割合: Google の2026年10月のデータでは、Android 6.0 は 0.3%。Android 7〜9 の最新の値と、日本の傾向は未確認。
-- AndroidX: 既定の minSdk は 24（公式、2026-11-18 更新）。androidx.webkit は 1.16.0 から minSdk 24 で、最新の安定版は 1.18.0。
+- 他のブラウザの最低対応 OS: Chrome・Edge・Vivaldi・Opera・Brave は Android 10、DuckDuckGo は Android 9、Firefox は Android 8.0、Samsung Internet は Android 8.0（2024年時点）。Kiwi は開発を終えて Edge へ案内している。
+- WebView: Chromium のソースで、M138 の最低は API 26、M139 は API 29（WebView も同じ）と確定した。Android 6 は 106、Android 7 は 119、Android 8・9 は 138 で更新が止まる。Android 8・9 の WebView 138 は 2025年夏の版で、表示が直ちに劣るわけではないが、セキュリティ修正が止まっている。
+- 利用割合（Google の配布データ、2026年10月）: Android 6.0 が 0.3%、7.x が 0.4%、8.x が 2.0%、9 が 3.1%、10 が 5.7%。minSdk を 29 にすると約6%を切る。日本のタブレット（StatCounter）では Android 9 が 23% で最多で、7.x が 6.6%、6.0 が 3.8%。
+- AndroidX: 既定の minSdk は 24（公式、2026-11-18 更新）。androidx.webkit は 1.16.0 から minSdk 24 で、最新の安定版は 1.18.0。Media3 も 1.12 で minSdk 24 になる（23 のままなら 1.11.x に留まる）。androidx.pdf は minSdk 28。
+- WebView の機能: MULTI_PROFILE（WebView 119 以降）、MUTE_AUDIO（122 以降）、DELETE_BROWSING_DATA（133 以降）、CUSTOM_REQUEST_HEADERS（142 以降）は、今の webkit 1.15.0（minSdk 23）で使える。1.16 以降（minSdk 24）が必要なのは、NavigationListener、隔離ワールドへの注入（GM_* を安全にできる）、フォームファクタ、非同期起動、HTTP キャッシュの容量設定など。
 - Google Play の targetSdk の要件（2026-08-31 までに API 36）は、minSdk とは別の要件。
+- Yuzu Browser の利用者の端末分布は分からない（Google Play・F-Droid に掲載がない）。
 
-### 各段階の利点と欠点（調査を踏まえて）
+### 各段階の利点と欠点（再精査を踏まえて）
 
 | minSdk | 良くなること | できなくなること |
 |---|---|---|
-| 24 | androidx.webkit 1.16 以降（最新 1.18）と AndroidX の既定に揃う | Android 6.0（約0.3%）を切る |
-| 26 | GeckoView（E 案）と同じ下限になり、本体への併用がしやすい | Android 7.x も切る |
-| 28 | Android 9 未満の分岐を整理できる程度 | Firefox の下限（8.0）を超え、GeckoView 併用の利点が薄れる |
-| 29 | Chrome・Brave・Opera と同じ下限。WebView が更新される端末だけになる | Android 9 以下を切る。利用者数の根拠がまだない |
+| 24 | AndroidX の今後の安定版（webkit 1.16 以降、Media3 1.12 以降等）を使い続けられる。上の WebView の3機能は、24 にしなくても使える | Android 6.0（約0.3%。日本のタブレットでは 3.8%）を切る |
+| 26 | GeckoView（E 案）と同じ下限になり、本体への併用がしやすい | Android 7.x（約0.4%。日本のタブレットでは 6.6%）も切る |
+| 28 | Android 9 未満の分岐を整理できる程度 | Firefox・GeckoView の下限（8.0）を超え、併用の利点が薄れる |
+| 29 | Chrome 系の各社と同じ下限。WebView が更新される端末だけになる | Android 9 以下（約6%）を切る。日本のタブレットで最多の Android 9（23%）を切るため、勧めない |
 
-調査担当の推奨: まず 24 へ上げる。GeckoView を本体へ広げる時点で 26 へ上げる。28・29 は今は勧めない。判断の前に、Google Play の端末分布などで Android 7〜9 の利用者数を測る。
+調査担当の推奨（再精査後）: まず 24 へ上げる（理由は AndroidX の今後の安定版を使い続けるため）。26 は、GeckoView を本体へ広げる時点で、自前の利用者の版の分布を見てから決める。28・29 は勧めない。
 
 ## 5. プライバシー機能と利便性
 
@@ -122,6 +123,7 @@ B 案への示唆: 対象は、効果の大きい数種（IMA・GPT 等）に限
   - 自動消去は、利用者がサイトごとに選んだ場合だけ動く。同じサイトのタブがほかに開いていれば消さない。
   - 消えるのは Cookie・保存データ・キャッシュで、そのサイトからはログアウトされる。
   - 後で読むの保存ページ（アプリ内のファイル）、閉じたタブの復元、ブックマーク、履歴は消えない。ただし、復元したタブはログアウトした状態で開く。
+  - 自動消去は、タブを閉じたときだけ働く。最後のタブを閉じたとき、アプリを終了したとき、閉じる前に別のサイトへ移動していたタブでは働かない（2026-11-20 の監査の指摘。必要なら今後対応する）。
 - **リンクを対応アプリで開く**（初期値オン）
   - Chrome と同じく、既定のアプリがあるリンクはアプリで開く。設定でオフにできる。
 - **Cookie 同意バナーなどのリスト**（初期値オフ）
