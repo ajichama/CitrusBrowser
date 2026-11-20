@@ -190,6 +190,23 @@
         if (!/^\d+$/.test(raw) || Number(raw) > 0x7FFF) return;
         value = Number(raw);
     }
+    installConstant(chain, value, args);
+  };
+
+  // trusted-set-constant（trusted-set）: set-constant と同じ動作で、任意の値を設定できる（信頼できるリストからだけ届く）。
+  // 既定は文字列。{ で始まり } で終わる値は JSON として解析し、その value プロパティを使う。
+  scriptlets['trusted-set-constant'] = function (args) {
+    var chain = args[0];
+    var raw = args[1];
+    if (!chain || raw === undefined) return;
+    var value = raw;
+    if (raw.charAt(0) === '{' && raw.charAt(raw.length - 1) === '}') {
+      try { var parsed = JSON.parse(raw); if (!isObjectLike(parsed)) return; value = parsed.value; } catch (e) { return; }
+    }
+    installConstant(chain, value, args);
+  };
+
+  function installConstant(chain, value, args) {
     // 3番目の位置引数（旧形式の実行時期）と、名前つきの runAt・as を読む。
     var tokenStart = 2;
     var legacyStage = 1;
@@ -958,6 +975,138 @@
       return value;
     };
   }
+
+  // ---- trusted の第2弾（uBO wiki の Resources-Library の原文だけを参照） ----
+
+  // 文字列中の $now$ / $currentDate$ / $currentISODate$ を置き換える（trusted-set-cookie の値）。
+  function expandTimeKeywords(text) {
+    return String(text)
+      .replace(/\$now\$/g, String(Date.now()))
+      .replace(/\$currentDate\$/g, String(new Date()))
+      .replace(/\$currentISODate\$/g, new Date().toISOString());
+  }
+
+  // trusted-replace-outbound-text: 指定した関数が返す文字列の一部を置き換える。
+  scriptlets['trusted-replace-outbound-text'] = function (args) {
+    var chain = args[0];
+    var source = args[1];
+    if (!chain || source === undefined || source === '' || !ProxyCtor) return;
+    var m = /^\/(.+)\/([gimsuy]*)$/.exec(source);
+    var pattern = null;
+    if (m) { try { pattern = new RegExp(m[1], m[2]); } catch (e) { return; } }
+    var replacement = args[2] === undefined ? '' : args[2];
+    if (replacement.indexOf('json:') === 0) {
+      try { replacement = String(JSON.parse(replacement.slice(5))); } catch (e) { return; }
+    }
+    var tokens = namedTokens(args, 3);
+    var condition = tokens.condition !== undefined ? toMatcher(tokens.condition) : null;
+    if (tokens.condition !== undefined && !condition) return;
+    var base64 = tokens.encoding === 'base64';
+    if (tokens.encoding !== undefined && !base64) return;
+    var replaceText = function (text) {
+      var plain = text;
+      if (base64) { try { plain = atob(text); } catch (e) { return text; } }
+      if (condition && !condition(plain)) return text;
+      var next = pattern ? plain.replace(pattern, replacement) : plain.split(source).join(replacement);
+      if (next === plain) return text;
+      if (base64) { try { return btoa(next); } catch (e) { return text; } }
+      return next;
+    };
+    var proxies = new WeakMap();
+    var wrap = function (fn) {
+      if (typeof fn !== 'function') return fn;
+      if (proxies.has(fn)) return proxies.get(fn);
+      var proxy = new ProxyCtor(fn, {
+        apply: function (target, thisArg, callArgs) {
+          var result = reflectApply(target, thisArg, callArgs);
+          return typeof result === 'string' ? replaceText(result) : result;
+        }
+      });
+      proxies.set(fn, proxy);
+      return proxy;
+    };
+    trapChain(W, chain, function (owner, prop) {
+      replaceProperty(owner, prop, function (getOriginal, setOriginal) {
+        return {
+          get: function () { return wrap(getOriginal(this)); },
+          set: function (next) { setOriginal(this, next); }
+        };
+      });
+    });
+  };
+
+  // trusted-set-cookie: 任意の名前・値の Cookie を設定する（有効期限・パス・ドメインの指定つき）。
+  scriptlets['trusted-set-cookie'] = function (args) {
+    var name = args[0];
+    var raw = args[1];
+    if (!name || raw === undefined || /[;\s=]/.test(name)) return;
+    var value = expandTimeKeywords(raw);
+    // Cookie の属性を差し込ませないよう、区切りの ; と改行は受け付けない。
+    if (/[;\r\n]/.test(value)) return;
+    var offset = args[2] === undefined ? '' : args[2];
+    var seconds = 0;
+    if (offset === '1year') seconds = 365 * 24 * 60 * 60;
+    else if (offset === '1day') seconds = 24 * 60 * 60;
+    else if (/^\d+$/.test(offset)) seconds = Number(offset);
+    else if (offset !== '') return;
+    var path = args[3] === undefined || args[3] === '' ? '/' : args[3];
+    if (path !== '/' && path !== 'none') return;
+    var tokens = namedTokens(args, 4);
+    var domain = '';
+    if (tokens.domain !== undefined) {
+      var host = location.hostname;
+      var domainRegex = /^\/(.+)\/([imsu]*)$/.exec(tokens.domain);
+      if (domainRegex) {
+        var found;
+        try { found = new RegExp(domainRegex[1], domainRegex[2]).exec(host); } catch (e) { return; }
+        if (!found) return;
+        domain = found[0];
+      } else {
+        domain = tokens.domain;
+      }
+      // 今のホストと無関係なドメインには設定しない。
+      if (!/^[a-z0-9.-]+$/i.test(domain) || (host !== domain && host.slice(-domain.length - 1) !== '.' + domain)) return;
+    }
+    var before = readCookie(name);
+    if (tokens.dontOverwrite === '1' && before !== null) return;
+    var cookie = name + '=' + value;
+    if (seconds > 0) cookie += '; expires=' + new Date(Date.now() + seconds * 1000).toUTCString();
+    if (path !== 'none') cookie += '; path=' + path;
+    if (domain !== '') cookie += '; domain=' + domain;
+    if (/^__(Secure|Host)-/.test(name)) cookie += '; Secure';
+    try { doc.cookie = cookie; } catch (e) { return; }
+    if (tokens.reload === '1' && before === null && readCookie(name) !== null) {
+      try { W.location.reload(); } catch (e) { /* 再読込できない環境では何もしない */ }
+    }
+  };
+
+  // trusted-set-attr: 指定した要素に属性を設定する（読込時と、その後の DOM の変化のたび）。
+  scriptlets['trusted-set-attr'] = function (args) {
+    var selector = args[0];
+    var attr = args[1];
+    var value = args[2] === undefined ? '' : args[2];
+    if (!selector || !attr || !/^[A-Za-z_][\w:.-]*$/.test(attr)) return;
+    // イベント処理の属性（onclick 等）はスクリプトの実行になるため設定しない（本体独自の安全側の制限）。
+    if (/^on/i.test(attr)) return;
+    try { doc.createDocumentFragment().querySelector(selector); } catch (e) { return; }
+    var apply = function () {
+      var nodes;
+      try { nodes = doc.querySelectorAll(selector); } catch (e) { return; }
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].getAttribute(attr) !== value) nodes[i].setAttribute(attr, value);
+      }
+    };
+    runAt(2, function () {
+      apply();
+      if (!MutationObserverCtor) return;
+      var pending = false;
+      new MutationObserverCtor(function () {
+        if (pending) return;
+        pending = true;
+        later(function () { pending = false; apply(); }, 0);
+      }).observe(doc, { childList: true, subtree: true });
+    });
+  };
 
   // ---- uBO 方式の JSONPath（wiki の uBO-flavored-JSONPath の公開仕様だけを参照） ----
   // RFC 9535 の一部（$ / @ / .名前 / ..名前 / [名前] / [番号] / * / [?フィルタ]）と、uBO の拡張

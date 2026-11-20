@@ -36,10 +36,13 @@ class ScriptletsTest {
     fun argumentsSplitOnCommasHonourEscapesQuotesAndAliases() {
         assertEquals(listOf("prevent-setTimeout", "a,b", "500"), Scriptlets.parse("+js(nostif, a\\,b, 500)"))
         assertEquals(listOf("addEventListener-defuser", "", "preventDefault"), Scriptlets.parse("+js(aeld, , preventDefault)"))
-        // 引用符は wiki の規定どおり文字として残す（外すと照合の範囲が広がる）。
-        assertEquals(listOf("abort-current-script", "document.createElement", "'overlay'"),
+        // 引数全体を単一引用符で囲むと、中のカンマで区切らず、外側の引用符を外す（wiki の例に合わせる）。
+        assertEquals(listOf("abort-current-script", "document.createElement", "overlay"),
             Scriptlets.parse("+js(acs, document.createElement, 'overlay')"))
-        assertEquals(listOf("set-constant", "foo", "''"), Scriptlets.parse("+js(set, foo, '')"))
+        assertEquals(listOf("set-constant", "foo", ""), Scriptlets.parse("+js(set, foo, '')"))
+        assertEquals(listOf("set-constant", "a", "x, y", "it's"), Scriptlets.parse("+js(set, a, 'x, y', 'it\\'s')"))
+        // 途中だけの引用符と二重引用符は、文字として残す。
+        assertEquals(listOf("set-constant", "a", "b'c", "\"d\""), Scriptlets.parse("+js(set, a, b'c, \"d\")"))
         assertEquals(listOf("abort-current-script", "Math", "/\\}\\s*\\(/"), Scriptlets.parse("+js(acis.js, Math, /\\}\\s*\\(/)"))
         assertEquals(listOf("remove-node-text", "#text", "広告"), Scriptlets.parse("+js(rmnt, #text, 広告)"))
         assertEquals(emptyList<String>(), Scriptlets.parse("+js()"))
@@ -70,7 +73,7 @@ class ScriptletsTest {
             val calls = AbpFilterDecoder().decode("$line\n$storage".reader().buffered(), source).elementList.map { Scriptlets.decode(it.selector) }
             assertEquals(listOf(
                 listOf("trusted-replace-node-text", "script", "adblock", "ok"),
-                listOf("trusted-set-local-storage-item", "consent", "'{\"a\":1,\"b\":2}'"),
+                listOf("trusted-set-local-storage-item", "consent", "{\"a\":1,\"b\":2}"),
             ), calls)
         }
     }

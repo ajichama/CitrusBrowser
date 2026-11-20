@@ -87,6 +87,10 @@ object Scriptlets {
         add("trusted-json-edit")
         add("trusted-json-edit-fetch-response")
         add("trusted-json-edit-xhr-response")
+        add("trusted-set-constant", "trusted-set")
+        add("trusted-replace-outbound-text")
+        add("trusted-set-cookie")
+        add("trusted-set-attr")
     }
 
     private val trustedPrefixes = listOf(
@@ -155,7 +159,7 @@ object Scriptlets {
             when {
                 c == '"' -> append("\\\"")
                 c == '\\' -> append("\\\\")
-                c < ' ' || c == ' ' || c == ' ' || c == '<' ->
+                c < ' ' || c == '\u2028' || c == '\u2029' || c == '<' ->
                     append("\\u").append(c.code.toString(16).padStart(4, '0'))
                 else -> append(c)
             }
@@ -165,22 +169,56 @@ object Scriptlets {
 
     /**
      * カンマで区切り、前後の空白を除く。`\,` はカンマそのもの。それ以外のバックスラッシュは正規表現のために残す。
-     * 引用符は wiki の規定（quotes will be taken literally）どおり、文字として扱う。
+     * 引数全体を単一引用符で囲んだ場合は、中のカンマを区切りとせず、外側の引用符を外す（`\'` は `'`）。
+     * wiki の例（trusted-set-cookie の `'{"accepted":true,"expire":$now$}'`、trusted-set の `'{ "value": … }'`、
+     * spoof-css の「単一引用符の中にまとめる」）に合わせた。二重引用符は値の一部として残す（各 scriptlet の説明どおり）。
      */
     private fun splitArguments(inner: String): List<String>? {
         val args = mutableListOf<String>()
-        val value = StringBuilder()
         var i = 0
-        while (i < inner.length) {
-            val c = inner[i]
-            when {
-                c == '\\' && inner.getOrNull(i + 1) == ',' -> { value.append(','); i += 2; continue }
-                c == ',' -> { args += value.toString().trim(); value.setLength(0) }
-                else -> value.append(c)
+        while (true) {
+            while (i < inner.length && inner[i] == ' ') i++
+            if (inner.getOrNull(i) == '\'') {
+                val quoted = quotedArgument(inner, i)
+                if (quoted != null) {
+                    args += quoted.first
+                    i = quoted.second
+                    if (i >= inner.length) break
+                    i++
+                    continue
+                }
             }
+            val value = StringBuilder()
+            while (i < inner.length) {
+                val c = inner[i]
+                if (c == '\\' && inner.getOrNull(i + 1) == ',') { value.append(','); i += 2; continue }
+                if (c == ',') break
+                value.append(c)
+                i++
+            }
+            args += value.toString().trim()
+            if (i >= inner.length) break
             i++
         }
-        args += value.toString().trim()
         return args.takeIf { it[0].isNotEmpty() }
+    }
+
+    /** `'…'` の中身と、閉じ引用符の後（次のカンマか末尾）の位置。閉じ引用符の後に他の文字があれば null。 */
+    private fun quotedArgument(text: String, start: Int): Pair<String, Int>? {
+        val value = StringBuilder()
+        var i = start + 1
+        while (i < text.length) {
+            val c = text[i]
+            if (c == '\\' && text.getOrNull(i + 1) == '\'') { value.append('\''); i += 2; continue }
+            if (c == '\\' && text.getOrNull(i + 1) == ',') { value.append(','); i += 2; continue }
+            if (c == '\'') {
+                var j = i + 1
+                while (j < text.length && text[j] == ' ') j++
+                return if (j >= text.length || text[j] == ',') value.toString() to j else null
+            }
+            value.append(c)
+            i++
+        }
+        return null
     }
 }

@@ -267,6 +267,30 @@ class ScriptletWebViewTest {
         assertEquals("true", evaluate("r.fetch === '{\"config\":{\"showAds\":false,\"theme\":\"dark\"}}'"))
     }
 
+    @Test fun trustedSecondBatchSetsConstantsCookiesAttributesAndOutboundText() {
+        install(
+            "blog.esuteru.com##+js(trusted-set, citrusConfig, '{ \"value\": { \"ads\": false, \"n\": 3 } }')",
+            "blog.esuteru.com##+js(trusted-replace-outbound-text, citrusPayload, /adblock=1/, adblock=0)",
+            "blog.esuteru.com##+js(trusted-set-cookie, citrus_cmp, 'v1,accept', 1day)",
+            "blog.esuteru.com##+js(trusted-set-attr, #target, data-state, closed)",
+            "blog.esuteru.com##+js(trusted-set-attr, #target, onclick, alert(1))",
+            source = "https://ublockorigin.github.io/uAssets/filters/filters.txt",
+        )
+        load("""<div id="target" data-state="open">枠</div><script>
+            window.r = {};
+            r.config = JSON.stringify(window.citrusConfig);
+            window.citrusPayload = function () { return 'x&adblock=1&y'; };
+            r.payload = citrusPayload();
+            r.cookie = document.cookie.indexOf('citrus_cmp=v1,accept') !== -1;
+            r.done = true;
+            </script>""")
+        awaitTrue("window.r && r.done === true")
+        assertEquals("true", evaluate("r.config === '{\"ads\":false,\"n\":3}' && r.payload === 'x&adblock=0&y' && r.cookie"))
+        // 属性は解析完了後に設定する。イベント処理の属性（onclick）は設定しない。
+        awaitTrue("document.getElementById('target').getAttribute('data-state') === 'closed'")
+        assertEquals("false", evaluate("document.getElementById('target').hasAttribute('onclick')"))
+    }
+
     @Test fun exceptionAndEmptyResultsInjectNothing() {
         install("blog.esuteru.com##+js(set, citrusAdFlag, false)", "blog.esuteru.com#@#+js()")
         load("<script>window.r = { flag: typeof window.citrusAdFlag, done: true };</script>")
