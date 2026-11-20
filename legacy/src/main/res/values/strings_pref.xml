@@ -237,6 +237,7 @@
         <item>@string/share_link</item>
         <item>@string/open_link_other_app</item>
         <item>@string/copy_link_url</item>
+        <item>@string/copy_link_text</item>
         <item>@string/save_link</item>
         <item>@string/add_link_black_list</item>
         <item>@string/add_link_white_list</item>
@@ -268,6 +269,7 @@
         <item>-50</item>
         <item>-51</item>
         <item>-52</item>
+        <item>-157</item>
         <item>-53</item>
         <item>-160</item>
         <item>-162</item>

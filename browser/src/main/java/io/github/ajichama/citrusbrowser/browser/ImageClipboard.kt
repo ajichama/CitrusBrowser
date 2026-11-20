@@ -13,6 +13,7 @@ package io.github.ajichama.citrusbrowser.browser
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.util.Base64
@@ -29,9 +30,9 @@ import java.io.File
 import java.io.IOException
 
 /**
- * 長押しした画像を、画像としてクリップボードへコピーする。
- * 画像はアプリ専用の外部キャッシュ（Android/data/…/cache/clipboard）へ一時保存し、ファイル提供部分の content:// の URI で渡す。
- * ダウンロードフォルダには残さない。貼り付け先のアプリには、Android がクリップボード経由で読み取りの許可を与える。
+ * 長押しした画像を、画像としてクリップボードへコピーする・他のアプリへ共有する。
+ * 画像はアプリ専用の外部キャッシュ（Android/data/…/cache/clipboard・share）へ一時保存し、ファイル提供部分の content:// の URI で渡す。
+ * ダウンロードフォルダには残さない。貼り付け先・共有先のアプリには、クリップボード経由・Intent の一時的な許可で読み取りを許す。
  */
 internal object ImageClipboard {
     private const val MAX_BYTES = 20L * 1024 * 1024
@@ -40,7 +41,7 @@ internal object ImageClipboard {
         val copied = withContext(Dispatchers.IO) {
             try {
                 val image = load(client, url, userAgent, referer) ?: return@withContext false
-                setClip(context, save(context, image) ?: return@withContext false)
+                setClip(context, save(context, image, "clipboard") ?: return@withContext false)
                 true
             } catch (e: IOException) {
                 false
@@ -54,6 +55,32 @@ internal object ImageClipboard {
         } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             Toast.makeText(context, R.string.copy_image_done, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    /** 画像を共有する（Issue #14。以前はダウンロードフォルダへ保存してから共有していた）。 */
+    fun share(context: Context, client: OkHttpClient, url: String, userAgent: String?, referer: String?) = ui {
+        val file = withContext(Dispatchers.IO) {
+            try {
+                load(client, url, userAgent, referer)?.let { save(context, it, "share") }
+            } catch (e: IOException) {
+                null
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+        }
+        if (file == null) {
+            Toast.makeText(context, R.string.share_image_failed, Toast.LENGTH_SHORT).show()
+            return@ui
+        }
+        val provider = (context.applicationContext as BrowserApplication).providerManager.downloadFileProvider
+        val uri = provider.getUriForFile(file)
+        val send = Intent(Intent.ACTION_SEND).apply {
+            type = context.contentResolver.getType(uri) ?: "image/*"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            clipData = ClipData.newRawUri(null, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(Intent.createChooser(send, context.getText(R.string.share)))
     }
 
     private class Image(val bytes: ByteArray, val mimeType: String)
@@ -95,10 +122,10 @@ internal object ImageClipboard {
         return Image(bytes, mimeType)
     }
 
-    private fun save(context: Context, image: Image): File? {
-        val dir = File(context.externalCacheDir ?: return null, "clipboard")
+    private fun save(context: Context, image: Image, folder: String): File? {
+        val dir = File(context.externalCacheDir ?: return null, folder)
         if (!dir.isDirectory && !dir.mkdirs()) return null
-        // 前回コピーした画像は残さない。
+        // 前回コピー・共有した画像は残さない。
         dir.listFiles()?.forEach { it.delete() }
         val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(image.mimeType) ?: "png"
         return File(dir, "image-${System.currentTimeMillis()}.$extension").apply { writeBytes(image.bytes) }

@@ -258,14 +258,10 @@ class ActionExecutor(
                     }
                     SingleAction.LPRESS_SHARE_IMAGE -> {
                         if (url.startsWith("blob:")) {
-                            target.webView.saveBlob(url, 3)
+                            // blob の画像は、ページ内で data: の URL に変えてから受け取る（WebClient の種別 3）。
+                            target.webView.webView.evaluateJavascript(controller.activity.getBlobDownloadJavaScript(url, controller.secretKey, 3), null)
                         } else {
-                            val intent = FastDownloadActivity.intent(
-                                controller.activity,
-                                url, target.webView.url,
-                                target.webView.getUserAgent(),
-                                ".jpg")
-                            controller.startActivity(intent, BrowserController.REQUEST_SHARE_IMAGE)
+                            ImageClipboard.share(controller.activity, controller.okHttpClient, url, target.webView.getUserAgent(), target.webView.url)
                         }
                         return true
                     }
@@ -401,16 +397,9 @@ class ActionExecutor(
                     }
                     SingleAction.LPRESS_SHARE_IMAGE -> {
                         if (url.startsWith("blob:")) {
-                            target.webView.saveBlob(url, 3)
+                            target.webView.webView.evaluateJavascript(controller.activity.getBlobDownloadJavaScript(url, controller.secretKey, 3), null)
                         } else {
-                            val webView = target.webView
-                            val intent = FastDownloadActivity.intent(
-                                controller.activity,
-                                url,
-                                webView.url,
-                                webView.getUserAgent(),
-                                ".jpg")
-                            controller.startActivity(intent, BrowserController.REQUEST_SHARE_IMAGE)
+                            ImageClipboard.share(controller.activity, controller.okHttpClient, url, target.webView.getUserAgent(), target.webView.url)
                         }
                         return true
                     }
@@ -424,6 +413,10 @@ class ActionExecutor(
                         }
                         return true
                     }
+                    SingleAction.LPRESS_COPY_LINK_TEXT -> {
+                        target.webView.requestFocusNodeHref(WebSrcLinkCopyHandler(controller.activity).obtainMessage())
+                        return true
+                    }
                     SingleAction.LPRESS_ADD_BLACK_LIST -> {
                         target.webView.requestFocusNodeHref(WebSrcImageBlackListHandler(controller.activity).obtainMessage())
                         return true
@@ -435,8 +428,6 @@ class ActionExecutor(
                     }
                     SingleAction.LPRESS_ADD_WHITE_LIST -> {
                         target.webView.requestFocusNodeHref(WebSrcImageWhiteListHandler(controller.activity).obtainMessage())
-                        AddAdBlockDialog.addWhiteListInstance(url)
-                            .show(controller.activity.supportFragmentManager, "add white")
                         return true
                     }
                     SingleAction.LPRESS_ADD_IMAGE_WHITE_LIST -> {
@@ -613,6 +604,13 @@ class ActionExecutor(
                         text = context.getString(R.string.site_info_clear_on_close, site)
                         isChecked = SiteData.isClearOnClose(context, site!!)
                         setOnCheckedChangeListener { _, checked -> SiteData.setClearOnClose(context, site, checked) }
+                    })
+                }
+                if (site != null && !AppPrefs.web_popup.get()) {
+                    container.addView(CheckBox(context).apply {
+                        text = context.getString(R.string.site_info_allow_popup, site)
+                        isChecked = SiteData.isPopupAllowed(context, site)
+                        setOnCheckedChangeListener { _, checked -> SiteData.setPopupAllowed(context, site, checked) }
                     })
                 }
                 AlertDialog.Builder(controller.activity)

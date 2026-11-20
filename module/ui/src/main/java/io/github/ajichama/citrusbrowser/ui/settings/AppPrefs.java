@@ -82,7 +82,8 @@ public class AppPrefs {
     public static final BooleanContainer accept_third_cookie = new BooleanContainer("accept_third_cookie", true);
     public static final BooleanContainer accept_cookie_private = new BooleanContainer("accept_cookie_private", false);
     public static final IntContainer web_cache = new IntContainer("web_cache", WebSettings.LOAD_DEFAULT);
-    public static final BooleanContainer web_popup = new BooleanContainer("web_popup", true);
+    // true で、利用者の操作によらないポップアップも開く。初期値は false（Issue #11、保存済みの設定へは DefaultsMigration で反映）。
+    public static final BooleanContainer web_popup = new BooleanContainer("web_popup", false);
     public static final IntContainer download_action = new IntContainer("download_action", PreferenceConstants.DOWNLOAD_AUTO);
     public static final StringContainer download_folder = new StringContainer("download_folder", DEFAULT_DOWNLOAD_PATH);
     public static final BooleanContainer pause_web_background = new BooleanContainer("pause_web_background", true);
@@ -118,7 +119,8 @@ public class AppPrefs {
     public static final IntContainer qc_position = new IntContainer("qc_position", 0);
     public static final IntContainer overlay_bottom_alpha = new IntContainer("overlay_bottom_alpha", 0xee);
     public static final BooleanContainer save_last_tabs = new BooleanContainer("save_last_tabs", false);
-    public static final BooleanContainer save_closed_tab = new BooleanContainer("save_closed_tab", false);
+    // 初期値は true（Issue #10、保存済みの設定へは DefaultsMigration で反映）。
+    public static final BooleanContainer save_closed_tab = new BooleanContainer("save_closed_tab", true);
     public static final BooleanContainer userjs_enable = new BooleanContainer("userjs_enable", false);
     public static final BooleanContainer webswipe_enable = new BooleanContainer("webswipe_enable", false);
     public static final IntContainer webswipe_sensitivity_speed = new IntContainer("webswipe_sensitivity_speed", 5);

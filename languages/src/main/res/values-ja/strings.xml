@@ -80,6 +80,7 @@
     <string name="share_image">画像の共有</string>
     <string name="share_image_url">画像のURLを共有</string>
     <string name="open_image_other_app">画像を他のアプリで開く</string>
+    <string name="share_image_failed">画像を共有できませんでした</string>
     <string name="copy_image">画像をコピー</string>
     <string name="copy_image_done">画像をコピーしました</string>
     <string name="copy_image_failed">画像をコピーできませんでした</string>
@@ -351,6 +352,10 @@
     <string name="site_info_clear">サイトのデータを消去</string>
     <string name="site_info_clear_confirm">%1$s の Cookie・保存データ・キャッシュを消去します。このサイトからはログアウトされます。</string>
     <string name="site_info_cleared">%1$s のデータを消去しました</string>
+    <string name="site_info_allow_popup">%1$s のポップアップを許可する</string>
+    <string name="popup_blocked">ポップアップをブロックしました</string>
+    <string name="popup_allow">許可</string>
+    <string name="popup_allowed_retry">%1$s のポップアップを許可しました。もう一度操作してください。</string>
     <string name="site_info_clear_on_close">タブを閉じたら %1$s のデータを自動で消去する（同じサイトのタブがほかにない場合）</string>
     <string name="site_info_certificate_error">接続: 証明書に問題があります（警告を無視して表示しています）</string>
 </resources>

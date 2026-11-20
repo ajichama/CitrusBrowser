@@ -127,6 +127,8 @@ internal class PortableImport private constructor(
                 if ((!useScripts || scripts == null) && values.remove("userjs_enable") != null) ignored++
                 if (!useGestures) listOf("gesture_enable_web", "multi_finger_gesture").forEach { if (values.remove(it) != null) ignored++ }
                 if (useSettings) {
+                    // 取り込んだ設定にも、CitrusBrowser で変えた初期値（閉じたタブ・ポップアップ）を次の起動で反映する。
+                    io.github.ajichama.citrusbrowser.legacy.settings.data.DefaultsMigration.resetAfterImport(context)
                     actionFiles.forEach { (path, bytes) ->
                         val encoded = ImportActions.validate(path, bytes, remap)
                         if (encoded == null) ignored++ else changes[target(path)] = encoded

@@ -100,7 +100,11 @@ class ClearBrowserDataAlertDialog @JvmOverloads constructor(context: Context, at
                 3 -> WebViewDatabase.getInstance(con).clearFormData()
                 4 -> BrowserManager.clearWebDatabase()
                 5 -> BrowserManager.clearGeolocation()
-                6 -> BrowserHistoryManager.getInstance(con.applicationContext).deleteAll()
+                6 -> {
+                    BrowserHistoryManager.getInstance(con.applicationContext).deleteAll()
+                    // 閉じたタブの記録（browser の ClosedTabs.FILE_NAME）も履歴として消す。
+                    java.io.File(con.applicationContext.filesDir, "closed_tabs.json").delete()
+                }
                 7 -> con.applicationContext.contentResolver.delete(
                     (con.applicationContext as BrowserApplication).providerManager.suggestProvider.uriLocal, null, null)
                 8 -> faviconManager.clear()
