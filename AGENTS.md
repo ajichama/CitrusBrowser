@@ -45,7 +45,7 @@
 │   ├── evals/                # 進め方・Skills の評価セット（模範例）
 │   ├── hooks/                # Codex 用 hooks の雛形（利用枠ガード）
 │   └── handoff/              # 引き継ぎ台帳・ロック・レポート（Git管理外のローカル状態）
-├── .claude/                  # Claude Code 用（settings.json の hooks、skills/ は正本を指す生成ファイル）
+├── .claude/                  # Claude Code 用（settings.json の hooks、skills/ は正本を指す生成ファイル、agents/ は専門サブエージェントの定義）
 ├── tools/citrus-mcp/         # 引き継ぎ台帳・ロック・Codex委譲・Docker検証を提供する共通 MCP サーバー
 ├── docker/
 │   ├── Dockerfile            # Android SDK (API 30/36/37) + JDK 11/17/21 ビルド環境定義
@@ -127,7 +127,7 @@
 
 ## 7. 共有ファイルとローカル状態の管理
 
-- `AGENTS.md`、`.mcp.json`、`.agents/skills/`・`evals/`・`hooks/`、`.claude/settings.json`・`.claude/skills/`、`.agents/plugins/citrus-collab/`、`tools/citrus-mcp/`、再利用可能な `scripts/` は Git 管理する。接続テンプレートに個人の絶対パス・認証情報を入れない。
+- `AGENTS.md`、`.mcp.json`、`.agents/skills/`・`evals/`・`hooks/`、`.claude/settings.json`・`.claude/skills/`・`.claude/agents/`、`.agents/plugins/citrus-collab/`、`tools/citrus-mcp/`、再利用可能な `scripts/` は Git 管理する。接続テンプレートに個人の絶対パス・認証情報を入れない。
 - `.agents/handoff/`（台帳・ロック・レポート）、`.codex/`、`AGENTS.override.md` は全員に共通するローカル状態として `.gitignore` で除外する。
 - `.agents/handoff/reports/` は作業記録の置き場であり、保管庫ではない。公開済みの成果に対応する古いビルドログや、外部から取得した生データは、作業が完了したら整理する。
 - 個人だけのメモや補助ファイルは `.git/info/exclude` に記載する。ホーム配下のアプリ設定・秘密鍵は共有しない。
