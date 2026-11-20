@@ -833,6 +833,8 @@
     var ok = cookieValues.indexOf(raw.toLowerCase()) !== -1 || (/^-?\d+$/.test(raw) && Math.abs(Number(raw)) <= 32767);
     if (!ok) return;
     var path = args[2] === undefined || args[2] === '' ? '/' : args[2];
+    // wiki の値（/ と none）だけを受け付け、Cookie の属性を差し込ませない。
+    if (path !== '/' && path !== 'none') return;
     var tokens = namedTokens(args, 3);
     var encodedName = encodeURIComponent(name);
     var before = readCookie(encodedName);
@@ -972,6 +974,14 @@
       var pending = reflectApply(target, thisArg, callArgs);
       if (!matches(props)) return pending;
       return pending.then(function (response) {
+        // ストリームや動画などを最後まで読まないよう、JSON と示された大きすぎない応答だけを対象にする。
+        var contentType = '';
+        var length = 0;
+        try {
+          contentType = response.headers.get('content-type') || '';
+          length = Number(response.headers.get('content-length')) || 0;
+        } catch (e) { return response; }
+        if (!/json/i.test(contentType) || length > 8 * 1024 * 1024) return response;
         return response.clone().text().then(function (text) {
           var parsed;
           try { parsed = JSON.parse(text); } catch (e) { return response; }
@@ -1204,29 +1214,56 @@
   // 兄弟（+ ・ ~）を起点の要素から探すため、一時的に付ける印の属性。
   var markAttribute = 'data-c' + Math.random().toString(36).slice(2, 10);
 
-  // 要素を起点にした CSS（`> .a`・`+ .a` のような相対指定を含む）で子孫・兄弟を探す。
-  function queryFrom(el, css) {
-    var selector = css.trim();
-    if (selector === '') return [];
+  // 括弧・角括弧の外に空白・結合子・カンマを含まない、1つの複合セレクタか。
+  function isSimpleCompound(text) {
+    var depth = 0;
+    for (var i = 0; i < text.length; i++) {
+      var c = text.charAt(i);
+      if (c === '\\') { i++; continue; }
+      if (c === '(' || c === '[') depth++;
+      else if (c === ')' || c === ']') depth--;
+      else if (depth === 0 && /[\s>+~,]/.test(c)) return false;
+    }
+    return text.length > 0;
+  }
+
+  // 要素を起点にした CSS で探す。先頭の空白・> は子孫・子、+ ・ ~ は後ろの兄弟、それ以外は同じ要素への条件。
+  // 属性の付け外しと文書全体の検索は、単純な形で表せない場合だけに限る。
+  function relativeQuery(el, css) {
+    var trimmed = css.replace(/^\s+/, '');
+    if (trimmed === '') return [];
     try {
-      if (/^[+~]/.test(selector)) {
-        el.setAttribute(markAttribute, '');
-        try {
-          return Array.prototype.slice.call(doc.querySelectorAll('[' + markAttribute + ']' + selector));
-        } finally {
-          el.removeAttribute(markAttribute);
+      if (/^[+~]/.test(trimmed)) {
+        var rest = trimmed.slice(1).trim();
+        if (!isSimpleCompound(rest)) return queryWithMark(el, css);
+        var out = [];
+        for (var sibling = el.nextElementSibling; sibling; sibling = sibling.nextElementSibling) {
+          if (sibling.matches(rest)) out.push(sibling);
+          if (trimmed.charAt(0) === '+') break;
         }
+        return out;
       }
-      if (/^>/.test(selector)) return Array.prototype.slice.call(el.querySelectorAll(':scope ' + selector));
-      return Array.prototype.slice.call(el.querySelectorAll(selector));
+      if (trimmed.charAt(0) === '>' || trimmed.length !== css.length) {
+        return Array.prototype.slice.call(el.querySelectorAll(':scope ' + trimmed));
+      }
+      if (isSimpleCompound(trimmed)) return el.matches(trimmed) ? [el] : [];
+      return queryWithMark(el, css);
     } catch (e) {
       return [];
     }
   }
 
+  function queryFrom(el, css) {
+    var selector = css.trim();
+    if (selector === '') return [];
+    if (/^[>+~]/.test(selector)) return relativeQuery(el, selector);
+    try { return Array.prototype.slice.call(el.querySelectorAll(selector)); } catch (e) { return []; }
+  }
+
   function unique(list) {
+    var seen = new Set();
     var out = [];
-    for (var i = 0; i < list.length; i++) if (out.indexOf(list[i]) === -1) out.push(list[i]);
+    for (var i = 0; i < list.length; i++) if (!seen.has(list[i])) { seen.add(list[i]); out.push(list[i]); }
     return out;
   }
 
@@ -1281,8 +1318,7 @@
   function cssStep(css) {
     return function (elements) {
       var out = [];
-      // 先頭の空白は子孫、結合子は兄弟・子、それ以外は同じ要素への条件として、印の属性を起点に探す。
-      for (var i = 0; i < elements.length; i++) out = out.concat(queryWithMark(elements[i], css));
+      for (var i = 0; i < elements.length; i++) out = out.concat(relativeQuery(elements[i], css));
       return unique(out);
     };
   }
@@ -1596,6 +1632,8 @@
       if (filter.watch.length === 0) watchAll = true;
       watched = watched.concat(filter.watch);
     });
+    // style の変化は自分で隠したときにも起きるため、:watch-attr で style を明示したときだけ見る。
+    var watchesStyle = watched.indexOf('style') !== -1;
     if (watchAll || watched.length) {
       options.attributes = true;
       if (!watchAll) options.attributeFilter = unique(watched);
@@ -1604,7 +1642,8 @@
       for (var i = 0; i < records.length; i++) {
         // 自分で変えた style 属性と一時的な印だけの変化では、再評価しない。
         var attributeName = records[i].attributeName;
-        if (records[i].type !== 'attributes' || (attributeName !== 'style' && attributeName !== markAttribute)) { schedule(); return; }
+        if (records[i].type !== 'attributes' || attributeName !== markAttribute &&
+            (attributeName !== 'style' || watchesStyle)) { schedule(); return; }
       }
     }).observe(doc, options);
     schedule();

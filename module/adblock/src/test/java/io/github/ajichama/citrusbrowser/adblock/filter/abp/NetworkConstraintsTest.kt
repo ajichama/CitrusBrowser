@@ -65,6 +65,8 @@ class NetworkConstraintsTest {
             "||a.example^\$domain=ex*ample.com",
             "||a.example^\$denyallow=~b.com",
             "||a.example^\$denyallow=b.*",
+            // denyallow は domain= が必須。単独だと全サイトに広がるため破棄する。
+            "*\$script,3p,denyallow=b.com",
             "||a.example^\$to=",
             "||a.example^\$method=get/post",
             "@@||a.example^\$elemhide,to=b.com",

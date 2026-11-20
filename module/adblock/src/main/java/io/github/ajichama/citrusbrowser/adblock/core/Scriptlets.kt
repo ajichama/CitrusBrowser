@@ -86,7 +86,8 @@ object Scriptlets {
     private val trustedPrefixes = listOf(
         "https://ublockorigin.github.io/uAssets/",
         "https://ublockorigin.pages.dev/",
-        "https://raw.githubusercontent.com/uBlockOrigin/uAssets/",
+        // 任意のコミットや PR の参照を通さないよう、ブランチを固定する。
+        "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/",
         "citrus://adblock/filter",
     )
 

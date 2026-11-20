@@ -59,7 +59,10 @@ class ScriptletsTest {
         val line = "example.com##+js(rpnt, script, adblock, ok)"
         val storage = "example.com##+js(trusted-set-local-storage-item, consent, '{\"a\":1\\,\"b\":2}')"
         // 利用者が追加した任意のリストと、出典の分からない解析では受け付けない。
-        for (source in listOf(null, "https://filters.example/list.txt", "https://ublockorigin.github.io.evil.example/uAssets/x.txt")) {
+        for (source in listOf(null, "https://filters.example/list.txt", "https://ublockorigin.github.io.evil.example/uAssets/x.txt",
+                // 本家の raw URL でも、PR やコミットを指すものは信頼しない（master に固定）。
+                "https://raw.githubusercontent.com/uBlockOrigin/uAssets/refs/pull/1/head/filters/filters.txt",
+                "https://raw.githubusercontent.com/uBlockOrigin/uAssets/0123456789abcdef/filters/filters.txt")) {
             val set = AbpFilterDecoder().decode("$line\n$storage".reader().buffered(), source)
             assertTrue(source.toString(), set.elementList.isEmpty())
         }
@@ -74,21 +77,25 @@ class ScriptletsTest {
 
     @Test
     fun simpleHtmlScriptFiltersBecomeRemoveNodeTextAndOthersAreDropped() {
-        val calls = decode(
+        val filters = decode(
             "example.com##^script:has-text(adblock)",
             "example.com##^script:has-text('a b')",
             "example.com##^script:has-text(/ab+c/i)",
             "##^script:has-text(generic)",
-            "example.com#@#^script:has-text(adblock)",
+            "sub.example.com#@#^script:has-text(adblock)",
             "example.com##^script:has-text(a(b)",
             "example.com##^div:has-text(x)",
             "example.com##^script[src]:has-text(x)",
-        ).elementList.map { Scriptlets.decode(it.selector) }
+        ).elementList
         assertEquals(listOf(
             listOf("remove-node-text", "script", "adblock"),
             listOf("remove-node-text", "script", "a b"),
             listOf("remove-node-text", "script", "/ab+c/i"),
-        ), calls)
+        ), filters.filter { it.isHide }.map { Scriptlets.decode(it.selector) })
+        // 例外（#@#^…）は代用の rmnt を打ち消す。
+        val cosmetic = cosmetic(filters)
+        assertTrue(cosmetic.scriptlets(uri("https://example.com/")).contains(listOf("remove-node-text", "script", "adblock")))
+        assertFalse(cosmetic.scriptlets(uri("https://sub.example.com/")).contains(listOf("remove-node-text", "script", "adblock")))
     }
 
     @Test

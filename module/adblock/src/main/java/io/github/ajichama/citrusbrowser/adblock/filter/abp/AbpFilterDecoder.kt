@@ -94,8 +94,8 @@ class AbpFilterDecoder {
     ) {
         // HTML フィルタのうち `##^script:has-text(文字列)` だけは、実行前にスクリプトの中身を消す rmnt で同じ効果を出す。
         // 受信中の HTML は書き換えられないため、それ以外の HTML フィルタと例外は従来どおり破棄する。
+        // 例外（#@#^…）も同じ形で保存し、代用の rmnt を打ち消す。
         val htmlScriptNeedle = htmlScriptFilterNeedle(body)
-        if (htmlScriptNeedle != null && type == "@") return
         // scriptlet と procedural は要素フィルタと同じドメイン条件で保存し、CSS としては扱わない。
         val isScriptlet = Scriptlets.isScriptletBody(body) || htmlScriptNeedle != null
         var isProcedural = false
@@ -113,7 +113,7 @@ class AbpFilterDecoder {
             }
             ProceduralFilters.Result.Invalid -> return
             ProceduralFilters.Result.Css -> {
-                if (!body.isSupportedSelector()) return
+                if (body.any { it < ' ' } || !body.isSupportedSelector()) return
                 body.sanitizeSelector()
             }
         }
@@ -383,6 +383,8 @@ class AbpFilterDecoder {
         val constraints = if (entityDomains != null || denyAllow != null || requestDomains != null || methods != null) {
             NetworkConstraints(entityDomains, denyAllow, requestDomains, methods)
         } else null
+        // denyallow は domain= との組み合わせが必須（wiki の規定）。単独では全サイトに広がるため行ごと破棄する。
+        if (denyAllow != null && domain == null && entityDomains == null) return
         // 追加条件は要素非表示の例外（elemhide 等）には使わない。意味が変わるため行ごと破棄する。
         if (constraints != null && cosmeticType != 0) return
         val ruleKey = (if (blocking) "" else "@@") + filter +

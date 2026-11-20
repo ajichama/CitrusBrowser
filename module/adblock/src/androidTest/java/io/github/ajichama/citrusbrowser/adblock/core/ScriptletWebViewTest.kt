@@ -174,6 +174,7 @@ class ScriptletWebViewTest {
             "blog.esuteru.com##.box2:has(.inner:has-text(広告))",
             "blog.esuteru.com##.wrap:has-text(枠) :is(.x, .y)",
             "blog.esuteru.com##.card:has-text(普通):not(#c2)",
+            "blog.esuteru.com##.lead:has-text(次は広告) + .slot",
         )
         load("""
             <div class="card" id="c1">スポンサー記事</div><div class="card" id="c2">普通の記事</div>
@@ -185,10 +186,11 @@ class ScriptletWebViewTest {
             <div class="card" id="c3">除外する広告</div>
             <div class="box2" id="n1"><p class="inner">広告です</p></div><div class="box2" id="n2"><p class="inner">記事</p></div>
             <div class="wrap" id="w1"><span class="x" id="wx">枠</span><span class="z" id="wz">本文</span></div>
+            <p class="lead">次は広告</p><div class="slot" id="s1">枠</div><div class="slot" id="s2">本文の枠</div>
             <article id="article">記事本文</article>""")
-        val hidden = "['c1','b1','xp','m1','n1','wx'].every(id=>getComputedStyle(document.getElementById(id)).display==='none')"
+        val hidden = "['c1','b1','xp','m1','n1','wx','s1'].every(id=>getComputedStyle(document.getElementById(id)).display==='none')"
         awaitTrue(hidden)
-        assertEquals("true", evaluate("['c2','b2','m2','c3','n2','w1','wz','article'].every(id=>getComputedStyle(document.getElementById(id)).display!=='none')"))
+        assertEquals("true", evaluate("['c2','b2','m2','c3','n2','w1','wz','s2','article'].every(id=>getComputedStyle(document.getElementById(id)).display!=='none')"))
         assertEquals("true", evaluate("document.getElementById('g1')===null && !document.getElementById('a1').hasAttribute('onclick')"))
         assertEquals("\"auto\"", evaluate("getComputedStyle(document.body).overflow"))
         // 後から追加した要素も、要素の追加をきっかけに再評価して隠す。
