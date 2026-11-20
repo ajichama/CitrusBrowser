@@ -336,6 +336,25 @@ class ScriptletWebViewTest {
         assertEquals("true", evaluate("document.getElementById('link').getAttribute('href') === '#ok' && !document.getElementById('frame').hasAttribute('srcdoc')"))
     }
 
+    @Test fun bridgeIsRemovedInSameOriginAndBlankIframesToo() {
+        install("blog.esuteru.com##+js(set, citrusFrameFlag, true)")
+        load("""<iframe id="same" src="http://blog.esuteru.com/inner"></iframe><script>
+            window.r = {};
+            var name = '${ScriptletInjection.interfaceName}';
+            r.top = typeof window[name];
+            var blank = document.createElement('iframe');
+            document.body.appendChild(blank);
+            r.blank = typeof blank.contentWindow[name];
+            var srcdoc = document.createElement('iframe');
+            srcdoc.srcdoc = '<p>x</p>';
+            srcdoc.onload = function () { r.srcdoc = typeof srcdoc.contentWindow[name]; r.done = true; };
+            document.body.appendChild(srcdoc);
+            </script>""")
+        awaitTrue("window.r && r.done === true")
+        // about:blank・srcdoc の iframe にもブリッジを残さない（ページからブリッジを使われない・検出されない）。
+        assertEquals("\"undefined|undefined|undefined\"", evaluate("r.top + '|' + r.blank + '|' + r.srcdoc"))
+    }
+
     @Test fun exceptionAndEmptyResultsInjectNothing() {
         install("blog.esuteru.com##+js(set, citrusAdFlag, false)", "blog.esuteru.com#@#+js()")
         load("<script>window.r = { flag: typeof window.citrusAdFlag, done: true };</script>")
