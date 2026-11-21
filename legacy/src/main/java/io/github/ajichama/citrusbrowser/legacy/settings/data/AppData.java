@@ -104,8 +104,10 @@ public class AppData {
                 list.add(SingleAction.makeInstance(SingleAction.SHOW_BOOKMARK));
                 list.add(SingleAction.makeInstance(SingleAction.SHOW_HISTORY));
                 list.add(SingleAction.makeInstance(SingleAction.SHOW_DOWNLOADS));
+                list.add(SingleAction.makeInstance(SingleAction.RESTORE_TAB));
                 list.add(SingleAction.makeInstance(SingleAction.SHARE_WEB));
                 list.add(SingleAction.makeInstance(SingleAction.FIND_ON_PAGE));
+                list.add(SingleAction.makeInstance(SingleAction.PAGE_TOOLS));
                 list.add(SingleAction.makeInstance(SingleAction.READ_IT_LATER));
                 list.add(SingleAction.makeInstance(SingleAction.READ_IT_LATER_LIST));
                 list.add(SingleAction.makeInstance(SingleAction.READER_MODE));

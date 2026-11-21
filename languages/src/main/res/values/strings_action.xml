@@ -55,6 +55,8 @@
     <string name="action_translate_page">Translate page</string>
     <string name="action_new_tab">New tab</string>
     <string name="action_new_private_tab">New private tab</string>
+    <string name="action_toggle_desktop_site">Desktop site</string>
+    <string name="action_page_tools">Page tools</string>
     <string name="action_close_tab">Close tab</string>
     <string name="action_close_all">Close all</string>
     <string name="action_close_others">Close others</string>

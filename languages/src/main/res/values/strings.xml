@@ -66,6 +66,8 @@
     <string name="open_new_right">Open in right new tab</string>
     <string name="open_bg_right">Open in right background tab</string>
     <string name="open_private_tab">Open in private tab</string>
+    <string name="desktop_site_on">Showing the desktop site</string>
+    <string name="desktop_site_off">Showing the mobile site</string>
     <string name="private_tab_unsupported">Private tabs need a newer Android System WebView (version 119 or later).</string>
     <string name="share">Share</string>
     <string name="open_other_app">Open in another app</string>

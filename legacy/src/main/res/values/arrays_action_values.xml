@@ -87,6 +87,7 @@
         <item>35304</item>
         <item>35305</item>
         <item>35309</item>
+        <item>35310</item>
         <item>35306</item>
         <item>35307</item>
         <item>35308</item>
@@ -127,5 +128,6 @@
         <item>101050</item>
         <item>101051</item>
         <item>101060</item>
+        <item>101070</item>
     </integer-array>
 </resources>

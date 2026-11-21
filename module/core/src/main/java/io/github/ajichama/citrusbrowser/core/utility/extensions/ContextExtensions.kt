@@ -86,12 +86,11 @@ fun Context.getRealUserAgent(ua: String?, isFakeChrome: Boolean): String? {
     }
 }
 
-fun Context.getFakeChromeUserAgent(): String {
-    val ua = StringBuilder(WebSettings.getDefaultUserAgent(this))
-    ua.replace("; wv", "")
-    ua.replace("Version/4.0 ", "")
-    return ua.toString()
-}
+// WebView の印（; wv と Version/4.0）を外し、Chrome と同じ形にする。
+// 以前は StringBuilder に対する replace の結果を捨てていて、何も変わっていなかった。
+fun Context.getFakeChromeUserAgent(): String = WebSettings.getDefaultUserAgent(this).toFakeChrome()
+
+internal fun String.toFakeChrome() = replace("; wv", "").replace("Version/4.0 ", "")
 
 fun Context.getPcUserAgent(): String {
     val ua = WebSettings.getDefaultUserAgent(this)
@@ -102,7 +101,10 @@ fun Context.getChromePcUserAgent(): String {
     return getFakeChromeUserAgent().convertToPc()
 }
 
-private fun String.convertToPc() = replace(Regex("\\(Linux[^()]+\\)"), "(Windows NT 10.0; Win64; x64)")
+// PC 版の Chrome と同じ形にする。Mobile や Version/4.0 が残ると、多くのサイトがスマホと判定する。
+internal fun String.convertToPc() = replace(Regex("\\(Linux[^()]+\\)"), "(Windows NT 10.0; Win64; x64)")
+    .replace("Version/4.0 ", "")
+    .replace(" Mobile Safari/", " Safari/")
 
 fun Context.readAssetsText(fileName: String): String {
     return assets.open(fileName).reader().use { it.readText() }
