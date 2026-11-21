@@ -109,6 +109,21 @@ class Action : ArrayList<SingleAction>, Parcelable, JsonConvertable {
         return if (isEmpty()) null else get(0).toString(nameArray)
     }
 
+    /**
+     * 中の操作（SingleAction）まで複製する。`Action(action)` は外側の一覧だけを写すので、
+     * 独自メニューのように中身を書き換える操作を編集すると、元の設定まで変わってしまう。
+     */
+    fun deepCopy(): Action {
+        val parcel = Parcel.obtain()
+        try {
+            writeToParcel(parcel, 0)
+            parcel.setDataPosition(0)
+            return Action(parcel)
+        } finally {
+            parcel.recycle()
+        }
+    }
+
     companion object {
         private const val serialVersionUID = 1712925333386047748L
 
