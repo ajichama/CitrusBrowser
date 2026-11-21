@@ -58,13 +58,28 @@
             android:onTextChanged="@{(text, s, b, c) -> viewModel.setQuery(text.toString())}"
             app:callback="@{callback}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/searchButton"
+            app:layout_constraintEnd_toStartOf="@+id/qrScanButton"
             app:layout_constraintStart_toEndOf="@+id/searchUrlSpinner"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_goneMarginStart="8dp">
 
             <requestFocus/>
         </EditText>
+
+        <!-- QR コードを読み取り、入力欄に入れる（#18）。 -->
+        <ImageButton
+            android:id="@+id/qrScanButton"
+            style="@style/ToolbarImageButton"
+            android:layout_width="@dimen/general_default_size"
+            android:layout_height="@dimen/general_default_size"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/qr_scan"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_qr_code_scanner_white_24dp"
+            android:tint="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/searchButton"
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <io.github.ajichama.citrusbrowser.search.presentation.widget.SearchButton
             android:id="@+id/searchButton"

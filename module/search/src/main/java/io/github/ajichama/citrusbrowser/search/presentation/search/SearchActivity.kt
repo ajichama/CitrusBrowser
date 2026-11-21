@@ -25,6 +25,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.view.WindowCompat
 import androidx.databinding.DataBindingUtil
@@ -36,6 +37,7 @@ import io.github.ajichama.citrusbrowser.favicon.FaviconManager
 import io.github.ajichama.citrusbrowser.search.R
 import io.github.ajichama.citrusbrowser.search.databinding.SearchActivityBinding
 import io.github.ajichama.citrusbrowser.search.databinding.SearchSeachBarBinding
+import io.github.ajichama.citrusbrowser.search.presentation.qr.QrScanActivity
 import io.github.ajichama.citrusbrowser.search.presentation.widget.SearchButton
 import io.github.ajichama.citrusbrowser.ui.INTENT_EXTRA_MODE_FULLSCREEN
 import io.github.ajichama.citrusbrowser.ui.app.ThemeActivity
@@ -57,6 +59,17 @@ class SearchActivity : ThemeActivity(), SearchButton.Callback, SearchSuggestAdap
 
     private var appData: Bundle? = null
     private var openNewTab: Int = 0
+
+    // QR コードの読み取り（#18）。読み取った文字列は入力欄に入れるだけで、開くかどうかは利用者が決める。
+    private val qrScanLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val text = result.data?.getStringExtra(QrScanActivity.EXTRA_RESULT)
+        if (result.resultCode != RESULT_OK || text.isNullOrEmpty()) return@registerForActivityResult
+        barBinding.editText.run {
+            setText(text)
+            setSelection(text.length)
+            requestFocus()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,8 +119,10 @@ class SearchActivity : ThemeActivity(), SearchButton.Callback, SearchSuggestAdap
                 editText.setTextColor(textColor)
                 editText.setHintTextColor(textColor and 0xffffff or 0x55000000)
             }
-            if (themeData.toolbarImageColor != 0)
+            if (themeData.toolbarImageColor != 0) {
                 searchButton.setColorFilter(themeData.toolbarImageColor)
+                barBinding.qrScanButton.setColorFilter(themeData.toolbarImageColor)
+            }
             if (themeData.statusBarColor != 0) {
                 window.run {
                     WindowCompat.getInsetsController(this, decorView).isAppearanceLightStatusBars =
@@ -183,6 +198,16 @@ class SearchActivity : ThemeActivity(), SearchButton.Callback, SearchSuggestAdap
         if (intent.getBooleanExtra(EXTRA_SELECT_INITIAL_QUERY, true)) {
             editText.selectAll()
         }
+
+        barBinding.qrScanButton.setOnClickListener { startQrScan() }
+        // 操作「QR コードを読み取る」から開いたときは、すぐに読み取りを始める（画面を作り直したときは除く）。
+        if (savedInstanceState == null && intent.getBooleanExtra(EXTRA_START_QR_SCAN, false)) {
+            startQrScan()
+        }
+    }
+
+    private fun startQrScan() {
+        qrScanLauncher.launch(Intent(this, QrScanActivity::class.java))
     }
 
     override fun onStart() {
@@ -296,6 +321,8 @@ class SearchActivity : ThemeActivity(), SearchButton.Callback, SearchSuggestAdap
         const val EXTRA_SEARCH_URL = "io.github.ajichama.citrusbrowser.legacy.search.SearchActivity.extra.searchUrl"
         const val EXTRA_OPEN_NEW_TAB = "io.github.ajichama.citrusbrowser.legacy.search.SearchActivity.extra.openNewTab"
         const val EXTRA_REVERSE = "io.github.ajichama.citrusbrowser.legacy.search.SearchActivity.extra.reverse"
+        /** true なら、開いてすぐ QR コードの読み取りを始める（#18）。 */
+        const val EXTRA_START_QR_SCAN = "io.github.ajichama.citrusbrowser.legacy.search.SearchActivity.extra.startQrScan"
 
         const val SEARCH_MODE_AUTO = SearchViewModel.SEARCH_MODE_AUTO
         const val SEARCH_MODE_URL = SearchViewModel.SEARCH_MODE_URL

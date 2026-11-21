@@ -133,6 +133,7 @@ class ActionIconManager(val info: BrowserInfo) {
             SingleAction.NEW_PRIVATE_TAB -> return info.resourcesByInfo.getDrawable(R.drawable.ic_add_box_white_24dp, info.themeByInfo)
             SingleAction.TOGGLE_DESKTOP_SITE -> return info.resourcesByInfo.getDrawable(R.drawable.ic_group_white_24dp, info.themeByInfo)
             SingleAction.PAGE_TOOLS -> return info.resourcesByInfo.getDrawable(R.drawable.ic_more_vert_white_24dp, info.themeByInfo)
+            SingleAction.QR_SCAN -> return info.resourcesByInfo.getDrawable(R.drawable.ic_qr_code_scanner_white_24dp, info.themeByInfo)
             SingleAction.CLOSE_TAB -> return info.resourcesByInfo.getDrawable(R.drawable.ic_minas_box_white_24dp, info.themeByInfo)
             SingleAction.CLOSE_ALL -> return info.resourcesByInfo.getDrawable(R.drawable.ic_minas_box_white_24dp, info.themeByInfo)
             SingleAction.CLOSE_AUTO_SELECT -> return info.resourcesByInfo.getDrawable(R.drawable.ic_minas_box_white_24dp, info.themeByInfo)

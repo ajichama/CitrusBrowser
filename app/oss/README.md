@@ -47,6 +47,8 @@ Material 1.14.0への更新時は、Core・ConstraintLayout・CustomView・Dynam
 
 AGP 9.5.1への更新時は、Data Bindingの`databinding-adapters`、`databinding-common`、`databinding-ktx`、`databinding-runtime`、`viewbinding`の5座標だけを9.1.1から9.5.1へ置き換えました。debug/releaseの更新候補は一致しています。新しい公式POMはApache 2.0を宣言し、取得した公式本文と`databinding-common`配布物内のNOTICEは確認済み本文とSHA-256が一致しました。ほか97座標の固定metadata、全既存本文、ソース由来18件とMikan専用NYSLは保持し、総数は102依存・114文書です。Geckoプレビューの通知は`gecko-preview/oss`に分離しており、本体の一覧へ混入させません。
 
+QR コードの読み取り（#18、2026-11-21）で、CameraX 1.6.2（camera-camera2・camera-camera2-pipe・camera-core・camera-lifecycle・camera-video・camera-view と、それが使う featurecombinationquery・viewfinder-core・media3・Guava・atomicfu など）と ZXing core 3.5.3 の24座標を足し、新しい版に置き換わった4座標（tracing 1.2.0・tracing-ktx 1.2.0・error_prone_annotations 2.15.0・listenablefuture 1.0）を外しました。CameraX 1.4.2 は API 37 のカメラが報告するダイナミックレンジ（8192）で例外になるため使いません。debug/releaseの更新候補は一致しています。camera-core はネイティブライブラリに libyuv を同梱し、POMはBSD-3-Clause（URLは本文を取得できない）を宣言しているため、[libyuv の公式リポジトリの LICENSE](https://chromium.googlesource.com/libyuv/libyuv/+/refs/heads/main/LICENSE) を`texts/libyuv-LICENSE.txt`へ固定しました。checker-qual の MIT は、配布物に同梱の LICENSE を使います。総数は122依存です。
+
 ## 保全と検証
 
 本文のSHA-256はUTF-8/LFに正規化して照合し、Gitの改行変換による誤差を避けます。生成GZIPと更新候補metadataは、一時ファイルを閉じてから原子的に置き換えます。失敗時は以前の公開済みファイルを保持します。ライセンス画面はassetを毎回展開するため、古い展開キャッシュは残りません。

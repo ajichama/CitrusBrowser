@@ -119,6 +119,10 @@
     <string name="filename">File name</string>
     <string name="download_file_overwrite">The file already exists. Overwrite it?</string>
     <string name="search_editText_hint">Search or type url</string>
+    <string name="qr_scan">Scan QR code</string>
+    <string name="qr_scan_hint">Point the camera at a QR code</string>
+    <string name="qr_scan_permission_denied">Camera permission is needed to scan QR codes</string>
+    <string name="qr_scan_camera_unavailable">Could not start the camera</string>
     <string name="history">History</string>
     <string name="bookmark">Bookmark</string>
     <string name="agree">Agree</string>

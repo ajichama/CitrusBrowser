@@ -57,6 +57,7 @@
     <string name="action_new_private_tab">新しいプライベートタブ</string>
     <string name="action_toggle_desktop_site">PC 版サイト</string>
     <string name="action_page_tools">ページのツール</string>
+    <string name="action_qr_scan">QR コードを読み取る</string>
     <string name="action_close_tab">タブを閉じる</string>
     <string name="action_close_all">すべてのタブを閉じる</string>
     <string name="action_close_others">他のタブをすべて閉じる</string>

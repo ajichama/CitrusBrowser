@@ -117,6 +117,10 @@
     <string name="filename">ファイル名</string>
     <string name="download_file_overwrite">ファイルは既に存在します。上書きしますか？</string>
     <string name="search_editText_hint">検索またはURLを入力</string>
+    <string name="qr_scan">QR コードを読み取る</string>
+    <string name="qr_scan_hint">QR コードにカメラを向けてください</string>
+    <string name="qr_scan_permission_denied">QR コードを読み取るには、カメラの権限が必要です</string>
+    <string name="qr_scan_camera_unavailable">カメラを起動できませんでした</string>
     <string name="history">履歴</string>
     <string name="bookmark">ブックマーク</string>
     <string name="agree">許可</string>
