@@ -16,6 +16,7 @@
 
 package io.github.ajichama.citrusbrowser.browser
 
+import android.Manifest
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -31,7 +32,11 @@ import android.view.View
 import android.webkit.*
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.webkit.ScriptHandler
 import androidx.webkit.WebViewCompat
+import jp.hazuki.asyncpermissions.AsyncPermissions
+import jp.hazuki.asyncpermissions.PermissionResult
 import androidx.webkit.WebViewFeature
 import io.github.ajichama.citrusbrowser.adblock.*
 import io.github.ajichama.citrusbrowser.adblock.core.ScriptletInjection
@@ -129,6 +134,9 @@ class WebClient(
     // 文書開始時の注入に対応しない WebView では scriptlet を使わない（ブリッジをページに残さないため）。
     private val isDocumentStartSupported by lazy { WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT) }
     private val scriptletScript by lazy { ScriptletInjection.script(activity.applicationContext) }
+    // ズーム禁止を無視するスクリプト（#17）。ページ（WebView）ごとに登録の有無を持ち、設定の切り替えで付け外しする。
+    private val forceZoomScript by lazy { activity.readAssetsText("scripts/force-zoom.js") }
+    private val forceZoomHandlers = WeakHashMap<WebView, ScriptHandler?>()
     private val invertEnableJs by SoftCache {
         activity.readAssetsText("scripts/invert-min.js").replace("%s", "true")
     }
@@ -220,6 +228,8 @@ class WebClient(
                 webView.evaluateJavascript(if (webView.isInvertMode) invertEnableJs else invertDisableJs, null)
             }
         }
+
+        forceZoomHandlers.keys.toList().forEach { applyForceZoom(it) }
 
         controller.tabManager.currentTabData?.let {
             controller.toolbarManager.notifyChangeWebState(it)
@@ -326,6 +336,25 @@ class WebClient(
             view.addJavascriptInterface(bridge, ScriptletInjection.interfaceName)
             // 全フレームで固定スクリプトが先に動き、ブリッジを受け取ってからページから外す。
             WebViewCompat.addDocumentStartJavaScript(view, scriptletScript, setOf("*"))
+            forceZoomHandlers[view] = null
+            applyForceZoom(view)
+        }
+    }
+
+    /** 設定に合わせて、ズーム禁止を無視するスクリプトを付け外しする。切り替えた後に読み込んだページから効く。 */
+    private fun applyForceZoom(view: WebView) {
+        val enable = AppPrefs.force_enable_zoom.get()
+        val handler = forceZoomHandlers[view]
+        // 破棄済みの WebView では例外になることがあるので、その WebView は対象から外す。
+        try {
+            if (enable && handler == null) {
+                forceZoomHandlers[view] = WebViewCompat.addDocumentStartJavaScript(view, forceZoomScript, setOf("*"))
+            } else if (!enable && handler != null) {
+                handler.remove()
+                forceZoomHandlers[view] = null
+            }
+        } catch (e: RuntimeException) {
+            forceZoomHandlers.remove(view)
         }
     }
 
@@ -614,29 +643,11 @@ class WebClient(
                 return
             }
 
-            if (!activity.isFinishing) {
-                val view = View.inflate(activity, R.layout.dialog_ssl_error, null)
-                view.findViewById<TextView>(R.id.urlTextView).apply {
-                    text = error.url
-                    setOnLongClickListener {
-                        activity.setClipboardWithToast(text.toString())
-                        true
-                    }
-                }
-                view.findViewById<TextView>(R.id.messageTextView).text = activity.getString(R.string.ssl_error_mes, error.getErrorMessages(activity))
-
-                AlertDialog.Builder(activity)
-                    .setTitle(R.string.ssl_error_title)
-                    .setView(view)
-                    .setPositiveButton(android.R.string.ok) { _, _ ->
-                        // ページ情報で「暗号化されています」と表示しないよう、警告を無視して進んだことを記録する。
-                        SiteData.markCertificateError(error.url)
-                        handler.proceed()
-                    }
-                    .setNegativeButton(android.R.string.cancel) { _, _ -> handler.cancel() }
-                    .setOnCancelListener { handler.cancel() }
-                    .show()
+            if (activity.isFinishing) {
+                handler.cancel()
+                return
             }
+            showSslErrorWarning(handler, error)
         }
 
         override fun shouldInterceptRequest(web: CustomWebView, request: WebResourceRequest): WebResourceResponse? {
@@ -917,17 +928,33 @@ class WebClient(
         }
 
         override fun onShowFileChooser(webView: WebView, filePathCallback: ValueCallback<Array<Uri>?>, fileChooserParams: FileChooserParams): Boolean {
-            if (webUploadHandler == null)
-                webUploadHandler = WebUploadHandler()
+            val handler = webUploadHandler ?: WebUploadHandler().also { webUploadHandler = it }
+            handler.start(filePathCallback)
 
-            try {
-                controller.startActivity(Intent.createChooser(webUploadHandler!!.onShowFileChooser(filePathCallback, fileChooserParams), getString(R.string.select_file)), BrowserController.REQUEST_WEB_UPLOAD)
-            } catch (e: ActivityNotFoundException) {
-                e.printStackTrace()
-                Toast.makeText(activity.applicationContext, R.string.app_notfound, Toast.LENGTH_SHORT).show()
+            ui {
+                // 画像・動画を受け付ける入力欄では、カメラの権限を確かめてから撮影の選択肢を出す（#13）。
+                val camera = handler.acceptsCapture(fileChooserParams) && canUseCamera()
+                try {
+                    val intent = handler.createIntent(activity, fileChooserParams, camera, getString(R.string.select_file))
+                    controller.startActivity(intent, BrowserController.REQUEST_WEB_UPLOAD)
+                } catch (e: ActivityNotFoundException) {
+                    Toast.makeText(activity.applicationContext, R.string.app_notfound, Toast.LENGTH_SHORT).show()
+                    // 結果を返さないと、そのページでは以後ファイル選択が出なくなる。
+                    handler.cancel()
+                }
             }
-
             return true
+        }
+
+        /**
+         * カメラの権限があるか。無ければここで求める。
+         * 拒否されたとき（「今後表示しない」を含む）は、設定画面へは誘導せずにカメラなしで進める。
+         */
+        private suspend fun canUseCamera(): Boolean {
+            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) return true
+            var result = AsyncPermissions(activity).request(Manifest.permission.CAMERA)
+            if (result is PermissionResult.ShouldShowRationale) result = result.proceed()
+            return result is PermissionResult.Granted
         }
 
         override fun onJsAlert(view: CustomWebView, url: String, message: String, result: JsResult): Boolean {
@@ -1311,6 +1338,49 @@ class WebClient(
     }
 
     private fun getString(id: Int): String = activity.getString(id)
+
+    /**
+     * 証明書エラーの1段目（#12）。決定ボタンは「戻る」にし、進む操作は「詳細」の先にだけ置く。
+     * 「戻る」は読み込みを止めるだけで、前のページへは移らない（画像などページの一部のエラーでも呼ばれるため）。
+     */
+    private fun showSslErrorWarning(handler: SslErrorHandler, error: SslError) {
+        val host = Uri.parse(error.url).host ?: error.url
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.ssl_error_title)
+            .setMessage(activity.getString(R.string.ssl_error_summary, host))
+            .setPositiveButton(R.string.ssl_error_back) { _, _ -> handler.cancel() }
+            .setNeutralButton(R.string.ssl_error_details) { _, _ ->
+                if (activity.isFinishing) handler.cancel() else showSslErrorDetails(handler, error)
+            }
+            .setOnCancelListener { handler.cancel() }
+            .show()
+    }
+
+    /** 証明書エラーの2段目。URL と原因の一覧を示し、ここでだけ「それでも進む」を選べる。 */
+    private fun showSslErrorDetails(handler: SslErrorHandler, error: SslError) {
+        val view = View.inflate(activity, R.layout.dialog_ssl_error, null)
+        view.findViewById<TextView>(R.id.urlTextView).apply {
+            text = error.url
+            setOnLongClickListener {
+                activity.setClipboardWithToast(text.toString())
+                true
+            }
+        }
+        view.findViewById<TextView>(R.id.messageTextView).text =
+            activity.getString(R.string.ssl_error_details_mes, error.getErrorMessages(activity).trimEnd())
+
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.ssl_error_title)
+            .setView(view)
+            .setPositiveButton(R.string.ssl_error_back) { _, _ -> handler.cancel() }
+            .setNegativeButton(R.string.ssl_error_proceed_unsafe) { _, _ ->
+                // ページ情報で「暗号化されています」と表示しないよう、警告を無視して進んだことを記録する。
+                SiteData.markCertificateError(error.url)
+                handler.proceed()
+            }
+            .setOnCancelListener { handler.cancel() }
+            .show()
+    }
 
     private fun SslError.getErrorMessages(context: Context): String {
         val builder = StringBuilder()

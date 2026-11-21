@@ -192,6 +192,8 @@ open class SingleAction : Parcelable {
         const val WEB_THEME = 101060
         /** ページのツール（PC 版サイト・翻訳・文字サイズ・ページを保存・印刷・ホーム画面に追加・ページ情報）の一覧（#16）。 */
         const val PAGE_TOOLS = 101070
+        /** QR コードを読み取り、検索の画面の入力欄に入れる（#18）。 */
+        const val QR_SCAN = 101080
         const val LPRESS_OPEN = -10
         const val LPRESS_OPEN_NEW = -11
         const val LPRESS_OPEN_BG = -12

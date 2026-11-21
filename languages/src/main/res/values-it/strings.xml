@@ -148,7 +148,6 @@
     <string name="clear_download">Rimuovere dalla lista</string>
     <string name="delete_download">Elimina il file</string>
     <string name="ssl_error_title">Avviso di sicurezza</string>
-    <string name="ssl_error_mes">Ci sono problemi con il certificato di sicurezza di questo sito.\n%1$s\nContinuare?</string>
     <string name="ssl_error_certificate_date_invalid">La data del certificato non è valida</string>
     <string name="ssl_error_certificate_expired">Il certificato è scaduto</string>
     <string name="ssl_error_certificate_domain_mismatch">Mancata corrispondenza del nome host</string>

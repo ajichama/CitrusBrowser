@@ -117,6 +117,10 @@
     <string name="filename">ファイル名</string>
     <string name="download_file_overwrite">ファイルは既に存在します。上書きしますか？</string>
     <string name="search_editText_hint">検索またはURLを入力</string>
+    <string name="qr_scan">QR コードを読み取る</string>
+    <string name="qr_scan_hint">QR コードにカメラを向けてください</string>
+    <string name="qr_scan_permission_denied">QR コードを読み取るには、カメラの権限が必要です</string>
+    <string name="qr_scan_camera_unavailable">カメラを起動できませんでした</string>
     <string name="history">履歴</string>
     <string name="bookmark">ブックマーク</string>
     <string name="agree">許可</string>
@@ -162,7 +166,11 @@
     <string name="clear_download">リストから削除</string>
     <string name="delete_download">ファイルを削除</string>
     <string name="ssl_error_title">セキュリティ警告</string>
-    <string name="ssl_error_mes">このサイトのセキュリティ証明書には問題があります。\n%1$s\n続けますか？</string>
+    <string name="ssl_error_summary">%1$s の証明書に問題があります。このサイトとの通信が、第三者に読まれたり書き換えられたりするおそれがあります。</string>
+    <string name="ssl_error_details_mes">証明書の問題:\n%1$s</string>
+    <string name="ssl_error_back">戻る</string>
+    <string name="ssl_error_details">詳細</string>
+    <string name="ssl_error_proceed_unsafe">それでも進む（安全ではありません）</string>
     <string name="ssl_error_certificate_date_invalid">証明書の日付が無効です</string>
     <string name="ssl_error_certificate_expired">証明書の有効期限が切れています</string>
     <string name="ssl_error_certificate_expired_info">有効期間の終了=</string>

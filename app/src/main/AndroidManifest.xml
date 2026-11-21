@@ -158,6 +158,11 @@
             android:name=".search.presentation.search.SearchActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/BrowserThemeDayNight.Transparent"/>
+        <!-- QR コードの読み取り（#18）。 -->
+        <activity
+            android:name=".search.presentation.qr.QrScanActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
         <activity
             android:name="io.github.ajichama.citrusbrowser.legacy.pattern.url.PatternUrlActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

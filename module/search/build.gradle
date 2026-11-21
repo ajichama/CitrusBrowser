@@ -74,6 +74,10 @@ dependencies {
     implementation AndroidX.KTX
     implementation AndroidX.fragmentKtx
     implementation AndroidX.lifecycle
+    implementation AndroidX.cameraCamera2
+    implementation AndroidX.cameraLifecycle
+    implementation AndroidX.cameraView
+    implementation Libs.zxingCore
 
     implementation Libs.okio
     implementation Libs.moshi

@@ -149,7 +149,6 @@
     <string name="clear_download">Listeden kaldır</string>
     <string name="delete_download">Dosyayı sil</string>
     <string name="ssl_error_title">Güvenlik uyarısı</string>
-    <string name="ssl_error_mes">Bu sitenin güvenlik sertifikasıyla ilgili sorunları var.\n%1$s\nDevam edilsin mi?</string>
     <string name="ssl_error_certificate_date_invalid">Sertifikanın tarihi geçersiz</string>
     <string name="ssl_error_certificate_expired">Sertifikanın süresi doldu</string>
     <string name="ssl_error_certificate_expired_info">Geçerlilik süresi sonu=</string>

@@ -79,7 +79,8 @@ class ActionActivity : ThemeActivity(), OnRecyclerListener {
             mActionManager = ActionManager.getActionManager(applicationContext, mActionType)
 
             mAction = when (mActionManager) {
-                is SingleActionManager -> Action((mActionManager as SingleActionManager).getAction(mActionId))//copy
+                // 中の操作まで複製し、キャンセルしたときに読み込み済みの設定が書き換わらないようにする。
+                is SingleActionManager -> (mActionManager as SingleActionManager).getAction(mActionId).deepCopy()
                 is ListActionManager -> Action()
                 else -> throw IllegalArgumentException()
             }

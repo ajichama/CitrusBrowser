@@ -149,7 +149,6 @@
     <string name="clear_download">从列表中移除</string>
     <string name="delete_download">删除文件</string>
     <string name="ssl_error_title">安全警告</string>
-    <string name="ssl_error_mes">此网站的安全证书存在问题。\n%1$s\n是否要继续？</string>
     <string name="ssl_error_certificate_date_invalid">证书日期无效</string>
     <string name="ssl_error_certificate_expired">证书已过期</string>
     <string name="ssl_error_certificate_expired_info">有效期结束=</string>

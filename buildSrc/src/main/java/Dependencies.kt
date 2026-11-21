@@ -39,8 +39,8 @@ object GeckoPreview {
 object AppVersions {
     // CitrusBrowser としての版（2026-11-21 に Yuzu Browser の 6.0.2 から 1.0.0 へ）。
     // version_code は 主版×1000000＋副版×1000＋修正版。旧版の移行処理（AppData の 410010 等との比較）を再び動かさないよう、Yuzu の番号より大きく保つ。
-    const val version_name = "1.0.2"
-    const val version_code = 1000002
+    const val version_name = "1.0.3"
+    const val version_code = 1000003
 }
 
 // 依存ライブラリのバージョン一元管理
@@ -78,6 +78,9 @@ object Versions {
     const val jsoup = "1.18.3"
     const val re2j = "1.8"
     const val webkit = "1.15.0"
+    // QR コードの読み取り（#18）。カメラは CameraX、解析は ZXing の core だけを使う。
+    const val cameraX = "1.6.2"
+    const val zxing = "3.5.3"
     // 2.11 系は minSdk23 の時期に選んだ版。minSdk24 にしたため 2.12 系へ更新できる（目的ができた時点で更新する）。
     const val workManager = "2.11.2"
 }
@@ -101,6 +104,9 @@ object AndroidX {
     const val lifecycle = "androidx.lifecycle:lifecycle-common-java8:${Versions.lifeCycle}"
     const val print = "androidx.print:print:${Versions.print}"
     const val webkit = "androidx.webkit:webkit:${Versions.webkit}"
+    const val cameraCamera2 = "androidx.camera:camera-camera2:${Versions.cameraX}"
+    const val cameraLifecycle = "androidx.camera:camera-lifecycle:${Versions.cameraX}"
+    const val cameraView = "androidx.camera:camera-view:${Versions.cameraX}"
     const val workRuntime = "androidx.work:work-runtime:${Versions.workManager}"
 }
 
@@ -112,6 +118,7 @@ object Libs {
     const val moshi = "com.squareup.moshi:moshi:${Versions.moshi}"
     const val moshiCodeGen = "com.squareup.moshi:moshi-kotlin-codegen:${Versions.moshi}"
     const val okio = "com.squareup.okio:okio:${Versions.okio}"
+    const val zxingCore = "com.google.zxing:core:${Versions.zxing}"
 
     // Kotlin & Coroutines
     const val kotlin_stdlib = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin}"

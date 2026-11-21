@@ -56,6 +56,8 @@ interface BrowserController : BrowserInfo {
     fun showTabHistory(target: Int)
     fun restoreTab()
     fun showSearchBox(query: String, target: Int, openTabType: Int, reverse: Boolean)
+    /** 検索の画面を開き、すぐに QR コードの読み取りを始める（#18）。 */
+    fun showQrScanner(target: Int)
     fun showSubGesture()
     fun showMenu(button: View?, action: OpenOptionsMenuAction)
     fun finishAlert(clearTabNo: Int)

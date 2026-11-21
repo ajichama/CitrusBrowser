@@ -104,7 +104,7 @@ class ActionListFragment : RecyclerFabFragment(), OnRecyclerListener, DeleteDial
 
         mList = list ?: ActionList()
 
-        adapter = ActionListAdapter(activity, mList, names, icons, this)
+        adapter = ActionListAdapter(activity, mList, mActionNameArray, names, icons, this)
         setRecyclerViewAdapter(adapter)
     }
 
@@ -215,6 +215,7 @@ class ActionListFragment : RecyclerFabFragment(), OnRecyclerListener, DeleteDial
     private class ActionListAdapter(
         context: Context,
         actionList: ActionList,
+        private val nameArray: ActionNameArray,
         private val names: ActionNameMap,
         private val icons: ActionIconMap,
         recyclerListener: OnRecyclerListener
@@ -222,7 +223,9 @@ class ActionListFragment : RecyclerFabFragment(), OnRecyclerListener, DeleteDial
 
         override fun onBindViewHolder(holder: Holder, item: Action, position: Int) {
             holder.apply {
-                textView.text = names[item]
+                // 長押しのリンク・画像だけの操作（負の ID）は共通の表に無いので、
+                // 画面に渡された表（ActionNameArray）で引く（#20）。独自の操作は付けた名前になる。
+                textView.text = item.toString(nameArray) ?: names[item]
                 imageView.setImageDrawable(icons[item])
             }
         }

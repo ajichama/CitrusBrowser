@@ -73,7 +73,9 @@ public abstract class TabListRecyclerBaseAdapter extends RecyclerView.Adapter<Ta
             } else {
                 holder.thumbNail.setImageResource(R.drawable.empty_thumbnail);
             }
-            holder.title.setText(indexData.getTitle());
+            // プライベートタブは、タブ名・アドレス欄と同じ印を一覧の札にも付ける（#15）。
+            String title = indexData.getTitle();
+            holder.title.setText(indexData.isPrivateTab() && !TextUtils.isEmpty(title) ?"🕶 " + title : title);
             if (indexData.isPinning()) {
                 holder.closeButton.setImageDrawable(pinIcon);
                 holder.closeButton.setEnabled(false);

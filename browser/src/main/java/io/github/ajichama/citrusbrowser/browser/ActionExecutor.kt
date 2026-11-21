@@ -1011,6 +1011,7 @@ class ActionExecutor(
             }
             SingleAction.TOGGLE_FULL_SCREEN -> controller.isFullscreenMode = !controller.isFullscreenMode
             SingleAction.OPEN_OPTIONS_MENU -> controller.showMenu(button, action as OpenOptionsMenuAction)
+            SingleAction.QR_SCAN -> controller.showQrScanner(actionTarget)
             SingleAction.PAGE_TOOLS -> {
                 // ページのツールは、独自メニューと同じ表示で、決まった項目を並べる（#16）。
                 val menu = SingleAction.makeInstance(SingleAction.CUSTOM_MENU) as CustomMenuSingleAction

@@ -77,6 +77,7 @@ public class AppPrefs {
     public static final IntContainer web_customview_oritentation = new IntContainer("web_customview_oritentation", ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     public static final IntContainer tab_action_sensitivity = new IntContainer("tab_action_sensitivity", 150);
     public static final BooleanContainer show_zoom_button = new BooleanContainer("show_zoom_button", false);
+    public static final BooleanContainer force_enable_zoom = new BooleanContainer("force_enable_zoom", false);
     public static final BooleanContainer keep_screen_on = new BooleanContainer("keep_screen_on", false);
     public static final BooleanContainer accept_cookie = new BooleanContainer("accept_cookie", true);
     public static final BooleanContainer accept_third_cookie = new BooleanContainer("accept_third_cookie", true);

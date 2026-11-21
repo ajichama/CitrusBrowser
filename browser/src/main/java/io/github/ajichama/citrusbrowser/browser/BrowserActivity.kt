@@ -1139,6 +1139,14 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
     }
 
     override fun showSearchBox(query: String, target: Int, openTabType: Int, reverse: Boolean) {
+        showSearchBox(query, target, openTabType, reverse, startQrScan = false)
+    }
+
+    override fun showQrScanner(target: Int) {
+        showSearchBox("", target, SearchActivity.TAB_TYPE_CURRENT, reverse = false, startQrScan = true)
+    }
+
+    private fun showSearchBox(query: String, target: Int, openTabType: Int, reverse: Boolean, startQrScan: Boolean) {
         val data = Bundle().apply {
             putInt(EXTRA_DATA_TARGET, target)
         }
@@ -1150,6 +1158,7 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
             putExtra(SearchActivity.EXTRA_REVERSE, reverse)
             putExtra(SearchActivity.EXTRA_APP_DATA, data)
             putExtra(SearchActivity.EXTRA_OPEN_NEW_TAB, openTabType)
+            putExtra(SearchActivity.EXTRA_START_QR_SCAN, startQrScan)
         }
 
         startActivity(intent, BrowserController.REQUEST_SEARCHBOX)

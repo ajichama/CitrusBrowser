@@ -148,7 +148,6 @@
     <string name="clear_download">Remover da lista</string>
     <string name="delete_download">Excluir arquivo</string>
     <string name="ssl_error_title">Aviso de segurança</string>
-    <string name="ssl_error_mes">Existem problemas com o certificado de segurança deste site.\n%1$s\nContinuar?</string>
     <string name="ssl_error_certificate_date_invalid">A data do certificado é inválida</string>
     <string name="ssl_error_certificate_expired">O certificado expirou</string>
     <string name="ssl_error_certificate_expired_info">Fim do período de validade=</string>

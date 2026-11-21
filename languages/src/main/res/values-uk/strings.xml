@@ -148,7 +148,6 @@
     <string name="clear_download">Видалити зі списку</string>
     <string name="delete_download">Видалити файл</string>
     <string name="ssl_error_title">Попередження системи безпеки</string>
-    <string name="ssl_error_mes">Є проблеми з сертифікатом безпеки для цього сайту.\n%1$s\nПродовжити?</string>
     <string name="ssl_error_certificate_date_invalid">Дата сертифіката недійсна</string>
     <string name="ssl_error_certificate_expired">Термін дії сертифіката минув</string>
     <string name="ssl_error_certificate_expired_info">Кінець терміну дії=</string>

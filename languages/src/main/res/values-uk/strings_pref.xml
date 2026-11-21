@@ -108,6 +108,8 @@
     <string name="pref_action_settings">Налаштування дій</string>
     <string name="pref_tab_action">Дії вкладки</string>
     <string name="pref_show_zoom_button">Відображати кнопки масштабування</string>
+    <string name="pref_force_enable_zoom">Примусове масштабування</string>
+    <string name="pref_force_enable_zoom_summary">Дозволити збільшення навіть на сторінках, які його забороняють</string>
     <string name="pref_fullscreen">Повноекранний режим</string>
     <string name="pref_keep_screen_on">Тримати екран активним</string>
     <string name="pref_accept_cookie">Приймати куки</string>
