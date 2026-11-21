@@ -33,6 +33,7 @@ import android.webkit.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.webkit.ScriptHandler
 import androidx.webkit.WebViewCompat
 import jp.hazuki.asyncpermissions.AsyncPermissions
 import jp.hazuki.asyncpermissions.PermissionResult
@@ -133,6 +134,9 @@ class WebClient(
     // 文書開始時の注入に対応しない WebView では scriptlet を使わない（ブリッジをページに残さないため）。
     private val isDocumentStartSupported by lazy { WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT) }
     private val scriptletScript by lazy { ScriptletInjection.script(activity.applicationContext) }
+    // ズーム禁止を無視するスクリプト（#17）。ページ（WebView）ごとに登録の有無を持ち、設定の切り替えで付け外しする。
+    private val forceZoomScript by lazy { activity.readAssetsText("scripts/force-zoom.js") }
+    private val forceZoomHandlers = WeakHashMap<WebView, ScriptHandler?>()
     private val invertEnableJs by SoftCache {
         activity.readAssetsText("scripts/invert-min.js").replace("%s", "true")
     }
@@ -224,6 +228,8 @@ class WebClient(
                 webView.evaluateJavascript(if (webView.isInvertMode) invertEnableJs else invertDisableJs, null)
             }
         }
+
+        forceZoomHandlers.keys.toList().forEach { applyForceZoom(it) }
 
         controller.tabManager.currentTabData?.let {
             controller.toolbarManager.notifyChangeWebState(it)
@@ -330,6 +336,25 @@ class WebClient(
             view.addJavascriptInterface(bridge, ScriptletInjection.interfaceName)
             // 全フレームで固定スクリプトが先に動き、ブリッジを受け取ってからページから外す。
             WebViewCompat.addDocumentStartJavaScript(view, scriptletScript, setOf("*"))
+            forceZoomHandlers[view] = null
+            applyForceZoom(view)
+        }
+    }
+
+    /** 設定に合わせて、ズーム禁止を無視するスクリプトを付け外しする。切り替えた後に読み込んだページから効く。 */
+    private fun applyForceZoom(view: WebView) {
+        val enable = AppPrefs.force_enable_zoom.get()
+        val handler = forceZoomHandlers[view]
+        // 破棄済みの WebView では例外になることがあるので、その WebView は対象から外す。
+        try {
+            if (enable && handler == null) {
+                forceZoomHandlers[view] = WebViewCompat.addDocumentStartJavaScript(view, forceZoomScript, setOf("*"))
+            } else if (!enable && handler != null) {
+                handler.remove()
+                forceZoomHandlers[view] = null
+            }
+        } catch (e: RuntimeException) {
+            forceZoomHandlers.remove(view)
         }
     }
 

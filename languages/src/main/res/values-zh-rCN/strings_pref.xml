@@ -105,6 +105,8 @@
     <string name="pref_action_settings">行为设置</string>
     <string name="pref_tab_action">标签页行为</string>
     <string name="pref_show_zoom_button">显示缩放按钮</string>
+    <string name="pref_force_enable_zoom">强制启用缩放</string>
+    <string name="pref_force_enable_zoom_summary">即使网页禁止缩放，也允许放大</string>
     <string name="pref_fullscreen">全屏显示</string>
     <string name="pref_keep_screen_on">保持亮屏</string>
     <string name="pref_accept_cookie">接受 Cookie</string>

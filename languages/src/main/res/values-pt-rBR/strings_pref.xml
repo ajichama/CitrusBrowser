@@ -105,6 +105,8 @@
     <string name="pref_action_settings">Configurações de ação</string>
     <string name="pref_tab_action">Ação da guia</string>
     <string name="pref_show_zoom_button">Mostrar botões de zoom</string>
+    <string name="pref_force_enable_zoom">Forçar o zoom</string>
+    <string name="pref_force_enable_zoom_summary">Permitir ampliar mesmo em páginas que o impedem</string>
     <string name="pref_fullscreen">Tela cheia</string>
     <string name="pref_keep_screen_on">Manter tela ligada</string>
     <string name="pref_accept_cookie">Aceitar cookies</string>

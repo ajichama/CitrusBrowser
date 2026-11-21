@@ -75,6 +75,11 @@
         android:title="@string/pref_show_zoom_button"
         app:iconSpaceReserved="false" />
     <SwitchPreference
+        android:key="force_enable_zoom"
+        android:summary="@string/pref_force_enable_zoom_summary"
+        android:title="@string/pref_force_enable_zoom"
+        app:iconSpaceReserved="false" />
+    <SwitchPreference
         android:key="block_web_images"
         android:title="@string/pref_block_images"
         app:iconSpaceReserved="false" />

@@ -105,6 +105,8 @@
     <string name="pref_action_settings">Eylem ayarları</string>
     <string name="pref_tab_action">Sekme eylemi</string>
     <string name="pref_show_zoom_button">Yakınlaştırma düğmelerini görüntüle</string>
+    <string name="pref_force_enable_zoom">Yakınlaştırmayı zorla</string>
+    <string name="pref_force_enable_zoom_summary">Engelleyen sayfalarda bile yakınlaştırmaya izin ver</string>
     <string name="pref_fullscreen">Tam ekran</string>
     <string name="pref_keep_screen_on">Ekranını açık tut</string>
     <string name="pref_accept_cookie">Çereze izin ver</string>

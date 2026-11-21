@@ -105,6 +105,8 @@
     <string name="pref_action_settings">Einstellungen für Aktionen</string>
     <string name="pref_tab_action">Reiteraktion</string>
     <string name="pref_show_zoom_button">Zoomtasten anzeigen</string>
+    <string name="pref_force_enable_zoom">Zoom erzwingen</string>
+    <string name="pref_force_enable_zoom_summary">Vergrößern auch auf Seiten erlauben, die es verhindern</string>
     <string name="pref_fullscreen">Vollbild</string>
     <string name="pref_keep_screen_on">Bildschirm eingeschaltet lassen</string>
     <string name="pref_accept_cookie">Cookie akzeptieren</string>

@@ -109,6 +109,8 @@
     <string name="pref_action_settings">Action settings</string>
     <string name="pref_tab_action">Tab action</string>
     <string name="pref_show_zoom_button">Display zoom buttons</string>
+    <string name="pref_force_enable_zoom">Force enable zoom</string>
+    <string name="pref_force_enable_zoom_summary">Allow zooming in even on pages that prevent it</string>
     <string name="pref_fullscreen">Fullscreen</string>
     <string name="pref_keep_screen_on">Keep screen on</string>
     <string name="pref_accept_cookie">Accept cookie</string>

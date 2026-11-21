@@ -109,6 +109,8 @@
     <string name="pref_action_settings">アクション設定</string>
     <string name="pref_tab_action">タブアクション</string>
     <string name="pref_show_zoom_button">ズームボタンの表示</string>
+    <string name="pref_force_enable_zoom">ページのズーム禁止を無視する</string>
+    <string name="pref_force_enable_zoom_summary">ページが拡大を禁止していても、ピンチで拡大できるようにします</string>
     <string name="pref_fullscreen">フルスクリーン</string>
     <string name="pref_keep_screen_on">自動的に消灯しない</string>
     <string name="pref_accept_cookie">Cookieの許可</string>
