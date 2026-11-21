@@ -50,7 +50,7 @@ node tools/citrus-mcp/cli.mjs release --task <ID> --agent claude --outcome pause
 
 ## 文脈の区切り（/clear）
 
-1つの Issue・機能を公開したとき、または文脈が30〜40万トークンに達したとき（Claude Code は hooks が `[文脈]` で知らせる）は、上の「中断・交代・完了時」を済ませてから利用者に `/clear` を依頼する（AGENTS.md 第8節）。依頼の前に、次のセッションが最初に読む台帳の `nextObjective` を具体的にしておく。
+文脈が30〜40万トークンに達したとき（Claude Code は hooks が `[文脈]` で知らせる）は、上の「中断・交代・完了時」を済ませてから利用者に `/clear` を依頼する（AGENTS.md 第8節）。1つの Issue・機能を公開しただけなら、台帳を更新して `/clear` は依頼せずに次へ進む。依頼の前に、次のセッションが最初に読む台帳の `nextObjective` を具体的にしておく。
 
 ## 利用枠ガード
 

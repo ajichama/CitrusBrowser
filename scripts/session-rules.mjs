@@ -18,7 +18,7 @@ export const LANGUAGE_RULE =
 export const SESSION_RULES = [
   LANGUAGE_RULE,
   '再開するときは docs/PROJECT_OVERVIEW.md → .agents/handoff/RESUME.md（ローカル）→ 台帳（node tools/citrus-mcp/cli.mjs read）の順に読み、git log / git status と照らし合わせる。',
-  '進め方は AGENTS.md と CLAUDE.md のとおり（Skills を使うメインのエージェントが進める、モデルは下げない、仕様が明確な作業は Codex に任せる、区切りで台帳を更新して /clear を依頼する）。',
+  '進め方は AGENTS.md と CLAUDE.md のとおり（Skills を使うメインのエージェントが進める、モデルは下げない、仕様が明確な作業は Codex に任せる、Issue の公開ごとに台帳を更新し、/clear の依頼は文脈が30〜40万トークンに達したときだけ）。',
 ].join('\n');
 
 export function buildOutput(event) {
