@@ -4,11 +4,14 @@ import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 
 const TASK_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/;
-const MAX_HISTORY_ENTRIES = 20;
+// 台帳は /clear のたびに読まれるため、保持・表示とも直近だけにする。長期の実績は docs/PROGRESS.md に残す。
+const MAX_HISTORY_ENTRIES = 10;
+export const MAX_COMPLETED_ITEMS = 10;
 // rename 再試行の待機（合計約3秒）。同期 API のまま Dropbox の一時ロックを越える。
 const RENAME_RETRY_DELAYS_MS = [50, 100, 200, 400, 800, 1500];
-const HISTORY_RENDER_ENTRIES = 5;
-const HISTORY_RENDER_CHARS = 300;
+const HISTORY_RENDER_ENTRIES = 3;
+const HISTORY_RENDER_CHARS = 200;
+const COMPLETED_RENDER_ENTRIES = 5;
 // handoff_update の要約がこの文字数を超えたら、読みやすさのため警告を返す。
 export const SUMMARY_SOFT_LIMIT = 800;
 // MCP サーバーはプロセスごとの UUID を所有者にする。CLI（cli.mjs）は CITRUS_SESSION_OWNER で
@@ -337,7 +340,7 @@ export function renderHandoffMarkdown(state, locks = [], gitInfo = null) {
   const lines = [
     '# CitrusBrowser マルチAIエージェント引き継ぎ台帳 (`HANDOFF.md`)',
     '',
-    '> **運用ルール**: 作業開始前に本ファイルまたは MCP `handoff_read` で最新状態を確認し、中断・交代時には必ず `handoff_update` で引き継ぎ情報を更新してください。',
+    '> 作業前に確認し、中断・交代時に `handoff_update` で更新する。過去の完了記録は docs/PROGRESS.md。',
     '',
     '## 1. 現在の引き継ぎサマリー',
     '',
@@ -405,29 +408,19 @@ export function renderHandoffMarkdown(state, locks = [], gitInfo = null) {
 
   lines.push('', '## 5. 完了済み項目・直近タイムライン', '');
   if (state.completedItems?.length) {
-    lines.push('### 完了済みマイルストーン');
-    for (const item of state.completedItems) lines.push(`- [x] ${item}`);
+    // 配列は古い順。台帳には最新の数件だけを出す。
+    lines.push(`### 完了（最新${COMPLETED_RENDER_ENTRIES}件）`);
+    for (const item of state.completedItems.slice(-COMPLETED_RENDER_ENTRIES)) lines.push(`- [x] ${item}`);
     lines.push('');
   }
 
   if (state.history?.length) {
-    // 台帳は毎回読まれるため直近だけを要約表示し、全文（最大20件）は state.json に残す。
     lines.push(`### 引き継ぎ履歴（最新${HISTORY_RENDER_ENTRIES}件・各${HISTORY_RENDER_CHARS}字まで。全文は state.json）`);
     for (const h of state.history.slice(0, HISTORY_RENDER_ENTRIES)) {
       lines.push(`- **${h.timestamp}** [\`${h.fromAgent}\` → \`${h.toAgent}\`] (${h.taskId}): ${truncateText(h.summary, HISTORY_RENDER_CHARS)}`);
     }
     lines.push('');
   }
-
-  lines.push(
-    '## 6. 次エージェント起動用コピペプロンプト例',
-    '',
-    '```text',
-    'AGENTS.md と .agents/handoff/HANDOFF.md（または MCP handoff_read）を確認し、',
-    `タスク「${active.id}」を引き継いで進めてください。完了または中断時は handoff_update を更新してください。`,
-    '```',
-    ''
-  );
 
   return lines.join('\n');
 }
@@ -479,9 +472,9 @@ function updateHandoffStateUnlocked(workspaceRoot, input) {
   const prevTaskId = state.activeTask?.id || 'initial';
   const nextTaskId = input.taskId ? validateTaskId(input.taskId) : prevTaskId;
 
-  const updatedCompleted = Array.isArray(input.completedItems)
+  const updatedCompleted = (Array.isArray(input.completedItems)
     ? Array.from(new Set([...state.completedItems, ...input.completedItems]))
-    : state.completedItems;
+    : state.completedItems).slice(-MAX_COMPLETED_ITEMS);
 
   const historyEntry = {
     timestamp: now,

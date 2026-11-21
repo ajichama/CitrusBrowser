@@ -182,3 +182,39 @@ test('CLI は壊れたキャッシュや入力でも何も出さず exit 0 で�
     assert.equal(result.stderr, '');
   }
 });
+
+test('文脈の量は自分のセッションの記録だけで判定し、30万で検討・40万で区切りを間隔をあけて知らせる', (t) => {
+  const dir = tmpDir(t);
+  const prev = process.env.CITRUS_USAGE_DIR;
+  process.env.CITRUS_USAGE_DIR = dir;
+  t.after(() => { if (prev === undefined) delete process.env.CITRUS_USAGE_DIR; else process.env.CITRUS_USAGE_DIR = prev; });
+  fs.writeFileSync(path.join(dir, 'claude.json'), JSON.stringify(snapshot(50, 10)));
+  const writeCtx = (sessions) => fs.writeFileSync(path.join(dir, 'claude-context.json'), JSON.stringify({ sessions }));
+  const at = (ms) => new Date(ms).toISOString();
+  const hook = (sid, now = NOW) => runHook(['--agent', 'claude', '--event', 'PostToolUse'], JSON.stringify({ session_id: sid }), now);
+
+  writeCtx({ a: { tokens: 250_000, window_size: 1_000_000, captured_at: at(NOW - 1000) }, b: { tokens: 450_000, captured_at: at(NOW - 1000) } });
+  assert.equal(hook('a'), '');
+  assert.equal(hook('zzz'), '');
+  assert.equal(runHook(['--agent', 'claude', '--event', 'PostToolUse'], '{}', NOW), '');
+
+  writeCtx({ a: { tokens: 320_000, captured_at: at(NOW - 1000) } });
+  const notice = JSON.parse(hook('a')).hookSpecificOutput.additionalContext;
+  assert.match(notice, /約32万トークン/);
+  assert.match(notice, /準備/);
+  assert.equal(hook('a', NOW + 60_000), '');
+
+  writeCtx({ a: { tokens: 410_000, captured_at: at(NOW - 1000) } });
+  assert.match(JSON.parse(hook('a', NOW + 60_000)).hookSpecificOutput.additionalContext, /\/clear（新しいセッション）を依頼/);
+  assert.equal(hook('a', NOW + 5 * 60_000), '');
+  assert.ok(hook('a', NOW + 12 * 60_000).length > 0);
+
+  writeCtx({ a: { tokens: 410_000, captured_at: at(NOW - 20 * 60_000) } });
+  assert.equal(hook('a', NOW + 60 * 60_000), '');
+
+  fs.writeFileSync(path.join(dir, 'claude.json'), JSON.stringify(snapshot(98, 10)));
+  writeCtx({ c: { tokens: 500_000, captured_at: at(NOW - 1000) } });
+  const both = JSON.parse(hook('c')).hookSpecificOutput.additionalContext;
+  assert.match(both, /5時間枠 98%/);
+  assert.match(both, /約50万トークン/);
+});

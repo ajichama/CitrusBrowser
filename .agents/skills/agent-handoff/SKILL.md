@@ -43,10 +43,15 @@ node tools/citrus-mcp/cli.mjs release --task <ID> --agent claude --outcome pause
 
 - 担当記号（A/B/C）や英単語の羅列（freeze, PASS 等）だけの圧縮表現を使わない。詳細はレポート（`.agents/handoff/reports/`）のパスで示す。
 - 端末の設定、起動中のエミュレーター、一時ファイルなど「戻すべき状態」は必ず書く。
+- 台帳に出るのは完了の最新5件・履歴の最新3件だけ（state.json の保持も各10件）。長く残す成果は docs/PROGRESS.md に書く。
+
+## 文脈の区切り（/clear）
+
+1つの Issue・機能を公開したとき、または文脈が30〜40万トークンに達したとき（Claude Code は hooks が `[文脈]` で知らせる）は、上の「中断・交代・完了時」を済ませてから利用者に `/clear` を依頼する（AGENTS.md 第8節）。依頼の前に、次のセッションが最初に読む台帳の `nextObjective` を具体的にしておく。
 
 ## 利用枠ガード
 
-Claude Code はステータスラインが `%USERPROFILE%\.citrus\usage\claude.json` を書き、`.claude/settings.json` の hooks が閾値を超えたときに警告を出す。Codex は rollout 記録から `scripts/usage-guard.mjs` が読み取り、`.agents/hooks/codex-hooks.json` を `.codex/hooks.json` へ複製して `/hooks` で承認すると警告が出る。Antigravity は残量を取得できない（`unavailable`）ので、作業を小さく区切って台帳を更新する。
+Claude Code はステータスラインが `%USERPROFILE%\.citrus\usage\claude.json` を書き、`.claude/settings.json` の hooks が閾値を超えたときに警告を出す。文脈の量も同じ場所の `claude-context.json` にセッションごとに書き、30万で `[文脈]` の予告、40万で区切りの依頼を出す（ステータスラインの設定はホームの `~/.claude/statusline.js` で、リポジトリ外）。Codex は rollout 記録から `scripts/usage-guard.mjs` が読み取り、`.agents/hooks/codex-hooks.json` を `.codex/hooks.json` へ複製して `/hooks` で承認すると警告が出る。Antigravity は残量を取得できない（`unavailable`）ので、作業を小さく区切って台帳を更新する。
 
 ## Codex への委譲
 

@@ -285,6 +285,54 @@ export function buildMessage(agent, result) {
   ].join('\n');
 }
 
+/*
+ * 文脈の量（Claude Code のみ）。ステータスラインが受け取る context_window.current_usage を、
+ * セッションごとに claude-context.json（{ sessions: { <session_id>: { tokens, window_size, captured_at } } }）へ書く。
+ * hook は標準入力の session_id で自分のセッションの記録だけを見る（別セッションの量で通知しない）。
+ * 長いセッションは1回ごとの送信量が増えるため、30万で区切りの検討、40万で区切りを促す（AGENTS.md 第8節）。
+ */
+export const CONTEXT_THRESHOLDS = { notice: 300_000, checkpoint: 400_000 };
+const CONTEXT_INTERVAL_MS = { notice: 30 * 60 * 1000, checkpoint: 10 * 60 * 1000 };
+const CONTEXT_ACTIONS = {
+  notice: '区切りのよいところ（1つの Issue・機能の公開）で handoff_update を行い、利用者に /clear を依頼する準備をする。',
+  checkpoint: '今の作業をビルドが通る状態で区切り、handoff_update で台帳を更新してから、利用者に /clear（新しいセッション）を依頼する。',
+};
+
+export function readContext(sessionId, dir = usageDir(), now = Date.now()) {
+  if (typeof sessionId !== 'string' || !sessionId) return null;
+  const data = readJson(path.join(dir, 'claude-context.json'));
+  const entry = data && data.sessions && typeof data.sessions === 'object' ? data.sessions[sessionId] : null;
+  if (!entry || !isNum(entry.tokens)) return null;
+  const capturedMs = Date.parse(entry.captured_at);
+  if (!Number.isFinite(capturedMs) || now - capturedMs > STALE_MS) return null;
+  return { tokens: Number(entry.tokens), window_size: isNum(entry.window_size) ? Number(entry.window_size) : null };
+}
+
+export function contextLevel(tokens) {
+  if (tokens >= CONTEXT_THRESHOLDS.checkpoint) return 'checkpoint';
+  if (tokens >= CONTEXT_THRESHOLDS.notice) return 'notice';
+  return 'none';
+}
+
+/** 同じセッション・段階の通知を間隔内で1回に抑える。1日より古い記録は消す。 */
+export function shouldNotifyContext(sessionId, level, now = Date.now(), dir = usageDir()) {
+  if (level === 'none') return false;
+  const statePath = path.join(dir, 'guard-state.json');
+  const state = readJson(statePath) || {};
+  const prev = state.context && typeof state.context === 'object' ? state.context : {};
+  const context = Object.fromEntries(Object.entries(prev).filter(([, t]) => Number(t) > now - 24 * 3600 * 1000));
+  const key = `${sessionId}:${level}`;
+  if (Number(context[key]) > now - CONTEXT_INTERVAL_MS[level]) return false;
+  context[key] = now;
+  try { writeJsonAtomic(statePath, { ...state, context }); } catch { /* 状態保存の失敗は無視する（通知は出す） */ }
+  return true;
+}
+
+export function buildContextMessage(ctx, level) {
+  const man = Math.round(ctx.tokens / 10_000);
+  return `[文脈] このセッションの文脈は約${man}万トークン。${CONTEXT_ACTIONS[level]}（AGENTS.md 第8節）`;
+}
+
 function parseArgs(argv) {
   const out = {};
   for (let i = 0; i < argv.length; i++) {
@@ -304,8 +352,15 @@ export function runHook(argv, stdinText, now = Date.now()) {
   try { input = JSON.parse(String(stdinText || '').replace(/^﻿/, '') || '{}') || {}; } catch { input = {}; }
   const transcriptPath = agent === 'codex' && typeof input.transcript_path === 'string' ? input.transcript_path : null;
   const result = evaluate(agent, loadSnapshot(agent, { transcriptPath }), now);
-  if (!shouldNotify(agent, result, now)) return '';
-  return JSON.stringify({ hookSpecificOutput: { hookEventName: event, additionalContext: buildMessage(agent, result) } });
+  const messages = [];
+  if (shouldNotify(agent, result, now)) messages.push(buildMessage(agent, result));
+  if (agent === 'claude') {
+    const ctx = readContext(input.session_id, usageDir(), now);
+    const level = ctx ? contextLevel(ctx.tokens) : 'none';
+    if (shouldNotifyContext(input.session_id, level, now)) messages.push(buildContextMessage(ctx, level));
+  }
+  if (!messages.length) return '';
+  return JSON.stringify({ hookSpecificOutput: { hookEventName: event, additionalContext: messages.join('\n') } });
 }
 
 function main() {

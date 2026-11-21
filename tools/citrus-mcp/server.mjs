@@ -160,7 +160,7 @@ const TOOLS = [
       properties: {
         includeHistory: {
           type: 'boolean',
-          description: '過去の引き継ぎ履歴を含めるか（既定: true）',
+          description: '過去の引き継ぎ履歴（最大10件）を含めるか（既定: false。文脈を節約するため）',
         },
         includeGitStatus: {
           type: 'boolean',
@@ -384,7 +384,7 @@ async function handleToolCall(name, args = {}) {
   }
   switch (name) {
     case 'handoff_read': {
-      const includeHistory = args.includeHistory !== false;
+      const includeHistory = args.includeHistory === true;
       const includeGitStatus = args.includeGitStatus !== false;
       const { state, initialized } = readHandoffState(WORKSPACE_ROOT);
       const locks = listActiveLocks(WORKSPACE_ROOT);

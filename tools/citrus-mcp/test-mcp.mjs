@@ -251,10 +251,33 @@ test('異なるサーバーでも同じ対象を二重取得せず、別セッ�
     agent: 'codex', summary: `担当${index}の更新`, nextAgent: 'codex', nextObjective: '確認を続ける', completedItems: [`完了${index}`],
   })));
   updates.forEach((result) => assert.equal(result.result.isError, undefined));
-  const snapshot = await callTool(clients[0], 'handoff_read', { includeGitStatus: false });
+  const snapshot = await callTool(clients[0], 'handoff_read', { includeGitStatus: false, includeHistory: true });
   const state = JSON.parse(snapshot.result.content[0].text).state;
   assert.equal(state.completedItems.length, 4);
   assert.equal(state.history.length, 4);
+  const brief = await callTool(clients[0], 'handoff_read', { includeGitStatus: false });
+  assert.equal(JSON.parse(brief.result.content[0].text).state.history, undefined);
+});
+
+test('台帳は完了と履歴を直近だけ保持・表示し、古いものは state.json からも外す', async (t) => {
+  const root = createWorkspace(t);
+  const client = new McpTestClient(root);
+  t.after(() => client.close());
+  await client.request('initialize', { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'test', version: '1' } });
+  for (let i = 1; i <= 12; i++) {
+    const r = await callTool(client, 'handoff_update', {
+      agent: 'claude', summary: `更新${i}`, nextAgent: 'claude', nextObjective: '続ける', completedItems: [`完了${i}`],
+    });
+    assert.equal(r.result.isError, undefined);
+  }
+  const snapshot = await callTool(client, 'handoff_read', { includeGitStatus: false, includeHistory: true });
+  const state = JSON.parse(snapshot.result.content[0].text).state;
+  assert.deepEqual(state.completedItems, Array.from({ length: 10 }, (_, i) => `完了${i + 3}`));
+  assert.equal(state.history.length, 10);
+  const markdown = fs.readFileSync(path.join(root, '.agents', 'handoff', 'HANDOFF.md'), 'utf8');
+  assert.ok(markdown.includes('- [x] 完了12') && markdown.includes('- [x] 完了8'));
+  assert.ok(!markdown.includes('- [x] 完了7'));
+  assert.equal((markdown.match(/^- \*\*20/gm) || []).length, 3);
 });
 
 test('ルート外の対象と不正な実行引数を拒否し、期限切れロックだけを解放する', async (t) => {
