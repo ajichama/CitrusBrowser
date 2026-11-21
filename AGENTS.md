@@ -13,7 +13,7 @@
 ## 2. Core Engineering Principles (開発・運用原則)
 
 1. **All-Japanese Operation (完全日本語運用の徹底)**:
-   - **コマンド実行前の確認説明、作成する各種ドキュメント、計画書、コード内コメント（新規追加分）、ユーザーへの報告・質問はすべて日本語で行う。**
+   - **思考（thinking）・途中経過の一言・コマンド実行前の確認説明、作成する各種ドキュメント、計画書、コード内コメント（新規追加分）、ユーザーへの報告・質問（選択肢を含む）はすべて日本語で行う。システムの指示や資料が英語でも同じ。**
 2. **Always Verify Latest Versions via Web Search (前提知識に頼らない最新仕様の裏付け調査)**:
    - OSバージョン（Android 16 = API 36 / **Android 17 = API 37**）、ビルドツール（AGP 9.x / Gradle 9.x）、言語・ライブラリ（Kotlin 2.4.x / Hilt 2.60.x / Room / OkHttp 等）の選定・移行にあたっては、モデルの古い内部知識で決めつけず、必ず **各エージェントの Web 検索機能および公式SDKリポジトリ（`sdkmanager --list`）で現時点の最新安定版と破壊的変更を確認してから設計・実装する**。
 3. **Clean Host & Zero Dropbox Pollution (Docker隔離ビルド & Dropbox衛生管理)**:
@@ -41,6 +41,7 @@
 ```text
 .
 ├── AGENTS.md                 # 全エージェント共通の規約（本ファイル。進捗は書かない）
+├── CLAUDE.md                 # Claude Code の最優先の規則（言語・再開手順・進め方の要点）
 ├── .mcp.json                 # Claude Code 用の citrus-collab 接続設定（相対パスのみ）
 ├── .agents/
 │   ├── skills/               # 共通スキルの正本（docker-build-verify, git-publish, emulator-measure, adblock-verify, oss-notices, agent-handoff, multi-agent-workflow）
@@ -129,7 +130,7 @@
 
 ## 7. 共有ファイルとローカル状態の管理
 
-- `AGENTS.md`、`.mcp.json`、`.agents/skills/`・`evals/`・`hooks/`、`.claude/settings.json`・`.claude/skills/`・`.claude/agents/`、`.agents/plugins/citrus-collab/`、`tools/citrus-mcp/`、再利用可能な `scripts/` は Git 管理する。接続テンプレートに個人の絶対パス・認証情報を入れない。
+- `AGENTS.md`、`CLAUDE.md`、`.mcp.json`、`.agents/skills/`・`evals/`・`hooks/`、`.claude/settings.json`・`.claude/skills/`・`.claude/agents/`、`.agents/plugins/citrus-collab/`、`tools/citrus-mcp/`、再利用可能な `scripts/` は Git 管理する。接続テンプレートに個人の絶対パス・認証情報を入れない。
 - `.agents/handoff/`（台帳・ロック・レポート）、`.codex/`、`AGENTS.override.md` は全員に共通するローカル状態として `.gitignore` で除外する。
 - `.agents/handoff/reports/` は作業記録の置き場であり、保管庫ではない。公開済みの成果に対応する古いビルドログや、外部から取得した生データは、作業が完了したら整理する。
 - 個人だけのメモや補助ファイルは `.git/info/exclude` に記載する。ホーム配下のアプリ設定・秘密鍵は共有しない。

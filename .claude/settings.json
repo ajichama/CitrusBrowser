@@ -7,6 +7,16 @@
             "type": "command",
             "command": "node",
             "args": [
+              "${CLAUDE_PROJECT_DIR}/scripts/session-rules.mjs",
+              "--event",
+              "SessionStart"
+            ],
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
               "${CLAUDE_PROJECT_DIR}/scripts/usage-guard.mjs",
               "--agent",
               "claude",
@@ -21,6 +31,16 @@
     "UserPromptSubmit": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/scripts/session-rules.mjs",
+              "--event",
+              "UserPromptSubmit"
+            ],
+            "timeout": 10
+          },
           {
             "type": "command",
             "command": "node",
