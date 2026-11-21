@@ -150,7 +150,9 @@ public class AppPrefs {
     public static final IntContainer menu_btn_list_mode = new IntContainer("menu_btn_list_mode", 1);
     public static final BooleanContainer block_web_images = new BooleanContainer("block_web_images", false);
     public static final BooleanContainer save_pinned_tabs = new BooleanContainer("save_pinned_tabs", true);
-    public static final BooleanContainer ad_block = new BooleanContainer("ad_block", false);
+    // 新しく入れたときは広告ブロックを有効にする（2026-11-22 利用者の決定）。AppPrefs は全項目を保存するため、
+    // 既存の利用者の保存済みの値は変わらない。起動時に有効ならフィルタを取得する（BrowserActivity#onStart）。
+    public static final BooleanContainer ad_block = new BooleanContainer("ad_block", true);
     public static final IntContainer night_mode_color = new IntContainer("night_mode_color", 5000);
     public static final IntContainer night_mode_bright = new IntContainer("night_mode_bright", 100);
     public static final IntContainer show_tab_divider = new IntContainer("show_tab_divider", 0);
