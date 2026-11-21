@@ -1,5 +1,7 @@
 # Project Constitution & Agent Guidelines (`AGENTS.md`)
 
+> 経緯・体制・機能・設計の意図・方針の全体像は [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) にまとめています。新しいセッションでは、まずそれを読んでください。
+>
 > 本ファイルは Antigravity / Codex / Claude Code のすべてのエージェントが**毎回読み込む規約**です。日付付きの検証結果・件数・所要時間などの進捗はここへ書かず、[公開進捗](docs/PROGRESS.md)・[実機確認](docs/DEVICE_CHECKS.md)・[内蔵uBO計画](docs/ADBLOCK_ENGINE_PLAN.md)・[改善一覧](docs/IMPROVEMENT_PLAN.md)へ記録してください（全エージェントのコンテキスト消費を抑えるため）。
 
 ## 1. Project Overview (プロジェクト概要)
