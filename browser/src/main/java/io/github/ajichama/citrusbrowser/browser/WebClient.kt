@@ -614,29 +614,11 @@ class WebClient(
                 return
             }
 
-            if (!activity.isFinishing) {
-                val view = View.inflate(activity, R.layout.dialog_ssl_error, null)
-                view.findViewById<TextView>(R.id.urlTextView).apply {
-                    text = error.url
-                    setOnLongClickListener {
-                        activity.setClipboardWithToast(text.toString())
-                        true
-                    }
-                }
-                view.findViewById<TextView>(R.id.messageTextView).text = activity.getString(R.string.ssl_error_mes, error.getErrorMessages(activity))
-
-                AlertDialog.Builder(activity)
-                    .setTitle(R.string.ssl_error_title)
-                    .setView(view)
-                    .setPositiveButton(android.R.string.ok) { _, _ ->
-                        // ページ情報で「暗号化されています」と表示しないよう、警告を無視して進んだことを記録する。
-                        SiteData.markCertificateError(error.url)
-                        handler.proceed()
-                    }
-                    .setNegativeButton(android.R.string.cancel) { _, _ -> handler.cancel() }
-                    .setOnCancelListener { handler.cancel() }
-                    .show()
+            if (activity.isFinishing) {
+                handler.cancel()
+                return
             }
+            showSslErrorWarning(handler, error)
         }
 
         override fun shouldInterceptRequest(web: CustomWebView, request: WebResourceRequest): WebResourceResponse? {
@@ -1311,6 +1293,49 @@ class WebClient(
     }
 
     private fun getString(id: Int): String = activity.getString(id)
+
+    /**
+     * 証明書エラーの1段目（#12）。決定ボタンは「戻る」にし、進む操作は「詳細」の先にだけ置く。
+     * 「戻る」は読み込みを止めるだけで、前のページへは移らない（画像などページの一部のエラーでも呼ばれるため）。
+     */
+    private fun showSslErrorWarning(handler: SslErrorHandler, error: SslError) {
+        val host = Uri.parse(error.url).host ?: error.url
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.ssl_error_title)
+            .setMessage(activity.getString(R.string.ssl_error_summary, host))
+            .setPositiveButton(R.string.ssl_error_back) { _, _ -> handler.cancel() }
+            .setNeutralButton(R.string.ssl_error_details) { _, _ ->
+                if (activity.isFinishing) handler.cancel() else showSslErrorDetails(handler, error)
+            }
+            .setOnCancelListener { handler.cancel() }
+            .show()
+    }
+
+    /** 証明書エラーの2段目。URL と原因の一覧を示し、ここでだけ「それでも進む」を選べる。 */
+    private fun showSslErrorDetails(handler: SslErrorHandler, error: SslError) {
+        val view = View.inflate(activity, R.layout.dialog_ssl_error, null)
+        view.findViewById<TextView>(R.id.urlTextView).apply {
+            text = error.url
+            setOnLongClickListener {
+                activity.setClipboardWithToast(text.toString())
+                true
+            }
+        }
+        view.findViewById<TextView>(R.id.messageTextView).text =
+            activity.getString(R.string.ssl_error_details_mes, error.getErrorMessages(activity).trimEnd())
+
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.ssl_error_title)
+            .setView(view)
+            .setPositiveButton(R.string.ssl_error_back) { _, _ -> handler.cancel() }
+            .setNegativeButton(R.string.ssl_error_proceed_unsafe) { _, _ ->
+                // ページ情報で「暗号化されています」と表示しないよう、警告を無視して進んだことを記録する。
+                SiteData.markCertificateError(error.url)
+                handler.proceed()
+            }
+            .setOnCancelListener { handler.cancel() }
+            .show()
+    }
 
     private fun SslError.getErrorMessages(context: Context): String {
         val builder = StringBuilder()

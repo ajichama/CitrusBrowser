@@ -149,7 +149,6 @@
     <string name="clear_download">Eltávolítás a listáról</string>
     <string name="delete_download">Fájl törlése</string>
     <string name="ssl_error_title">Biztonsági figyelmeztetés</string>
-    <string name="ssl_error_mes">There are problems with the security certificate for this site.\n%1$s\nContinue?</string>
     <string name="ssl_error_certificate_date_invalid">A tanúsítvány érvényességi dátuma érvénytelen</string>
     <string name="ssl_error_certificate_expired">A tanúsítvány lejárt</string>
     <string name="ssl_error_certificate_expired_info">Az érvényesség vége=</string>

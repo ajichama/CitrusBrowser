@@ -164,7 +164,11 @@
     <string name="clear_download">Remove from list</string>
     <string name="delete_download">Delete file</string>
     <string name="ssl_error_title">Security warning</string>
-    <string name="ssl_error_mes">There are problems with the security certificate for this site.\n%1$s\nContinue?</string>
+    <string name="ssl_error_summary">The certificate for %1$s has a problem. Others may be able to read or change your connection to this site.</string>
+    <string name="ssl_error_details_mes">Problems with the certificate:\n%1$s</string>
+    <string name="ssl_error_back">Back</string>
+    <string name="ssl_error_details">Details</string>
+    <string name="ssl_error_proceed_unsafe">Proceed anyway (unsafe)</string>
     <string name="ssl_error_certificate_date_invalid">The date of the certificate is invalid</string>
     <string name="ssl_error_certificate_expired">The certificate has expired</string>
     <string name="ssl_error_certificate_expired_info">End of validity period=</string>

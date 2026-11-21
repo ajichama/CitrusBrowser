@@ -148,7 +148,6 @@
     <string name="clear_download">Aus der Liste entfernen</string>
     <string name="delete_download">Datei löschen</string>
     <string name="ssl_error_title">Sicherheitswarnung</string>
-    <string name="ssl_error_mes">There are problems with the security certificate for this site.\n%1$s\nContinue?</string>
     <string name="ssl_error_certificate_date_invalid">Das Datum des Zertifikats ist ungültig.</string>
     <string name="ssl_error_certificate_expired">Das Zertifikat ist abgelaufen.</string>
     <string name="ssl_error_certificate_expired_info">Ende der Gültigkeitsdauer=</string>
