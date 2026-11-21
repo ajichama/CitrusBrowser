@@ -26,16 +26,27 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class JvmWebViewBridge extends WebView implements CustomWebView {
 
+    private final boolean privateTab;
+
     public JvmWebViewBridge(Context context) {
         super(context);
+        privateTab = PrivateBrowsing.applyProfile(this, context);
     }
 
     public JvmWebViewBridge(Context context, AttributeSet attrs) {
         super(context, attrs);
+        privateTab = PrivateBrowsing.applyProfile(this, context);
     }
 
     public JvmWebViewBridge(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        // 何かを読み込む前に、プライベートタブなら専用のプロファイルへ切り替える。
+        privateTab = PrivateBrowsing.applyProfile(this, context);
+    }
+
+    @Override
+    public boolean isPrivate() {
+        return privateTab;
     }
 
     @Override

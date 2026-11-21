@@ -31,6 +31,9 @@ import io.github.ajichama.citrusbrowser.webview.listener.OnScrollableChangeListe
 
 interface CustomWebView {
 
+    /** プライベートタブの WebView か（PrivateBrowsing.PrivateContext から作られたか）。 */
+    val isPrivate: Boolean
+
     val favicon: Bitmap?
 
     val hitTestResult: WebView.HitTestResult?

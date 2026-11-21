@@ -55,6 +55,7 @@
         <item>5200</item>
         <item>5300</item>
         <item>10000</item>
+        <item>10030</item>
         <item>10001</item>
         <item>10002</item>
         <item>10003</item>
@@ -86,6 +87,7 @@
         <item>35304</item>
         <item>35305</item>
         <item>35309</item>
+        <item>35310</item>
         <item>35306</item>
         <item>35307</item>
         <item>35308</item>
@@ -126,5 +128,6 @@
         <item>101050</item>
         <item>101051</item>
         <item>101060</item>
+        <item>101070</item>
     </integer-array>
 </resources>

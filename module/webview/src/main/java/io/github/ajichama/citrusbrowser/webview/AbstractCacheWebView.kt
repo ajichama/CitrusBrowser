@@ -40,6 +40,9 @@ import io.github.ajichama.citrusbrowser.webview.utility.WebViewUtility
 import io.github.ajichama.citrusbrowser.webview.utility.trimForHttpHeader
 
 internal abstract class AbstractCacheWebView(context: Context) : FrameLayout(context), CustomWebView, WebViewUtility {
+
+    // 中の WebView は同じ Context から作るので、プライベートかどうかも Context で決まる。
+    override val isPrivate: Boolean = PrivateBrowsing.isPrivate(context) && PrivateBrowsing.isSupported()
     protected var id = System.currentTimeMillis()
 
     internal abstract val currentPage: WebViewPage

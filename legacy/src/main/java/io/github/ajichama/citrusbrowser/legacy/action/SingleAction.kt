@@ -128,6 +128,8 @@ open class SingleAction : Parcelable {
         const val CLOSE_ALL_RIGHT = 10016
         const val RESTORE_TAB = 10020
         const val REPLICATE_TAB = 10021
+        /** 新しいプライベートタブ（#15）。 */
+        const val NEW_PRIVATE_TAB = 10030
         const val SHOW_SEARCHBOX = 35000
         const val PASTE_SEARCHBOX = 35001
         const val PASTE_GO = 35002
@@ -150,6 +152,8 @@ open class SingleAction : Parcelable {
         const val USERJS_SETTING = 35307
         const val WEB_ENCODE_SETTING = 35308
         const val DEFALUT_USERAGENT_SETTING = 35309
+        /** そのタブだけ PC 版サイトに切り替える（もう一度で戻す）（#16）。 */
+        const val TOGGLE_DESKTOP_SITE = 35310
         const val RENDER_ALL_SETTING = 35400
         const val RENDER_SETTING = 35401
         const val TOGGLE_VISIBLE_TAB = 38000
@@ -186,11 +190,15 @@ open class SingleAction : Parcelable {
         const val READ_IT_LATER = 101050
         const val READ_IT_LATER_LIST = 101051
         const val WEB_THEME = 101060
+        /** ページのツール（PC 版サイト・翻訳・文字サイズ・ページを保存・印刷・ホーム画面に追加・ページ情報）の一覧（#16）。 */
+        const val PAGE_TOOLS = 101070
         const val LPRESS_OPEN = -10
         const val LPRESS_OPEN_NEW = -11
         const val LPRESS_OPEN_BG = -12
         const val LPRESS_OPEN_NEW_RIGHT = -13
         const val LPRESS_OPEN_BG_RIGHT = -14
+        /** リンクをプライベートタブで開く（#15）。 */
+        const val LPRESS_OPEN_PRIVATE = -15
         const val LPRESS_SHARE = -50
         const val LPRESS_OPEN_OTHERS = -51
         const val LPRESS_COPY_URL = -52

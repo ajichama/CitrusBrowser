@@ -40,7 +40,9 @@ import androidx.print.PrintHelper
 import io.github.ajichama.citrusbrowser.adblock.ui.original.AdBlockActivity
 import io.github.ajichama.citrusbrowser.adblock.ui.original.AddAdBlockDialog
 import io.github.ajichama.citrusbrowser.bookmark.view.BookmarkActivity
+import io.github.ajichama.citrusbrowser.core.USER_AGENT_PC
 import io.github.ajichama.citrusbrowser.core.utility.extensions.clipboardText
+import io.github.ajichama.citrusbrowser.core.utility.extensions.getRealUserAgent
 import io.github.ajichama.citrusbrowser.core.utility.log.ErrorReport
 import io.github.ajichama.citrusbrowser.core.utility.utils.ImageUtils
 import io.github.ajichama.citrusbrowser.core.utility.utils.ui
@@ -128,6 +130,10 @@ class ActionExecutor(
                     }
                     SingleAction.LPRESS_OPEN_NEW_RIGHT -> {
                         controller.openInRightNewTab(url, TabType.WINDOW)
+                        return true
+                    }
+                    SingleAction.LPRESS_OPEN_PRIVATE -> {
+                        controller.openInNewPrivateTab(url)
                         return true
                     }
                     SingleAction.LPRESS_OPEN_BG_RIGHT -> {
@@ -304,6 +310,10 @@ class ActionExecutor(
                     }
                     SingleAction.LPRESS_OPEN_NEW_RIGHT -> {
                         target.webView.requestFocusNodeHref(WebSrcImageOpenRightNewTabHandler(controller).obtainMessage())//TODO check stratActionMode's Nullpo exception
+                        return true
+                    }
+                    SingleAction.LPRESS_OPEN_PRIVATE -> {
+                        controller.openInNewPrivateTab(url)
                         return true
                     }
                     SingleAction.LPRESS_OPEN_BG_RIGHT -> {
@@ -751,6 +761,7 @@ class ActionExecutor(
                 }
             }
             SingleAction.NEW_TAB -> controller.openInNewTab(AppPrefs.home_page.get(), TabType.DEFAULT)
+            SingleAction.NEW_PRIVATE_TAB -> controller.openInNewPrivateTab(AppPrefs.home_page.get())
             SingleAction.CLOSE_TAB -> if (!controller.removeTab(actionTarget)) {
                 checkAndRun((action as CloseTabSingleAction).defaultAction, target)
             }
@@ -1000,6 +1011,26 @@ class ActionExecutor(
             }
             SingleAction.TOGGLE_FULL_SCREEN -> controller.isFullscreenMode = !controller.isFullscreenMode
             SingleAction.OPEN_OPTIONS_MENU -> controller.showMenu(button, action as OpenOptionsMenuAction)
+            SingleAction.PAGE_TOOLS -> {
+                // ページのツールは、独自メニューと同じ表示で、決まった項目を並べる（#16）。
+                val menu = SingleAction.makeInstance(SingleAction.CUSTOM_MENU) as CustomMenuSingleAction
+                listOf(SingleAction.TOGGLE_DESKTOP_SITE, SingleAction.TRANSLATE_PAGE, SingleAction.TEXTSIZE_SETTING,
+                    SingleAction.SAVE_PAGE, SingleAction.PRINT, SingleAction.ADD_TO_HOME, SingleAction.PAGE_INFO)
+                    .forEach { menu.actionList.add(SingleAction.makeInstance(it)) }
+                return run(menu, target, button)
+            }
+            SingleAction.TOGGLE_DESKTOP_SITE -> {
+                // そのタブだけ PC 用のユーザーエージェントに切り替えて読み込み直す。もう一度で、設定のユーザーエージェントに戻す。
+                val tab = controller.getTab(actionTarget)
+                val settings = tab.mWebView.webSettings
+                val fakeChrome = AppPrefs.fake_chrome.get()
+                val desktop = controller.activity.getRealUserAgent(USER_AGENT_PC, fakeChrome)
+                val toDesktop = settings.userAgentString != desktop
+                settings.userAgentString = if (toDesktop) desktop else controller.activity.getRealUserAgent(AppPrefs.user_agent.get(), fakeChrome)
+                tab.mWebView.reload()
+                Toast.makeText(controller.applicationContextInfo,
+                    if (toDesktop) R.string.desktop_site_on else R.string.desktop_site_off, Toast.LENGTH_SHORT).show()
+            }
             SingleAction.CUSTOM_MENU -> {
                 val tab = controller.getTab(actionTarget)
                 val actionList = (action as CustomMenuSingleAction).actionList

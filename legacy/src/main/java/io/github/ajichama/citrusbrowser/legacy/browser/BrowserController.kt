@@ -64,6 +64,9 @@ interface BrowserController : BrowserInfo {
     fun openInCurrentTab(url: String)
     fun openInNewTab(tab: MainTabData)
     fun openInNewTab(url: String, @TabType type: Int, shouldOpenInNewTab: Boolean = false)
+
+    /** プライベートタブで開く（#15）。端末の WebView が対応していなければ、その旨を表示する。 */
+    fun openInNewPrivateTab(url: String)
     fun openInBackground(url: String, @TabType type: Int)
     fun openInRightNewTab(url: String, @TabType type: Int)
     fun openInRightBgTab(url: String, @TabType type: Int)

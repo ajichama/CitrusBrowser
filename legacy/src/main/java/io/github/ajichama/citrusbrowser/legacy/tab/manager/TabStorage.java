@@ -56,6 +56,8 @@ public class TabStorage {
     private final File tabPath;
     private final WebViewFactory webViewFactory;
     private OnWebViewCreatedListener listener;
+    // プライベートタブの状態は、ファイルではなくメモリにだけ置く（#15）。
+    private final java.util.Map<Long, Bundle> privateBundles = new java.util.HashMap<>();
 
     public TabStorage(Context context, WebViewFactory factory) {
         tabPath = context.getDir("tabs", Context.MODE_PRIVATE);
@@ -150,8 +152,9 @@ public class TabStorage {
 
     public MainTabData loadWebView(WebViewProvider provider, TabIndexData data, View tabView) {
         if (data == null) return null;
-        Bundle bundle = loadBundle(new File(tabPath, Long.toString(data.getId())));
-        CustomWebView webView = provider.makeWebView(webViewFactory.getMode(bundle));
+        Bundle bundle = data.isPrivateTab() ? privateBundles.remove(data.getId()) : loadBundle(new File(tabPath, Long.toString(data.getId())));
+        if (bundle == null) bundle = new Bundle();
+        CustomWebView webView = provider.makeWebView(webViewFactory.getMode(bundle), data.isPrivateTab());
         webView.setIdentityId(data.getId());
         MainTabData tab = data.getMainTabData(webView, tabView);
         if (listener != null) {
@@ -167,7 +170,11 @@ public class TabStorage {
 
         Bundle bundle = new Bundle();
         tabData.mWebView.saveState(bundle);
-        saveBundle(new File(tabPath, Long.toString(data.getId())), bundle);
+        if (data.isPrivateTab()) {
+            privateBundles.put(data.getId(), bundle);
+        } else {
+            saveBundle(new File(tabPath, Long.toString(data.getId())), bundle);
+        }
 
         return data;
     }
@@ -188,6 +195,7 @@ public class TabStorage {
 
     private void saveThumbnails() {
         for (TabIndexData data : mTabIndexDataList) {
+            if (data.isPrivateTab()) continue;
             if (data.isThumbnailUpdated()) {
                 byte[] image = ImageUtils.bmp2byteArray(data.getThumbnail(), Bitmap.CompressFormat.JPEG, 75);
                 if (image != null)
@@ -223,6 +231,7 @@ public class TabStorage {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void deleteWebView(TabIndexData data) {
+        privateBundles.remove(data.getId());
         String id = Long.toString(data.getId());
         new File(tabPath, id).delete();
         new File(tabPath, id + FILE_TAB_THUMBNAIL_SUFFIX).delete();
@@ -343,6 +352,8 @@ public class TabStorage {
         try (JsonWriter writer = JsonWriter.of(Okio.buffer(Okio.sink(file)))) {
             writer.beginArray();
             for (TabIndexData data : tabIndexDataList) {
+                // プライベートタブは、次の起動へ持ち越さない。
+                if (data.isPrivateTab()) continue;
                 writer.beginObject();
                 writer.name(JSON_NAME_ID);
                 writer.value(data.getId());
@@ -389,6 +400,12 @@ public class TabStorage {
     }
 
     public void saveCurrentTab(int currentTab) {
+        // 保存する一覧にはプライベートタブを含めないので、位置もそれを除いて数える。
+        int saved = 0;
+        for (int i = 0; i < currentTab && i < mTabIndexDataList.size(); i++) {
+            if (!mTabIndexDataList.get(i).isPrivateTab()) saved++;
+        }
+        currentTab = saved;
         try (JsonWriter writer = JsonWriter.of(Okio.buffer(Okio.sink(new File(tabPath, FILE_TAB_CURRENT))))) {
             writer.beginObject();
             writer.name(JSON_NAME_CURRENT_TAB);

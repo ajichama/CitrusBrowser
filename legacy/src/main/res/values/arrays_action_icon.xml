@@ -56,6 +56,7 @@
         <item>@drawable/ic_book_white_24dp</item>
         <item>@drawable/ic_g_translate_white_24px</item>
         <item>@drawable/ic_add_box_white_24dp</item>
+        <item>@drawable/ic_add_box_white_24dp</item>
         <item>@drawable/ic_minas_box_white_24dp</item>
         <item>@drawable/ic_minas_box_white_24dp</item>
         <item>@drawable/ic_minas_box_white_24dp</item>
@@ -85,6 +86,7 @@
         <item>@drawable/ic_import_export_white_24dp</item>
         <item>@drawable/ic_stay_current_portrait_white_24dp</item>
         <item>@drawable/ic_link_white_24dp</item>
+        <item>@drawable/ic_group_white_24dp</item>
         <item>@drawable/ic_group_white_24dp</item>
         <item>@drawable/ic_group_white_24dp</item>
         <item>@drawable/ic_format_size_white_24dp</item>
@@ -127,5 +129,6 @@
         <item>@drawable/ic_watch_later_white_24dp</item>
         <item>@drawable/ic_read_it_list_white_24px</item>
         <item>@drawable/ic_baseline_dark_mode_24</item>
+        <item>@drawable/ic_more_vert_white_24dp</item>
     </array>
 </resources>

@@ -92,18 +92,20 @@ abstract class UrlBarBase(context: Context, controller: ActionController, iconMa
     }
 
     fun changeTitle(data: MainTabData) {
+        // プライベートタブは、アドレス欄の先頭に印を付けて見分けられるようにする（#15）。
+        val mark = if (data.mWebView.isPrivate) "🕶 " else ""
         //need post Runnable?
         post {
             if (!AppPrefs.toolbar_always_show_url.get() && data.title != null && !data.isInPageLoad) {
                 centerUrlButton.run {
                     setTypeUrl(false)
-                    text = data.title
+                    text = mark + data.title
                     gravity = Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL
                 }
             } else {
                 centerUrlButton.run {
                     setTypeUrl(true)
-                    text = data.url.decodePunyCodeUrl()
+                    text = mark + data.url.decodePunyCodeUrl().orEmpty()
                     gravity = Gravity.START or Gravity.CENTER_VERTICAL
                 }
             }

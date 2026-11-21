@@ -104,8 +104,11 @@ public class AppData {
                 list.add(SingleAction.makeInstance(SingleAction.SHOW_BOOKMARK));
                 list.add(SingleAction.makeInstance(SingleAction.SHOW_HISTORY));
                 list.add(SingleAction.makeInstance(SingleAction.SHOW_DOWNLOADS));
+                list.add(SingleAction.makeInstance(SingleAction.RESTORE_TAB));
+                list.add(SingleAction.makeInstance(SingleAction.NEW_PRIVATE_TAB));
                 list.add(SingleAction.makeInstance(SingleAction.SHARE_WEB));
                 list.add(SingleAction.makeInstance(SingleAction.FIND_ON_PAGE));
+                list.add(SingleAction.makeInstance(SingleAction.PAGE_TOOLS));
                 list.add(SingleAction.makeInstance(SingleAction.READ_IT_LATER));
                 list.add(SingleAction.makeInstance(SingleAction.READ_IT_LATER_LIST));
                 list.add(SingleAction.makeInstance(SingleAction.READER_MODE));
@@ -122,6 +125,7 @@ public class AppData {
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_NEW));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_BG));
+                list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_PRIVATE));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SHARE));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_OTHERS));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_COPY_URL));
@@ -158,6 +162,7 @@ public class AppData {
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_NEW));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_BG));
+                list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_PRIVATE));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_SHARE));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_OPEN_OTHERS));
                 list.add(SingleAction.makeInstance(SingleAction.LPRESS_COPY_URL));

@@ -183,7 +183,8 @@ public class MainTabData extends TabData {
     }
 
     private void setText(String text) {
-        titleTextView.setText(text);
+        // プライベートタブは、タブの名前の前に印を付けて見分けられるようにする（#15）。
+        titleTextView.setText(mWebView != null && mWebView.isPrivate() ? "🕶 " + text : text);
     }
 
     private void setIcon(Drawable drawable) {

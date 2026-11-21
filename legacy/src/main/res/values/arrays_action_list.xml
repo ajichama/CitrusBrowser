@@ -55,6 +55,7 @@
         <item>@string/action_open_url</item>
         <item>@string/action_translate_page</item>
         <item>@string/action_new_tab</item>
+        <item>@string/action_new_private_tab</item>
         <item>@string/action_close_tab</item>
         <item>@string/action_close_all</item>
         <item>@string/action_close_others</item>
@@ -86,6 +87,7 @@
         <item>@string/action_link_settings</item>
         <item>@string/action_ua_settings</item>
         <item>@string/action_default_ua_settings</item>
+        <item>@string/action_toggle_desktop_site</item>
         <item>@string/action_text_size_settings</item>
         <item>@string/action_user_script</item>
         <item>@string/action_text_encoding</item>
@@ -126,5 +128,6 @@
         <item>@string/action_read_it_later</item>
         <item>@string/action_read_it_later_list</item>
         <item>@string/pref_web_theme_mode</item>
+        <item>@string/action_page_tools</item>
     </string-array>
 </resources>
