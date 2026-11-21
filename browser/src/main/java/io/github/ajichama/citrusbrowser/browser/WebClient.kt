@@ -16,6 +16,7 @@
 
 package io.github.ajichama.citrusbrowser.browser
 
+import android.Manifest
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -31,7 +32,10 @@ import android.view.View
 import android.webkit.*
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.webkit.WebViewCompat
+import jp.hazuki.asyncpermissions.AsyncPermissions
+import jp.hazuki.asyncpermissions.PermissionResult
 import androidx.webkit.WebViewFeature
 import io.github.ajichama.citrusbrowser.adblock.*
 import io.github.ajichama.citrusbrowser.adblock.core.ScriptletInjection
@@ -899,17 +903,33 @@ class WebClient(
         }
 
         override fun onShowFileChooser(webView: WebView, filePathCallback: ValueCallback<Array<Uri>?>, fileChooserParams: FileChooserParams): Boolean {
-            if (webUploadHandler == null)
-                webUploadHandler = WebUploadHandler()
+            val handler = webUploadHandler ?: WebUploadHandler().also { webUploadHandler = it }
+            handler.start(filePathCallback)
 
-            try {
-                controller.startActivity(Intent.createChooser(webUploadHandler!!.onShowFileChooser(filePathCallback, fileChooserParams), getString(R.string.select_file)), BrowserController.REQUEST_WEB_UPLOAD)
-            } catch (e: ActivityNotFoundException) {
-                e.printStackTrace()
-                Toast.makeText(activity.applicationContext, R.string.app_notfound, Toast.LENGTH_SHORT).show()
+            ui {
+                // 画像・動画を受け付ける入力欄では、カメラの権限を確かめてから撮影の選択肢を出す（#13）。
+                val camera = handler.acceptsCapture(fileChooserParams) && canUseCamera()
+                try {
+                    val intent = handler.createIntent(activity, fileChooserParams, camera, getString(R.string.select_file))
+                    controller.startActivity(intent, BrowserController.REQUEST_WEB_UPLOAD)
+                } catch (e: ActivityNotFoundException) {
+                    Toast.makeText(activity.applicationContext, R.string.app_notfound, Toast.LENGTH_SHORT).show()
+                    // 結果を返さないと、そのページでは以後ファイル選択が出なくなる。
+                    handler.cancel()
+                }
             }
-
             return true
+        }
+
+        /**
+         * カメラの権限があるか。無ければここで求める。
+         * 拒否されたとき（「今後表示しない」を含む）は、設定画面へは誘導せずにカメラなしで進める。
+         */
+        private suspend fun canUseCamera(): Boolean {
+            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) return true
+            var result = AsyncPermissions(activity).request(Manifest.permission.CAMERA)
+            if (result is PermissionResult.ShouldShowRationale) result = result.proceed()
+            return result is PermissionResult.Granted
         }
 
         override fun onJsAlert(view: CustomWebView, url: String, message: String, result: JsResult): Boolean {
