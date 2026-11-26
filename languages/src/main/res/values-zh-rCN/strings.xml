@@ -385,4 +385,5 @@
     <string name="qc_gesture_band_top">靠上</string>
     <string name="qc_gesture_band_middle">中间</string>
     <string name="qc_gesture_band_bottom">靠下</string>
+    <string name="search_actions_hint">搜索操作</string>
 </resources>

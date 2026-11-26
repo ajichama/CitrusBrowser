@@ -80,4 +80,5 @@
     <string name="qc_gesture_band_top">U góry</string>
     <string name="qc_gesture_band_middle">Pośrodku</string>
     <string name="qc_gesture_band_bottom">U dołu</string>
+    <string name="search_actions_hint">Szukaj działań</string>
 </resources>

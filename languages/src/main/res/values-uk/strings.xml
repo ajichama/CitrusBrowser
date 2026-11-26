@@ -381,5 +381,6 @@
     <string name="qc_gesture_band_top">Угорі</string>
     <string name="qc_gesture_band_middle">Посередині</string>
     <string name="qc_gesture_band_bottom">Унизу</string>
+    <string name="search_actions_hint">Пошук дій</string>
 </resources>
 

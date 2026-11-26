@@ -30,6 +30,7 @@ import io.github.ajichama.citrusbrowser.legacy.R
 import io.github.ajichama.citrusbrowser.legacy.action.ActionIconMap
 import io.github.ajichama.citrusbrowser.legacy.action.ActionNameArray
 import io.github.ajichama.citrusbrowser.legacy.action.SingleAction
+import io.github.ajichama.citrusbrowser.legacy.utils.SearchText
 import io.github.ajichama.citrusbrowser.ui.widget.recycler.OnRecyclerListener
 
 class ActionNameArrayAdapter(
@@ -37,33 +38,53 @@ class ActionNameArrayAdapter(
         val nameArray: ActionNameArray,
         private val listener: OnRecyclerListener
 ) : RecyclerView.Adapter<ActionNameArrayAdapter.ViewHolder>() {
-    private val checked = BooleanArray(itemCount)
+    // 選択は、絞り込みに関係なく元の一覧の位置（index）で持つ
+    private val checked = BooleanArray(nameArray.actionList.size)
+    // 表示している行（position）が、元の一覧のどの位置かの対応（#42 の絞り込み）
+    private var visible = IntArray(nameArray.actionList.size) { it }
     private val inflater = LayoutInflater.from(context)
     private val icons = ActionIconMap(context.resources)
     private var mListener: OnSettingButtonListener? = null
 
     override fun getItemCount(): Int {
-        return nameArray.actionList.size
+        return visible.size
     }
 
     override fun getItemId(position: Int): Long {
-        return position.toLong()
+        return visible[position].toLong()
     }
 
     private fun getName(position: Int): String {
-        return nameArray.actionList[position]!!
+        return nameArray.actionList[visible[position]]!!
     }
 
     fun getItemValue(position: Int): Int {
-        return nameArray.actionValues[position]
+        return nameArray.actionValues[visible[position]]
     }
 
     private fun getIcon(position: Int): Drawable? {
-        return icons[nameArray.actionValues[position]]
+        return icons[nameArray.actionValues[visible[position]]]
     }
 
     fun isChecked(position: Int): Boolean {
-        return checked[position]
+        return checked[visible[position]]
+    }
+
+    /** 操作の名前で絞り込む（#42）。空なら全部を出す。選択はそのまま残る */
+    fun filter(query: String) {
+        val words = SearchText.words(query)
+        val all = nameArray.actionList.indices
+        visible = if (words.isEmpty()) {
+            all.toList().toIntArray()
+        } else {
+            all.filter { SearchText.containsAll(nameArray.actionList[it] ?: "", words) }.toIntArray()
+        }
+        notifyDataSetChanged()
+    }
+
+    /** 元の一覧の位置が、今どの行に出ているか。絞り込みで隠れていれば -1 */
+    fun positionOf(index: Int): Int {
+        return visible.indexOf(index)
     }
 
     fun clearChoices() {
@@ -99,14 +120,16 @@ class ActionNameArrayAdapter(
     }
 
     fun toggleCheck(position: Int): Boolean {
-        val newState = !checked[position]
-        checked[position] = newState
+        val index = visible[position]
+        val newState = !checked[index]
+        checked[index] = newState
         notifyItemChanged(position)
         return newState
     }
 
-    fun setChecked(position: Int, value: Boolean) {
-        checked[position] = value
+    /** 元の一覧の位置（index）で選択を変える。表示している行の位置ではない */
+    fun setChecked(index: Int, value: Boolean) {
+        checked[index] = value
     }
 
     fun setListener(mListener: OnSettingButtonListener) {

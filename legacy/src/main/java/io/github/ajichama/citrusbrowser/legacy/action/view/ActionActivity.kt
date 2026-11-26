@@ -24,8 +24,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.SearchView
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import io.github.ajichama.citrusbrowser.core.utility.extensions.getResColor
 import io.github.ajichama.citrusbrowser.core.utility.log.Logger
 import io.github.ajichama.citrusbrowser.legacy.Constants
 import io.github.ajichama.citrusbrowser.legacy.R
@@ -227,19 +233,58 @@ class ActionActivity : ThemeActivity(), OnRecyclerListener {
                     }
                 }
                 adapter.notifyDataSetChanged()
-                if (initialPosition != -1)
-                    binding.recyclerView.scrollToPosition(initialPosition)
+                // 絞り込み中は、表示している行の位置に直してから動かす（#42）
+                val position = if (initialPosition != -1) adapter.positionOf(initialPosition) else -1
+                if (position != -1)
+                    binding.recyclerView.scrollToPosition(position)
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        addSearchMenu(menu)
         menu.add(R.string.action_to_json).setOnMenuItemClickListener {
             startJsonStringActivity()
             false
         }
         return super.onCreateOptionsMenu(menu)
+    }
+
+    /** 上のバーの虫眼鏡。操作の名前の一部で一覧を絞り込む（#42） */
+    private fun addSearchMenu(menu: Menu) {
+        val searchView = SearchView(this).apply {
+            queryHint = getString(R.string.search_actions_hint)
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    clearFocus()
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String): Boolean {
+                    adapter.filter(newText)
+                    return true
+                }
+            })
+        }
+        menu.add(Menu.NONE, Menu.NONE, 0, R.string.search).apply {
+            // 白いアイコンなので、上のバーの配色に合わせて塗る（設定の検索と同じ）
+            icon = AppCompatResources.getDrawable(this@ActionActivity, R.drawable.ic_search_white_24dp)?.mutate()?.apply {
+                colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                    getResColor(R.color.actionBarIconColor), BlendModeCompat.SRC_ATOP)
+            }
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM or MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
+            actionView = searchView
+            setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+                override fun onMenuItemActionExpand(item: MenuItem): Boolean = true
+
+                override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                    // 検索を閉じたら全部を出す
+                    adapter.filter("")
+                    return true
+                }
+            })
+        }
     }
 
     private fun startJsonStringActivity() {

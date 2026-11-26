@@ -379,4 +379,5 @@
     <string name="qc_gesture_band_top">Вверху</string>
     <string name="qc_gesture_band_middle">Посередине</string>
     <string name="qc_gesture_band_bottom">Внизу</string>
+    <string name="search_actions_hint">Поиск действий</string>
 </resources>

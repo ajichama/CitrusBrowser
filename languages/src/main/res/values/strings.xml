@@ -405,4 +405,5 @@
     <string name="qc_gesture_band_top">Upper</string>
     <string name="qc_gesture_band_middle">Middle</string>
     <string name="qc_gesture_band_bottom">Lower</string>
+    <string name="search_actions_hint">Search actions</string>
 </resources>

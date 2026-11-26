@@ -379,4 +379,5 @@
     <string name="qc_gesture_band_top">Fent</string>
     <string name="qc_gesture_band_middle">Középen</string>
     <string name="qc_gesture_band_bottom">Lent</string>
+    <string name="search_actions_hint">Műveletek keresése</string>
 </resources>

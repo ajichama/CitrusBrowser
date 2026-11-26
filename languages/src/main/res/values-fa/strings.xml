@@ -80,4 +80,5 @@
     <string name="qc_gesture_band_top">بالا</string>
     <string name="qc_gesture_band_middle">وسط</string>
     <string name="qc_gesture_band_bottom">پایین</string>
+    <string name="search_actions_hint">جستجوی عملکردها</string>
 </resources>

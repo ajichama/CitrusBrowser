@@ -380,4 +380,5 @@
     <string name="qc_gesture_band_top">Em cima</string>
     <string name="qc_gesture_band_middle">No meio</string>
     <string name="qc_gesture_band_bottom">Embaixo</string>
+    <string name="search_actions_hint">Pesquisar ações</string>
 </resources>

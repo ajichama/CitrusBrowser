@@ -80,4 +80,5 @@
     <string name="qc_gesture_band_top">Goian</string>
     <string name="qc_gesture_band_middle">Erdian</string>
     <string name="qc_gesture_band_bottom">Behean</string>
+    <string name="search_actions_hint">Bilatu ekintzak</string>
 </resources>

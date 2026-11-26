@@ -16,6 +16,8 @@
 
 package io.github.ajichama.citrusbrowser.legacy.settings.search
 
+import io.github.ajichama.citrusbrowser.legacy.utils.SearchText
+
 /**
  * 設定の検索の1項目（#25）。
  *
@@ -37,19 +39,20 @@ class SettingsSearchEntry(
 
 object SettingsSearch {
 
-    private val separators = Regex("[\\s　]+")
-
     /**
-     * 項目名か説明に、空白で区切った言葉をすべて含む項目を返す（大文字・小文字は区別しない）。
+     * 項目名か説明に、空白で区切った言葉をすべて含む項目を返す
+     * （大文字・小文字と、ひらがな・カタカナは区別しない。照合は [SearchText]）。
      * 場所（画面の名前）は比べない。並びは索引の順（画面の上から）のまま。
      */
     fun find(entries: List<SettingsSearchEntry>, query: String): List<SettingsSearchEntry> {
-        val words = query.split(separators).filter { it.isNotEmpty() }
+        val words = SearchText.words(query)
         if (words.isEmpty()) return emptyList()
-        return entries.filter { entry -> words.all { word -> matches(entry, word) } }
+        return entries.filter { entry -> matches(entry, words) }
     }
 
-    private fun matches(entry: SettingsSearchEntry, word: String): Boolean =
-        entry.title.contains(word, ignoreCase = true) ||
-            entry.summary?.contains(word, ignoreCase = true) == true
+    private fun matches(entry: SettingsSearchEntry, words: List<String>): Boolean {
+        val title = SearchText.normalize(entry.title)
+        val summary = entry.summary?.let(SearchText::normalize)
+        return words.all { word -> title.contains(word) || summary?.contains(word) == true }
+    }
 }

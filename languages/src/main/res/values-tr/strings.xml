@@ -391,4 +391,5 @@
     <string name="qc_gesture_band_top">Üstte</string>
     <string name="qc_gesture_band_middle">Ortada</string>
     <string name="qc_gesture_band_bottom">Altta</string>
+    <string name="search_actions_hint">Eylemlerde ara</string>
 </resources>

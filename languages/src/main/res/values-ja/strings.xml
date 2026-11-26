@@ -403,4 +403,5 @@
     <string name="qc_gesture_band_top">上寄り</string>
     <string name="qc_gesture_band_middle">中央</string>
     <string name="qc_gesture_band_bottom">下寄り</string>
+    <string name="search_actions_hint">操作を検索</string>
 </resources>

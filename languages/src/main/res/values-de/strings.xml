@@ -380,4 +380,5 @@
     <string name="qc_gesture_band_top">Oben</string>
     <string name="qc_gesture_band_middle">Mitte</string>
     <string name="qc_gesture_band_bottom">Unten</string>
+    <string name="search_actions_hint">Aktionen suchen</string>
 </resources>
