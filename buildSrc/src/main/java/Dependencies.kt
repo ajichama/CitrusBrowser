@@ -39,8 +39,8 @@ object GeckoPreview {
 object AppVersions {
     // CitrusBrowser としての版（2026-11-21 に Yuzu Browser の 6.0.2 から 1.0.0 へ）。
     // version_code は 主版×1000000＋副版×1000＋修正版。旧版の移行処理（AppData の 410010 等との比較）を再び動かさないよう、Yuzu の番号より大きく保つ。
-    const val version_name = "1.0.5"
-    const val version_code = 1000005
+    const val version_name = "1.0.6"
+    const val version_code = 1000006
 }
 
 // 依存ライブラリのバージョン一元管理
