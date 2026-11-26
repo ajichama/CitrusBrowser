@@ -51,4 +51,6 @@
     <string name="sort_by_name_confirm">این پوشه بر اساس نام مرتب شود؟ پوشه‌ها در ابتدا قرار می‌گیرند. ترتیب فعلی قابل بازگرداندن نیست.</string>
     <string name="search_bookmarks_hint">جستجو در نشانک‌ها</string>
     <string name="open_containing_folder">باز کردن پوشهٔ دربرگیرنده</string>
+    <string name="search_settings">جستجو در تنظیمات</string>
+    <string name="settings_search_no_result">تنظیمی مطابق یافت نشد</string>
 </resources>

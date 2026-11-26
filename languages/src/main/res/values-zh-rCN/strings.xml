@@ -138,6 +138,8 @@
     <string name="sort_by_name_confirm">按名称对此文件夹排序？文件夹将排在前面。当前顺序将无法恢复。</string>
     <string name="search_bookmarks_hint">搜索书签</string>
     <string name="open_containing_folder">打开所在文件夹</string>
+    <string name="search_settings">查找设置</string>
+    <string name="settings_search_no_result">没有匹配的设置</string>
     <string name="edit_bookmark">编辑书签</string>
     <string name="move_bookmark">移动至…</string>
     <string name="proxy_enable">启用代理</string>

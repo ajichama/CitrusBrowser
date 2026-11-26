@@ -51,4 +51,6 @@
     <string name="sort_by_name_confirm">이 폴더를 이름순으로 정렬할까요? 폴더가 먼저 표시됩니다. 현재 순서는 되돌릴 수 없습니다.</string>
     <string name="search_bookmarks_hint">북마크 검색</string>
     <string name="open_containing_folder">포함된 폴더 열기</string>
+    <string name="search_settings">설정 검색</string>
+    <string name="settings_search_no_result">일치하는 설정이 없습니다</string>
 </resources>

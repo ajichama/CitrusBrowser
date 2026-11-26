@@ -51,4 +51,6 @@
     <string name="sort_by_name_confirm">Karpeta hau izenaren arabera ordenatu? Karpetak lehenengo jarriko dira. Uneko ordena ezin da berreskuratu.</string>
     <string name="search_bookmarks_hint">Bilatu laster-marketan</string>
     <string name="open_containing_folder">Ireki karpeta edukitzailea</string>
+    <string name="search_settings">Bilatu ezarpenetan</string>
+    <string name="settings_search_no_result">Ez dago bat datorren ezarpenik</string>
 </resources>

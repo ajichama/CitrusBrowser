@@ -138,6 +138,8 @@
     <string name="sort_by_name_confirm">Rendezi ezt a mappát név szerint? A mappák kerülnek előre. A jelenlegi sorrend nem állítható vissza.</string>
     <string name="search_bookmarks_hint">Keresés a könyvjelzők között</string>
     <string name="open_containing_folder">Tartalmazó mappa megnyitása</string>
+    <string name="search_settings">Keresés a beállításokban</string>
+    <string name="settings_search_no_result">Nincs egyező beállítás</string>
     <string name="edit_bookmark">Könyvjelző szerkesztése</string>
     <string name="move_bookmark">Áthelyezés…</string>
     <string name="proxy_enable">Proxy engedélyezése</string>

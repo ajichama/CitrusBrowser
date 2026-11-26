@@ -137,6 +137,8 @@
     <string name="sort_by_name_confirm">Ordinare questa cartella per nome? Le cartelle vengono messe per prime. L\'ordine attuale non potrà essere ripristinato.</string>
     <string name="search_bookmarks_hint">Cerca nei segnalibri</string>
     <string name="open_containing_folder">Apri la cartella che lo contiene</string>
+    <string name="search_settings">Cerca nelle impostazioni</string>
+    <string name="settings_search_no_result">Nessuna impostazione corrispondente</string>
     <string name="edit_bookmark">Modifica segnalibro</string>
     <string name="move_bookmark">Sposta in\u2026</string>
     <string name="proxy_enable">Abilita proxy</string>

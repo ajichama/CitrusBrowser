@@ -137,6 +137,8 @@
     <string name="sort_by_name_confirm">Відсортувати цю теку за назвою? Теки буде розміщено першими. Поточний порядок не можна відновити.</string>
     <string name="search_bookmarks_hint">Пошук у закладках</string>
     <string name="open_containing_folder">Відкрити батьківську теку</string>
+    <string name="search_settings">Пошук у налаштуваннях</string>
+    <string name="settings_search_no_result">Немає відповідних налаштувань</string>
     <string name="edit_bookmark">Редагувати закладку</string>
     <string name="move_bookmark">Перемістити в\u2026</string>
     <string name="proxy_enable">Увімкнути проксі-сервер</string>
