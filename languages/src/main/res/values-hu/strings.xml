@@ -353,4 +353,12 @@
     <string name="ssl_error_proceed_unsafe">Folytatás ennek ellenére (nem biztonságos)</string>
     <string name="ssl_error_summary">Probléma van a(z) %1$s tanúsítványával. Mások elolvashatják vagy módosíthatják az ezzel a webhellyel folytatott kommunikációt.</string>
     <string name="pref_qc_show_label">A kiválasztott elem nevének megjelenítése</string>
+    <string name="pref_floating_toolbar">Lebegő eszköztár</string>
+    <string name="pref_floating_toolbar_enable">Lebegő eszköztár megjelenítése</string>
+    <string name="pref_floating_toolbar_enable_summary">Az áthelyezéshez húzza a szélén lévő fogantyút</string>
+    <string name="pref_floating_toolbar_buttons">Gombok</string>
+    <string name="pref_floating_toolbar_vertical">Függőleges elrendezés</string>
+    <string name="pref_floating_toolbar_alpha">Átlátszatlanság</string>
+    <string name="pref_floating_toolbar_reset_position">Pozíció visszaállítása</string>
+    <string name="floating_toolbar_move">Eszköztár áthelyezése</string>
 </resources>

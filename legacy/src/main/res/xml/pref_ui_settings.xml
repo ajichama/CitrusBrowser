@@ -290,6 +290,41 @@
                 app:seekMin="1"
                 app:iconSpaceReserved="false" />
         </PreferenceScreen>
+        <PreferenceScreen
+            android:key="ps_toolbar_floating"
+            android:title="@string/pref_floating_toolbar"
+            app:iconSpaceReserved="false">
+            <SwitchPreference
+                android:key="floatbar_enable"
+                android:title="@string/pref_floating_toolbar_enable"
+                android:summary="@string/pref_floating_toolbar_enable_summary"
+                app:iconSpaceReserved="false" />
+            <io.github.ajichama.citrusbrowser.legacy.settings.preference.ToolbarActionListPrerence
+                android:title="@string/pref_floating_toolbar_buttons"
+                app:actionGroup="s_btn_custombar"
+                app:actionId="floatbar1"
+                app:iconSpaceReserved="false" />
+            <SwitchPreference
+                android:key="floatbar_vertical"
+                android:title="@string/pref_floating_toolbar_vertical"
+                app:iconSpaceReserved="false" />
+            <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
+                android:key="floatbar_size"
+                android:title="@string/pref_toolbar_size"
+                app:seekMax="80"
+                app:seekMin="24"
+                app:iconSpaceReserved="false" />
+            <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
+                android:key="floatbar_alpha"
+                android:title="@string/pref_floating_toolbar_alpha"
+                app:seekMax="100"
+                app:seekMin="20"
+                app:iconSpaceReserved="false" />
+            <Preference
+                android:key="floatbar_reset_position"
+                android:title="@string/pref_floating_toolbar_reset_position"
+                app:iconSpaceReserved="false" />
+        </PreferenceScreen>
     </PreferenceScreen>
 
     <PreferenceScreen

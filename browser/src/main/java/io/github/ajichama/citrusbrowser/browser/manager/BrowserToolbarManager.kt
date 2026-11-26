@@ -32,6 +32,7 @@ import io.github.ajichama.citrusbrowser.legacy.R
 import io.github.ajichama.citrusbrowser.legacy.action.manager.ActionController
 import io.github.ajichama.citrusbrowser.legacy.action.manager.ActionIconManager
 import io.github.ajichama.citrusbrowser.legacy.tab.manager.MainTabData
+import io.github.ajichama.citrusbrowser.legacy.toolbar.FloatingToolbar
 import io.github.ajichama.citrusbrowser.legacy.toolbar.SubToolbar
 import io.github.ajichama.citrusbrowser.legacy.toolbar.ToolbarManager
 import io.github.ajichama.citrusbrowser.legacy.toolbar.ToolbarManager.Companion.LOCATION_BOTTOM
@@ -64,6 +65,7 @@ open class BrowserToolbarManager(
     override val urlBar = if (AppPrefs.toolbar_url_box.get()) WhiteUrlBar(context, controller, iconManager, requestCallback) else UrlBar(context, controller, iconManager, requestCallback)
     override val progressBar = ProgressToolBar(context, requestCallback)
     override val customBar = CustomToolbar(context, controller, iconManager, requestCallback)
+    private val floatingToolbar = FloatingToolbar(context, controller, iconManager)
     private var mIsWebToolbarCombined = false
 
     override val findOnPage: View
@@ -92,6 +94,10 @@ open class BrowserToolbarManager(
             bottomAlwaysOverlayToolbarPadding.addOnLayoutChangeListener { _, _, top, _, bottom, _, _, _, _ ->
                 bottomAlwaysOverlayToolbarPadding.height = bottom - top
             }
+
+            // フローティングツールバーは、ツールバーとページの上（動画の全画面の下）に重ねる（#35）
+            (coordinator.parent as ViewGroup).addView(floatingToolbar,
+                ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
 
     }
@@ -168,6 +174,7 @@ open class BrowserToolbarManager(
         urlBar.onPreferenceReset()
         progressBar.onPreferenceReset()
         customBar.onPreferenceReset()
+        floatingToolbar.onPreferenceReset()
 
         val params = binding.topToolbar.layoutParams as AppBarLayout.LayoutParams
         params.scrollFlags = if (AppPrefs.snap_toolbar.get()) {
@@ -186,6 +193,7 @@ open class BrowserToolbarManager(
         urlBar.onThemeChanged(themeData)
         progressBar.onThemeChanged(themeData)
         customBar.onThemeChanged(themeData)
+        floatingToolbar.onThemeChanged(themeData)
 
         binding.apply {
             if (themeData != null && themeData.toolbarBackgroundColor != 0) {
@@ -248,6 +256,7 @@ open class BrowserToolbarManager(
 
     override fun onImeChanged(isShown: Boolean) {
         binding.bottomOverlayLayout.visibility = if (isShown) View.GONE else View.VISIBLE
+        floatingToolbar.onImeChanged(isShown)
     }
 
     override fun notifyChangeProgress(data: MainTabData) = progressBar.changeProgress(data)
@@ -260,12 +269,14 @@ open class BrowserToolbarManager(
         urlBar.notifyChangeWebState(data)
         progressBar.notifyChangeWebState(data)
         customBar.notifyChangeWebState(data)
+        floatingToolbar.notifyChangeWebState()
     }
 
     override fun resetToolBar() {
         tabBar.resetToolBar()
         urlBar.resetToolBar()
         customBar.resetToolBar()
+        floatingToolbar.resetToolBar()
     }
 
     override fun addNewTabView() = tabBar.addNewTabView()

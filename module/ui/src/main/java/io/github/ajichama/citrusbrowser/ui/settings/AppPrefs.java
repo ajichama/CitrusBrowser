@@ -60,6 +60,13 @@ public class AppPrefs {
     public static final BooleanContainer toolbar_url_box = new BooleanContainer("toolbar_url_box", true);
     public static final ToolbarContainer toolbar_progress = new ToolbarContainer("progress", 1);
     public static final ToolbarContainer toolbar_custom1 = new ToolbarContainer("custom1", 1);
+    // フローティングツールバー（#35）。位置は動かせる範囲に対する割合（0〜1）
+    public static final BooleanContainer floatbar_enable = new BooleanContainer("floatbar_enable", false);
+    public static final BooleanContainer floatbar_vertical = new BooleanContainer("floatbar_vertical", false);
+    public static final IntContainer floatbar_size = new IntContainer("floatbar_size", 40);
+    public static final IntContainer floatbar_alpha = new IntContainer("floatbar_alpha", 85);
+    public static final FloatContainer floatbar_x = new FloatContainer("floatbar_x", 0.5F);
+    public static final FloatContainer floatbar_y = new FloatContainer("floatbar_y", 0.75F);
     public static final BooleanContainer toolbar_always_show_url = new BooleanContainer("toolbar_always_show_url", true);
     public static final BooleanContainer toolbar_show_favicon = new BooleanContainer("toolbar_show_favicon", true);
     public static final BooleanContainer toolbar_auto_open = new BooleanContainer("toolbar_auto_open", true);

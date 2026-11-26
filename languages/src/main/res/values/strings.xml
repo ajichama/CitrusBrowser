@@ -379,4 +379,12 @@
     <string name="site_info_clear_on_close">Clear %1$s data automatically when its tab is closed (if no other tab shows this site)</string>
     <string name="site_info_certificate_error">Connection: the certificate has a problem (shown after you ignored the warning)</string>
     <string name="pref_qc_show_label">Show the name of the selected item</string>
+    <string name="pref_floating_toolbar">Floating toolbar</string>
+    <string name="pref_floating_toolbar_enable">Show floating toolbar</string>
+    <string name="pref_floating_toolbar_enable_summary">Drag the handle at the end to move it</string>
+    <string name="pref_floating_toolbar_buttons">Buttons</string>
+    <string name="pref_floating_toolbar_vertical">Arrange vertically</string>
+    <string name="pref_floating_toolbar_alpha">Opacity</string>
+    <string name="pref_floating_toolbar_reset_position">Reset position</string>
+    <string name="floating_toolbar_move">Move toolbar</string>
 </resources>

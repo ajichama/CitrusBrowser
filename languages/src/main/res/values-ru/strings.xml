@@ -353,4 +353,12 @@
     <string name="ssl_error_proceed_unsafe">Всё равно продолжить (небезопасно)</string>
     <string name="ssl_error_summary">Проблема с сертификатом %1$s. Посторонние могут прочитать или изменить данные, передаваемые между вами и этим сайтом.</string>
     <string name="pref_qc_show_label">Показывать название выбранного элемента</string>
+    <string name="pref_floating_toolbar">Плавающая панель инструментов</string>
+    <string name="pref_floating_toolbar_enable">Показывать плавающую панель инструментов</string>
+    <string name="pref_floating_toolbar_enable_summary">Чтобы переместить, перетащите маркер на краю</string>
+    <string name="pref_floating_toolbar_buttons">Кнопки</string>
+    <string name="pref_floating_toolbar_vertical">Располагать вертикально</string>
+    <string name="pref_floating_toolbar_alpha">Непрозрачность</string>
+    <string name="pref_floating_toolbar_reset_position">Сбросить положение</string>
+    <string name="floating_toolbar_move">Переместить панель инструментов</string>
 </resources>

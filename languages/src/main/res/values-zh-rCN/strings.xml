@@ -359,4 +359,12 @@
     <string name="ssl_error_proceed_unsafe">仍然继续（不安全）</string>
     <string name="ssl_error_summary">%1$s 的证书存在问题。其他人可能读取或篡改您与此网站之间的通信。</string>
     <string name="pref_qc_show_label">显示所选项目的名称</string>
+    <string name="pref_floating_toolbar">悬浮工具栏</string>
+    <string name="pref_floating_toolbar_enable">显示悬浮工具栏</string>
+    <string name="pref_floating_toolbar_enable_summary">拖动边缘的手柄即可移动</string>
+    <string name="pref_floating_toolbar_buttons">按钮</string>
+    <string name="pref_floating_toolbar_vertical">垂直排列</string>
+    <string name="pref_floating_toolbar_alpha">不透明度</string>
+    <string name="pref_floating_toolbar_reset_position">重置位置</string>
+    <string name="floating_toolbar_move">移动工具栏</string>
 </resources>

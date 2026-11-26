@@ -365,4 +365,12 @@
     <string name="ssl_error_proceed_unsafe">Yine de devam et (güvenli değil)</string>
     <string name="ssl_error_summary">%1$s sertifikasında bir sorun var. Başkaları bu siteyle olan iletişiminizi okuyabilir veya değiştirebilir.</string>
     <string name="pref_qc_show_label">Seçili öğenin adını göster</string>
+    <string name="pref_floating_toolbar">Kayan araç çubuğu</string>
+    <string name="pref_floating_toolbar_enable">Kayan araç çubuğunu göster</string>
+    <string name="pref_floating_toolbar_enable_summary">Taşımak için kenardaki tutamacı sürükleyin</string>
+    <string name="pref_floating_toolbar_buttons">Düğmeler</string>
+    <string name="pref_floating_toolbar_vertical">Dikey yerleştir</string>
+    <string name="pref_floating_toolbar_alpha">Opaklık</string>
+    <string name="pref_floating_toolbar_reset_position">Konumu sıfırla</string>
+    <string name="floating_toolbar_move">Araç çubuğunu taşı</string>
 </resources>

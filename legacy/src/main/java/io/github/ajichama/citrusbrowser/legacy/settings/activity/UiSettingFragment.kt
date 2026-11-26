@@ -23,6 +23,7 @@ import io.github.ajichama.citrusbrowser.core.utility.utils.ui
 import io.github.ajichama.citrusbrowser.legacy.R
 import io.github.ajichama.citrusbrowser.legacy.settings.preference.ThemePreference
 import io.github.ajichama.citrusbrowser.ui.RestartActivity
+import io.github.ajichama.citrusbrowser.ui.settings.AppPrefs
 import kotlinx.coroutines.delay
 
 class UiSettingFragment : CitrusPreferenceFragment() {
@@ -44,6 +45,14 @@ class UiSettingFragment : CitrusPreferenceFragment() {
 
         findPreference<Preference>("restart")!!.setOnPreferenceClickListener {
             startActivity(RestartActivity.createIntent(requireContext()))
+            true
+        }
+
+        // フローティングツールバーの位置を初期に戻す（#35）
+        findPreference<Preference>("floatbar_reset_position")?.setOnPreferenceClickListener {
+            AppPrefs.floatbar_x.resetToDefaultValue()
+            AppPrefs.floatbar_y.resetToDefaultValue()
+            AppPrefs.commit(requireContext(), AppPrefs.floatbar_x, AppPrefs.floatbar_y)
             true
         }
 

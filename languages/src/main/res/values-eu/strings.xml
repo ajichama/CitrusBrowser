@@ -54,4 +54,12 @@
     <string name="search_settings">Bilatu ezarpenetan</string>
     <string name="settings_search_no_result">Ez dago bat datorren ezarpenik</string>
     <string name="pref_qc_show_label">Erakutsi hautatutako elementuaren izena</string>
+    <string name="pref_floating_toolbar">Tresna-barra flotagarria</string>
+    <string name="pref_floating_toolbar_enable">Erakutsi tresna-barra flotagarria</string>
+    <string name="pref_floating_toolbar_enable_summary">Mugitzeko, arrastatu ertzeko heldulekua</string>
+    <string name="pref_floating_toolbar_buttons">Botoiak</string>
+    <string name="pref_floating_toolbar_vertical">Antolatu bertikalki</string>
+    <string name="pref_floating_toolbar_alpha">Opakutasuna</string>
+    <string name="pref_floating_toolbar_reset_position">Berrezarri kokapena</string>
+    <string name="floating_toolbar_move">Mugitu tresna-barra</string>
 </resources>

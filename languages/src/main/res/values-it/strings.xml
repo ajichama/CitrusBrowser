@@ -350,4 +350,12 @@
     <string name="ssl_error_proceed_unsafe">Procedi comunque (non sicuro)</string>
     <string name="ssl_error_summary">Il certificato di %1$s presenta un problema. Altri potrebbero leggere o modificare le comunicazioni con questo sito.</string>
     <string name="pref_qc_show_label">Mostra il nome dell\'elemento selezionato</string>
+    <string name="pref_floating_toolbar">Barra degli strumenti mobile</string>
+    <string name="pref_floating_toolbar_enable">Mostra la barra degli strumenti mobile</string>
+    <string name="pref_floating_toolbar_enable_summary">Trascina la maniglia sul bordo per spostarla</string>
+    <string name="pref_floating_toolbar_buttons">Pulsanti</string>
+    <string name="pref_floating_toolbar_vertical">Disponi in verticale</string>
+    <string name="pref_floating_toolbar_alpha">Opacità</string>
+    <string name="pref_floating_toolbar_reset_position">Ripristina posizione</string>
+    <string name="floating_toolbar_move">Sposta la barra degli strumenti</string>
 </resources>

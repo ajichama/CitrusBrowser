@@ -54,4 +54,12 @@
     <string name="search_settings">설정 검색</string>
     <string name="settings_search_no_result">일치하는 설정이 없습니다</string>
     <string name="pref_qc_show_label">선택한 항목의 이름 표시</string>
+    <string name="pref_floating_toolbar">플로팅 툴바</string>
+    <string name="pref_floating_toolbar_enable">플로팅 툴바 표시</string>
+    <string name="pref_floating_toolbar_enable_summary">끝의 손잡이를 끌어 옮길 수 있습니다</string>
+    <string name="pref_floating_toolbar_buttons">버튼</string>
+    <string name="pref_floating_toolbar_vertical">세로로 배치</string>
+    <string name="pref_floating_toolbar_alpha">불투명도</string>
+    <string name="pref_floating_toolbar_reset_position">위치 초기화</string>
+    <string name="floating_toolbar_move">툴바 이동</string>
 </resources>

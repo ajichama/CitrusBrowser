@@ -54,4 +54,12 @@
     <string name="search_settings">جستجو در تنظیمات</string>
     <string name="settings_search_no_result">تنظیمی مطابق یافت نشد</string>
     <string name="pref_qc_show_label">نمایش نام مورد انتخاب‌شده</string>
+    <string name="pref_floating_toolbar">نوار ابزار شناور</string>
+    <string name="pref_floating_toolbar_enable">نمایش نوار ابزار شناور</string>
+    <string name="pref_floating_toolbar_enable_summary">برای جابه‌جایی، دستگیرهٔ کنار آن را بکشید</string>
+    <string name="pref_floating_toolbar_buttons">دکمه‌ها</string>
+    <string name="pref_floating_toolbar_vertical">چیدمان عمودی</string>
+    <string name="pref_floating_toolbar_alpha">میزان کدری</string>
+    <string name="pref_floating_toolbar_reset_position">بازنشانی موقعیت</string>
+    <string name="floating_toolbar_move">جابه‌جایی نوار ابزار</string>
 </resources>

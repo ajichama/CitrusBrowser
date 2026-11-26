@@ -377,4 +377,12 @@
     <string name="site_info_clear_on_close">タブを閉じたら %1$s のデータを自動で消去する（同じサイトのタブがほかにない場合）</string>
     <string name="site_info_certificate_error">接続: 証明書に問題があります（警告を無視して表示しています）</string>
     <string name="pref_qc_show_label">選んでいる項目の名前を表示</string>
+    <string name="pref_floating_toolbar">フローティングツールバー</string>
+    <string name="pref_floating_toolbar_enable">フローティングツールバーを表示</string>
+    <string name="pref_floating_toolbar_enable_summary">端のつまみを引いて動かせます</string>
+    <string name="pref_floating_toolbar_buttons">ボタンの設定</string>
+    <string name="pref_floating_toolbar_vertical">縦に並べる</string>
+    <string name="pref_floating_toolbar_alpha">不透明度</string>
+    <string name="pref_floating_toolbar_reset_position">位置を初期に戻す</string>
+    <string name="floating_toolbar_move">ツールバーを動かす</string>
 </resources>
