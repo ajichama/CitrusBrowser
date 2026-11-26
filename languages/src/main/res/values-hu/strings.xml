@@ -315,4 +315,35 @@
     <string name="download_failed_root_not_writable">A letöltés sikertelen volt, mert a célmappa nem írható.</string>
     <string name="prevent_additional_dialogues">Ez az oldal ne nyisson meg további párbeszédablakokat.</string>
     <string name="accessibility_toolbar_multi_select">%1$d elem kijelölve</string>
+
+    <string name="copy_image">Kép másolása</string>
+    <string name="copy_image_done">Kép másolva</string>
+    <string name="copy_image_failed">A képet nem sikerült másolni</string>
+    <string name="desktop_site_off">A mobilwebhely megjelenítése</string>
+    <string name="desktop_site_on">Az asztali webhely megjelenítése</string>
+    <string name="open_private_tab">Megnyitás privát lapon</string>
+    <string name="popup_allow">Engedélyezés</string>
+    <string name="popup_allowed_retry">A felugró ablakok engedélyezve vannak ehhez: %1$s. Próbálja újra.</string>
+    <string name="popup_blocked">Felugró ablak letiltva</string>
+    <string name="private_tab_unsupported">A privát lapokhoz az Android System WebView újabb verziója szükséges (119 vagy újabb).</string>
+    <string name="qr_scan">QR-kód beolvasása</string>
+    <string name="qr_scan_camera_unavailable">A kamerát nem sikerült elindítani</string>
+    <string name="qr_scan_hint">Irányítsa a kamerát egy QR-kódra</string>
+    <string name="qr_scan_permission_denied">A QR-kódok beolvasásához kameraengedély szükséges</string>
+    <string name="share_image_failed">A képet nem sikerült megosztani</string>
+    <string name="site_info_allow_popup">Felugró ablakok engedélyezése innen: %1$s</string>
+    <string name="site_info_blocked">Az oldalon letiltott hirdetések és nyomkövetők: %1$d</string>
+    <string name="site_info_certificate_error">Kapcsolat: probléma van a tanúsítvánnyal (a figyelmeztetés figyelmen kívül hagyása után jelenik meg)</string>
+    <string name="site_info_clear">Webhelyadatok törlése</string>
+    <string name="site_info_clear_confirm">A(z) %1$s sütijeinek, tárolt adatainak és gyorsítótárának törlése. Ki lesz jelentkeztetve erről a webhelyről.</string>
+    <string name="site_info_clear_on_close">A(z) %1$s adatainak automatikus törlése a lap bezárásakor (ha másik lapon nincs megnyitva ez a webhely)</string>
+    <string name="site_info_cleared">A(z) %1$s adatai törölve</string>
+    <string name="site_info_insecure">Kapcsolat: nem titkosított (http)</string>
+    <string name="site_info_secure">Kapcsolat: titkosított (https). A tanúsítvány kiállítója: %1$s</string>
+    <string name="site_info_secure_unknown">Kapcsolat: titkosított (https)</string>
+    <string name="ssl_error_back">Vissza</string>
+    <string name="ssl_error_details">Részletek</string>
+    <string name="ssl_error_details_mes">Problémák a tanúsítvánnyal:\n%1$s</string>
+    <string name="ssl_error_proceed_unsafe">Folytatás ennek ellenére (nem biztonságos)</string>
+    <string name="ssl_error_summary">Probléma van a(z) %1$s tanúsítványával. Mások elolvashatják vagy módosíthatják az ezzel a webhellyel folytatott kommunikációt.</string>
 </resources>

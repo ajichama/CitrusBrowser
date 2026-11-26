@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2026 CitrusBrowser contributors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+    <string name="copy_image">이미지 복사</string>
+    <string name="copy_image_done">이미지를 복사했습니다</string>
+    <string name="copy_image_failed">이미지를 복사할 수 없습니다</string>
+    <string name="desktop_site_off">모바일 사이트로 표시 중</string>
+    <string name="desktop_site_on">데스크톱 사이트로 표시 중</string>
+    <string name="open_private_tab">프라이빗 탭에서 열기</string>
+    <string name="popup_allow">허용</string>
+    <string name="popup_allowed_retry">%1$s의 팝업이 허용되었습니다. 다시 시도해 주세요.</string>
+    <string name="popup_blocked">팝업이 차단되었습니다</string>
+    <string name="private_tab_unsupported">프라이빗 탭에는 Android System WebView 버전 119 이상이 필요합니다.</string>
+    <string name="qr_scan">QR 코드 스캔</string>
+    <string name="qr_scan_camera_unavailable">카메라를 시작할 수 없습니다</string>
+    <string name="qr_scan_hint">카메라를 QR 코드에 맞추세요</string>
+    <string name="qr_scan_permission_denied">QR 코드를 스캔하려면 카메라 권한이 필요합니다</string>
+    <string name="share_image_failed">이미지를 공유할 수 없습니다</string>
+    <string name="site_info_allow_popup">%1$s의 팝업 허용</string>
+    <string name="site_info_blocked">이 페이지에서 차단한 광고 및 추적기: %1$d개</string>
+    <string name="site_info_certificate_error">연결: 인증서에 문제가 있습니다(경고를 무시한 후 표시됨)</string>
+    <string name="site_info_clear">사이트 데이터 삭제</string>
+    <string name="site_info_clear_confirm">%1$s의 쿠키, 저장된 데이터 및 캐시를 삭제합니다. 이 사이트에서 로그아웃됩니다.</string>
+    <string name="site_info_clear_on_close">탭을 닫으면 %1$s의 데이터를 자동으로 삭제합니다(같은 사이트를 표시하는 다른 탭이 없는 경우)</string>
+    <string name="site_info_cleared">%1$s의 데이터를 삭제했습니다</string>
+    <string name="site_info_insecure">연결: 암호화되지 않음(http)</string>
+    <string name="site_info_secure">연결: 암호화됨(https). 인증서 발급자: %1$s</string>
+    <string name="site_info_secure_unknown">연결: 암호화됨(https)</string>
+    <string name="ssl_error_back">뒤로</string>
+    <string name="ssl_error_details">세부정보</string>
+    <string name="ssl_error_details_mes">인증서 문제:\n%1$s</string>
+    <string name="ssl_error_proceed_unsafe">계속 진행(안전하지 않음)</string>
+    <string name="ssl_error_summary">%1$s의 인증서에 문제가 있습니다. 다른 사람이 이 사이트와 주고받는 통신 내용을 읽거나 변경할 수 있습니다.</string>
+</resources>

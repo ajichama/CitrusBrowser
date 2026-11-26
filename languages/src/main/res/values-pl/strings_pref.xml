@@ -18,4 +18,13 @@
 <resources>
 
     <string name="pref_translators">Anonymous</string>
+
+    <string name="pref_force_enable_zoom">Wymuś powiększanie</string>
+    <string name="pref_force_enable_zoom_summary">Zezwalaj na powiększanie nawet na stronach, które je blokują</string>
+    <string name="pref_open_app_links">Otwieraj linki w aplikacjach</string>
+    <string name="pref_open_app_links_summary">Po dotknięciu linku otwórz go w domyślnej aplikacji dla tego adresu, jeśli nie jest ona przeglądarką (np. X, Instagram lub YouTube). Linki w obrębie tej samej witryny pozostają w przeglądarce (Android 11+)</string>
+    <string name="search_reset_defaults">Przywróć domyślne</string>
+    <string name="search_reset_defaults_done">Przywrócono domyślne wyszukiwarki</string>
+    <string name="search_reset_defaults_failed">Nie udało się przywrócić ustawień. Bieżące ustawienia nie zostały zmienione</string>
+    <string name="search_reset_defaults_message">Przywróć listę wyszukiwarek i domyślną wyszukiwarkę do ustawień domyślnych Citrus dla Twojego języka (domyślnie Google). Dodane lub zmodyfikowane wyszukiwarki zostaną usunięte.</string>
 </resources>

@@ -315,4 +315,35 @@
     <string name="host_page_says">Подтвердите действие на %1$s</string>
     <string name="prevent_additional_dialogues">Предотвратить создание дополнительных диалоговых окон на этой странице.</string>
     <string name="accessibility_toolbar_multi_select">Выбрано: %1$d</string>
+
+    <string name="copy_image">Копировать изображение</string>
+    <string name="copy_image_done">Изображение скопировано</string>
+    <string name="copy_image_failed">Не удалось скопировать изображение</string>
+    <string name="desktop_site_off">Отображается мобильная версия сайта</string>
+    <string name="desktop_site_on">Отображается версия сайта для компьютера</string>
+    <string name="open_private_tab">Открыть в приватной вкладке</string>
+    <string name="popup_allow">Разрешить</string>
+    <string name="popup_allowed_retry">Всплывающие окна для %1$s разрешены. Повторите попытку.</string>
+    <string name="popup_blocked">Всплывающее окно заблокировано</string>
+    <string name="private_tab_unsupported">Для приватных вкладок нужна более новая версия Android System WebView (версия 119 или новее).</string>
+    <string name="qr_scan">Сканировать QR-код</string>
+    <string name="qr_scan_camera_unavailable">Не удалось запустить камеру</string>
+    <string name="qr_scan_hint">Наведите камеру на QR-код</string>
+    <string name="qr_scan_permission_denied">Для сканирования QR-кодов требуется разрешение на доступ к камере</string>
+    <string name="share_image_failed">Не удалось поделиться изображением</string>
+    <string name="site_info_allow_popup">Разрешить всплывающие окна с %1$s</string>
+    <string name="site_info_blocked">Заблокировано рекламы и трекеров на этой странице: %1$d</string>
+    <string name="site_info_certificate_error">Соединение: проблема с сертификатом (отображается после игнорирования предупреждения)</string>
+    <string name="site_info_clear">Очистить данные сайта</string>
+    <string name="site_info_clear_confirm">Удалить cookies, сохранённые данные и кеш для %1$s. Будет выполнен выход из учётной записи на этом сайте.</string>
+    <string name="site_info_clear_on_close">Автоматически удалять данные %1$s при закрытии его вкладки (если этот сайт не открыт в других вкладках)</string>
+    <string name="site_info_cleared">Данные %1$s удалены</string>
+    <string name="site_info_insecure">Соединение: не зашифровано (http)</string>
+    <string name="site_info_secure">Соединение: зашифровано (https). Сертификат выдан: %1$s</string>
+    <string name="site_info_secure_unknown">Соединение: зашифровано (https)</string>
+    <string name="ssl_error_back">Назад</string>
+    <string name="ssl_error_details">Подробности</string>
+    <string name="ssl_error_details_mes">Проблемы с сертификатом:\n%1$s</string>
+    <string name="ssl_error_proceed_unsafe">Всё равно продолжить (небезопасно)</string>
+    <string name="ssl_error_summary">Проблема с сертификатом %1$s. Посторонние могут прочитать или изменить данные, передаваемые между вами и этим сайтом.</string>
 </resources>

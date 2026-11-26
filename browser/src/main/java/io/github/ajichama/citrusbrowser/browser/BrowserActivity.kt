@@ -961,9 +961,16 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
         val closedUrl = oldData.url
         tabManagerIn.remove(target)
         toolbar.notifyChangeWebState()
-        // 自動消去を選んだサイトで、同じサイトのタブがほかになければデータを消す。
+        // 自動消去を選んだサイトで、同じサイトの通常のタブがほかになければデータを消す。
+        // URL は保存済みのタブの情報から読む。tabManagerIn[it] は読み込んでいないタブの WebView を作り直し、
+        // キャッシュの上限を超えると表示中のタブの WebView まで破棄して、画面が固まる（#31）。
+        // プライベートタブは Cookie・データが別なので、同じサイトがあっても判定に含めない。
         if (!oldWeb.isPrivate) {
-            SiteData.onTabClosed(applicationContext, closedUrl, (0 until tabManagerIn.size()).map { tabManagerIn[it].url })
+            val remainingUrls = (0 until tabManagerIn.size())
+                .map { tabManagerIn.getIndexData(it) }
+                .filterNot { it.isPrivateTab }
+                .map { it.url }
+            SiteData.onTabClosed(applicationContext, closedUrl, remainingUrls)
         }
 
         if (destroy)

@@ -461,4 +461,11 @@
     <string name="pref_bookmark_overflow">Öğe seçenekleri menü ayarları</string>
     <string name="pref_page_background_white">Tarayıcı arka planını beyaz yap</string>
     <string name="pref_page_background_white_info">Yeni bir sekme açarken veya sekmeler arasında geçiş yaparken titremeniz varsa, devre dışı bırakın.</string>
+
+    <string name="pref_open_app_links">Bağlantıları uygulamalarda aç</string>
+    <string name="pref_open_app_links_summary">Bir bağlantıya dokunduğunuzda, o adres için varsayılan uygulama tarayıcı değilse bağlantıyı o uygulamada açın (X, Instagram veya YouTube gibi). Aynı site içindeki bağlantılar tarayıcıda kalır (Android 11+)</string>
+    <string name="search_reset_defaults">Varsayılanlara sıfırla</string>
+    <string name="search_reset_defaults_done">Arama motorları varsayılanlara sıfırlandı</string>
+    <string name="search_reset_defaults_failed">Sıfırlanamadı. Geçerli ayarlar değiştirilmedi</string>
+    <string name="search_reset_defaults_message">Arama motoru listesini ve varsayılan arama motorunu diliniz için Citrus varsayılanlarına sıfırlayın (varsayılan Google). Eklenen veya düzenlenen arama motorları kaldırılacaktır.</string>
 </resources>

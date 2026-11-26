@@ -449,4 +449,11 @@
     <string name="pref_show_icon">Показывать значок</string>
     <string name="pref_translation">Перевод</string>
     <string name="pref_translators">papasha55, Viktor245, solokot</string>
+
+    <string name="pref_open_app_links">Открывать ссылки в приложениях</string>
+    <string name="pref_open_app_links_summary">При нажатии на ссылку открывать её в приложении по умолчанию для этого адреса, если это не браузер (например, X, Instagram или YouTube). Ссылки в пределах того же сайта остаются в браузере (Android 11+)</string>
+    <string name="search_reset_defaults">Восстановить по умолчанию</string>
+    <string name="search_reset_defaults_done">Восстановлены поисковые системы по умолчанию</string>
+    <string name="search_reset_defaults_failed">Не удалось восстановить. Текущие настройки не изменены</string>
+    <string name="search_reset_defaults_message">Сбросить список поисковых систем и поисковую систему по умолчанию до стандартных настроек Citrus для вашего языка (по умолчанию Google). Добавленные или изменённые поисковые системы будут удалены.</string>
 </resources>

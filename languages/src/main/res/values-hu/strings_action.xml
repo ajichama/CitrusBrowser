@@ -122,4 +122,9 @@
     <string name="action_reader_mode">Olvasómód</string>
     <string name="action_read_it_later">Oldal tárolása</string>
     <string name="action_read_it_later_list">Tárolt oldalak listája</string>
+
+    <string name="action_new_private_tab">Új privát lap</string>
+    <string name="action_page_tools">Oldaleszközök</string>
+    <string name="action_qr_scan">QR-kód beolvasása</string>
+    <string name="action_toggle_desktop_site">Asztali webhely</string>
 </resources>

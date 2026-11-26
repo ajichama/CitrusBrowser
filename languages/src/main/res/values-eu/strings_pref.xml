@@ -231,4 +231,11 @@
     <string name="pref_speeddial_show_header">Erakutsi goiburua</string>
 
     <string name="pref_translators">osoitz</string>
+
+    <string name="pref_open_app_links">Ireki estekak aplikazioetan</string>
+    <string name="pref_open_app_links_summary">Esteka bat sakatzean, ireki helbide horretarako lehenetsitako aplikazioan, arakatzailea ez bada (adibidez, X, Instagram edo YouTube). Gune bereko estekak arakatzailean irekiko dira (Android 11+)</string>
+    <string name="search_reset_defaults">Berrezarri lehenetsitako balioak</string>
+    <string name="search_reset_defaults_done">Bilatzaileak lehenetsitako balioetara berrezarri dira</string>
+    <string name="search_reset_defaults_failed">Ezin izan da berrezarri. Uneko ezarpenak ez dira aldatu</string>
+    <string name="search_reset_defaults_message">Berrezarri bilatzaileen zerrenda eta bilatzaile lehenetsia zure hizkuntzarako Citrus-en balio lehenetsietara (Google lehenespenez). Gehitutako edo editatutako bilatzaileak kenduko dira.</string>
 </resources>

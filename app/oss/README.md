@@ -1,0 +1,58 @@
+# OSS通知の生成と更新
+
+アプリのライセンス画面は、現在のruntime依存と固定入力から生成した`assets/licenses.compressed`を表示します。通常ビルドはライセンスURLへアクセスしません。既存の表示経路とMikan Browser専用HTMLの著作権表示を保持しています。
+
+## 固定入力
+
+- `dependencies.xml`: 解決済みの外部依存のGAV、POMの宣言、LICENSE/NOTICE本文と出典。debug/release共通の102依存、114文書。
+- `texts/`: UTF-8/LFの固定本文。本文のSHA-256をmetadataに記録します。同じ全文は共有できますが、異なる著作権行やNOTICEは省略しません。
+- `sources.xml`と`sources/`: 旧`app/licenses.yml`の`forceGenerate: true`だったソース由来18件。コピー済みソースやスクリプトはMaven graphだけでは判定できないため、通常の依存とは別に維持します。
+- `../html/license/MikanBrowserLicense.html`: Mikan Browserの専用NYSL本文。旧YAMLのBSD仮指定は採用しません。
+- `../html/license/fixLicensesHtml.css`: 既存表示用CSS。
+
+`app/licenses.yml`は旧生成器の履歴資料として残しますが、新タスクは読みません。過去のFirebase等、現在のruntimeにないMaven補足は通知へ出しません。旧固定GZIPはソース由来通知を取り出した上で削除しました。原典はGit履歴に残っています。
+
+## 通常生成
+
+```sh
+./gradlew generateDebugOssNotices generateReleaseOssNotices checkOssNotices
+```
+
+アプリの各variantには公開Android Components APIで生成assetsを登録しているため、`assembleDebug`等でも自動生成されます。生成先は`layout.buildDirectory`配下です。本文はAPKへ組み込みます。
+
+依存座標や本文が不足すると、ビルドディレクトリ内の`reports/oss/<variant>/missing.txt`に不足情報を出力し、生成を失敗させます。未確認のライセンス名・本文を推測したり、不完全な通知をAPKへ入れたりしません。キャッシュが準備されたDocker内で生成タスクに`--offline`を指定しても生成できます。
+
+## 明示的な更新
+
+```sh
+./gradlew updateOssNotices
+```
+
+この操作だけがライセンス本文を取得します。アプリvariantの`runtimeConfiguration`から、プロジェクト依存を除いた公開`artifactView`で実際のJAR/AARを選び、推移依存を含めて収集します。テスト・KSP・KAPT・Gradleプラグイン、配布物のないBOMは含めません。ローカルに取り込んだソースは別途`sources.xml`で扱います。
+
+POMはGradle公開`MavenPomArtifact` APIで取得します。埋込LICENSE/NOTICEと、POMで宣言されたすべての本文URLを候補にします。HTML・JSON・XML・バイナリ応答を本文とみなしません。既知のApache URLとGitHubの`apache-2.0`ライセンスAPIだけをApache公式のプレーン本文へ正規化し、それ以外のライセンスを名前から推定しません。取得失敗もURLごとに保存し、同じ失敗を依存件数分繰り返しません。
+
+更新候補はビルドディレクトリ内の`oss-review/<variant>/oss/`、不足情報は同階層の`warnings.txt`に出します。固定入力は自動で上書きしません。
+
+1. 各variantの候補metadataと警告を確認します。debug/releaseで依存が異なる場合は、両方のGAVを固定metadataへ保持します。
+2. 新規・変更された宣言、本文、出典、著作権行、NOTICEを確認します。本文が足りない場合は、同じ依存バージョンの公式ソース等から取得して出典を記録します。
+3. 確認できた`dependencies.xml`と参照される`texts/`を固定入力へ反映します。ソース由来18件とMikan専用HTMLは引き続き維持します。
+4. 通常生成、`checkOssNotices`、オフライン生成、APK内assetの展開結果を確認し、親の標準ビルドへ合流します。
+
+初回のRE2/J 1.8はPOMのURLがHTMLを返すため、[公式リリースタグのLICENSE](https://raw.githubusercontent.com/google/re2j/re2j-1.8/LICENSE)を`texts/re2j-1.8-LICENSE.txt`へ固定しました。更新候補で不足した場合も、このバージョンに対応する確認済み本文を失わないよう、差分を確認して反映してください。
+
+WorkManager 2.11.2の追加時は、新規4座標とTracingの1.0.0から1.2.0への置換を確認しました。既存座標の確認済み通知本文・出典と、ソース由来18件は保持しています。WorkManager 2.12.0はminSdk 24を要求するため、当時minSdk 23だった本アプリでは2.11系を使用しました（2026-11-20にminSdk 24へ変更し、2.12系へ更新できる状態です）（[公式リリース情報](https://developer.android.com/jetpack/androidx/releases/work)）。
+
+Material 1.14.0への更新時は、Core・ConstraintLayout・CustomView・DynamicAnimation等の推移依存更新、Core ViewTreeとGraphics Shapesの追加、不要になったLegacy Core UtilsとLocalBroadcastManagerの除外を実graphで確認しました。依存総数は102件で変わりませんが、追加の埋込ライセンスを含め114文書へ更新しています。同じ座標の確認済み通知とRE2/Jの固定本文は維持しています。
+
+AGP 9.5.1への更新時は、Data Bindingの`databinding-adapters`、`databinding-common`、`databinding-ktx`、`databinding-runtime`、`viewbinding`の5座標だけを9.1.1から9.5.1へ置き換えました。debug/releaseの更新候補は一致しています。新しい公式POMはApache 2.0を宣言し、取得した公式本文と`databinding-common`配布物内のNOTICEは確認済み本文とSHA-256が一致しました。ほか97座標の固定metadata、全既存本文、ソース由来18件とMikan専用NYSLは保持し、総数は102依存・114文書です。Geckoプレビューの通知は`gecko-preview/oss`に分離しており、本体の一覧へ混入させません。
+
+QR コードの読み取り（#18、2026-11-21）で、CameraX 1.6.2（camera-camera2・camera-camera2-pipe・camera-core・camera-lifecycle・camera-video・camera-view と、それが使う featurecombinationquery・viewfinder-core・media3・Guava・atomicfu など）と ZXing core 3.5.3 の24座標を足し、新しい版に置き換わった4座標（tracing 1.2.0・tracing-ktx 1.2.0・error_prone_annotations 2.15.0・listenablefuture 1.0）を外しました。CameraX 1.4.2 は API 37 のカメラが報告するダイナミックレンジ（8192）で例外になるため使いません。debug/releaseの更新候補は一致しています。camera-core はネイティブライブラリに libyuv を同梱し、POMはBSD-3-Clause（URLは本文を取得できない）を宣言しているため、[libyuv の公式リポジトリの LICENSE](https://chromium.googlesource.com/libyuv/libyuv/+/refs/heads/main/LICENSE) を`texts/libyuv-LICENSE.txt`へ固定しました。checker-qual の MIT は、配布物に同梱の LICENSE を使います。総数は122依存です。
+
+## 保全と検証
+
+本文のSHA-256はUTF-8/LFに正規化して照合し、Gitの改行変換による誤差を避けます。生成GZIPと更新候補metadataは、一時ファイルを閉じてから原子的に置き換えます。失敗時は以前の公開済みファイルを保持します。ライセンス画面はassetを毎回展開するため、古い展開キャッシュは残りません。
+
+POMのDOCTYPE・外部entity・外部DTD/schemaアクセスを禁止し、HTMLへ出す取得文字列をエスケープします。外部リンクはhttp(s)に限定します。アーカイブはAAR直下のJAR一段だけを読み、entry数、総展開量、保持する本文量を制限します。非通知entryも上限付きで読み、無制限に展開しません。
+
+生成ロジックの回帰は`buildSrc/src/test/java/OssNoticesTest.kt`にあります。Docker内で`buildSrc:test`を実行します。Android Componentsの内部APIには依存しません。POM取得の`ArtifactResolutionQuery`はGradle9.3.1で公開されていますがmaintenance扱いのため、将来の置換をresolver箇所に限定しています。

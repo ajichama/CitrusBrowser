@@ -317,5 +317,36 @@
     <string name="host_page_says">Повідомлення із сайту %1$s</string>
     <string name="prevent_additional_dialogues">Заборонити створення додаткових діалогових вікон цією сторінкою.</string>
     <string name="accessibility_toolbar_multi_select">Вибрано %1$d</string>
+
+    <string name="copy_image">Копіювати зображення</string>
+    <string name="copy_image_done">Зображення скопійовано</string>
+    <string name="copy_image_failed">Не вдалося скопіювати зображення</string>
+    <string name="desktop_site_off">Відображається мобільна версія сайту</string>
+    <string name="desktop_site_on">Відображається версія сайту для комп\'ютера</string>
+    <string name="open_private_tab">Відкрити в анонімній вкладці</string>
+    <string name="popup_allow">Дозволити</string>
+    <string name="popup_allowed_retry">Спливаючі вікна для %1$s дозволено. Спробуйте ще раз.</string>
+    <string name="popup_blocked">Спливаюче вікно заблоковано</string>
+    <string name="private_tab_unsupported">Для анонімних вкладок потрібна новіша версія Android System WebView (версія 119 або новіша).</string>
+    <string name="qr_scan">Сканувати QR-код</string>
+    <string name="qr_scan_camera_unavailable">Не вдалося запустити камеру</string>
+    <string name="qr_scan_hint">Наведіть камеру на QR-код</string>
+    <string name="qr_scan_permission_denied">Для сканування QR-кодів потрібен дозвіл на доступ до камери</string>
+    <string name="share_image_failed">Не вдалося поділитися зображенням</string>
+    <string name="site_info_allow_popup">Дозволити спливаючі вікна з %1$s</string>
+    <string name="site_info_blocked">Заблоковано реклами та засобів стеження на цій сторінці: %1$d</string>
+    <string name="site_info_certificate_error">З\'єднання: проблема із сертифікатом (відображається після ігнорування попередження)</string>
+    <string name="site_info_clear">Очистити дані сайту</string>
+    <string name="site_info_clear_confirm">Видалити куки, збережені дані та кеш для %1$s. Буде виконано вихід з облікового запису на цьому сайті.</string>
+    <string name="site_info_clear_on_close">Автоматично очищати дані %1$s після закриття його вкладки (якщо цей сайт не відкрито в інших вкладках)</string>
+    <string name="site_info_cleared">Дані %1$s очищено</string>
+    <string name="site_info_insecure">З\'єднання: не зашифроване (http)</string>
+    <string name="site_info_secure">З\'єднання: зашифроване (https). Сертифікат видано: %1$s</string>
+    <string name="site_info_secure_unknown">З\'єднання: зашифроване (https)</string>
+    <string name="ssl_error_back">Назад</string>
+    <string name="ssl_error_details">Докладніше</string>
+    <string name="ssl_error_details_mes">Проблеми із сертифікатом:\n%1$s</string>
+    <string name="ssl_error_proceed_unsafe">Усе одно продовжити (небезпечно)</string>
+    <string name="ssl_error_summary">Проблема із сертифікатом %1$s. Сторонні можуть прочитати або змінити дані, якими ви обмінюєтеся із цим сайтом.</string>
 </resources>
 

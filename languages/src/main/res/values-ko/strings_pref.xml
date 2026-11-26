@@ -18,4 +18,13 @@
 <resources>
 
     <string name="pref_translators">kor_frog, semong</string>
+
+    <string name="pref_force_enable_zoom">확대/축소 강제 허용</string>
+    <string name="pref_force_enable_zoom_summary">확대를 차단한 페이지에서도 확대 허용</string>
+    <string name="pref_open_app_links">앱에서 링크 열기</string>
+    <string name="pref_open_app_links_summary">링크를 누르면 해당 주소의 기본 앱이 브라우저가 아닌 경우 그 앱에서 엽니다(X, Instagram, YouTube 등). 같은 사이트 내의 링크는 브라우저에서 엽니다(Android 11+)</string>
+    <string name="search_reset_defaults">기본값으로 재설정</string>
+    <string name="search_reset_defaults_done">검색 엔진을 기본값으로 재설정했습니다</string>
+    <string name="search_reset_defaults_failed">재설정할 수 없습니다. 현재 설정은 변경되지 않았습니다</string>
+    <string name="search_reset_defaults_message">검색 엔진 목록과 기본 검색 엔진을 사용 언어에 맞는 Citrus 기본값으로 재설정합니다(기본 검색 엔진: Google). 추가하거나 수정한 검색 엔진은 삭제됩니다.</string>
 </resources>

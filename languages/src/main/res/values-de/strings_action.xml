@@ -122,4 +122,9 @@
     <string name="action_reader_mode">Lesemodus</string>
     <string name="action_read_it_later">Später-Lesen</string>
     <string name="action_read_it_later_list">Später-Lesen-Liste</string>
+
+    <string name="action_new_private_tab">Neuer privater Reiter</string>
+    <string name="action_page_tools">Seitenwerkzeuge</string>
+    <string name="action_qr_scan">QR-Code scannen</string>
+    <string name="action_toggle_desktop_site">Desktop-Website</string>
 </resources>

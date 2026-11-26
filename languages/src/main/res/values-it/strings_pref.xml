@@ -449,4 +449,11 @@
     <string name="pref_show_icon">Mostra icone</string>
     <string name="pref_translation">Traduzione</string>
     <string name="pref_translators">Strange</string>
+
+    <string name="pref_open_app_links">Apri link nelle app</string>
+    <string name="pref_open_app_links_summary">Quando tocchi un link, aprilo nell\'app predefinita per quell\'indirizzo, se diversa da un browser (ad esempio X, Instagram o YouTube). I link all\'interno dello stesso sito restano nel browser (Android 11+)</string>
+    <string name="search_reset_defaults">Ripristina valori predefiniti</string>
+    <string name="search_reset_defaults_done">I motori di ricerca sono stati ripristinati ai valori predefiniti</string>
+    <string name="search_reset_defaults_failed">Impossibile ripristinare. Le impostazioni attuali non sono state modificate</string>
+    <string name="search_reset_defaults_message">Ripristina l\'elenco dei motori di ricerca e il motore di ricerca predefinito ai valori predefiniti di Citrus per la tua lingua (Google come predefinito). I motori di ricerca aggiunti o modificati verranno rimossi.</string>
 </resources>

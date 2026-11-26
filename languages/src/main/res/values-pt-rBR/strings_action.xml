@@ -122,4 +122,9 @@
     <string name="action_reader_mode">Modo de leitura</string>
     <string name="action_read_it_later">Ler mais tarde</string>
     <string name="action_read_it_later_list">Lista de ler mais tarde</string>
+
+    <string name="action_new_private_tab">Nova guia privada</string>
+    <string name="action_page_tools">Ferramentas da página</string>
+    <string name="action_qr_scan">Ler código QR</string>
+    <string name="action_toggle_desktop_site">Site para computador</string>
 </resources>

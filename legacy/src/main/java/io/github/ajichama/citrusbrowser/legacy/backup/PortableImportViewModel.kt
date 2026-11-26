@@ -18,6 +18,7 @@ package io.github.ajichama.citrusbrowser.legacy.backup
 
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.ajichama.citrusbrowser.legacy.R
@@ -57,7 +58,11 @@ internal class PortableImportViewModel(application: Application) : AndroidViewMo
                 mutableState.value = PortableImportState.Ready(candidate!!.preview)
                 candidate = null
             } catch (error: CancellationException) { throw error }
-            catch (_: Exception) { mutableState.value = PortableImportState.Failed(applying = false, recovery = false) }
+            catch (error: Exception) {
+                // 画面には失敗した段階だけを示すので、理由はログに残す（例外の文は固定で、取り込むデータの中身を含まない）。
+                Log.w(TAG, "取り込みの準備に失敗しました", error)
+                mutableState.value = PortableImportState.Failed(applying = false, recovery = false)
+            }
             finally { candidate?.close() }
         }
     }
@@ -86,7 +91,10 @@ internal class PortableImportViewModel(application: Application) : AndroidViewMo
                 }
                 mutableState.value = PortableImportState.Complete(result)
             } catch (error: CancellationException) { throw error }
-            catch (_: Exception) { mutableState.value = PortableImportState.Failed(applying = true, recovery = prepared.recoveryRequired) }
+            catch (error: Exception) {
+                Log.w(TAG, "取り込みの適用に失敗しました", error)
+                mutableState.value = PortableImportState.Failed(applying = true, recovery = prepared.recoveryRequired)
+            }
             finally { prepared.close() }
         }
     }
@@ -102,5 +110,8 @@ internal class PortableImportViewModel(application: Application) : AndroidViewMo
 
     override fun onCleared() { plan?.close(); plan = null; super.onCleared() }
 
-    companion object { private val importMutex = Mutex() }
+    companion object {
+        private const val TAG = "PortableImport"
+        private val importMutex = Mutex()
+    }
 }

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2026 CitrusBrowser contributors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+    <string name="copy_image">کپی تصویر</string>
+    <string name="copy_image_done">تصویر کپی شد</string>
+    <string name="copy_image_failed">تصویر کپی نشد</string>
+    <string name="desktop_site_off">در حال نمایش نسخه موبایل سایت</string>
+    <string name="desktop_site_on">در حال نمایش نسخه دسکتاپ سایت</string>
+    <string name="open_private_tab">باز کردن در زبانه خصوصی</string>
+    <string name="popup_allow">اجازه دادن</string>
+    <string name="popup_allowed_retry">پنجره‌های بازشو برای %1$s مجاز هستند. لطفاً دوباره تلاش کنید.</string>
+    <string name="popup_blocked">پنجره بازشو مسدود شد</string>
+    <string name="private_tab_unsupported">زبانه‌های خصوصی به نسخه جدیدتری از Android System WebView نیاز دارند (نسخه 119 یا بالاتر).</string>
+    <string name="qr_scan">اسکن کد QR</string>
+    <string name="qr_scan_camera_unavailable">دوربین راه‌اندازی نشد</string>
+    <string name="qr_scan_hint">دوربین را به سمت یک کد QR بگیرید</string>
+    <string name="qr_scan_permission_denied">برای اسکن کدهای QR، مجوز دسترسی به دوربین لازم است</string>
+    <string name="share_image_failed">تصویر به اشتراک گذاشته نشد</string>
+    <string name="site_info_allow_popup">اجازه دادن به پنجره‌های بازشوی %1$s</string>
+    <string name="site_info_blocked">تبلیغات و ردیاب‌های مسدودشده در این صفحه: %1$d</string>
+    <string name="site_info_certificate_error">اتصال: گواهی مشکلی دارد (پس از نادیده گرفتن هشدار نمایش داده می‌شود)</string>
+    <string name="site_info_clear">پاک کردن داده‌های سایت</string>
+    <string name="site_info_clear_confirm">کوکی‌ها، داده‌های ذخیره‌شده و حافظه پنهان %1$s را پاک کنید. از حساب خود در این سایت خارج خواهید شد.</string>
+    <string name="site_info_clear_on_close">داده‌های %1$s را هنگام بستن زبانه آن به‌طور خودکار پاک کنید (اگر زبانه دیگری این سایت را نمایش نمی‌دهد)</string>
+    <string name="site_info_cleared">داده‌های %1$s پاک شدند</string>
+    <string name="site_info_insecure">اتصال: رمزگذاری نشده (http)</string>
+    <string name="site_info_secure">اتصال: رمزگذاری شده (https). صادرکننده گواهی: %1$s</string>
+    <string name="site_info_secure_unknown">اتصال: رمزگذاری شده (https)</string>
+    <string name="ssl_error_back">بازگشت</string>
+    <string name="ssl_error_details">جزئیات</string>
+    <string name="ssl_error_details_mes">مشکلات گواهی:\n%1$s</string>
+    <string name="ssl_error_proceed_unsafe">ادامه دادن با وجود خطر (ناامن)</string>
+    <string name="ssl_error_summary">گواهی %1$s مشکلی دارد. ممکن است دیگران بتوانند ارتباط شما با این سایت را بخوانند یا تغییر دهند.</string>
+</resources>

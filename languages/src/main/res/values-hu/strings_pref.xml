@@ -123,4 +123,13 @@
     <string name="pref_save_tab_for_crash">Lapok nagy gyakoriságú mentése</string>
 
     <string name="pref_translators">windanesz</string>
+
+    <string name="pref_force_enable_zoom">Nagyítás kényszerítése</string>
+    <string name="pref_force_enable_zoom_summary">Nagyítás engedélyezése az azt tiltó oldalakon is</string>
+    <string name="pref_open_app_links">Hivatkozások megnyitása alkalmazásokban</string>
+    <string name="pref_open_app_links_summary">Hivatkozásra koppintva nyissa meg az adott címhez tartozó alapértelmezett, böngészőtől eltérő alkalmazást (például X, Instagram vagy YouTube). Az ugyanazon webhelyen belüli hivatkozások a böngészőben maradnak (Android 11+)</string>
+    <string name="search_reset_defaults">Alapértékek visszaállítása</string>
+    <string name="search_reset_defaults_done">A keresőmotorok alapértékei visszaállítva</string>
+    <string name="search_reset_defaults_failed">A visszaállítás nem sikerült. A jelenlegi beállítások nem változtak</string>
+    <string name="search_reset_defaults_message">A keresőmotorok listájának és az alapértelmezett keresőmotornak a visszaállítása a Citrus adott nyelvhez tartozó alapértékeire (alapértelmezés szerint Google). A hozzáadott vagy szerkesztett keresőmotorok törlődnek.</string>
 </resources>

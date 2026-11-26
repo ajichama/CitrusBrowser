@@ -316,4 +316,35 @@
     <string name="host_page_says">%1$s diz</string>
     <string name="prevent_additional_dialogues">Impedir que esta página crie caixas de diálogo adicionais.</string>
     <string name="accessibility_toolbar_multi_select">%1$d selecionados</string>
+
+    <string name="copy_image">Copiar imagem</string>
+    <string name="copy_image_done">Imagem copiada</string>
+    <string name="copy_image_failed">Não foi possível copiar a imagem</string>
+    <string name="desktop_site_off">Exibindo o site para dispositivos móveis</string>
+    <string name="desktop_site_on">Exibindo o site para computador</string>
+    <string name="open_private_tab">Abrir em guia privada</string>
+    <string name="popup_allow">Permitir</string>
+    <string name="popup_allowed_retry">Os pop-ups estão permitidos para %1$s. Tente novamente.</string>
+    <string name="popup_blocked">Pop-up bloqueado</string>
+    <string name="private_tab_unsupported">As guias privadas precisam de uma versão mais recente do Android System WebView (versão 119 ou posterior).</string>
+    <string name="qr_scan">Ler código QR</string>
+    <string name="qr_scan_camera_unavailable">Não foi possível iniciar a câmera</string>
+    <string name="qr_scan_hint">Aponte a câmera para um código QR</string>
+    <string name="qr_scan_permission_denied">É necessária permissão de acesso à câmera para ler códigos QR</string>
+    <string name="share_image_failed">Não foi possível compartilhar a imagem</string>
+    <string name="site_info_allow_popup">Permitir pop-ups de %1$s</string>
+    <string name="site_info_blocked">Anúncios e rastreadores bloqueados nesta página: %1$d</string>
+    <string name="site_info_certificate_error">Conexão: há um problema com o certificado (exibido após você ignorar o aviso)</string>
+    <string name="site_info_clear">Limpar dados do site</string>
+    <string name="site_info_clear_confirm">Limpar cookies, dados armazenados e cache de %1$s. Você sairá da sua conta neste site.</string>
+    <string name="site_info_clear_on_close">Limpar os dados de %1$s automaticamente ao fechar a guia (se nenhuma outra guia exibir este site)</string>
+    <string name="site_info_cleared">Dados de %1$s limpos</string>
+    <string name="site_info_insecure">Conexão: não criptografada (http)</string>
+    <string name="site_info_secure">Conexão: criptografada (https). Certificado emitido por: %1$s</string>
+    <string name="site_info_secure_unknown">Conexão: criptografada (https)</string>
+    <string name="ssl_error_back">Voltar</string>
+    <string name="ssl_error_details">Detalhes</string>
+    <string name="ssl_error_details_mes">Problemas com o certificado:\n%1$s</string>
+    <string name="ssl_error_proceed_unsafe">Continuar mesmo assim (não seguro)</string>
+    <string name="ssl_error_summary">O certificado de %1$s tem um problema. Outras pessoas podem ler ou alterar sua comunicação com este site.</string>
 </resources>

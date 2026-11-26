@@ -327,4 +327,35 @@
     <string name="add_filter">Süzgeç ekle</string>
     <string name="site">Site</string>
     <string name="updating_ad_filters">Reklam engelleme süzgeçleri güncellemesi</string>
+
+    <string name="copy_image">Resmi kopyala</string>
+    <string name="copy_image_done">Resim kopyalandı</string>
+    <string name="copy_image_failed">Resim kopyalanamadı</string>
+    <string name="desktop_site_off">Mobil site gösteriliyor</string>
+    <string name="desktop_site_on">Masaüstü sitesi gösteriliyor</string>
+    <string name="open_private_tab">Özel sekmede aç</string>
+    <string name="popup_allow">İzin ver</string>
+    <string name="popup_allowed_retry">%1$s için açılır pencerelere izin verildi. Lütfen tekrar deneyin.</string>
+    <string name="popup_blocked">Açılır pencere engellendi</string>
+    <string name="private_tab_unsupported">Özel sekmeler için daha yeni bir Android System WebView sürümü gerekir (119 veya üzeri).</string>
+    <string name="qr_scan">QR kodunu tara</string>
+    <string name="qr_scan_camera_unavailable">Kamera başlatılamadı</string>
+    <string name="qr_scan_hint">Kamerayı bir QR koduna doğrultun</string>
+    <string name="qr_scan_permission_denied">QR kodlarını taramak için kamera izni gerekir</string>
+    <string name="share_image_failed">Resim paylaşılamadı</string>
+    <string name="site_info_allow_popup">%1$s sitesinden açılır pencerelere izin ver</string>
+    <string name="site_info_blocked">Bu sayfada engellenen reklamlar ve izleyiciler: %1$d</string>
+    <string name="site_info_certificate_error">Bağlantı: sertifikada bir sorun var (uyarıyı yok saydıktan sonra gösterilir)</string>
+    <string name="site_info_clear">Site verilerini temizle</string>
+    <string name="site_info_clear_confirm">%1$s için çerezleri, depolanan verileri ve önbelleği temizleyin. Bu sitedeki oturumunuz kapatılacaktır.</string>
+    <string name="site_info_clear_on_close">Sekmesi kapatıldığında %1$s verilerini otomatik olarak temizle (başka bir sekmede bu site açık değilse)</string>
+    <string name="site_info_cleared">%1$s verileri temizlendi</string>
+    <string name="site_info_insecure">Bağlantı: şifrelenmemiş (http)</string>
+    <string name="site_info_secure">Bağlantı: şifrelenmiş (https). Sertifikayı veren: %1$s</string>
+    <string name="site_info_secure_unknown">Bağlantı: şifrelenmiş (https)</string>
+    <string name="ssl_error_back">Geri</string>
+    <string name="ssl_error_details">Ayrıntılar</string>
+    <string name="ssl_error_details_mes">Sertifikayla ilgili sorunlar:\n%1$s</string>
+    <string name="ssl_error_proceed_unsafe">Yine de devam et (güvenli değil)</string>
+    <string name="ssl_error_summary">%1$s sertifikasında bir sorun var. Başkaları bu siteyle olan iletişiminizi okuyabilir veya değiştirebilir.</string>
 </resources>

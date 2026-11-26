@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CitrusBrowser プライバシーポリシー</title>
+<style>
+  :root { color-scheme: light dark; --fg: #1f2328; --bg: #ffffff; --muted: #59636e; --link: #0b62c4; }
+  @media (prefers-color-scheme: dark) { :root { --fg: #e6edf3; --bg: #0d1117; --muted: #9198a1; --link: #58a6ff; } }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.75 system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.6em; line-height: 1.3; } h2 { font-size: 1.2em; margin-top: 2em; }
+  a { color: var(--link); } .muted { color: var(--muted); } li { margin: .3em 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="muted"><a href="en.html" hreflang="en">English</a></p>
+<h1>CitrusBrowser プライバシーポリシー</h1>
+<p class="muted">最終更新日: 2026年11月21日</p>
+<p>このプライバシーポリシーは、Android 向け Web ブラウザ「CitrusBrowser」（以下「本アプリ」）での情報の扱いを説明するものです。</p>
+<ul>
+  <li>開発者: ajichama</li>
+  <li>問い合わせ先: <a href="https://github.com/ajichama/CitrusBrowser/issues">GitHub の Issues</a>。公開の場所のため、個人情報は書かないでください。</li>
+</ul>
+
+<h2>1. 開発者は利用者のデータを集めません</h2>
+<p>本アプリには、解析・広告・クラッシュレポートの送信のための SDK は含まれていません。開発者は独自のサーバーを持たず、本アプリから開発者へ利用者のデータが送られることはありません。</p>
+
+<h2>2. 端末内に保存する情報</h2>
+<p>次の情報は、本アプリの機能のために端末内に保存されます。開発者へは送られません。</p>
+<ul>
+  <li>閲覧履歴、ブックマーク、開いているタブ、スピードダイヤル、後で読むページ</li>
+  <li>検索の履歴（検索候補の表示に使います）</li>
+  <li>Cookie、サイトのデータ、フォームの入力内容など、Web サイトが保存する情報</li>
+  <li>設定、ユーザースクリプト、広告遮断のフィルタリストと設定</li>
+  <li>ダウンロードしたファイル（利用者が選んだ保存先）</li>
+  <li>本アプリの動作記録（エラーの記録）。送信はしません</li>
+</ul>
+<p>これらは、本アプリの設定や履歴の画面から消すか、Android の設定で本アプリのデータを消去するか、本アプリをアンインストールすると削除されます。プライベートモードや、サイトごとのデータの消去も使えます。</p>
+
+<h2>3. 本アプリが外部と通信する場合</h2>
+<p>本アプリは Web ブラウザなので、利用者が開く Web サイトと通信します。そのほか、次の場合に外部と通信します。送られた情報の扱いは、それぞれの送り先のプライバシーポリシーに従います。</p>
+<ol>
+  <li>検索候補: 検索欄に文字を入力すると、検索候補を表示するために、入力中の文字が、選んだ検索候補の提供元（Google、Microsoft Bing、DuckDuckGo のいずれか。初期設定は Google）へ送られます。設定の「検索候補」を「過去のクエリ」または「なし」にすると送られません。</li>
+  <li>検索: 検索すると、検索語が選んだ検索エンジンへ送られます。</li>
+  <li>広告・トラッカーの遮断のフィルタリスト: 広告遮断を有効にすると、フィルタリストを、それぞれの配布元（例: easylist.to、filters.adtidy.org、ublockorigin.github.io、raw.githubusercontent.com）から定期的にダウンロードします。このとき利用者のデータは送りませんが、通常の通信と同じく、配布元には IP アドレス等が届きます。利用者が追加したリストは、その配布元から取得します。</li>
+  <li>ページの翻訳: 翻訳の操作をすると、表示中のページの URL が Google 翻訳へ送られます。</li>
+  <li>リーダー表示・アイコン: リーダー表示を開いたとき、またはスピードダイヤルやホーム画面のショートカットのアイコンを取得するとき、表示中のサイトへ改めて接続します。</li>
+  <li>セーフブラウジング: ページの表示に使う Android System WebView（Google 提供）のセーフブラウジング機能が、危険なサイトの確認のために Google と通信することがあります。</li>
+  <li>ダウンロード: 利用者が選んだファイルを、その配信元から取得します。</li>
+</ol>
+
+<h2>4. 端末の権限</h2>
+<p>次の権限は、記載の目的にだけ使います。位置情報・カメラ・マイクは、Web サイトが求め、利用者が許可したときだけ使います。許可はいつでも Android の設定から取り消せます。</p>
+<ul>
+  <li>インターネット、ネットワークの状態: Web の閲覧、検索、ダウンロード、フィルタリストの更新</li>
+  <li>位置情報: 地図などの Web サイトが位置情報を求め、利用者が許可したとき、そのサイトへ渡すため</li>
+  <li>カメラ、マイク、音声の設定: ビデオ通話などの Web サイトが求め、利用者が許可したとき</li>
+  <li>通知、前景サービス: ダウンロード中に進み具合を表示し、画面を離れてもダウンロードを続けるため</li>
+  <li>アプリのインストールの要求: ダウンロードしたアプリ（APK）を利用者が開いたとき、Android のインストーラーへ渡すため</li>
+  <li>ローカルネットワーク（Android 17 以上）: 利用者が設定で選んだ場合に、家庭内の機器などのページを開くため</li>
+  <li>ストレージ（Android 9 以下のみ）: ダウンロードしたファイルやバックアップの保存</li>
+  <li>その他: 画面のスリープの防止、振動、ホーム画面へのショートカットの追加</li>
+</ul>
+
+<h2>5. Android のバックアップ</h2>
+<p>Android の設定でバックアップが有効な場合、本アプリのデータ（一部を除く）が、Android の機能により利用者の Google アカウントへバックアップされることがあります。これは Google が提供する機能で、開発者はその内容を見られません。Android の設定でオフにできます。</p>
+
+<h2>6. 子どもについて</h2>
+<p>本アプリは 13 歳未満の子どもを対象としていません。</p>
+
+<h2>7. このポリシーの変更</h2>
+<p>内容を変えるときは、このページを更新し、最終更新日を改めます。大きな変更は、GitHub のリリースノートでもお知らせします。</p>
+
+<h2>8. オープンソース</h2>
+<p>本アプリは Apache License 2.0 のオープンソースソフトウェアで、Hazuki 氏のオープンソースの Yuzu Browser をもとにしています。ソースコードは <a href="https://github.com/ajichama/CitrusBrowser">https://github.com/ajichama/CitrusBrowser</a> で公開しています。</p>
+</main>
+</body>
+</html>

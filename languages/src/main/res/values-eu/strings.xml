@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2026 CitrusBrowser contributors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+    <string name="copy_image">Kopiatu irudia</string>
+    <string name="copy_image_done">Irudia kopiatu da</string>
+    <string name="copy_image_failed">Ezin izan da irudia kopiatu</string>
+    <string name="desktop_site_off">Mugikorrerako gunea erakusten</string>
+    <string name="desktop_site_on">Mahaigaineko gunea erakusten</string>
+    <string name="open_private_tab">Ireki fitxa pribatuan</string>
+    <string name="popup_allow">Baimendu</string>
+    <string name="popup_allowed_retry">Laster-leihoak baimenduta daude %1$s gunerako. Saiatu berriro.</string>
+    <string name="popup_blocked">Laster-leihoa blokeatu da</string>
+    <string name="private_tab_unsupported">Fitxa pribatuak erabiltzeko, Android System WebView bertsio berriagoa behar da (119 bertsioa edo berriagoa).</string>
+    <string name="qr_scan">Eskaneatu QR kodea</string>
+    <string name="qr_scan_camera_unavailable">Ezin izan da kamera abiarazi</string>
+    <string name="qr_scan_hint">Zuzendu kamera QR kode batera</string>
+    <string name="qr_scan_permission_denied">Kameraren baimena behar da QR kodeak eskaneatzeko</string>
+    <string name="share_image_failed">Ezin izan da irudia partekatu</string>
+    <string name="site_info_allow_popup">Baimendu %1$s guneko laster-leihoak</string>
+    <string name="site_info_blocked">Orri honetan blokeatutako iragarkiak eta jarraipen-elementuak: %1$d</string>
+    <string name="site_info_certificate_error">Konexioa: ziurtagiriak arazo bat du (abisuari ez ikusi egin ondoren erakusten da)</string>
+    <string name="site_info_clear">Garbitu guneko datuak</string>
+    <string name="site_info_clear_confirm">Garbitu %1$s guneko cookie-ak, gordetako datuak eta cachea. Gune horretako saioa amaituko da.</string>
+    <string name="site_info_clear_on_close">Garbitu %1$s guneko datuak automatikoki fitxa ixtean (beste fitxa batean gune hori irekita ez badago)</string>
+    <string name="site_info_cleared">%1$s guneko datuak garbitu dira</string>
+    <string name="site_info_insecure">Konexioa: zifratu gabe (http)</string>
+    <string name="site_info_secure">Konexioa: zifratuta (https). Ziurtagiriaren jaulkitzailea: %1$s</string>
+    <string name="site_info_secure_unknown">Konexioa: zifratuta (https)</string>
+    <string name="ssl_error_back">Atzera</string>
+    <string name="ssl_error_details">Xehetasunak</string>
+    <string name="ssl_error_details_mes">Ziurtagiriaren arazoak:\n%1$s</string>
+    <string name="ssl_error_proceed_unsafe">Jarraitu hala ere (ez da segurua)</string>
+    <string name="ssl_error_summary">%1$s gunearen ziurtagiriak arazo bat du. Beste batzuek gune horrekiko zure komunikazioa irakurri edo aldatu ahal izango lukete.</string>
+</resources>

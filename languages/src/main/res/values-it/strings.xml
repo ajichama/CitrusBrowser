@@ -312,4 +312,35 @@
     <string name="host_page_says">%1$s dice</string>
     <string name="prevent_additional_dialogues">Impedisci alla pagina di creare altre finestre di dialogo.</string>
     <string name="accessibility_toolbar_multi_select">%1$d elementi selezionati</string>
+
+    <string name="copy_image">Copia immagine</string>
+    <string name="copy_image_done">Immagine copiata</string>
+    <string name="copy_image_failed">Impossibile copiare l\'immagine</string>
+    <string name="desktop_site_off">Visualizzazione del sito mobile</string>
+    <string name="desktop_site_on">Visualizzazione del sito desktop</string>
+    <string name="open_private_tab">Apri in scheda privata</string>
+    <string name="popup_allow">Consenti</string>
+    <string name="popup_allowed_retry">I popup sono consentiti per %1$s. Riprova.</string>
+    <string name="popup_blocked">Popup bloccato</string>
+    <string name="private_tab_unsupported">Le schede private richiedono una versione più recente di Android System WebView (versione 119 o successiva).</string>
+    <string name="qr_scan">Scansiona codice QR</string>
+    <string name="qr_scan_camera_unavailable">Impossibile avviare la fotocamera</string>
+    <string name="qr_scan_hint">Punta la fotocamera verso un codice QR</string>
+    <string name="qr_scan_permission_denied">Per scansionare i codici QR è necessaria l\'autorizzazione per la fotocamera</string>
+    <string name="share_image_failed">Impossibile condividere l\'immagine</string>
+    <string name="site_info_allow_popup">Consenti popup da %1$s</string>
+    <string name="site_info_blocked">Annunci e traccianti bloccati in questa pagina: %1$d</string>
+    <string name="site_info_certificate_error">Connessione: il certificato presenta un problema (visualizzato dopo aver ignorato l\'avviso)</string>
+    <string name="site_info_clear">Cancella dati del sito</string>
+    <string name="site_info_clear_confirm">Cancella cookie, dati memorizzati e cache di %1$s. Verrai disconnesso da questo sito.</string>
+    <string name="site_info_clear_on_close">Cancella automaticamente i dati di %1$s alla chiusura della sua scheda (se nessun\'altra scheda mostra questo sito)</string>
+    <string name="site_info_cleared">Dati di %1$s cancellati</string>
+    <string name="site_info_insecure">Connessione: non crittografata (http)</string>
+    <string name="site_info_secure">Connessione: crittografata (https). Certificato emesso da: %1$s</string>
+    <string name="site_info_secure_unknown">Connessione: crittografata (https)</string>
+    <string name="ssl_error_back">Indietro</string>
+    <string name="ssl_error_details">Dettagli</string>
+    <string name="ssl_error_details_mes">Problemi con il certificato:\n%1$s</string>
+    <string name="ssl_error_proceed_unsafe">Procedi comunque (non sicuro)</string>
+    <string name="ssl_error_summary">Il certificato di %1$s presenta un problema. Altri potrebbero leggere o modificare le comunicazioni con questo sito.</string>
 </resources>

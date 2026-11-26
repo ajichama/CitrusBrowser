@@ -449,4 +449,11 @@
     <string name="pref_show_icon">Symbol anzeigen</string>
     <string name="pref_translation">Übersetzung</string>
     <string name="pref_translators">MexSalem</string>
+
+    <string name="pref_open_app_links">Links in Apps öffnen</string>
+    <string name="pref_open_app_links_summary">Beim Antippen eines Links die für diese Adresse festgelegte Standard-App öffnen, sofern sie kein Browser ist (z. B. X, Instagram oder YouTube). Links innerhalb derselben Website bleiben im Browser (Android 11+)</string>
+    <string name="search_reset_defaults">Auf Standardwerte zurücksetzen</string>
+    <string name="search_reset_defaults_done">Suchmaschinen wurden auf Standardwerte zurückgesetzt</string>
+    <string name="search_reset_defaults_failed">Zurücksetzen fehlgeschlagen. Die aktuellen Einstellungen bleiben unverändert</string>
+    <string name="search_reset_defaults_message">Die Suchmaschinenliste und die Standardsuchmaschine auf die Citrus-Standardwerte für Ihre Sprache zurücksetzen (standardmäßig Google). Hinzugefügte oder bearbeitete Suchmaschinen werden entfernt.</string>
 </resources>

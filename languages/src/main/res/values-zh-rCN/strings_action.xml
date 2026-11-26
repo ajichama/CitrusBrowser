@@ -122,4 +122,9 @@
     <string name="action_reader_mode">阅读模式</string>
     <string name="action_read_it_later">稍后阅读</string>
     <string name="action_read_it_later_list">稍后阅读列表</string>
+
+    <string name="action_new_private_tab">新建隐私标签页</string>
+    <string name="action_page_tools">页面工具</string>
+    <string name="action_qr_scan">扫描 QR 码</string>
+    <string name="action_toggle_desktop_site">桌面版网站</string>
 </resources>

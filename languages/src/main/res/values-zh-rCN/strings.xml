@@ -321,4 +321,35 @@
     <string name="accessibility_toolbar_multi_select">%1$d 已选择</string>
     <string name="proxy_use_https_address">为 https 使用其他代理</string>
     <string name="proxy_https_mes">Https 代理地址（空白则不使用代理）</string>
+
+    <string name="copy_image">复制图片</string>
+    <string name="copy_image_done">图片已复制</string>
+    <string name="copy_image_failed">无法复制图片</string>
+    <string name="desktop_site_off">正在显示移动版网站</string>
+    <string name="desktop_site_on">正在显示桌面版网站</string>
+    <string name="open_private_tab">在隐私标签页中打开</string>
+    <string name="popup_allow">允许</string>
+    <string name="popup_allowed_retry">已允许 %1$s 的弹出式窗口。请重试。</string>
+    <string name="popup_blocked">已拦截弹出式窗口</string>
+    <string name="private_tab_unsupported">隐私标签页需要较新版本的 Android System WebView（版本 119 或更高）。</string>
+    <string name="qr_scan">扫描 QR 码</string>
+    <string name="qr_scan_camera_unavailable">无法启动相机</string>
+    <string name="qr_scan_hint">将相机对准 QR 码</string>
+    <string name="qr_scan_permission_denied">扫描 QR 码需要相机权限</string>
+    <string name="share_image_failed">无法分享图片</string>
+    <string name="site_info_allow_popup">允许 %1$s 的弹出式窗口</string>
+    <string name="site_info_blocked">此页面已拦截的广告和跟踪器：%1$d</string>
+    <string name="site_info_certificate_error">连接：证书存在问题（忽略警告后显示）</string>
+    <string name="site_info_clear">清除网站数据</string>
+    <string name="site_info_clear_confirm">清除 %1$s 的 Cookie、已存储数据和缓存。您将退出此网站的登录。</string>
+    <string name="site_info_clear_on_close">关闭标签页时自动清除 %1$s 的数据（如果没有其他标签页显示此网站）</string>
+    <string name="site_info_cleared">已清除 %1$s 的数据</string>
+    <string name="site_info_insecure">连接：未加密（http）</string>
+    <string name="site_info_secure">连接：已加密（https）。证书颁发者：%1$s</string>
+    <string name="site_info_secure_unknown">连接：已加密（https）</string>
+    <string name="ssl_error_back">返回</string>
+    <string name="ssl_error_details">详细信息</string>
+    <string name="ssl_error_details_mes">证书问题：\n%1$s</string>
+    <string name="ssl_error_proceed_unsafe">仍然继续（不安全）</string>
+    <string name="ssl_error_summary">%1$s 的证书存在问题。其他人可能读取或篡改您与此网站之间的通信。</string>
 </resources>

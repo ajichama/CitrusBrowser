@@ -1,0 +1,11 @@
+# 端末内HTTP購読の計測
+
+`AbpHttpSubscriptionIntegrationTest` は新しい依存やproduction設定を追加せず、端末のloopbackだけにbindする固定応答サーバーを使う。実行対象は本体の `CitrusBrowserApplication` とHilt graph、Room DB、キャッシュ保存処理である。外部サーバーへは接続しない。
+
+- 200応答は本体の公開manual facadeから標準Workerを実行し、metadataとZIP内のフィルター本文を確認する。
+- manual更新はforce指定のため条件付き要求を出さない。304の検証だけはテスト関数に限定したinternal参照の抑制で本体Hilt生成updaterの非force分岐を通し、`If-Modified-Since` と304応答、ZIP全バイト/本文/metadataの保持を確認する。304がWorkerの公開入口から実行されたという意味にはしない。
+- 503は実WorkerのrunAttemptCountとENQUEUED状態でretry登録を確認し、直前のキャッシュとmetadataを保持することを検証する。バックオフの時間経過後に成功へ転じることは、このテストでは確認しない。
+
+購読・URL・ファイル名は実行ごとに固有にし、全DBの消去、全Workの取消、全体設定の切り替えは行わない。finallyで固有Workだけを取り消し、自分の購読を無効にして本体の更新Mutexを通過させてから、自分の行とキャッシュだけを削除する。サーバーは接続・受信・要求数・終了待ちに上限を持ち、失敗時にも停止する。
+
+既存のINTERNET/HTTP設定を使用し、権限やcleartext設定は変更しない。[Androidのローカルネットワーク権限](https://developer.android.com/privacy-and-security/local-network-permission)や他OSでの挙動をこのfixtureだけで検証済みとはしない。現在は実装段階で、Dockerの計測APK生成と端末実行の結果は別に記録する。TLS、外部HTTP、回線切替、Doze、OS再起動、本番署名は対象外。

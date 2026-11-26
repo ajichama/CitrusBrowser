@@ -451,4 +451,11 @@
     <string name="pref_translation">翻译</string>
     <string name="pref_translators">Tarlafic</string>
     <string name="adblock_file_large_mes">由于文件大小超过 1 MB，无法进行预览和编辑。\n要导入吗？</string>
+
+    <string name="pref_open_app_links">在应用中打开链接</string>
+    <string name="pref_open_app_links_summary">点击链接时，如果该地址的默认应用不是浏览器（如 X、Instagram 或 YouTube），则在该应用中打开。同一网站内的链接仍在浏览器中打开（Android 11+）</string>
+    <string name="search_reset_defaults">恢复默认设置</string>
+    <string name="search_reset_defaults_done">搜索引擎已恢复为默认设置</string>
+    <string name="search_reset_defaults_failed">无法恢复。当前设置未更改</string>
+    <string name="search_reset_defaults_message">将搜索引擎列表和默认搜索引擎恢复为 Citrus 针对您的语言提供的默认设置（默认使用 Google）。添加或修改过的搜索引擎将被移除。</string>
 </resources>

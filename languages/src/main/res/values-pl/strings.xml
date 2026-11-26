@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2026 CitrusBrowser contributors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+    <string name="copy_image">Kopiuj obraz</string>
+    <string name="copy_image_done">Obraz skopiowany</string>
+    <string name="copy_image_failed">Nie udało się skopiować obrazu</string>
+    <string name="desktop_site_off">Wyświetlanie wersji mobilnej</string>
+    <string name="desktop_site_on">Wyświetlanie wersji komputerowej</string>
+    <string name="open_private_tab">Otwórz w karcie prywatnej</string>
+    <string name="popup_allow">Zezwól</string>
+    <string name="popup_allowed_retry">Wyskakujące okna są dozwolone w witrynie %1$s. Spróbuj ponownie.</string>
+    <string name="popup_blocked">Wyskakujące okno zablokowane</string>
+    <string name="private_tab_unsupported">Karty prywatne wymagają nowszej wersji Android System WebView (wersja 119 lub nowsza).</string>
+    <string name="qr_scan">Skanuj kod QR</string>
+    <string name="qr_scan_camera_unavailable">Nie udało się uruchomić aparatu</string>
+    <string name="qr_scan_hint">Skieruj aparat na kod QR</string>
+    <string name="qr_scan_permission_denied">Do skanowania kodów QR wymagane jest uprawnienie do aparatu</string>
+    <string name="share_image_failed">Nie udało się udostępnić obrazu</string>
+    <string name="site_info_allow_popup">Zezwalaj na wyskakujące okna z %1$s</string>
+    <string name="site_info_blocked">Reklamy i elementy śledzące zablokowane na tej stronie: %1$d</string>
+    <string name="site_info_certificate_error">Połączenie: występuje problem z certyfikatem (wyświetlane po zignorowaniu ostrzeżenia)</string>
+    <string name="site_info_clear">Wyczyść dane witryny</string>
+    <string name="site_info_clear_confirm">Wyczyść pliki cookie, zapisane dane i pamięć podręczną witryny %1$s. Nastąpi wylogowanie z tej witryny.</string>
+    <string name="site_info_clear_on_close">Automatycznie czyść dane witryny %1$s po zamknięciu jej karty (jeśli żadna inna karta nie wyświetla tej witryny)</string>
+    <string name="site_info_cleared">Wyczyszczono dane witryny %1$s</string>
+    <string name="site_info_insecure">Połączenie: nieszyfrowane (http)</string>
+    <string name="site_info_secure">Połączenie: szyfrowane (https). Wystawca certyfikatu: %1$s</string>
+    <string name="site_info_secure_unknown">Połączenie: szyfrowane (https)</string>
+    <string name="ssl_error_back">Wstecz</string>
+    <string name="ssl_error_details">Szczegóły</string>
+    <string name="ssl_error_details_mes">Problemy z certyfikatem:\n%1$s</string>
+    <string name="ssl_error_proceed_unsafe">Kontynuuj mimo to (niebezpieczne)</string>
+    <string name="ssl_error_summary">Występuje problem z certyfikatem witryny %1$s. Inne osoby mogą odczytać lub zmienić dane przesyłane między Tobą a tą witryną.</string>
+</resources>

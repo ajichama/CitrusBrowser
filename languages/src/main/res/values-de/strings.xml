@@ -316,4 +316,35 @@
     <string name="host_page_says">Unter %1$s wird Folgendes angezeigt</string>
     <string name="prevent_additional_dialogues">Diese Seite am Erstellen zusätzlicher Dialoge hindern</string>
     <string name="accessibility_toolbar_multi_select">%1$d ausgewählt</string>
+
+    <string name="copy_image">Bild kopieren</string>
+    <string name="copy_image_done">Bild kopiert</string>
+    <string name="copy_image_failed">Das Bild konnte nicht kopiert werden</string>
+    <string name="desktop_site_off">Die mobile Website wird angezeigt</string>
+    <string name="desktop_site_on">Die Desktop-Website wird angezeigt</string>
+    <string name="open_private_tab">In privatem Reiter öffnen</string>
+    <string name="popup_allow">Erlauben</string>
+    <string name="popup_allowed_retry">Pop-Up-Fenster sind für %1$s erlaubt. Bitte versuche es erneut.</string>
+    <string name="popup_blocked">Pop-Up-Fenster blockiert</string>
+    <string name="private_tab_unsupported">Private Reiter benötigen eine neuere Version von Android System WebView (Version 119 oder höher).</string>
+    <string name="qr_scan">QR-Code scannen</string>
+    <string name="qr_scan_camera_unavailable">Die Kamera konnte nicht gestartet werden</string>
+    <string name="qr_scan_hint">Richte die Kamera auf einen QR-Code</string>
+    <string name="qr_scan_permission_denied">Zum Scannen von QR-Codes ist die Kameraberechtigung erforderlich</string>
+    <string name="share_image_failed">Das Bild konnte nicht geteilt werden</string>
+    <string name="site_info_allow_popup">Pop-Up-Fenster von %1$s erlauben</string>
+    <string name="site_info_blocked">Auf dieser Seite blockierte Werbung und Tracker: %1$d</string>
+    <string name="site_info_certificate_error">Verbindung: Das Zertifikat weist ein Problem auf (wird angezeigt, nachdem Sie die Warnung ignoriert haben)</string>
+    <string name="site_info_clear">Website-Daten löschen</string>
+    <string name="site_info_clear_confirm">Cookies, gespeicherte Daten und Zwischenspeicher für %1$s löschen. Sie werden von dieser Website abgemeldet.</string>
+    <string name="site_info_clear_on_close">Daten von %1$s automatisch löschen, wenn der Reiter geschlossen wird (sofern kein anderer Reiter diese Website anzeigt)</string>
+    <string name="site_info_cleared">Daten für %1$s gelöscht</string>
+    <string name="site_info_insecure">Verbindung: nicht verschlüsselt (http)</string>
+    <string name="site_info_secure">Verbindung: verschlüsselt (https). Zertifikat ausgestellt von: %1$s</string>
+    <string name="site_info_secure_unknown">Verbindung: verschlüsselt (https)</string>
+    <string name="ssl_error_back">Zurück</string>
+    <string name="ssl_error_details">Details</string>
+    <string name="ssl_error_details_mes">Probleme mit dem Zertifikat:\n%1$s</string>
+    <string name="ssl_error_proceed_unsafe">Trotzdem fortfahren (unsicher)</string>
+    <string name="ssl_error_summary">Das Zertifikat für %1$s weist ein Problem auf. Andere könnten Ihre Verbindung zu dieser Website mitlesen oder verändern.</string>
 </resources>

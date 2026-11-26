@@ -18,4 +18,13 @@
 <resources>
 
     <string name="pref_translators">david1720</string>
+
+    <string name="pref_force_enable_zoom">فعال‌سازی اجباری بزرگ‌نمایی</string>
+    <string name="pref_force_enable_zoom_summary">اجازه بزرگ‌نمایی حتی در صفحاتی که از آن جلوگیری می‌کنند</string>
+    <string name="pref_open_app_links">باز کردن پیوندها در برنامه‌ها</string>
+    <string name="pref_open_app_links_summary">با زدن روی پیوند، آن را در برنامه پیش‌فرض مربوط به آن نشانی که مرورگر نیست باز کنید (مانند X، Instagram یا YouTube). پیوندهای داخل همان سایت در مرورگر باز می‌شوند (Android 11+)</string>
+    <string name="search_reset_defaults">بازنشانی به پیش‌فرض‌ها</string>
+    <string name="search_reset_defaults_done">موتورهای جستجو به پیش‌فرض‌ها بازنشانی شدند</string>
+    <string name="search_reset_defaults_failed">بازنشانی انجام نشد. تنظیمات فعلی تغییر نکردند</string>
+    <string name="search_reset_defaults_message">فهرست موتورهای جستجو و موتور جستجوی پیش‌فرض را به پیش‌فرض‌های Citrus برای زبان شما بازنشانی کنید (Google به‌عنوان پیش‌فرض). موتورهای جستجوی افزوده‌شده یا ویرایش‌شده حذف خواهند شد.</string>
 </resources>

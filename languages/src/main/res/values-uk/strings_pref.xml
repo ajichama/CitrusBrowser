@@ -453,5 +453,12 @@
     <string name="pref_show_icon">Відображати піктограми</string>
     <string name="pref_translation">Переклад</string>
     <string name="pref_translators">cytergen</string>
+
+    <string name="pref_open_app_links">Відкривати посилання в застосунках</string>
+    <string name="pref_open_app_links_summary">Коли ви натискаєте посилання, відкривати його в типовому застосунку для цієї адреси, якщо це не браузер (наприклад, X, Instagram або YouTube). Посилання в межах того самого сайту залишаються в браузері (Android 11+)</string>
+    <string name="search_reset_defaults">Відновити типові значення</string>
+    <string name="search_reset_defaults_done">Відновлено типові пошукові системи</string>
+    <string name="search_reset_defaults_failed">Не вдалося відновити. Поточні налаштування не змінено</string>
+    <string name="search_reset_defaults_message">Відновити список пошукових систем і типову пошукову систему до типових налаштувань Citrus для вашої мови (типово Google). Додані або змінені пошукові системи буде видалено.</string>
 </resources>
 

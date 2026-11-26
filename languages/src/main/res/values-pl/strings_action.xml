@@ -123,4 +123,9 @@
     <string name="action_reader_mode">Tryb czytnika</string>
     <string name="action_read_it_later">Przeczytaj później</string>
     <string name="action_read_it_later_list">Lista przeczytaj później</string>
+
+    <string name="action_new_private_tab">Nowa karta prywatna</string>
+    <string name="action_page_tools">Narzędzia strony</string>
+    <string name="action_qr_scan">Skanuj kod QR</string>
+    <string name="action_toggle_desktop_site">Wersja komputerowa</string>
 </resources>

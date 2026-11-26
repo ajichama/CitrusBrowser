@@ -123,4 +123,9 @@
     <string name="action_reader_mode">Okuyucu modu</string>
     <string name="action_read_it_later">Sonra oku</string>
     <string name="action_read_it_later_list">Sonra okuma listesi</string>
+
+    <string name="action_new_private_tab">Yeni özel sekme</string>
+    <string name="action_page_tools">Sayfa araçları</string>
+    <string name="action_qr_scan">QR kodunu tara</string>
+    <string name="action_toggle_desktop_site">Masaüstü sitesi</string>
 </resources>

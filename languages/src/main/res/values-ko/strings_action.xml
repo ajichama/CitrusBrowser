@@ -122,4 +122,9 @@
     <string name="action_reader_mode">읽기 모드</string>
     <string name="action_read_it_later">나중에 읽기</string>
     <string name="action_read_it_later_list">나중에 읽기 목록</string>
+
+    <string name="action_new_private_tab">새 프라이빗 탭</string>
+    <string name="action_page_tools">페이지 도구</string>
+    <string name="action_qr_scan">QR 코드 스캔</string>
+    <string name="action_toggle_desktop_site">데스크톱 사이트</string>
 </resources>
