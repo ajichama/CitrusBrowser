@@ -1,23 +1,28 @@
 # ロードマップ（要望の候補）
 
-更新日: 2026-11-22（方向性と進める順番を追加）。2026-11-20 に一次資料で再精査。現代のブラウザ（Firefox・Vivaldi・Brave・Chrome 等）との比較調査を元にした、今後の機能の候補です。需要と実装量を見て、着手するかを決めます。
+更新日: 2026-11-26（進める順番を見直し）。2026-11-20 に一次資料で再精査。現代のブラウザ（Firefox・Vivaldi・Brave・Chrome 等）との比較調査を元にした、今後の機能の候補です。需要と実装量を見て、着手するかを決めます。
 
 各候補は GitHub の Issue に登録しました（2026-11-20）。表の番号の右の # が Issue の番号です。議論や優先度の変更は Issue で行います。
 
-## 方向性と進める順番（2026-11-22）
+## 方向性と進める順番（2026-11-26 見直し）
 
-Yuzu Browser の後継として「自分好みに組み替えられるブラウザ」を軸にします（拡張機能を使える Gecko 版も視野に残す）。デザイン・性能・品質・配布の方向も含めて検討し、進める順番を [#30](https://github.com/ajichama/CitrusBrowser/issues/30) にまとめました。
+Yuzu Browser の後継として「自分好みに組み替えられるブラウザ」を軸にします（拡張機能を使える Gecko 版も視野に残す）。進める順番は [#30](https://github.com/ajichama/CitrusBrowser/issues/30) にもまとめています。
 
-1. [#22](https://github.com/ajichama/CitrusBrowser/issues/22) 翻訳の抜け
-2. [#23](https://github.com/ajichama/CitrusBrowser/issues/23) 主要な操作の自動テスト
-3. [#24](https://github.com/ajichama/CitrusBrowser/issues/24) 性能の計測の仕組み
-4. [#25](https://github.com/ajichama/CitrusBrowser/issues/25) 設定内の検索
-5. [#26](https://github.com/ajichama/CitrusBrowser/issues/26) 横向きの入力欄
-6. [#27](https://github.com/ajichama/CitrusBrowser/issues/27) WebView の安全設定の点検
-7. [#28](https://github.com/ajichama/CitrusBrowser/issues/28) コードの近代化
-8. [#29](https://github.com/ajichama/CitrusBrowser/issues/29) Material 3 の統一
+2026-11-22 に決めた順番のうち、#22・#25・#26 は済みました。2026-11-26 に、開いている Issue の優先度と作業の重さを見直し、次の順番にしました（作業の重さは、小＝1つの画面や数個のファイル、中＝複数の画面やモジュールにまたがるか実機での確認が要る、大＝保存の形式やアプリ全体に及ぶ）。
 
-Google Play の公開は並行して進めます。下の候補（#1〜#9）は、この順番の後に回します。議論・調査してから決める項目と、調べる順番の方針は #30 にあります。
+1. **クイックコントロールを使える状態にする・操作の検索**（次の版）
+   - [#37](https://github.com/ajichama/CitrusBrowser/issues/37) 項目の変更をすぐ反映する（小）
+   - [#36](https://github.com/ajichama/CitrusBrowser/issues/36) 新しく入れたときの既定の項目（小。中身は案を示して決める）
+   - [#38](https://github.com/ajichama/CitrusBrowser/issues/38) ジェスチャーナビゲーションとの衝突（中）
+   - [#42](https://github.com/ajichama/CitrusBrowser/issues/42) 操作を選ぶ画面の検索（小〜中）
+2. **安全網と安全設定**
+   - [#23](https://github.com/ajichama/CitrusBrowser/issues/23) 主要な操作の自動テスト（中〜大。まず起動・タブ・設定・操作の配列の整合を確かめる最小の版から）
+   - [#27](https://github.com/ajichama/CitrusBrowser/issues/27) WebView の安全設定の点検（小〜中。Google Play の審査の前に）
+3. **軽くて効果のある機能**: [#8](https://github.com/ajichama/CitrusBrowser/issues/8) 追加のフィルタリスト（小）→ [#7](https://github.com/ajichama/CitrusBrowser/issues/7) GPC（小）→ [#3](https://github.com/ajichama/CitrusBrowser/issues/3) タブのミュート（小）→ [#2](https://github.com/ajichama/CitrusBrowser/issues/2) PiP（小〜中）
+4. **計測と中くらいの機能**: [#24](https://github.com/ajichama/CitrusBrowser/issues/24) 性能の計測（中）の後に、[#1](https://github.com/ajichama/CitrusBrowser/issues/1) HTTPS 優先・[#4](https://github.com/ajichama/CitrusBrowser/issues/4) メディア通知・[#41](https://github.com/ajichama/CitrusBrowser/issues/41) 長押しの並べ替えを広げる・[#9](https://github.com/ajichama/CitrusBrowser/issues/9) の小さな候補から選ぶ
+5. **大きな作業**: [#28](https://github.com/ajichama/CitrusBrowser/issues/28) コードの近代化（大、#23 の後）→ [#29](https://github.com/ajichama/CitrusBrowser/issues/29) Material 3 の統一（大、議論の後）、[#6](https://github.com/ajichama/CitrusBrowser/issues/6) タブグループ・[#5](https://github.com/ajichama/CitrusBrowser/issues/5) Cookie の分離（大）
+
+Google Play の公開は並行して進めます。議論・調査してから決める項目と、調べる順番の方針は #30 にあります。
 
 ## 実装済み（2026-11-20）
 
