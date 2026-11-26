@@ -353,4 +353,5 @@
     <string name="ssl_error_details_mes">Problemas com o certificado:\n%1$s</string>
     <string name="ssl_error_proceed_unsafe">Continuar mesmo assim (não seguro)</string>
     <string name="ssl_error_summary">O certificado de %1$s tem um problema. Outras pessoas podem ler ou alterar sua comunicação com este site.</string>
+    <string name="pref_qc_show_label">Mostrar o nome do item selecionado</string>
 </resources>

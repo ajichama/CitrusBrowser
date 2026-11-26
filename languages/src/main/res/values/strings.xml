@@ -378,4 +378,5 @@
     <string name="popup_allowed_retry">Pop-ups are allowed for %1$s. Please try again.</string>
     <string name="site_info_clear_on_close">Clear %1$s data automatically when its tab is closed (if no other tab shows this site)</string>
     <string name="site_info_certificate_error">Connection: the certificate has a problem (shown after you ignored the warning)</string>
+    <string name="pref_qc_show_label">Show the name of the selected item</string>
 </resources>

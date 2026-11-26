@@ -354,5 +354,6 @@
     <string name="ssl_error_details_mes">Проблеми із сертифікатом:\n%1$s</string>
     <string name="ssl_error_proceed_unsafe">Усе одно продовжити (небезпечно)</string>
     <string name="ssl_error_summary">Проблема із сертифікатом %1$s. Сторонні можуть прочитати або змінити дані, якими ви обмінюєтеся із цим сайтом.</string>
+    <string name="pref_qc_show_label">Показувати назву вибраного елемента</string>
 </resources>
 

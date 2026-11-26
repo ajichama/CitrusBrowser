@@ -349,4 +349,5 @@
     <string name="ssl_error_details_mes">Problemi con il certificato:\n%1$s</string>
     <string name="ssl_error_proceed_unsafe">Procedi comunque (non sicuro)</string>
     <string name="ssl_error_summary">Il certificato di %1$s presenta un problema. Altri potrebbero leggere o modificare le comunicazioni con questo sito.</string>
+    <string name="pref_qc_show_label">Mostra il nome dell\'elemento selezionato</string>
 </resources>

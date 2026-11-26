@@ -53,4 +53,5 @@
     <string name="open_containing_folder">باز کردن پوشهٔ دربرگیرنده</string>
     <string name="search_settings">جستجو در تنظیمات</string>
     <string name="settings_search_no_result">تنظیمی مطابق یافت نشد</string>
+    <string name="pref_qc_show_label">نمایش نام مورد انتخاب‌شده</string>
 </resources>

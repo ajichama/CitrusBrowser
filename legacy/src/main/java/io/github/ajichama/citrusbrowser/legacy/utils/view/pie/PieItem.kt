@@ -31,7 +31,7 @@ import io.github.ajichama.citrusbrowser.legacy.utils.view.pie.PieMenu.PieView
 /**
  * Pie menu item
  */
-class PieItem @JvmOverloads constructor(context: Context, itemsize: Int, private val action: Action, private val controller: ActionController, private val iconManager: ActionIconManager, val level: Int, var pieView: PieView? = null) : View.OnClickListener {
+class PieItem @JvmOverloads constructor(context: Context, itemsize: Int, private val action: Action, private val controller: ActionController, private val iconManager: ActionIconManager, val level: Int, val title: String? = null, var pieView: PieView? = null) : View.OnClickListener {
     val view = ImageView(context).apply {
         scaleType = ScaleType.FIT_CENTER
         layoutParams = ViewGroup.LayoutParams(itemsize, itemsize)

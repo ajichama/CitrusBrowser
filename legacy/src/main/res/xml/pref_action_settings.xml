@@ -396,6 +396,10 @@
             android:key="qc_enable"
             android:title="@string/pref_qc_enable"
             app:iconSpaceReserved="false" />
+        <SwitchPreference
+            android:key="qc_show_label"
+            android:title="@string/pref_qc_show_label"
+            app:iconSpaceReserved="false" />
 
         <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
             android:key="qc_rad_start"

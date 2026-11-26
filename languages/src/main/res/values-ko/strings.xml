@@ -53,4 +53,5 @@
     <string name="open_containing_folder">포함된 폴더 열기</string>
     <string name="search_settings">설정 검색</string>
     <string name="settings_search_no_result">일치하는 설정이 없습니다</string>
+    <string name="pref_qc_show_label">선택한 항목의 이름 표시</string>
 </resources>

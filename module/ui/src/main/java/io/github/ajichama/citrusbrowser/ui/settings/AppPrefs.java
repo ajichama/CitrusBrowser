@@ -114,6 +114,7 @@ public class AppPrefs {
     public static final BooleanContainer flick_edge = new BooleanContainer("flick_edge", true);
     public static final BooleanContainer flick_disable_scroll = new BooleanContainer("flick_disable_scroll", true);
     public static final BooleanContainer qc_enable = new BooleanContainer("qc_enable", false);
+    public static final BooleanContainer qc_show_label = new BooleanContainer("qc_show_label", true);
     public static final IntContainer qc_rad_start = new IntContainer("qc_rad_start", 50);
     public static final IntContainer qc_rad_inc = new IntContainer("qc_rad_inc", 70);
     public static final IntContainer qc_slop = new IntContainer("qc_slop", 10);

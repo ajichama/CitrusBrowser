@@ -22,6 +22,7 @@ import io.github.ajichama.citrusbrowser.core.utility.extensions.density
 import io.github.ajichama.citrusbrowser.core.utility.extensions.getResColor
 import io.github.ajichama.citrusbrowser.legacy.R
 import io.github.ajichama.citrusbrowser.legacy.action.Action
+import io.github.ajichama.citrusbrowser.legacy.action.ActionNameArray
 import io.github.ajichama.citrusbrowser.legacy.action.manager.ActionController
 import io.github.ajichama.citrusbrowser.legacy.action.manager.ActionIconManager
 import io.github.ajichama.citrusbrowser.legacy.action.manager.QuickControlActionManager
@@ -52,17 +53,19 @@ class PieManager(private val context: Context, private val actionController: Act
 
     private fun makeItems() {
         val manager = QuickControlActionManager.getInstance(context)
+        // 操作の一覧と同じ名前を、選んでいる項目の吹き出しに使う（#32）
+        val nameArray = ActionNameArray(context)
 
         for (action in manager.level1.list)
-            addItem(action, 1)
+            addItem(action, 1, nameArray)
         for (action in manager.level2.list)
-            addItem(action, 2)
+            addItem(action, 2, nameArray)
         for (action in manager.level3.list)
-            addItem(action, 3)
+            addItem(action, 3, nameArray)
     }
 
-    private fun addItem(action: Action, l: Int): PieItem {
-        val item = PieItem(context, itemSize, action, actionController, iconManager, l)
+    private fun addItem(action: Action, l: Int, nameArray: ActionNameArray): PieItem {
+        val item = PieItem(context, itemSize, action, actionController, iconManager, l, action.toString(nameArray))
         pie.addItem(item)
         return item
     }
@@ -78,6 +81,7 @@ class PieManager(private val context: Context, private val actionController: Act
         pie.setRadiusIncrement((AppPrefs.qc_rad_inc.get() * density + 0.5f).toInt())
         pie.setSlop((AppPrefs.qc_slop.get() * density + 0.5f).toInt())
         pie.setPosition(AppPrefs.qc_position.get())
+        pie.setShowLabel(AppPrefs.qc_show_label.get())
     }
 
     fun onThemeChanged(themeData: ThemeData?) {

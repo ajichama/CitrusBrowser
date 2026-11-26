@@ -53,4 +53,5 @@
     <string name="open_containing_folder">Ireki karpeta edukitzailea</string>
     <string name="search_settings">Bilatu ezarpenetan</string>
     <string name="settings_search_no_result">Ez dago bat datorren ezarpenik</string>
+    <string name="pref_qc_show_label">Erakutsi hautatutako elementuaren izena</string>
 </resources>

@@ -376,4 +376,5 @@
     <string name="popup_allowed_retry">%1$s のポップアップを許可しました。もう一度操作してください。</string>
     <string name="site_info_clear_on_close">タブを閉じたら %1$s のデータを自動で消去する（同じサイトのタブがほかにない場合）</string>
     <string name="site_info_certificate_error">接続: 証明書に問題があります（警告を無視して表示しています）</string>
+    <string name="pref_qc_show_label">選んでいる項目の名前を表示</string>
 </resources>
