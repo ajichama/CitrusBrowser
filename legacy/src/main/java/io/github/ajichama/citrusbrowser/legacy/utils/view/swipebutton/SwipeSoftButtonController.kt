@@ -18,6 +18,7 @@ package io.github.ajichama.citrusbrowser.legacy.utils.view.swipebutton
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import io.github.ajichama.citrusbrowser.legacy.action.Action
 import io.github.ajichama.citrusbrowser.legacy.action.manager.ActionController
 import io.github.ajichama.citrusbrowser.legacy.action.manager.ActionIconManager
 import io.github.ajichama.citrusbrowser.legacy.action.manager.SoftButtonActionFile
@@ -61,6 +62,20 @@ class SwipeSoftButtonController
                 SWIPE_RIGHT -> it[actionList.right]
                 else -> null
             }
+        }
+    }
+
+    /** 押す・長押し・各方向へのスワイプに割り当てた操作 */
+    fun getAction(whatNo: Int): Action? {
+        val actionList = mActionList ?: return null
+        return when (whatNo) {
+            SWIPE_CANCEL, SWIPE_PRESS -> actionList.press
+            SWIPE_LPRESS -> actionList.lpress
+            SWIPE_UP -> actionList.up
+            SWIPE_DOWN -> actionList.down
+            SWIPE_LEFT -> actionList.left
+            SWIPE_RIGHT -> actionList.right
+            else -> null
         }
     }
 

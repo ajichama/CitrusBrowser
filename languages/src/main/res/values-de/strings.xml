@@ -359,6 +359,8 @@
     <string name="pref_floating_toolbar_enable_summary">Zum Verschieben den Griff am Rand ziehen</string>
     <string name="pref_floating_toolbar_buttons">Schaltflächen</string>
     <string name="pref_floating_toolbar_vertical">Senkrecht anordnen</string>
+    <string name="pref_floating_toolbar_show_label">Namen der ausgewählten Aktion anzeigen</string>
+    <string name="pref_floating_toolbar_show_label_summary">Zeigt beim Wischen über eine Schaltfläche die Aktion an, die beim Loslassen ausgeführt wird</string>
     <string name="pref_floating_toolbar_alpha">Deckkraft</string>
     <string name="pref_floating_toolbar_reset_position">Position zurücksetzen</string>
     <string name="floating_toolbar_move">Symbolleiste verschieben</string>

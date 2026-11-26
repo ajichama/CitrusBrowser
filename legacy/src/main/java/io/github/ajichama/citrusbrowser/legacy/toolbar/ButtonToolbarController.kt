@@ -31,6 +31,13 @@ import io.github.ajichama.citrusbrowser.ui.settings.AppPrefs
 open class ButtonToolbarController(private val linearLayout: ViewGroup, private val controller: ActionController, private val iconManager: ActionIconManager, private val TOOLBAR_SIZE_Y: Int) {
     private val mButtonList: ArrayList<SwipeImageButton> = ArrayList(1)
 
+    /** 各ボタンで、スワイプで選んでいる操作を知らせる先（#40） */
+    var onSwipeActionListener: SwipeImageButton.OnSwipeActionListener? = null
+        set(value) {
+            field = value
+            for (btn in mButtonList) btn.onSwipeActionListener = value
+        }
+
     fun addButtons(list: List<SoftButtonActionFile>) {
         val size = list.size
         if (mButtonList.size == size) {
@@ -46,6 +53,7 @@ open class ButtonToolbarController(private val linearLayout: ViewGroup, private 
             for (i in 0 until size) {
                 val btn = inflateButtonView(inflater, linearLayout)
                 mButtonList.add(btn)
+                btn.onSwipeActionListener = onSwipeActionListener
                 btn.setActionData(list[i], controller, iconManager)
                 btn.setSense(AppPrefs.swipebtn_sensitivity.get())
                 settingButtonSize(btn, TOOLBAR_SIZE_Y)

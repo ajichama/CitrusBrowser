@@ -59,6 +59,8 @@
     <string name="pref_floating_toolbar_enable_summary">برای جابه‌جایی، دستگیرهٔ کنار آن را بکشید</string>
     <string name="pref_floating_toolbar_buttons">دکمه‌ها</string>
     <string name="pref_floating_toolbar_vertical">چیدمان عمودی</string>
+    <string name="pref_floating_toolbar_show_label">نمایش نام عمل انتخاب‌شده</string>
+    <string name="pref_floating_toolbar_show_label_summary">هنگام کشیدن روی دکمه، عملی را که با رها کردن اجرا می‌شود نشان می‌دهد</string>
     <string name="pref_floating_toolbar_alpha">میزان کدری</string>
     <string name="pref_floating_toolbar_reset_position">بازنشانی موقعیت</string>
     <string name="floating_toolbar_move">جابه‌جایی نوار ابزار</string>

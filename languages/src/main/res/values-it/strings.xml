@@ -355,6 +355,8 @@
     <string name="pref_floating_toolbar_enable_summary">Trascina la maniglia sul bordo per spostarla</string>
     <string name="pref_floating_toolbar_buttons">Pulsanti</string>
     <string name="pref_floating_toolbar_vertical">Disponi in verticale</string>
+    <string name="pref_floating_toolbar_show_label">Mostra il nome dell\'azione selezionata</string>
+    <string name="pref_floating_toolbar_show_label_summary">Durante lo scorrimento su un pulsante, mostra l\'azione che verrà eseguita al rilascio</string>
     <string name="pref_floating_toolbar_alpha">Opacità</string>
     <string name="pref_floating_toolbar_reset_position">Ripristina posizione</string>
     <string name="floating_toolbar_move">Sposta la barra degli strumenti</string>

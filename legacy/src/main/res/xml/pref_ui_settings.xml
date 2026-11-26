@@ -308,6 +308,11 @@
                 android:key="floatbar_vertical"
                 android:title="@string/pref_floating_toolbar_vertical"
                 app:iconSpaceReserved="false" />
+            <SwitchPreference
+                android:key="floatbar_show_label"
+                android:title="@string/pref_floating_toolbar_show_label"
+                android:summary="@string/pref_floating_toolbar_show_label_summary"
+                app:iconSpaceReserved="false" />
             <io.github.ajichama.citrusbrowser.ui.preference.SeekbarPreference
                 android:key="floatbar_size"
                 android:title="@string/pref_toolbar_size"

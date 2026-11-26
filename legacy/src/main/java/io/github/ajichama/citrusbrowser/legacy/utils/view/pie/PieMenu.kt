@@ -19,10 +19,7 @@ package io.github.ajichama.citrusbrowser.legacy.utils.view.pie
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
-import android.text.TextPaint
-import android.text.TextUtils
 import android.util.AttributeSet
-import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.SoundEffectConstants
 import android.view.ViewGroup
@@ -67,19 +64,7 @@ class PieMenu @JvmOverloads constructor(
     // 選んでいる項目の名前の吹き出し（#32）
     private var showLabel = true
     private val touchPoint = PointF()
-    private val labelPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.WHITE
-        textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16f, resources.displayMetrics)
-    }
-    private val labelBackgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = LABEL_BACKGROUND_COLOR
-    }
-    private val labelRect = RectF()
-    private val labelPaddingH = dp(12f)
-    private val labelPaddingV = dp(8f)
-    private val labelOffset = dp(56f)
-    private val labelMargin = dp(8f)
-    private val labelRadius = dp(8f)
+    private val label = ActionLabelDrawable(context)
 
     interface PieController {
         /**
@@ -253,22 +238,9 @@ class PieMenu @JvmOverloads constructor(
 
     /** 指の上（上端に近いときは指の下）に、選んでいる項目の名前を描く */
     private fun drawLabel(canvas: Canvas, title: String) {
-        val maxTextWidth = width - 2 * (labelMargin + labelPaddingH)
-        if (maxTextWidth <= 0f) return
-        val text = TextUtils.ellipsize(title, labelPaint, maxTextWidth, TextUtils.TruncateAt.END).toString()
-        if (text.isEmpty()) return
-        val fm = labelPaint.fontMetrics
-        val boxWidth = labelPaint.measureText(text) + 2 * labelPaddingH
-        val boxHeight = fm.descent - fm.ascent + 2 * labelPaddingV
-        val pos = PieLabelLayout.place(touchPoint.x, touchPoint.y, boxWidth, boxHeight,
-                width.toFloat(), height.toFloat(), labelOffset, labelMargin)
-        labelRect.set(pos.left, pos.top, pos.left + boxWidth, pos.top + boxHeight)
-        canvas.drawRoundRect(labelRect, labelRadius, labelRadius, labelBackgroundPaint)
-        canvas.drawText(text, labelRect.left + labelPaddingH, labelRect.top + labelPaddingV - fm.ascent, labelPaint)
+        label.place(title, touchPoint.x, touchPoint.y, width, height)
+        label.draw(canvas)
     }
-
-    private fun dp(value: Float): Float =
-            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, resources.displayMetrics)
 
     private fun drawItem(canvas: Canvas, item: PieItem) {
         // draw the item view
@@ -475,6 +447,5 @@ class PieMenu @JvmOverloads constructor(
     companion object {
 
         private const val MAX_LEVELS = 5
-        private const val LABEL_BACKGROUND_COLOR = 0xE6303030.toInt()
     }
 }

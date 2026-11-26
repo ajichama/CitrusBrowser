@@ -59,6 +59,8 @@
     <string name="pref_floating_toolbar_enable_summary">Przeciągnij uchwyt na krawędzi, aby go przesunąć</string>
     <string name="pref_floating_toolbar_buttons">Przyciski</string>
     <string name="pref_floating_toolbar_vertical">Układ pionowy</string>
+    <string name="pref_floating_toolbar_show_label">Pokazuj nazwę wybranej akcji</string>
+    <string name="pref_floating_toolbar_show_label_summary">Podczas przesuwania po przycisku pokazuje akcję, która zostanie wykonana po puszczeniu</string>
     <string name="pref_floating_toolbar_alpha">Krycie</string>
     <string name="pref_floating_toolbar_reset_position">Resetuj położenie</string>
     <string name="floating_toolbar_move">Przesuń pasek narzędzi</string>

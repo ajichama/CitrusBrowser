@@ -364,6 +364,8 @@
     <string name="pref_floating_toolbar_enable_summary">拖动边缘的手柄即可移动</string>
     <string name="pref_floating_toolbar_buttons">按钮</string>
     <string name="pref_floating_toolbar_vertical">垂直排列</string>
+    <string name="pref_floating_toolbar_show_label">显示所选操作的名称</string>
+    <string name="pref_floating_toolbar_show_label_summary">在按钮上滑动时，显示松开后将执行的操作</string>
     <string name="pref_floating_toolbar_alpha">不透明度</string>
     <string name="pref_floating_toolbar_reset_position">重置位置</string>
     <string name="floating_toolbar_move">移动工具栏</string>

@@ -63,6 +63,7 @@ public class AppPrefs {
     // フローティングツールバー（#35）。位置は動かせる範囲に対する割合（0〜1）
     public static final BooleanContainer floatbar_enable = new BooleanContainer("floatbar_enable", false);
     public static final BooleanContainer floatbar_vertical = new BooleanContainer("floatbar_vertical", false);
+    public static final BooleanContainer floatbar_show_label = new BooleanContainer("floatbar_show_label", true);
     public static final IntContainer floatbar_size = new IntContainer("floatbar_size", 40);
     public static final IntContainer floatbar_alpha = new IntContainer("floatbar_alpha", 85);
     public static final FloatContainer floatbar_x = new FloatContainer("floatbar_x", 0.5F);
