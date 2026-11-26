@@ -45,6 +45,7 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
 
+        <!-- 横向きでも全画面入力にせず、QR のボタンと候補を隠さない（#26）。 -->
         <EditText
             android:id="@+id/editText"
             android:layout_width="0dp"
@@ -53,7 +54,7 @@
             android:background="@android:color/transparent"
             android:ems="10"
             android:hint="@string/search_editText_hint"
-            android:imeOptions="actionGo"
+            android:imeOptions="actionGo|flagNoExtractUi|flagNoFullscreen"
             android:inputType="text|textUri"
             android:onTextChanged="@{(text, s, b, c) -> viewModel.setQuery(text.toString())}"
             app:callback="@{callback}"
