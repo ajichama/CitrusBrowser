@@ -135,6 +135,8 @@
     <string name="end_sort">Сортировка завершена!</string>
     <string name="sort_by_name">Сортировать по имени</string>
     <string name="sort_by_name_confirm">Отсортировать эту папку по имени? Папки будут размещены первыми. Текущий порядок восстановить нельзя.</string>
+    <string name="search_bookmarks_hint">Поиск по закладкам</string>
+    <string name="open_containing_folder">Открыть родительскую папку</string>
     <string name="edit_bookmark">Изменить закладку</string>
     <string name="move_bookmark">Переместить в…</string>
     <string name="proxy_enable">Включить прокси</string>

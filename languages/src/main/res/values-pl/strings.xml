@@ -49,4 +49,6 @@
     <string name="ssl_error_summary">Występuje problem z certyfikatem witryny %1$s. Inne osoby mogą odczytać lub zmienić dane przesyłane między Tobą a tą witryną.</string>
     <string name="sort_by_name">Sortuj według nazwy</string>
     <string name="sort_by_name_confirm">Posortować ten folder według nazwy? Foldery zostaną umieszczone na początku. Obecnej kolejności nie można przywrócić.</string>
+    <string name="search_bookmarks_hint">Szukaj w zakładkach</string>
+    <string name="open_containing_folder">Otwórz folder nadrzędny</string>
 </resources>

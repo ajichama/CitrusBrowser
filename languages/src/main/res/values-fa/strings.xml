@@ -49,4 +49,6 @@
     <string name="ssl_error_summary">گواهی %1$s مشکلی دارد. ممکن است دیگران بتوانند ارتباط شما با این سایت را بخوانند یا تغییر دهند.</string>
     <string name="sort_by_name">مرتب‌سازی بر اساس نام</string>
     <string name="sort_by_name_confirm">این پوشه بر اساس نام مرتب شود؟ پوشه‌ها در ابتدا قرار می‌گیرند. ترتیب فعلی قابل بازگرداندن نیست.</string>
+    <string name="search_bookmarks_hint">جستجو در نشانک‌ها</string>
+    <string name="open_containing_folder">باز کردن پوشهٔ دربرگیرنده</string>
 </resources>

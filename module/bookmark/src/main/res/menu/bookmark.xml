@@ -18,11 +18,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- ブックマーク画面の中の検索（#34）。 -->
+    <item
+        android:id="@+id/searchBookmark"
+        android:title="@string/search"
+        android:icon="@drawable/ic_search_white_24dp"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="ifRoom|collapseActionView"/>
+
     <item
         android:id="@+id/addFolder"
         android:title="@string/add_folder"
         android:icon="@drawable/ic_create_new_folder_white_24dp"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
 
     <item
         android:id="@+id/sort"

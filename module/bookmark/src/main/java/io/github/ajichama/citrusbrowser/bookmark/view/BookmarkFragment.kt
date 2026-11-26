@@ -26,6 +26,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -37,6 +38,7 @@ import io.github.ajichama.citrusbrowser.bookmark.item.BookmarkFolder
 import io.github.ajichama.citrusbrowser.bookmark.item.BookmarkItem
 import io.github.ajichama.citrusbrowser.bookmark.item.BookmarkSite
 import io.github.ajichama.citrusbrowser.bookmark.overflow.MenuType
+import io.github.ajichama.citrusbrowser.bookmark.repository.BookmarkFinder
 import io.github.ajichama.citrusbrowser.bookmark.repository.BookmarkManager
 import io.github.ajichama.citrusbrowser.bookmark.repository.HideMenuRepository
 import io.github.ajichama.citrusbrowser.browser.connecter.openable.OpenUrl
@@ -75,6 +77,12 @@ class BookmarkFragment : Fragment(), BookmarkItemAdapter.OnBookmarkRecyclerListe
     private var showBreadCrumb = true
 
     private lateinit var breadcrumbAdapter: BreadcrumbsViewAdapter<BookmarkCrumb>
+
+    /** 画面の中の検索の結果（#34）。検索していないときは null。 */
+    private var searchHits: List<BookmarkFinder.Hit>? = null
+    private var searchQuery = ""
+    private var searchMenuItem: MenuItem? = null
+    private var optionsMenu: Menu? = null
 
     @Inject
     internal lateinit var hideMenuRepository: HideMenuRepository
@@ -141,6 +149,10 @@ class BookmarkFragment : Fragment(), BookmarkItemAdapter.OnBookmarkRecyclerListe
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(this) {
+            if (searchHits != null) {
+                closeSearch()
+                return@addCallback
+            }
             if (adapter.isSortMode) {
                 adapter.isSortMode = false
                 Toast.makeText(activity, R.string.end_sort, Toast.LENGTH_SHORT).show()
@@ -173,25 +185,103 @@ class BookmarkFragment : Fragment(), BookmarkItemAdapter.OnBookmarkRecyclerListe
     }
 
     override fun onBreadcrumbItemClick(position: Int) {
-        setList(breadcrumbAdapter.crumbs[position].folder)
+        val folder = breadcrumbAdapter.crumbs[position].folder
         breadcrumbAdapter.select(position)
+        if (searchHits != null) {
+            // 検索を閉じると、mCurrentFolder の中身を表示し直す。
+            mCurrentFolder = folder
+            closeSearch()
+        } else {
+            setList(folder)
+        }
     }
 
     private fun setList(folder: BookmarkFolder) {
-        val activity = requireActivity()
         mCurrentFolder = folder
         setTitle(folder)
+        showItems(folder.itemList)
+    }
 
+    private fun showItems(items: MutableList<BookmarkItem>) {
+        val activity = requireActivity()
         adapter = if (AppPrefs.bookmarkSimpleDisplay.get()) {
-            BookmarkSingleLineAdapter(activity, folder.itemList, pickMode, AppPrefs.openBookmarkNewTab.get(), AppPrefs.fontSizeBookmark.get(), faviconManager, this)
+            BookmarkSingleLineAdapter(activity, items, pickMode, AppPrefs.openBookmarkNewTab.get(), AppPrefs.fontSizeBookmark.get(), faviconManager, this)
         } else {
-            BookmarkFullAdapter(activity, folder.itemList, pickMode, AppPrefs.openBookmarkNewTab.get(), AppPrefs.fontSizeBookmark.get(), faviconManager, this)
+            BookmarkFullAdapter(activity, items, pickMode, AppPrefs.openBookmarkNewTab.get(), AppPrefs.fontSizeBookmark.get(), faviconManager, this)
         }
 
         binding.recyclerView.adapter = adapter
     }
 
+    private fun startSearch() {
+        // 並べ替え・複数選択は今のフォルダの並びを前提にするので、検索の間は使わない。
+        adapter.isSortMode = false
+        actionMode?.finish()
+        searchQuery = ""
+        searchHits = emptyList()
+        showItems(mutableListOf())
+        setOtherMenuItemsVisible(false)
+    }
+
+    /** フォルダの追加・並べ替え・表示の切り替えは今のフォルダに対する操作なので、検索の間は隠す（戻すのは endSearch）。 */
+    private fun setOtherMenuItemsVisible(visible: Boolean) {
+        val menu = optionsMenu ?: return
+        for (i in 0 until menu.size()) {
+            val item = menu.getItem(i)
+            if (item.itemId != R.id.searchBookmark) item.isVisible = visible
+        }
+    }
+
+    private fun updateSearch(query: String) {
+        searchQuery = query
+        val hits = BookmarkFinder.find(root, query)
+        searchHits = hits
+        showItems(hits.mapTo(mutableListOf()) { it.item })
+    }
+
+    /** 編集・削除の後に、同じ言葉で探し直す。 */
+    private fun refreshSearch() {
+        if (searchHits != null && viewBinding != null) updateSearch(searchQuery)
+    }
+
+    private fun endSearch(rebuildMenu: Boolean = true) {
+        searchHits = null
+        // 閉じる処理の途中で項目を表示に戻しても上のバーに反映されないので、メニューを作り直して戻す。
+        if (rebuildMenu) activity?.invalidateOptionsMenu()
+        if (viewBinding != null) setList(mCurrentFolder)
+    }
+
+    private fun closeSearch() {
+        val item = searchMenuItem
+        if (item != null && item.isActionViewExpanded) {
+            item.collapseActionView()
+        } else {
+            endSearch()
+        }
+    }
+
+    /** 検索の結果から、フォルダ（または入っているフォルダ）を開く。 */
+    private fun showFolderFromSearch(folder: BookmarkFolder) {
+        breadcrumbAdapter.select(0)
+        BookmarkFinder.pathOf(folder).drop(1).forEach { breadcrumbAdapter.addItem(getCrumb(it)) }
+        mCurrentFolder = folder
+        closeSearch()
+        binding.subBar.setExpanded(true, false)
+    }
+
     override fun onRecyclerItemClicked(v: View, position: Int) {
+        val hits = searchHits
+        if (hits != null) {
+            when (val item = hits.getOrNull(position)?.item) {
+                is BookmarkSite -> {
+                    sendUrl(item.url, AppPrefs.newtabBookmark.get())
+                    activity?.finish()
+                }
+                is BookmarkFolder -> showFolderFromSearch(item)
+                else -> Unit
+            }
+            return
+        }
         when (val item = mCurrentFolder[position]) {
             is BookmarkSite -> {
                 if (pickMode) {
@@ -211,7 +301,7 @@ class BookmarkFragment : Fragment(), BookmarkItemAdapter.OnBookmarkRecyclerListe
     }
 
     override fun onRecyclerItemLongClicked(v: View, position: Int): Boolean {
-        return if (!adapter.isSortMode && !pickMode) {
+        return if (!adapter.isSortMode && !pickMode && searchHits == null) {
             if (adapter.isMultiSelectMode) {
                 adapter.toggle(position)
             } else {
@@ -233,7 +323,11 @@ class BookmarkFragment : Fragment(), BookmarkItemAdapter.OnBookmarkRecyclerListe
     }
 
     override fun onShowMenu(v: View, position: Int) {
-        showContextMenu(v, position)
+        if (searchHits != null) {
+            showSearchContextMenu(v, position)
+        } else {
+            showContextMenu(v, position)
+        }
     }
 
     override fun onCancelMultiSelectMode() {
@@ -274,9 +368,42 @@ class BookmarkFragment : Fragment(), BookmarkItemAdapter.OnBookmarkRecyclerListe
             menu.findItem(R.id.breadcrumbs).isChecked = show
             menu.findItem(R.id.simpleDisplay).isChecked = AppPrefs.bookmarkSimpleDisplay.get()
             showBreadCrumbs(show)
+            setUpSearch(menu, menu.findItem(R.id.searchBookmark))
 
             applyIconColor(menu)
         }
+    }
+
+    private fun setUpSearch(menu: Menu, item: MenuItem) {
+        // メニューを作り直したときは、開いたままの検索を閉じた状態にそろえる。
+        if (searchHits != null) endSearch(rebuildMenu = false)
+        optionsMenu = menu
+        searchMenuItem = item
+        (item.actionView as SearchView).apply {
+            queryHint = getString(R.string.search_bookmarks_hint)
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    clearFocus()
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String): Boolean {
+                    if (searchHits != null) updateSearch(newText)
+                    return true
+                }
+            })
+        }
+        item.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                startSearch()
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                endSearch()
+                return true
+            }
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -383,6 +510,56 @@ class BookmarkFragment : Fragment(), BookmarkItemAdapter.OnBookmarkRecyclerListe
             true
         }
         menu.show()
+    }
+
+    /** 検索の結果の行のメニュー（#34）。並び順に関わる操作は出さず、「入っているフォルダを開く」を足す。 */
+    private fun showSearchContextMenu(v: View, position: Int) {
+        val hit = searchHits?.getOrNull(position) ?: return
+        val isSite = hit.item is BookmarkSite
+
+        val popup = PopupMenu(requireActivity(), v, locationDetector.gravity)
+        val menu = popup.menu
+        popup.menuInflater.inflate(if (isSite) R.menu.bookmark_site_menu else R.menu.bookmark_folder_menu, menu)
+        hideMenuRepository.getHideMenu(if (isSite) MenuType.SITE else MenuType.FOLDER).forEach(menu::removeItem)
+        menu.removeItem(R.id.moveBookmark)
+        menu.removeItem(R.id.moveUp)
+        menu.removeItem(R.id.moveDown)
+        menu.add(Menu.NONE, R.id.openContainingFolder, Menu.NONE, R.string.open_containing_folder)
+
+        popup.setOnMenuItemClickListener { item ->
+            onSearchContextMenuClick(item.itemId, hit)
+            true
+        }
+        popup.show()
+    }
+
+    private fun onSearchContextMenuClick(id: Int, hit: BookmarkFinder.Hit) {
+        val activity = requireActivity()
+        val item = hit.item
+
+        when (id) {
+            R.id.openContainingFolder -> showFolderFromSearch(hit.parent)
+            R.id.editBookmark -> when (item) {
+                is BookmarkSite -> AddBookmarkSiteDialog(activity, mManager, item)
+                    .setOnClickListener { _, _ -> refreshSearch() }
+                    .show()
+                is BookmarkFolder -> AddBookmarkFolderDialog(activity, mManager, item)
+                    .setOnClickListener { _, _ -> refreshSearch() }
+                    .show()
+            }
+            R.id.deleteBookmark -> AlertDialog.Builder(activity)
+                .setTitle(R.string.confirm)
+                .setMessage(R.string.confirm_delete_bookmark)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    mManager.remove(hit.parent, item)
+                    mManager.save()
+                    refreshSearch()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+            // 開く・共有・URL のコピー・ホームへの追加・すべて開く は、位置を使わないので共通の処理に任せる。
+            else -> onContextMenuClick(id, item, -1)
+        }
     }
 
     private fun pickBookmark(site: BookmarkSite) {
@@ -585,6 +762,8 @@ class BookmarkFragment : Fragment(), BookmarkItemAdapter.OnBookmarkRecyclerListe
             AppPrefs.saveBookmarkFolderId.set(mCurrentFolder.id)
             AppPrefs.commit(requireContext(), AppPrefs.saveBookmarkFolderId)
         }
+        searchMenuItem = null
+        optionsMenu = null
         viewBinding = null
     }
 
