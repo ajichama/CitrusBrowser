@@ -1,0 +1,194 @@
+/*
+ * スピードダイヤルのタイルの長押し（#39）。
+ * 長押しでタイルを持ち上げ、そのまま指を動かすと並べ替える。離すと順番をアプリへ渡す。
+ * 動かさずに離したときは、アプリにこのタイルのメニューを頼む。
+ * アプリへは citrus:speeddial/… への移動で伝え、アプリはその移動を取り消して処理する。
+ */
+(function () {
+    'use strict';
+
+    var LONG_PRESS_MS = 450;
+    var SLOP = 10;
+
+    var linkBox = document.querySelector('.linkBox');
+    if (!linkBox) return;
+
+    var box = null;
+    var timer = 0;
+    var startX = 0;
+    var startY = 0;
+    var lifted = false;
+    var dragging = false;
+    var grabX = 0;
+    var grabY = 0;
+    var startOrder = '';
+    var suppressClick = false;
+
+    function tell(path) {
+        location.href = 'citrus:speeddial/' + path;
+    }
+
+    function order() {
+        var ids = [];
+        var boxes = linkBox.querySelectorAll('.box');
+        for (var i = 0; i < boxes.length; i++) ids.push(boxes[i].getAttribute('data-id'));
+        return ids.join(',');
+    }
+
+    function clearTimer() {
+        if (timer) {
+            clearTimeout(timer);
+            timer = 0;
+        }
+    }
+
+    function lift() {
+        clearTimer();
+        if (!box || lifted) return;
+        lifted = true;
+        suppressClick = true;
+        startOrder = order();
+        box.classList.add('lifted');
+        tell('lift');
+    }
+
+    function reset() {
+        clearTimer();
+        if (box) {
+            box.classList.remove('lifted');
+            box.classList.remove('dragging');
+            box.style.transform = '';
+        }
+        box = null;
+        lifted = false;
+        dragging = false;
+    }
+
+    // 指の位置へ、持っているタイルを動かす
+    function follow(x, y) {
+        box.style.transform = '';
+        var rect = box.getBoundingClientRect();
+        box.style.transform = 'translate(' + (x - grabX - rect.left) + 'px,' + (y - grabY - rect.top) + 'px) scale(1.06)';
+    }
+
+    // 動きの途中の見た目ではなく、並びの上の場所（transform を含まない）
+    function layoutRect(el) {
+        var parent = el.offsetParent;
+        var p = parent ? parent.getBoundingClientRect() : { left: 0, top: 0 };
+        var left = p.left + (parent ? parent.clientLeft : 0) + el.offsetLeft;
+        var top = p.top + (parent ? parent.clientTop : 0) + el.offsetTop;
+        return { left: left, top: top, right: left + el.offsetWidth, bottom: top + el.offsetHeight };
+    }
+
+    // 指の下のタイルと場所を入れ替える。ほかのタイルは、元の場所から滑らかに動かす。
+    // 当たりは並びの上の場所で決める（よけている途中の見た目で決めると、入れ替えを繰り返すため）
+    function moveOver(x, y) {
+        var boxes = linkBox.querySelectorAll('.box');
+        var target = null;
+        for (var i = 0; i < boxes.length; i++) {
+            if (boxes[i] === box) continue;
+            var r = layoutRect(boxes[i]);
+            if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) {
+                target = boxes[i];
+                break;
+            }
+        }
+        if (!target) return;
+
+        var before = [];
+        for (var j = 0; j < boxes.length; j++) {
+            if (boxes[j] !== box) before.push([boxes[j], boxes[j].getBoundingClientRect()]);
+        }
+        var list = Array.prototype.slice.call(boxes);
+        if (list.indexOf(target) > list.indexOf(box)) {
+            linkBox.insertBefore(box, target.nextSibling);
+        } else {
+            linkBox.insertBefore(box, target);
+        }
+        for (var k = 0; k < before.length; k++) {
+            var el = before[k][0];
+            var old = before[k][1];
+            var now = el.getBoundingClientRect();
+            var dx = old.left - now.left;
+            var dy = old.top - now.top;
+            if (dx === 0 && dy === 0) continue;
+            el.style.transition = 'none';
+            el.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+            el.getBoundingClientRect();
+            el.style.transition = '';
+            el.style.transform = '';
+        }
+    }
+
+    document.addEventListener('touchstart', function (e) {
+        reset();
+        suppressClick = false;
+        if (e.touches.length !== 1) return;
+        var target = e.target.closest ? e.target.closest('.box') : null;
+        if (!target || !linkBox.contains(target)) return;
+        box = target;
+        var t = e.touches[0];
+        startX = t.clientX;
+        startY = t.clientY;
+        var rect = box.getBoundingClientRect();
+        grabX = startX - rect.left;
+        grabY = startY - rect.top;
+        timer = setTimeout(lift, LONG_PRESS_MS);
+    }, { passive: true });
+
+    // 長押しの標準のメニュー（リンク・画像のメニュー）は出さず、持ち上げる
+    document.addEventListener('contextmenu', function (e) {
+        var target = e.target.closest ? e.target.closest('.box') : null;
+        if (!target) return;
+        e.preventDefault();
+        if (box === target) lift();
+    }, true);
+
+    document.addEventListener('touchmove', function (e) {
+        if (!box) return;
+        var t = e.touches[0];
+        var moved = Math.abs(t.clientX - startX) > SLOP || Math.abs(t.clientY - startY) > SLOP;
+        if (!lifted) {
+            // 持ち上げる前に動いたら、ふつうのスクロールとして扱う
+            if (moved) reset();
+            return;
+        }
+        e.preventDefault();
+        if (!dragging) {
+            if (!moved) return;
+            dragging = true;
+            box.classList.add('dragging');
+        }
+        moveOver(t.clientX, t.clientY);
+        follow(t.clientX, t.clientY);
+    }, { passive: false });
+
+    function finish(e, cancelled) {
+        if (!box) return;
+        if (!lifted) {
+            reset();
+            return;
+        }
+        if (e.cancelable) e.preventDefault();
+        var id = box.getAttribute('data-id');
+        var wasDragging = dragging;
+        reset();
+        if (wasDragging) {
+            var now = order();
+            if (now !== startOrder) tell('order?ids=' + now);
+        } else if (!cancelled) {
+            tell('menu?id=' + id);
+        }
+    }
+
+    document.addEventListener('touchend', function (e) { finish(e, false); }, { passive: false });
+    document.addEventListener('touchcancel', function (e) { finish(e, true); }, { passive: false });
+
+    // 持ち上げた後に離したときは、リンクを開かない
+    document.addEventListener('click', function (e) {
+        if (!suppressClick) return;
+        suppressClick = false;
+        e.preventDefault();
+        e.stopPropagation();
+    }, true);
+})();

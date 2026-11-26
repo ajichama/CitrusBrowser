@@ -38,14 +38,20 @@ class SpeedDialHtml(context: Context) {
     init {
         val cacheFolder = File(context.cacheDir, FOLDER)
 
-        cache = File(cacheFolder, "cache")
-        cacheIndex = File(cacheFolder, "index")
+        // 並べ替えのためにタイルへ番号を付けた（#39）。それより前の形の控えは使わない。
+        // リンクと画像は draggable=false にする。長押しで標準のドラッグが始まると、指の動きが途中で取り消されるため
+        cache = File(cacheFolder, "cache2")
+        cacheIndex = File(cacheFolder, "index2")
 
         manager = SpeedDialManager(context.applicationContext)
     }
 
     val baseCss: WebResourceResponse
         get() = WebResourceResponse("text/css", "UTF-8", context.resources.openRawResource(R.raw.speeddial_css))
+
+    /** タイルを長押しして並べ替える処理（#39） */
+    val script: WebResourceResponse
+        get() = WebResourceResponse("text/javascript", "UTF-8", context.resources.openRawResource(R.raw.speeddial_js))
 
     val customCss: WebResourceResponse
         get() {
@@ -100,9 +106,11 @@ class SpeedDialHtml(context: Context) {
         builder.append(start)
 
         for ((id, url, title, updateTime) in index) {
-            builder.append("<div class=\"box\"><a href=\"")
+            builder.append("<div class=\"box\" data-id=\"")
+                    .append(id)
+                    .append("\"><a draggable=\"false\" href=\"")
                     .append(url)
-                    .append("\"><img src=\"citrus:speeddial/img/")
+                    .append("\"><img draggable=\"false\" src=\"citrus:speeddial/img/")
                 .append(id)
                 .append("?")
                 .append(updateTime)

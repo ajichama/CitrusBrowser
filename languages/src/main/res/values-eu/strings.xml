@@ -61,6 +61,7 @@
     <string name="pref_floating_toolbar_vertical">Antolatu bertikalki</string>
     <string name="pref_floating_toolbar_show_label">Erakutsi hautatutako ekintzaren izena</string>
     <string name="pref_floating_toolbar_show_label_summary">Botoi bat irristatzean, askatzean exekutatuko den ekintza erakusten du</string>
+    <string name="speeddial_edit">Editatu</string>
     <string name="pref_floating_toolbar_alpha">Opakutasuna</string>
     <string name="pref_floating_toolbar_reset_position">Berrezarri kokapena</string>
     <string name="floating_toolbar_move">Mugitu tresna-barra</string>

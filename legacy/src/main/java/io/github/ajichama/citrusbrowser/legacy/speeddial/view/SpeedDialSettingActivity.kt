@@ -30,6 +30,7 @@ import io.github.ajichama.citrusbrowser.core.utility.extensions.getBitmap
 import io.github.ajichama.citrusbrowser.history.presenter.BrowserHistoryActivity
 import io.github.ajichama.citrusbrowser.legacy.R
 import io.github.ajichama.citrusbrowser.legacy.speeddial.SpeedDial
+import io.github.ajichama.citrusbrowser.legacy.speeddial.SpeedDialManager
 import io.github.ajichama.citrusbrowser.legacy.speeddial.WebIcon
 import io.github.ajichama.citrusbrowser.legacy.utils.appinfo.AppInfo
 import io.github.ajichama.citrusbrowser.legacy.utils.appinfo.ApplicationListFragment
@@ -61,11 +62,22 @@ class SpeedDialSettingActivity : ThemeActivity(), SpeedDialEditCallBack, android
                 val url = intent.getStringExtra(Intent.EXTRA_TEXT)
                 val icon = IntentCompat.getParcelableExtra(intent, EXTRA_ICON, Bitmap::class.java)
                 speedDialStack.addItem(SpeedDial(url, title, WebIcon.createIconOrNull(icon), true))
+            } else if (isEditOnly) {
+                // スピードダイヤルのページの長押しのメニューから、1件だけを編集する（#39）
+                val speedDial = SpeedDialManager(applicationContext)[intent.getIntExtra(EXTRA_SPEED_DIAL_ID, -1)]
+                if (speedDial == null) {
+                    finish()
+                    return
+                }
+                speedDialStack.addItem(speedDial)
             }
         }
 
         shouldDisplayHomeUp()
     }
+
+    private val isEditOnly: Boolean
+        get() = ACTION_EDIT_SPEED_DIAL == intent?.action
 
     override fun goBack(): Boolean = supportFragmentManager.popBackStackImmediate()
 
@@ -206,11 +218,15 @@ class SpeedDialSettingActivity : ThemeActivity(), SpeedDialEditCallBack, android
 
     override fun onBackStackChanged() {
         shouldDisplayHomeUp()
+        // 1件だけの編集では、保存・取り消しで編集の画面を閉じたら、一覧を見せずに戻る
+        if (isEditOnly && supportFragmentManager.backStackEntryCount == 0) finish()
     }
 
     companion object {
         const val ACTION_ADD_SPEED_DIAL = "io.github.ajichama.citrusbrowser.legacy.speeddial.view.SpeedDialSettingActivity.add_speed_dial"
         const val EXTRA_ICON = ACTION_ADD_SPEED_DIAL + ".icon"
+        const val ACTION_EDIT_SPEED_DIAL = "io.github.ajichama.citrusbrowser.legacy.speeddial.view.SpeedDialSettingActivity.edit_speed_dial"
+        const val EXTRA_SPEED_DIAL_ID = ACTION_EDIT_SPEED_DIAL + ".id"
 
         private const val RESULT_REQUEST_BOOKMARK = 100
         private const val RESULT_REQUEST_HISTORY = 101

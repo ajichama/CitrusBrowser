@@ -28,6 +28,7 @@ import androidx.annotation.IntDef
         BrowserController.REQUEST_USERJS_SETTING,
         BrowserController.REQUEST_WEB_ENCODE_SETTING,
         BrowserController.REQUEST_SHARE_IMAGE,
-        BrowserController.REQUEST_ACTION_LIST)
+        BrowserController.REQUEST_ACTION_LIST,
+        BrowserController.REQUEST_SPEED_DIAL)
 @Retention(AnnotationRetention.SOURCE)
 annotation class RequestCause

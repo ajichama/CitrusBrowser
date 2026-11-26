@@ -18,6 +18,7 @@ package io.github.ajichama.citrusbrowser.browser
 
 import android.Manifest
 import android.app.AlertDialog
+import io.github.ajichama.citrusbrowser.browser.speeddial.SpeedDialPageHandler
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -121,6 +122,7 @@ class WebClient(
     private val patternManager = PatternUrlManager(activity.applicationContext)
     private val speedDialManager = SpeedDialAsyncManager(activity.applicationContext)
     private val speedDialHtml = SpeedDialHtml(activity.applicationContext)
+    private val speedDialPage = SpeedDialPageHandler(controller)
     private val faviconManager = FaviconAsyncManager(faviconManager)
     private val webViewRenderingManager = WebViewRenderingManager()
     private val scrollableToolbarHeight = { controller.appBarLayout.totalScrollRange + controller.pagePaddingHeight }
@@ -471,6 +473,8 @@ class WebClient(
         }
 
         override fun shouldOverrideUrlLoading(web: CustomWebView, url: String, uri: Uri): Boolean {
+            // スピードダイヤルのページの長押しからの依頼（#39）。新しいタブで開く設定などより先に受ける
+            if (speedDialPage.handle(web, uri)) return true
             val data = controller.getTabOrNull(web) ?: return true
 
             val patternResult = checkLoadPagePatternMatch(data, url, false)
@@ -662,6 +666,7 @@ class WebClient(
                         "speeddial".equals(action, ignoreCase = true) -> return speedDialHtml.createResponse()
                         "speeddial/base.css" == action -> return speedDialHtml.baseCss
                         "speeddial/custom.css" == action -> return speedDialHtml.customCss
+                        "speeddial/speeddial.js" == action -> return speedDialHtml.script
                         action.startsWith("speeddial/img/") -> return speedDialHtml.getImage(action)
                     }
                 }

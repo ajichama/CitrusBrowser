@@ -360,6 +360,7 @@
     <string name="pref_floating_toolbar_vertical">Располагать вертикально</string>
     <string name="pref_floating_toolbar_show_label">Показывать название выбранного действия</string>
     <string name="pref_floating_toolbar_show_label_summary">При свайпе по кнопке показывает действие, которое выполнится после отпускания</string>
+    <string name="speeddial_edit">Изменить</string>
     <string name="pref_floating_toolbar_alpha">Непрозрачность</string>
     <string name="pref_floating_toolbar_reset_position">Сбросить положение</string>
     <string name="floating_toolbar_move">Переместить панель инструментов</string>

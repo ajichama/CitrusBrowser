@@ -360,6 +360,7 @@
     <string name="pref_floating_toolbar_vertical">Függőleges elrendezés</string>
     <string name="pref_floating_toolbar_show_label">A kiválasztott művelet nevének megjelenítése</string>
     <string name="pref_floating_toolbar_show_label_summary">Gomb húzásakor megmutatja, melyik művelet fut le az elengedéskor</string>
+    <string name="speeddial_edit">Szerkesztés</string>
     <string name="pref_floating_toolbar_alpha">Átlátszatlanság</string>
     <string name="pref_floating_toolbar_reset_position">Pozíció visszaállítása</string>
     <string name="floating_toolbar_move">Eszköztár áthelyezése</string>

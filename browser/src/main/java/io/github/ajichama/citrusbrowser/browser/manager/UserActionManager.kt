@@ -29,6 +29,7 @@ import android.webkit.WebView
 import io.github.ajichama.citrusbrowser.browser.view.GestureFrameLayout
 import io.github.ajichama.citrusbrowser.core.utility.log.ErrorReport
 import io.github.ajichama.citrusbrowser.core.utility.utils.MathUtils
+import io.github.ajichama.citrusbrowser.browser.speeddial.SpeedDialPageHandler
 import io.github.ajichama.citrusbrowser.legacy.R
 import io.github.ajichama.citrusbrowser.legacy.action.manager.*
 import io.github.ajichama.citrusbrowser.legacy.browser.BrowserController
@@ -49,6 +50,7 @@ import java.net.URLEncoder
 class UserActionManager(private val context: Context, private val browser: BrowserController, private val controller: ActionController, iconManager: ActionIconManager) : MultiFingerGestureDetector.OnMultiFingerGestureListener, GestureOverlayView.OnGestureListener, GestureOverlayView.OnGesturePerformedListener {
 
     val onCreateContextMenuListener: CustomOnCreateContextMenuListener = MyOnCreateContextMenuListener()
+    private val speedDialPage = SpeedDialPageHandler(browser)
 
     private val pieManager = PieManager(context, controller, iconManager)
     private val hardButton = HardButtonActionManager.getInstance(context.applicationContext)
@@ -222,6 +224,20 @@ class UserActionManager(private val context: Context, private val browser: Brows
     private inner class MyOnCreateContextMenuListener : CustomOnCreateContextMenuListener() {
         override fun onCreateContextMenu(menu: ContextMenu, webView: CustomWebView, menuInfo: ContextMenu.ContextMenuInfo?) {
             val result = webView.hitTestResult ?: return
+
+            // スピードダイヤルのタイルの長押しは、ページの script が持ち上げて並べ替える（#39）。
+            // script が動かないときだけ、リンクの汎用のメニューの代わりにタイルのメニューを出す
+            if (SpeedDialPageHandler.isSpeedDialUrl(webView.url) &&
+                    (result.type == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE || result.type == WebView.HitTestResult.SRC_ANCHOR_TYPE)) {
+                if (!webView.webSettings.javaScriptEnabled) {
+                    if (result.type == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
+                        speedDialPage.showMenuFromLongPress(result.extra, null)
+                    } else {
+                        speedDialPage.showMenuFromLongPress(null, result.extra)
+                    }
+                }
+                return
+            }
 
             val manager = LongPressActionManager.getInstance(browser.applicationContextInfo)
 

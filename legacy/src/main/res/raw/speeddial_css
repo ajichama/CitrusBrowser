@@ -69,3 +69,17 @@ footer a {
 footer a:hover {
     text-decoration: underline;
 }
+/* 長押しで持ち上げたタイルと、並べ替えの最中のタイル（#39）。 */
+.box {
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.box.lifted {
+    position: relative;
+    z-index: 10;
+    transform: scale(1.06);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .28);
+}
+.box.dragging {
+    transition: box-shadow .15s ease;
+    opacity: .92;
+}

@@ -384,6 +384,7 @@
     <string name="pref_floating_toolbar_vertical">縦に並べる</string>
     <string name="pref_floating_toolbar_show_label">選んでいる操作の名前を表示</string>
     <string name="pref_floating_toolbar_show_label_summary">ボタンをスワイプしている間、離すと実行される操作の名前を表示します</string>
+    <string name="speeddial_edit">編集</string>
     <string name="pref_floating_toolbar_alpha">不透明度</string>
     <string name="pref_floating_toolbar_reset_position">位置を初期に戻す</string>
     <string name="floating_toolbar_move">ツールバーを動かす</string>

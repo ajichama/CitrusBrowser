@@ -362,6 +362,7 @@
     <string name="pref_floating_toolbar_vertical">Розташовувати вертикально</string>
     <string name="pref_floating_toolbar_show_label">Показувати назву вибраної дії</string>
     <string name="pref_floating_toolbar_show_label_summary">Під час свайпу по кнопці показує дію, яка виконається після відпускання</string>
+    <string name="speeddial_edit">Редагувати</string>
     <string name="pref_floating_toolbar_alpha">Непрозорість</string>
     <string name="pref_floating_toolbar_reset_position">Скинути положення</string>
     <string name="floating_toolbar_move">Перемістити панель інструментів</string>

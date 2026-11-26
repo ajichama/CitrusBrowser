@@ -144,5 +144,7 @@ interface BrowserController : BrowserInfo {
         const val REQUEST_WEB_ENCODE_SETTING = 9
         const val REQUEST_SHARE_IMAGE = 10
         const val REQUEST_ACTION_LIST = 11
+        /** スピードダイヤルのページから1件を編集した（戻ったらページを読み直す） */
+        const val REQUEST_SPEED_DIAL = 12
     }
 }

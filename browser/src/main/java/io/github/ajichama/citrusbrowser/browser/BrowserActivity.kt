@@ -56,6 +56,7 @@ import io.github.ajichama.citrusbrowser.browser.behavior.WebViewBehavior
 import io.github.ajichama.citrusbrowser.browser.connecter.openable.BrowserOpenable
 import io.github.ajichama.citrusbrowser.browser.connecter.openable.forEach
 import io.github.ajichama.citrusbrowser.browser.databinding.BrowserActivityBinding
+import io.github.ajichama.citrusbrowser.browser.speeddial.SpeedDialPageHandler
 import io.github.ajichama.citrusbrowser.browser.manager.UserActionManager
 import io.github.ajichama.citrusbrowser.browser.tab.TabManagerFactory
 import io.github.ajichama.citrusbrowser.browser.view.Toolbar
@@ -574,6 +575,7 @@ class BrowserActivity : BrowserBaseActivity(), BrowserController, FinishAlertDia
                 AppData.init(applicationContext, moshi, abpDatabase)
                 onPreferenceReset()
             }
+            BrowserController.REQUEST_SPEED_DIAL -> SpeedDialPageHandler.reloadPages(this)
             BrowserController.REQUEST_USERAGENT -> {
                 if (resultCode != RESULT_OK || data == null) return
                 val ua = data.getStringExtra(Intent.EXTRA_TEXT)
