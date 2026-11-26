@@ -38,12 +38,21 @@ class PieManager(private val context: Context, private val actionController: Act
         setController(this@PieManager)
         layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
     }
+    // 項目を作り直したときにも同じ色を当てるため、テーマの項目の色を覚えておく（#37）
+    private var itemColor = 0
     val isOpen: Boolean
         get() = pie.isOpen
 
     fun attachToLayout(layout: ViewGroup) {
         layout.addView(pie)
         makeItems()
+    }
+
+    // 設定で足した・並べ替えた項目を、起動し直さずに反映する（#37）
+    private fun reloadItems() {
+        pie.clearItems()
+        makeItems()
+        pie.setColorFilterToItems(itemColor)
     }
 
     fun detachFromLayout(layout: ViewGroup) {
@@ -82,6 +91,8 @@ class PieManager(private val context: Context, private val actionController: Act
         pie.setSlop((AppPrefs.qc_slop.get() * density + 0.5f).toInt())
         pie.setPosition(AppPrefs.qc_position.get())
         pie.setShowLabel(AppPrefs.qc_show_label.get())
+        // 設定から戻ったときに呼ばれる。画面に付いているときだけ、項目を読み直す
+        if (pie.parent != null) reloadItems()
     }
 
     fun onThemeChanged(themeData: ThemeData?) {
@@ -95,9 +106,7 @@ class PieManager(private val context: Context, private val actionController: Act
         else
             pie.setSelectedColor(context.getResColor(R.color.qc_selected))
 
-        if (themeData != null && themeData.qcItemColor != 0)
-            pie.setColorFilterToItems(themeData.qcItemColor)
-        else
-            pie.setColorFilterToItems(0)
+        itemColor = if (themeData != null && themeData.qcItemColor != 0) themeData.qcItemColor else 0
+        pie.setColorFilterToItems(itemColor)
     }
 }
