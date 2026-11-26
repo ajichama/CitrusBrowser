@@ -365,4 +365,10 @@
     <string name="pref_floating_toolbar_alpha">Deckkraft</string>
     <string name="pref_floating_toolbar_reset_position">Position zurücksetzen</string>
     <string name="floating_toolbar_move">Symbolleiste verschieben</string>
+    <string name="qc_empty_title">Keine Elemente für die Schnellsteuerung</string>
+    <string name="qc_empty_message">Es gibt noch keine Elemente, die sich vom Bildschirmrand öffnen lassen. Verwende die Standardelemente oder richte eigene ein. Die Standardelemente kannst du später ändern.</string>
+    <string name="qc_empty_use_default">Standardelemente verwenden</string>
+    <string name="qc_empty_customize">Selbst einrichten</string>
+    <string name="qc_empty_later">Später</string>
+    <string name="qc_default_added">Standardelemente hinzugefügt</string>
 </resources>

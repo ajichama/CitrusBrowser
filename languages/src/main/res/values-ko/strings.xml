@@ -65,4 +65,10 @@
     <string name="pref_floating_toolbar_alpha">불투명도</string>
     <string name="pref_floating_toolbar_reset_position">위치 초기화</string>
     <string name="floating_toolbar_move">툴바 이동</string>
+    <string name="qc_empty_title">퀵 컨트롤 항목이 없습니다</string>
+    <string name="qc_empty_message">화면 가장자리에서 열 항목이 아직 없습니다. 기본 항목을 사용하거나 직접 설정해 주세요. 기본 항목은 나중에 바꿀 수 있습니다.</string>
+    <string name="qc_empty_use_default">기본 항목 사용</string>
+    <string name="qc_empty_customize">직접 설정</string>
+    <string name="qc_empty_later">나중에</string>
+    <string name="qc_default_added">기본 항목을 추가했습니다</string>
 </resources>

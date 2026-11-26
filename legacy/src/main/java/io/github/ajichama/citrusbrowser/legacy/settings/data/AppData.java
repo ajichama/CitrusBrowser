@@ -37,6 +37,7 @@ import io.github.ajichama.citrusbrowser.legacy.action.item.FinishSingleAction;
 import io.github.ajichama.citrusbrowser.legacy.action.manager.HardButtonActionManager;
 import io.github.ajichama.citrusbrowser.legacy.action.manager.LongPressActionManager;
 import io.github.ajichama.citrusbrowser.legacy.action.manager.MenuActionManager;
+import io.github.ajichama.citrusbrowser.legacy.action.manager.QuickControlActionManager;
 import io.github.ajichama.citrusbrowser.legacy.action.manager.SoftButtonActionArrayManager;
 import io.github.ajichama.citrusbrowser.legacy.action.manager.SoftButtonActionManager;
 import io.github.ajichama.citrusbrowser.legacy.action.manager.TabActionManager;
@@ -92,6 +93,11 @@ public class AppData {
             toolbarManager.custombar1.add(SingleAction.makeInstance(SingleAction.TAB_LIST));
             toolbarManager.custombar1.add(SingleAction.makeInstance(SingleAction.OPEN_OPTIONS_MENU));
             toolbarManager.save(context);
+
+            // クイックコントロールは有効にしてすぐ使えるよう、既定の項目を入れておく（#36）
+            QuickControlActionManager qcManager = QuickControlActionManager.getInstance(context);
+            qcManager.setDefaultItems();
+            qcManager.save(context);
 
             TabActionManager tabManager = TabActionManager.getInstance(context);
             tabManager.tab_press.action.add(SingleAction.makeInstance(SingleAction.CLOSE_TAB));

@@ -376,4 +376,10 @@
     <string name="pref_floating_toolbar_alpha">Opaklık</string>
     <string name="pref_floating_toolbar_reset_position">Konumu sıfırla</string>
     <string name="floating_toolbar_move">Araç çubuğunu taşı</string>
+    <string name="qc_empty_title">Hızlı kontrol öğesi yok</string>
+    <string name="qc_empty_message">Ekranın kenarından açılacak öğe henüz yok. Varsayılan öğeleri kullanın veya kendiniz ayarlayın. Varsayılan öğeleri daha sonra değiştirebilirsiniz.</string>
+    <string name="qc_empty_use_default">Varsayılan öğeleri kullan</string>
+    <string name="qc_empty_customize">Kendim ayarlayacağım</string>
+    <string name="qc_empty_later">Daha sonra</string>
+    <string name="qc_default_added">Varsayılan öğeler eklendi</string>
 </resources>

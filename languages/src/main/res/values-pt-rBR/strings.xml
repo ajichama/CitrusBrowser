@@ -365,4 +365,10 @@
     <string name="pref_floating_toolbar_alpha">Opacidade</string>
     <string name="pref_floating_toolbar_reset_position">Redefinir posição</string>
     <string name="floating_toolbar_move">Mover barra de ferramentas</string>
+    <string name="qc_empty_title">Nenhum item no controle rápido</string>
+    <string name="qc_empty_message">Ainda não há itens para abrir pela borda da tela. Use os itens padrão ou configure os seus. Você pode alterar os itens padrão depois.</string>
+    <string name="qc_empty_use_default">Usar itens padrão</string>
+    <string name="qc_empty_customize">Configurar manualmente</string>
+    <string name="qc_empty_later">Depois</string>
+    <string name="qc_default_added">Itens padrão adicionados</string>
 </resources>

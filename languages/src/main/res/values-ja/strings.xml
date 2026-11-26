@@ -388,4 +388,10 @@
     <string name="pref_floating_toolbar_alpha">不透明度</string>
     <string name="pref_floating_toolbar_reset_position">位置を初期に戻す</string>
     <string name="floating_toolbar_move">ツールバーを動かす</string>
+    <string name="qc_empty_title">クイックコントロールの項目がありません</string>
+    <string name="qc_empty_message">画面の端から開く項目が、まだありません。既定の項目を入れるか、自分で項目を設定してください。既定の項目は後から変えられます。</string>
+    <string name="qc_empty_use_default">既定の項目を入れる</string>
+    <string name="qc_empty_customize">自分で設定する</string>
+    <string name="qc_empty_later">あとで</string>
+    <string name="qc_default_added">既定の項目を入れました</string>
 </resources>

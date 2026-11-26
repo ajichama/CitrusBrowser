@@ -65,4 +65,10 @@
     <string name="pref_floating_toolbar_alpha">Krycie</string>
     <string name="pref_floating_toolbar_reset_position">Resetuj położenie</string>
     <string name="floating_toolbar_move">Przesuń pasek narzędzi</string>
+    <string name="qc_empty_title">Brak elementów szybkiego sterowania</string>
+    <string name="qc_empty_message">Nie ma jeszcze elementów otwieranych od krawędzi ekranu. Użyj elementów domyślnych lub ustaw własne. Elementy domyślne możesz później zmienić.</string>
+    <string name="qc_empty_use_default">Użyj domyślnych</string>
+    <string name="qc_empty_customize">Ustaw samodzielnie</string>
+    <string name="qc_empty_later">Później</string>
+    <string name="qc_default_added">Dodano elementy domyślne</string>
 </resources>

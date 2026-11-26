@@ -364,4 +364,10 @@
     <string name="pref_floating_toolbar_alpha">Átlátszatlanság</string>
     <string name="pref_floating_toolbar_reset_position">Pozíció visszaállítása</string>
     <string name="floating_toolbar_move">Eszköztár áthelyezése</string>
+    <string name="qc_empty_title">Nincsenek gyorsvezérlési elemek</string>
+    <string name="qc_empty_message">Még nincsenek elemek, amelyek a képernyő széléről megnyithatók. Használja az alapértelmezett elemeket, vagy állítsa be a sajátjait. Az alapértelmezett elemek később módosíthatók.</string>
+    <string name="qc_empty_use_default">Alapértelmezett elemek</string>
+    <string name="qc_empty_customize">Saját beállítás</string>
+    <string name="qc_empty_later">Később</string>
+    <string name="qc_default_added">Az alapértelmezett elemek hozzáadva</string>
 </resources>

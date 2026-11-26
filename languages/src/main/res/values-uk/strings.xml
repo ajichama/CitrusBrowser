@@ -366,5 +366,11 @@
     <string name="pref_floating_toolbar_alpha">Непрозорість</string>
     <string name="pref_floating_toolbar_reset_position">Скинути положення</string>
     <string name="floating_toolbar_move">Перемістити панель інструментів</string>
+    <string name="qc_empty_title">Немає елементів швидкого управління</string>
+    <string name="qc_empty_message">Поки немає елементів, які відкриваються від краю екрана. Використайте елементи за замовчуванням або налаштуйте власні. Елементи за замовчуванням можна змінити пізніше.</string>
+    <string name="qc_empty_use_default">Використати за замовчуванням</string>
+    <string name="qc_empty_customize">Налаштувати вручну</string>
+    <string name="qc_empty_later">Пізніше</string>
+    <string name="qc_default_added">Елементи за замовчуванням додано</string>
 </resources>
 

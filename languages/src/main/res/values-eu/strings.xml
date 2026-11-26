@@ -65,4 +65,10 @@
     <string name="pref_floating_toolbar_alpha">Opakutasuna</string>
     <string name="pref_floating_toolbar_reset_position">Berrezarri kokapena</string>
     <string name="floating_toolbar_move">Mugitu tresna-barra</string>
+    <string name="qc_empty_title">Ez dago kontrol azkarreko elementurik</string>
+    <string name="qc_empty_message">Oraindik ez dago pantailaren ertzetik irekitzeko elementurik. Erabili elementu lehenetsiak edo konfiguratu zureak. Elementu lehenetsiak geroago alda ditzakezu.</string>
+    <string name="qc_empty_use_default">Erabili elementu lehenetsiak</string>
+    <string name="qc_empty_customize">Konfiguratu neuk</string>
+    <string name="qc_empty_later">Geroago</string>
+    <string name="qc_default_added">Elementu lehenetsiak gehitu dira</string>
 </resources>

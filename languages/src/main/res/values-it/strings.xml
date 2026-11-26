@@ -361,4 +361,10 @@
     <string name="pref_floating_toolbar_alpha">Opacità</string>
     <string name="pref_floating_toolbar_reset_position">Ripristina posizione</string>
     <string name="floating_toolbar_move">Sposta la barra degli strumenti</string>
+    <string name="qc_empty_title">Nessun elemento nei controlli rapidi</string>
+    <string name="qc_empty_message">Non ci sono ancora elementi da aprire dal bordo dello schermo. Usa gli elementi predefiniti o configura i tuoi. Potrai modificare gli elementi predefiniti in seguito.</string>
+    <string name="qc_empty_use_default">Usa elementi predefiniti</string>
+    <string name="qc_empty_customize">Configura manualmente</string>
+    <string name="qc_empty_later">Più tardi</string>
+    <string name="qc_default_added">Elementi predefiniti aggiunti</string>
 </resources>

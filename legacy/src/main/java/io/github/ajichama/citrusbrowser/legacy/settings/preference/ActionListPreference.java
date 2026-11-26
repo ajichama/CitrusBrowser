@@ -34,7 +34,11 @@ public class ActionListPreference extends Preference {
     @Override
     protected void onClick() {
         super.onClick();
+        openActionList();
+    }
 
+    /** 項目の一覧の設定を開く。押したとき以外にも、案内から開くために使う（#36） */
+    public void openActionList() {
         Context context = getContext();
         Intent intent = new Intent(context.getApplicationContext(), ActionListManagerActivity.class);
         if (mTitle != null) intent.putExtra(Intent.EXTRA_TITLE, mTitle);

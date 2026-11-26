@@ -65,4 +65,10 @@
     <string name="pref_floating_toolbar_alpha">میزان کدری</string>
     <string name="pref_floating_toolbar_reset_position">بازنشانی موقعیت</string>
     <string name="floating_toolbar_move">جابه‌جایی نوار ابزار</string>
+    <string name="qc_empty_title">کنترل سریع هیچ موردی ندارد</string>
+    <string name="qc_empty_message">هنوز موردی برای باز شدن از لبهٔ صفحه وجود ندارد. از موارد پیش‌فرض استفاده کنید یا موارد خود را تنظیم کنید. موارد پیش‌فرض را بعداً می‌توانید تغییر دهید.</string>
+    <string name="qc_empty_use_default">استفاده از موارد پیش‌فرض</string>
+    <string name="qc_empty_customize">تنظیم دستی</string>
+    <string name="qc_empty_later">بعداً</string>
+    <string name="qc_default_added">موارد پیش‌فرض اضافه شد</string>
 </resources>

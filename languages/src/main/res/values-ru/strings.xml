@@ -364,4 +364,10 @@
     <string name="pref_floating_toolbar_alpha">Непрозрачность</string>
     <string name="pref_floating_toolbar_reset_position">Сбросить положение</string>
     <string name="floating_toolbar_move">Переместить панель инструментов</string>
+    <string name="qc_empty_title">Нет элементов быстрого управления</string>
+    <string name="qc_empty_message">Пока нет элементов, которые открываются от края экрана. Используйте элементы по умолчанию или настройте свои. Элементы по умолчанию можно изменить позже.</string>
+    <string name="qc_empty_use_default">Использовать по умолчанию</string>
+    <string name="qc_empty_customize">Настроить вручную</string>
+    <string name="qc_empty_later">Позже</string>
+    <string name="qc_default_added">Элементы по умолчанию добавлены</string>
 </resources>
