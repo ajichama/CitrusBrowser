@@ -133,6 +133,8 @@
     <string name="end_sort_label">Sortierung beendet.</string>
     <string name="start_sort">♪ sortiere … ♪</string>
     <string name="end_sort">Sortierung abgeschlossen!</string>
+    <string name="sort_by_name">Nach Name sortieren</string>
+    <string name="sort_by_name_confirm">Diesen Ordner nach Name sortieren? Ordner werden zuerst angezeigt. Die aktuelle Reihenfolge kann nicht wiederhergestellt werden.</string>
     <string name="edit_bookmark">Lesezeichen bearbeiten</string>
     <string name="move_bookmark">Verschieben nach…</string>
     <string name="proxy_enable">Proxy aktivieren</string>

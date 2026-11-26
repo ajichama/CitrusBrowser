@@ -47,4 +47,6 @@
     <string name="ssl_error_details_mes">مشکلات گواهی:\n%1$s</string>
     <string name="ssl_error_proceed_unsafe">ادامه دادن با وجود خطر (ناامن)</string>
     <string name="ssl_error_summary">گواهی %1$s مشکلی دارد. ممکن است دیگران بتوانند ارتباط شما با این سایت را بخوانند یا تغییر دهند.</string>
+    <string name="sort_by_name">مرتب‌سازی بر اساس نام</string>
+    <string name="sort_by_name_confirm">این پوشه بر اساس نام مرتب شود؟ پوشه‌ها در ابتدا قرار می‌گیرند. ترتیب فعلی قابل بازگرداندن نیست.</string>
 </resources>

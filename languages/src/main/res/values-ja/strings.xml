@@ -151,6 +151,8 @@
     <string name="end_sort_label">並べ替えを終了</string>
     <string name="start_sort">並べ替えするよ\u266a</string>
     <string name="end_sort">並べ替えできたよ！</string>
+    <string name="sort_by_name">名前順に並べ替え</string>
+    <string name="sort_by_name_confirm">このフォルダの中を名前順に並べ替えます。フォルダは先に並びます。今の並び順には戻せません。</string>
     <string name="edit_bookmark">ブックマークの編集</string>
     <string name="move_bookmark">フォルダを移動</string>
     <string name="proxy_enable">Proxyを有効にする</string>

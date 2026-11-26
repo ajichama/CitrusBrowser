@@ -47,4 +47,6 @@
     <string name="ssl_error_details_mes">Ziurtagiriaren arazoak:\n%1$s</string>
     <string name="ssl_error_proceed_unsafe">Jarraitu hala ere (ez da segurua)</string>
     <string name="ssl_error_summary">%1$s gunearen ziurtagiriak arazo bat du. Beste batzuek gune horrekiko zure komunikazioa irakurri edo aldatu ahal izango lukete.</string>
+    <string name="sort_by_name">Izenaren arabera ordenatu</string>
+    <string name="sort_by_name_confirm">Karpeta hau izenaren arabera ordenatu? Karpetak lehenengo jarriko dira. Uneko ordena ezin da berreskuratu.</string>
 </resources>

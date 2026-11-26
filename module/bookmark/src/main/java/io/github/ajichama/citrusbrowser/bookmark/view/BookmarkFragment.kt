@@ -296,6 +296,21 @@ class BookmarkFragment : Fragment(), BookmarkItemAdapter.OnBookmarkRecyclerListe
                 Toast.makeText(activity, if (next) R.string.start_sort else R.string.end_sort, Toast.LENGTH_SHORT).show()
                 return true
             }
+            R.id.sortByName -> {
+                // 保存されている順番を書き換え、手で並べた順には戻せないので、実行する前に確かめる（#33）。
+                val folder = mCurrentFolder
+                AlertDialog.Builder(activity)
+                    .setTitle(R.string.sort_by_name)
+                    .setMessage(R.string.sort_by_name_confirm)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        mManager.sortByName(folder, activity.resources.configuration.locales[0])
+                        mManager.save()
+                        adapter.notifyDataSetChanged()
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+                return true
+            }
             R.id.breadcrumbs -> {
                 val checked = !item.isChecked
                 item.isChecked = checked

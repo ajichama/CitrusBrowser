@@ -30,6 +30,7 @@ import okio.source
 import java.io.File
 import java.io.IOException
 import java.io.Serializable
+import java.util.Locale
 import java.util.regex.Pattern
 
 class BookmarkManager private constructor(context: Context) : Serializable {
@@ -116,6 +117,14 @@ class BookmarkManager private constructor(context: Context) : Serializable {
     fun moveToFirst(folder: BookmarkFolder, item: BookmarkItem) {
         folder.list.remove(item)
         folder.list.add(0, item)
+    }
+
+    /** フォルダの中（直下だけ）を名前順に並べ替える（#33）。保存は呼び出し側で行う。 */
+    fun sortByName(folder: BookmarkFolder, locale: Locale) {
+        val sorted = BookmarkNameOrder.sorted(folder.list, locale)
+        // 画面のアダプターが同じリストを参照しているので、リストは差し替えずに中身を入れ替える。
+        folder.list.clear()
+        folder.list.addAll(sorted)
     }
 
     fun addAll(folder: BookmarkFolder, addList: Collection<BookmarkItem>) {

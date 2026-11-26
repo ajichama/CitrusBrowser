@@ -134,6 +134,8 @@
     <string name="end_sort_label">结束排序</string>
     <string name="start_sort">来排序吧♪</string>
     <string name="end_sort">排序完成！</string>
+    <string name="sort_by_name">按名称排序</string>
+    <string name="sort_by_name_confirm">按名称对此文件夹排序？文件夹将排在前面。当前顺序将无法恢复。</string>
     <string name="edit_bookmark">编辑书签</string>
     <string name="move_bookmark">移动至…</string>
     <string name="proxy_enable">启用代理</string>

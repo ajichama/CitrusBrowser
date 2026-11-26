@@ -133,6 +133,8 @@
     <string name="end_sort_label">Fine ordinamento</string>
     <string name="start_sort">Facciamo ordine\u266a</string>
     <string name="end_sort">Ordinamento completato!</string>
+    <string name="sort_by_name">Ordina per nome</string>
+    <string name="sort_by_name_confirm">Ordinare questa cartella per nome? Le cartelle vengono messe per prime. L\'ordine attuale non potrà essere ripristinato.</string>
     <string name="edit_bookmark">Modifica segnalibro</string>
     <string name="move_bookmark">Sposta in\u2026</string>
     <string name="proxy_enable">Abilita proxy</string>

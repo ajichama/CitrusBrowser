@@ -133,6 +133,8 @@
     <string name="end_sort_label">Terminar ordenação</string>
     <string name="start_sort">Vamos ordenar!</string>
     <string name="end_sort">Ordenação completa!</string>
+    <string name="sort_by_name">Ordenar por nome</string>
+    <string name="sort_by_name_confirm">Ordenar esta pasta por nome? As pastas ficam primeiro. A ordem atual não poderá ser restaurada.</string>
     <string name="edit_bookmark">Editar marcador</string>
     <string name="move_bookmark">Mover para…</string>
     <string name="proxy_enable">Ativar proxy</string>

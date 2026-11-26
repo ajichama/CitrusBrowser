@@ -134,6 +134,8 @@
     <string name="end_sort_label">Rendezés befejezése</string>
     <string name="start_sort">Rendezés♪</string>
     <string name="end_sort">Rendezés befejezve!</string>
+    <string name="sort_by_name">Rendezés név szerint</string>
+    <string name="sort_by_name_confirm">Rendezi ezt a mappát név szerint? A mappák kerülnek előre. A jelenlegi sorrend nem állítható vissza.</string>
     <string name="edit_bookmark">Könyvjelző szerkesztése</string>
     <string name="move_bookmark">Áthelyezés…</string>
     <string name="proxy_enable">Proxy engedélyezése</string>

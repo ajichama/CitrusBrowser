@@ -31,6 +31,11 @@
         app:showAsAction="ifRoom|withText"/>
 
     <item
+        android:id="@+id/sortByName"
+        android:title="@string/sort_by_name"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/breadcrumbs"
         android:title="@string/breadcrumb"
         android:checkable="true"

@@ -133,6 +133,8 @@
     <string name="end_sort_label">Завершение сортировки</string>
     <string name="start_sort">Давайте сортировать ♪</string>
     <string name="end_sort">Сортировка завершена!</string>
+    <string name="sort_by_name">Сортировать по имени</string>
+    <string name="sort_by_name_confirm">Отсортировать эту папку по имени? Папки будут размещены первыми. Текущий порядок восстановить нельзя.</string>
     <string name="edit_bookmark">Изменить закладку</string>
     <string name="move_bookmark">Переместить в…</string>
     <string name="proxy_enable">Включить прокси</string>
