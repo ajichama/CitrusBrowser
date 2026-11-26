@@ -396,4 +396,13 @@
     <string name="qc_empty_customize">Set up myself</string>
     <string name="qc_empty_later">Later</string>
     <string name="qc_default_added">Added the default items</string>
+    <string name="pref_qc_gesture_mode">Opening with gesture navigation</string>
+    <string name="pref_qc_gesture_mode_summary">With gesture navigation, the system uses swipes from the screen edges for Back. With 3-button navigation, quick control opens along the whole edge regardless of this setting.</string>
+    <string name="qc_gesture_mode_band">Only in a band on the edge (Back is not used there)</string>
+    <string name="qc_gesture_mode_inner">Slightly inside the edge (overlaps the page edges)</string>
+    <string name="pref_qc_gesture_band">Band position</string>
+    <string name="pref_qc_gesture_band_summary">Vertical position of the band (200dp tall) when opening only in a band on the edge</string>
+    <string name="qc_gesture_band_top">Upper</string>
+    <string name="qc_gesture_band_middle">Middle</string>
+    <string name="qc_gesture_band_bottom">Lower</string>
 </resources>

@@ -370,4 +370,13 @@
     <string name="qc_empty_customize">Настроить вручную</string>
     <string name="qc_empty_later">Позже</string>
     <string name="qc_default_added">Элементы по умолчанию добавлены</string>
+    <string name="pref_qc_gesture_mode">Открытие при навигации жестами</string>
+    <string name="pref_qc_gesture_mode_summary">При навигации жестами система использует смахивание от краёв экрана для действия «Назад». При навигации тремя кнопками быстрое управление открывается по всему краю независимо от этой настройки.</string>
+    <string name="qc_gesture_mode_band">Только в полосе у края (там «Назад» не используется)</string>
+    <string name="qc_gesture_mode_inner">Чуть внутри от края (перекрывает края страницы)</string>
+    <string name="pref_qc_gesture_band">Положение полосы</string>
+    <string name="pref_qc_gesture_band_summary">Положение полосы (высотой 200 dp) по вертикали, когда открытие только в полосе у края</string>
+    <string name="qc_gesture_band_top">Вверху</string>
+    <string name="qc_gesture_band_middle">Посередине</string>
+    <string name="qc_gesture_band_bottom">Внизу</string>
 </resources>

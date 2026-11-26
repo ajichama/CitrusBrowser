@@ -376,4 +376,13 @@
     <string name="qc_empty_customize">自行设置</string>
     <string name="qc_empty_later">稍后</string>
     <string name="qc_default_added">已添加默认项目</string>
+    <string name="pref_qc_gesture_mode">手势导航时的打开方式</string>
+    <string name="pref_qc_gesture_mode_summary">使用手势导航时，系统会将从屏幕边缘滑动用于“返回”。使用三按钮导航时，无论此设置如何，快捷控制面板都会在整个边缘打开。</string>
+    <string name="qc_gesture_mode_band">仅在边缘的条带中打开（条带内不使用“返回”）</string>
+    <string name="qc_gesture_mode_inner">在边缘稍靠内的位置打开（与页面边缘的操作重叠）</string>
+    <string name="pref_qc_gesture_band">条带位置</string>
+    <string name="pref_qc_gesture_band_summary">仅在边缘的条带中打开时，条带（高 200dp）的垂直位置</string>
+    <string name="qc_gesture_band_top">靠上</string>
+    <string name="qc_gesture_band_middle">中间</string>
+    <string name="qc_gesture_band_bottom">靠下</string>
 </resources>

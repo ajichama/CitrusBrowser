@@ -127,6 +127,9 @@ public class AppPrefs {
     public static final IntContainer qc_rad_inc = new IntContainer("qc_rad_inc", 70);
     public static final IntContainer qc_slop = new IntContainer("qc_slop", 10);
     public static final IntContainer qc_position = new IntContainer("qc_position", 0);
+    // ジェスチャーナビゲーションでの開き方（0: 端の帯だけ、1: 内側にずらす）と帯の位置（0: 上寄り、1: 中央、2: 下寄り）（#38）
+    public static final IntContainer qc_gesture_mode = new IntContainer("qc_gesture_mode", 0);
+    public static final IntContainer qc_gesture_band = new IntContainer("qc_gesture_band", 1);
     public static final IntContainer overlay_bottom_alpha = new IntContainer("overlay_bottom_alpha", 0xee);
     public static final BooleanContainer save_last_tabs = new BooleanContainer("save_last_tabs", false);
     // 初期値は true（Issue #10、保存済みの設定へは DefaultsMigration で反映）。

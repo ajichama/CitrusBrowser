@@ -371,4 +371,13 @@
     <string name="qc_empty_customize">Selbst einrichten</string>
     <string name="qc_empty_later">Später</string>
     <string name="qc_default_added">Standardelemente hinzugefügt</string>
+    <string name="pref_qc_gesture_mode">Öffnen bei Gestennavigation</string>
+    <string name="pref_qc_gesture_mode_summary">Bei der Gestennavigation nutzt das System Wischgesten vom Bildschirmrand für „Zurück“. Bei der Navigation mit 3 Schaltflächen öffnet sich die Schnellsteuerung unabhängig von dieser Einstellung am ganzen Rand.</string>
+    <string name="qc_gesture_mode_band">Nur in einem Streifen am Rand („Zurück“ ist dort nicht verfügbar)</string>
+    <string name="qc_gesture_mode_inner">Etwas innerhalb des Rands (überlappt die Seitenränder)</string>
+    <string name="pref_qc_gesture_band">Position des Streifens</string>
+    <string name="pref_qc_gesture_band_summary">Vertikale Position des Streifens (200 dp hoch), wenn nur in einem Streifen am Rand geöffnet wird</string>
+    <string name="qc_gesture_band_top">Oben</string>
+    <string name="qc_gesture_band_middle">Mitte</string>
+    <string name="qc_gesture_band_bottom">Unten</string>
 </resources>

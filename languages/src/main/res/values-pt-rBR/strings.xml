@@ -371,4 +371,13 @@
     <string name="qc_empty_customize">Configurar manualmente</string>
     <string name="qc_empty_later">Depois</string>
     <string name="qc_default_added">Itens padrão adicionados</string>
+    <string name="pref_qc_gesture_mode">Abertura com a navegação por gestos</string>
+    <string name="pref_qc_gesture_mode_summary">Na navegação por gestos, o sistema usa os deslizes a partir das bordas da tela para Voltar. Na navegação com 3 botões, o controle rápido abre em toda a borda, independentemente desta configuração.</string>
+    <string name="qc_gesture_mode_band">Só em uma faixa na borda (Voltar não é usado nela)</string>
+    <string name="qc_gesture_mode_inner">Um pouco para dentro da borda (sobrepõe as bordas da página)</string>
+    <string name="pref_qc_gesture_band">Posição da faixa</string>
+    <string name="pref_qc_gesture_band_summary">Posição vertical da faixa (200 dp de altura) ao abrir só em uma faixa na borda</string>
+    <string name="qc_gesture_band_top">Em cima</string>
+    <string name="qc_gesture_band_middle">No meio</string>
+    <string name="qc_gesture_band_bottom">Embaixo</string>
 </resources>

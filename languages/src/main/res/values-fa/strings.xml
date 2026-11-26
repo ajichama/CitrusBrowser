@@ -71,4 +71,13 @@
     <string name="qc_empty_customize">تنظیم دستی</string>
     <string name="qc_empty_later">بعداً</string>
     <string name="qc_default_added">موارد پیش‌فرض اضافه شد</string>
+    <string name="pref_qc_gesture_mode">باز شدن در پیمایش اشاره‌ای</string>
+    <string name="pref_qc_gesture_mode_summary">در پیمایش اشاره‌ای، سیستم از کشیدن انگشت از لبه‌های صفحه برای «بازگشت» استفاده می‌کند. در پیمایش سه‌دکمه‌ای، کنترل سریع صرف‌نظر از این تنظیم در تمام لبه باز می‌شود.</string>
+    <string name="qc_gesture_mode_band">فقط در نواری روی لبه (در آنجا «بازگشت» استفاده نمی‌شود)</string>
+    <string name="qc_gesture_mode_inner">کمی داخل‌تر از لبه (با لبه‌های صفحه هم‌پوشانی دارد)</string>
+    <string name="pref_qc_gesture_band">موقعیت نوار</string>
+    <string name="pref_qc_gesture_band_summary">موقعیت عمودی نوار (به ارتفاع ۲۰۰dp) هنگامی که فقط در نواری روی لبه باز می‌شود</string>
+    <string name="qc_gesture_band_top">بالا</string>
+    <string name="qc_gesture_band_middle">وسط</string>
+    <string name="qc_gesture_band_bottom">پایین</string>
 </resources>

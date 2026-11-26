@@ -71,4 +71,13 @@
     <string name="qc_empty_customize">Ustaw samodzielnie</string>
     <string name="qc_empty_later">Później</string>
     <string name="qc_default_added">Dodano elementy domyślne</string>
+    <string name="pref_qc_gesture_mode">Otwieranie przy nawigacji gestami</string>
+    <string name="pref_qc_gesture_mode_summary">Przy nawigacji gestami system używa przesunięć od krawędzi ekranu do cofania. Przy nawigacji 3 przyciskami szybkie sterowanie otwiera się na całej krawędzi niezależnie od tego ustawienia.</string>
+    <string name="qc_gesture_mode_band">Tylko w pasie przy krawędzi (tam cofanie nie działa)</string>
+    <string name="qc_gesture_mode_inner">Nieco wewnątrz krawędzi (nakłada się na krawędzie strony)</string>
+    <string name="pref_qc_gesture_band">Położenie pasa</string>
+    <string name="pref_qc_gesture_band_summary">Pionowe położenie pasa (wysokość 200 dp) przy otwieraniu tylko w pasie przy krawędzi</string>
+    <string name="qc_gesture_band_top">U góry</string>
+    <string name="qc_gesture_band_middle">Pośrodku</string>
+    <string name="qc_gesture_band_bottom">U dołu</string>
 </resources>

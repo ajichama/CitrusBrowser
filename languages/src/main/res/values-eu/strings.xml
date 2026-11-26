@@ -71,4 +71,13 @@
     <string name="qc_empty_customize">Konfiguratu neuk</string>
     <string name="qc_empty_later">Geroago</string>
     <string name="qc_default_added">Elementu lehenetsiak gehitu dira</string>
+    <string name="pref_qc_gesture_mode">Keinu bidezko nabigazioarekin irekitzea</string>
+    <string name="pref_qc_gesture_mode_summary">Keinu bidezko nabigazioan, sistemak pantailaren ertzetatik egindako irristatzeak erabiltzen ditu Atzera egiteko. 3 botoiko nabigazioan, kontrol azkarra ertz osoan irekitzen da ezarpen hau edozein dela ere.</string>
+    <string name="qc_gesture_mode_band">Ertzeko banda batean soilik (bertan ez da Atzera erabiltzen)</string>
+    <string name="qc_gesture_mode_inner">Ertzetik apur bat barrurago (orriaren ertzekin gainjartzen da)</string>
+    <string name="pref_qc_gesture_band">Bandaren kokapena</string>
+    <string name="pref_qc_gesture_band_summary">Bandaren (200 dp-ko altuera) kokapen bertikala, ertzeko banda batean soilik irekitzean</string>
+    <string name="qc_gesture_band_top">Goian</string>
+    <string name="qc_gesture_band_middle">Erdian</string>
+    <string name="qc_gesture_band_bottom">Behean</string>
 </resources>

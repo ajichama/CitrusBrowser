@@ -367,4 +367,13 @@
     <string name="qc_empty_customize">Configura manualmente</string>
     <string name="qc_empty_later">Più tardi</string>
     <string name="qc_default_added">Elementi predefiniti aggiunti</string>
+    <string name="pref_qc_gesture_mode">Apertura con la navigazione tramite gesti</string>
+    <string name="pref_qc_gesture_mode_summary">Con la navigazione tramite gesti, il sistema usa lo scorrimento dai bordi dello schermo per Indietro. Con la navigazione a 3 pulsanti, i controlli rapidi si aprono lungo tutto il bordo indipendentemente da questa impostazione.</string>
+    <string name="qc_gesture_mode_band">Solo in una fascia sul bordo (lì Indietro non è usato)</string>
+    <string name="qc_gesture_mode_inner">Poco all\'interno del bordo (si sovrappone ai bordi della pagina)</string>
+    <string name="pref_qc_gesture_band">Posizione della fascia</string>
+    <string name="pref_qc_gesture_band_summary">Posizione verticale della fascia (alta 200 dp) quando si apre solo in una fascia sul bordo</string>
+    <string name="qc_gesture_band_top">In alto</string>
+    <string name="qc_gesture_band_middle">Al centro</string>
+    <string name="qc_gesture_band_bottom">In basso</string>
 </resources>

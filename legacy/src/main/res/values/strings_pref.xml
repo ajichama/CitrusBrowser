@@ -341,6 +341,26 @@
         <item>2</item>
     </integer-array>
 
+    <!-- ジェスチャーナビゲーションでのクイックコントロールの開き方（#38）。名前は各言語の strings.xml -->
+    <string-array name="pref_qc_gesture_mode_list">
+        <item>@string/qc_gesture_mode_band</item>
+        <item>@string/qc_gesture_mode_inner</item>
+    </string-array>
+    <integer-array name="pref_qc_gesture_mode_values">
+        <item>0</item>
+        <item>1</item>
+    </integer-array>
+    <string-array name="pref_qc_gesture_band_list">
+        <item>@string/qc_gesture_band_top</item>
+        <item>@string/qc_gesture_band_middle</item>
+        <item>@string/qc_gesture_band_bottom</item>
+    </string-array>
+    <integer-array name="pref_qc_gesture_band_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </integer-array>
+
     <integer-array name="pref_search_suggest_values">
         <item>1</item>
         <item>2</item>

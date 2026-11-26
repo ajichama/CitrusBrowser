@@ -91,6 +91,7 @@ class PieManager(private val context: Context, private val actionController: Act
         pie.setSlop((AppPrefs.qc_slop.get() * density + 0.5f).toInt())
         pie.setPosition(AppPrefs.qc_position.get())
         pie.setShowLabel(AppPrefs.qc_show_label.get())
+        pie.setGestureMode(AppPrefs.qc_gesture_mode.get(), AppPrefs.qc_gesture_band.get())
         // 設定から戻ったときに呼ばれる。画面に付いているときだけ、項目を読み直す
         if (pie.parent != null) reloadItems()
     }

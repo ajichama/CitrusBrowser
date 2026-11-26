@@ -372,5 +372,14 @@
     <string name="qc_empty_customize">Налаштувати вручну</string>
     <string name="qc_empty_later">Пізніше</string>
     <string name="qc_default_added">Елементи за замовчуванням додано</string>
+    <string name="pref_qc_gesture_mode">Відкриття під час навігації жестами</string>
+    <string name="pref_qc_gesture_mode_summary">Під час навігації жестами система використовує проведення від країв екрана для дії «Назад». Під час навігації трьома кнопками швидке управління відкривається вздовж усього краю незалежно від цього параметра.</string>
+    <string name="qc_gesture_mode_band">Лише в смузі біля краю (там «Назад» не використовується)</string>
+    <string name="qc_gesture_mode_inner">Трохи всередині від краю (перекриває краї сторінки)</string>
+    <string name="pref_qc_gesture_band">Положення смуги</string>
+    <string name="pref_qc_gesture_band_summary">Положення смуги (заввишки 200 dp) по вертикалі, коли відкриття лише в смузі біля краю</string>
+    <string name="qc_gesture_band_top">Угорі</string>
+    <string name="qc_gesture_band_middle">Посередині</string>
+    <string name="qc_gesture_band_bottom">Унизу</string>
 </resources>
 

@@ -394,4 +394,13 @@
     <string name="qc_empty_customize">自分で設定する</string>
     <string name="qc_empty_later">あとで</string>
     <string name="qc_default_added">既定の項目を入れました</string>
+    <string name="pref_qc_gesture_mode">ジェスチャーナビゲーションでの開き方</string>
+    <string name="pref_qc_gesture_mode_summary">ジェスチャーナビゲーションでは、画面の端からのスワイプを OS が「戻る」に使います。3ボタンのナビゲーションでは、この設定によらず端の全体で開きます。</string>
+    <string name="qc_gesture_mode_band">端の帯だけで開く（帯では OS の「戻る」を使わない）</string>
+    <string name="qc_gesture_mode_inner">端より少し内側で開く（ページの端の操作と重なる）</string>
+    <string name="pref_qc_gesture_band">帯の位置</string>
+    <string name="pref_qc_gesture_band_summary">「端の帯だけで開く」ときの、帯（高さ 200dp）の縦の位置</string>
+    <string name="qc_gesture_band_top">上寄り</string>
+    <string name="qc_gesture_band_middle">中央</string>
+    <string name="qc_gesture_band_bottom">下寄り</string>
 </resources>

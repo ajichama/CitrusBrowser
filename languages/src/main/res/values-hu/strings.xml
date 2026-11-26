@@ -370,4 +370,13 @@
     <string name="qc_empty_customize">Saját beállítás</string>
     <string name="qc_empty_later">Később</string>
     <string name="qc_default_added">Az alapértelmezett elemek hozzáadva</string>
+    <string name="pref_qc_gesture_mode">Megnyitás kézmozdulatos navigációnál</string>
+    <string name="pref_qc_gesture_mode_summary">Kézmozdulatos navigációnál a rendszer a képernyő széléről indított húzást a Vissza művelethez használja. 3 gombos navigációnál a gyorsvezérlés ettől a beállítástól függetlenül a teljes szélen megnyílik.</string>
+    <string name="qc_gesture_mode_band">Csak egy sávban a szélen (ott a Vissza nem használható)</string>
+    <string name="qc_gesture_mode_inner">Kicsit a szélen belül (átfedi az oldal széleit)</string>
+    <string name="pref_qc_gesture_band">A sáv helye</string>
+    <string name="pref_qc_gesture_band_summary">A sáv (200 dp magas) függőleges helye, ha csak egy sávban nyílik meg a szélen</string>
+    <string name="qc_gesture_band_top">Fent</string>
+    <string name="qc_gesture_band_middle">Középen</string>
+    <string name="qc_gesture_band_bottom">Lent</string>
 </resources>

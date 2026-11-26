@@ -425,6 +425,22 @@
             android:entries="@array/pref_qc_r_pos_list"
             android:entryValues="@array/pref_qc_r_pos_values"
             app:iconSpaceReserved="false" />
+        <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
+            android:defaultValue="0"
+            android:key="qc_gesture_mode"
+            android:title="@string/pref_qc_gesture_mode"
+            android:summary="@string/pref_qc_gesture_mode_summary"
+            android:entries="@array/pref_qc_gesture_mode_list"
+            android:entryValues="@array/pref_qc_gesture_mode_values"
+            app:iconSpaceReserved="false" />
+        <io.github.ajichama.citrusbrowser.ui.preference.StrToIntListPreference
+            android:defaultValue="1"
+            android:key="qc_gesture_band"
+            android:title="@string/pref_qc_gesture_band"
+            android:summary="@string/pref_qc_gesture_band_summary"
+            android:entries="@array/pref_qc_gesture_band_list"
+            android:entryValues="@array/pref_qc_gesture_band_values"
+            app:iconSpaceReserved="false" />
 
         <io.github.ajichama.citrusbrowser.legacy.settings.preference.ActionListPreference
             android:title="@string/pref_qc_level1"

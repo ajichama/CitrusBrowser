@@ -24,6 +24,9 @@ import android.view.MotionEvent
 import android.view.SoundEffectConstants
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import io.github.ajichama.citrusbrowser.core.utility.extensions.dimension
 import io.github.ajichama.citrusbrowser.core.utility.extensions.getResColor
 import io.github.ajichama.citrusbrowser.legacy.R
@@ -46,6 +49,10 @@ class PieMenu @JvmOverloads constructor(
     private var touchOffset: Int = 0
 
     private var position: Int = 0
+    // ジェスチャーナビゲーションでの開き方（#38）
+    private var gestureMode = QuickControlEdge.MODE_BAND
+    private var gestureBand = QuickControlEdge.BAND_MIDDLE
+    private var exclusionRects: List<Rect> = emptyList()
     var isOpen: Boolean = false
         private set
     private var controller: PieController? = null
@@ -156,7 +163,8 @@ class PieMenu @JvmOverloads constructor(
     }
 
     private fun setCenter(x: Int, y: Int) {
-        if (x < slop) {
+        // 「内側」で開くときは端から離れた位置で触れるので、画面の左右の半分で決める（#38）
+        if (x < width / 2) {
 
             center.x = 0
         } else {
@@ -275,7 +283,7 @@ class PieMenu @JvmOverloads constructor(
         val action = evt.actionMasked
         touchPoint.set(x, y)
         if (MotionEvent.ACTION_DOWN == action) {
-            if (position != 1 && x > width - slop || position != 2 && x < slop) {
+            if (QuickControlEdge.hitSide(edgeConfig(), x.toInt(), y.toInt()) != QuickControlEdge.SIDE_NONE) {
                 setCenter(x.toInt(), y.toInt())
                 show(true)
                 return true
@@ -423,6 +431,58 @@ class PieMenu @JvmOverloads constructor(
 
     fun setShowLabel(show: Boolean) {
         showLabel = show
+    }
+
+    /** ジェスチャーナビゲーションでの開き方と帯の位置（#38）。ほかの設定の後に呼ぶ */
+    fun setGestureMode(mode: Int, band: Int) {
+        gestureMode = mode
+        gestureBand = band
+        updateGestureExclusion()
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        // ナビゲーションの方式や画面の大きさが変わると、ここで帯を当て直す
+        updateGestureExclusion()
+    }
+
+    private fun edgeConfig(): QuickControlEdge.Config {
+        // 3ボタンのナビゲーションバーが横にあるときも左右のジェスチャーの幅として返るので、
+        // 押せるバーの幅を引き、OS の「戻る」のスワイプの幅だけを取る
+        val insets = ViewCompat.getRootWindowInsets(this)
+        val gestures = insets?.getInsets(WindowInsetsCompat.Type.systemGestures()) ?: Insets.NONE
+        val tappable = insets?.getInsets(WindowInsetsCompat.Type.tappableElement()) ?: Insets.NONE
+        return QuickControlEdge.Config(
+            width = width,
+            height = height,
+            slop = slop,
+            position = position,
+            gestureLeft = (gestures.left - tappable.left).coerceAtLeast(0),
+            gestureRight = (gestures.right - tappable.right).coerceAtLeast(0),
+            mode = gestureMode,
+            band = gestureBand,
+            bandHeight = (QuickControlEdge.MAX_EXCLUSION_DP * resources.displayMetrics.density).toInt(),
+        )
+    }
+
+    /** 帯で開くときは、帯の端を OS の「戻る」の対象から外す。それ以外は外さない */
+    private fun updateGestureExclusion() {
+        if (width == 0 || height == 0) return
+        val config = edgeConfig()
+        val sides = QuickControlEdge.excludedSides(config)
+        val rects = if (sides.isEmpty()) {
+            emptyList()
+        } else {
+            val span = QuickControlEdge.bandSpan(config)
+            sides.map { side ->
+                if (side == QuickControlEdge.SIDE_LEFT) Rect(0, span.top, slop, span.bottom)
+                else Rect(width - slop, span.top, width, span.bottom)
+            }
+        }
+        if (rects != exclusionRects) {
+            exclusionRects = rects
+            ViewCompat.setSystemGestureExclusionRects(this, rects)
+        }
     }
 
     fun setTouchOffset(touchOffset: Int) {

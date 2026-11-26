@@ -382,4 +382,13 @@
     <string name="qc_empty_customize">Kendim ayarlayacağım</string>
     <string name="qc_empty_later">Daha sonra</string>
     <string name="qc_default_added">Varsayılan öğeler eklendi</string>
+    <string name="pref_qc_gesture_mode">Hareketle gezinmede açılma</string>
+    <string name="pref_qc_gesture_mode_summary">Hareketle gezinmede sistem, ekran kenarlarından kaydırmayı Geri için kullanır. 3 düğmeli gezinmede hızlı kontrol, bu ayardan bağımsız olarak kenarın tamamında açılır.</string>
+    <string name="qc_gesture_mode_band">Yalnızca kenardaki bir şeritte (orada Geri kullanılmaz)</string>
+    <string name="qc_gesture_mode_inner">Kenarın biraz içinde (sayfa kenarlarıyla çakışır)</string>
+    <string name="pref_qc_gesture_band">Şeridin konumu</string>
+    <string name="pref_qc_gesture_band_summary">Yalnızca kenardaki bir şeritte açılırken şeridin (200 dp yüksekliğinde) dikey konumu</string>
+    <string name="qc_gesture_band_top">Üstte</string>
+    <string name="qc_gesture_band_middle">Ortada</string>
+    <string name="qc_gesture_band_bottom">Altta</string>
 </resources>
