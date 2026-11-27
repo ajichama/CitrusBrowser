@@ -10,12 +10,12 @@ Yuzu Browser の後継として「自分好みに組み替えられるブラウ�
 
 2026-11-22 に決めた順番のうち、#22・#25・#26 は済みました。2026-11-26 に、開いている Issue の優先度と作業の重さを見直し、次の順番にしました（作業の重さは、小＝1つの画面や数個のファイル、中＝複数の画面やモジュールにまたがるか実機での確認が要る、大＝保存の形式やアプリ全体に及ぶ）。
 
-1. **クイックコントロールを使える状態にする・操作の検索**（次の版）
+1. **クイックコントロールを使える状態にする・操作の検索**（1.0.9 で済んだ）
    - [#37](https://github.com/ajichama/CitrusBrowser/issues/37) 項目の変更をすぐ反映する（小）
    - [#36](https://github.com/ajichama/CitrusBrowser/issues/36) 新しく入れたときの既定の項目（小。中身は案を示して決める）
    - [#38](https://github.com/ajichama/CitrusBrowser/issues/38) ジェスチャーナビゲーションとの衝突（中）
    - [#42](https://github.com/ajichama/CitrusBrowser/issues/42) 操作を選ぶ画面の検索（小〜中）
-2. **安全網と安全設定**
+2. **安全網と安全設定**（1.0.10 で #23 の最小の版と #27 の点検を済ませた。#23 の残りは続ける）
    - [#23](https://github.com/ajichama/CitrusBrowser/issues/23) 主要な操作の自動テスト（中〜大。まず起動・タブ・設定・操作の配列の整合を確かめる最小の版から）
    - [#27](https://github.com/ajichama/CitrusBrowser/issues/27) WebView の安全設定の点検（小〜中。Google Play の審査の前に）
 3. **軽くて効果のある機能**: [#8](https://github.com/ajichama/CitrusBrowser/issues/8) 追加のフィルタリスト（小）→ [#7](https://github.com/ajichama/CitrusBrowser/issues/7) GPC（小）→ [#3](https://github.com/ajichama/CitrusBrowser/issues/3) タブのミュート（小）→ [#2](https://github.com/ajichama/CitrusBrowser/issues/2) PiP（小〜中）
