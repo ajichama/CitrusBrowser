@@ -1,6 +1,6 @@
 # ロードマップ（要望の候補）
 
-更新日: 2026-11-26（進める順番を見直し）。2026-11-20 に一次資料で再精査。現代のブラウザ（Firefox・Vivaldi・Brave・Chrome 等）との比較調査を元にした、今後の機能の候補です。需要と実装量を見て、着手するかを決めます。
+更新日: 2026-11-28（受け付けた要望と不具合を追加）。2026-11-26 に進める順番を見直し。2026-11-20 に一次資料で再精査。現代のブラウザ（Firefox・Vivaldi・Brave・Chrome 等）との比較調査を元にした、今後の機能の候補です。需要と実装量を見て、着手するかを決めます。
 
 各候補は GitHub の Issue に登録しました（2026-11-20）。表の番号の右の # が Issue の番号です。議論や優先度の変更は Issue で行います。
 
@@ -21,6 +21,16 @@ Yuzu Browser の後継として「自分好みに組み替えられるブラウ�
 3. **軽くて効果のある機能**: [#8](https://github.com/ajichama/CitrusBrowser/issues/8) 追加のフィルタリスト（小）→ [#7](https://github.com/ajichama/CitrusBrowser/issues/7) GPC（小）→ [#3](https://github.com/ajichama/CitrusBrowser/issues/3) タブのミュート（小）→ [#2](https://github.com/ajichama/CitrusBrowser/issues/2) PiP（小〜中）
 4. **計測と中くらいの機能**: [#24](https://github.com/ajichama/CitrusBrowser/issues/24) 性能の計測（中）の後に、[#1](https://github.com/ajichama/CitrusBrowser/issues/1) HTTPS 優先・[#4](https://github.com/ajichama/CitrusBrowser/issues/4) メディア通知・[#41](https://github.com/ajichama/CitrusBrowser/issues/41) 長押しの並べ替えを広げる・[#9](https://github.com/ajichama/CitrusBrowser/issues/9) の小さな候補から選ぶ
 5. **大きな作業**: [#28](https://github.com/ajichama/CitrusBrowser/issues/28) コードの近代化（大、#23 の後）→ [#29](https://github.com/ajichama/CitrusBrowser/issues/29) Material 3 の統一（大、議論の後）、[#6](https://github.com/ajichama/CitrusBrowser/issues/6) タブグループ・[#5](https://github.com/ajichama/CitrusBrowser/issues/5) Cookie の分離（大）
+
+### 受け付けた要望と不具合（2026-11-28。進める順番はこれから決める）
+
+利用者から届いた要望と不具合を登録しました。Yuzu の操作感を損なわないよう、既定の動きは変えずに設定で選べる形を基本にします。
+
+- **不具合**: [#43](https://github.com/ajichama/CitrusBrowser/issues/43) フローティングツールバーのボタンの一覧で、カスタムアクションに付けた名前が出ない（小）・[#44](https://github.com/ajichama/CitrusBrowser/issues/44) 起動時に、ほかのタブのアイコンが読み込み中のように見える（要調査）
+- **操作の設定**: [#45](https://github.com/ajichama/CitrusBrowser/issues/45) 長押しで有効・無効の切り替えと名前の変更（中）・[#48](https://github.com/ajichama/CitrusBrowser/issues/48) 操作のアイコンを選ぶ（小〜中）・[#49](https://github.com/ajichama/CitrusBrowser/issues/49) 確認のダイアログを出してから実行（小）
+- **一覧の操作**: [#46](https://github.com/ajichama/CitrusBrowser/issues/46) 並べ替えの最中のボタンの見た目（小）・[#50](https://github.com/ajichama/CitrusBrowser/issues/50) ブックマークの画面から追加・インポート・エクスポート（小）
+- **タブ**: [#47](https://github.com/ajichama/CitrusBrowser/issues/47) タブのすぐ上に閉じるボタン（中）・[#51](https://github.com/ajichama/CitrusBrowser/issues/51) タブの一覧の強化（まとめ、大）
+- **フローティングツールバー**: [#52](https://github.com/ajichama/CitrusBrowser/issues/52) 見た目の設定（小〜中）
 
 Google Play の公開は並行して進めます。議論・調査してから決める項目と、調べる順番の方針は #30 にあります。
 
