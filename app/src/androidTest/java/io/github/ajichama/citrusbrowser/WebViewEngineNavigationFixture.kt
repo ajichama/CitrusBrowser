@@ -146,6 +146,9 @@ internal class WebViewEngineNavigationFixture : AutoCloseable {
 
     fun ids(): List<Long> = activity.tabManager.indexDataList.map { it.id }
 
+    /** 今選んでいるタブの ID。 */
+    fun currentId(): Long = ui { activity.tabManager.currentTabData.id }
+
     fun load(id: Long, page: EngineNavigationServer.Page) {
         ui {
             activity.setCurrentTab(activity.indexOf(id))
