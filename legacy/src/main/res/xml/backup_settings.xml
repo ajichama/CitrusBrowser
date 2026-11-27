@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 11 以下のバックアップの規則。Android 12 以降は data_extraction_rules.xml を使う。
+  除くものは2つの規則で同じにする（BackupRulesTest）。
+  ログインの状態・サイトのデータ（app_webview）と、取り直せるキャッシュは移さない。
+-->
 <full-backup-content>
 
     <exclude
         domain="sharedpref"
         path="permission.xml" />
+    <exclude
+        domain="sharedpref"
+        path="AwOriginVisitLoggerPrefs.xml" />
+    <exclude
+        domain="sharedpref"
+        path="WebViewChromiumPrefs.xml" />
     <exclude
         domain="file"
         path="last_url_2.dat" />
@@ -12,12 +23,24 @@
         path="instant-run" />
     <exclude
         domain="root"
-        path="appcache" />
+        path="app_appcache" />
     <exclude
         domain="root"
         path="app_tabs" />
     <exclude
         domain="root"
         path="app_favicon" />
+    <exclude
+        domain="root"
+        path="app_webview" />
+    <exclude
+        domain="root"
+        path="app_textures" />
+    <exclude
+        domain="root"
+        path="app_dxmaker_cache" />
+    <exclude
+        domain="root"
+        path="app_adblock_filter" />
 
 </full-backup-content>

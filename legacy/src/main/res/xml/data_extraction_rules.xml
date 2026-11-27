@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12 以降のバックアップ（クラウド）と、端末間の移行の規則。Android 11 以下は backup_settings.xml を使う。
+  除くものは2つの規則で同じにする（BackupRulesTest）。
+  ログインの状態・サイトのデータ（app_webview）と、取り直せるキャッシュは移さない。
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="permission.xml" />
+        <exclude domain="sharedpref" path="AwOriginVisitLoggerPrefs.xml" />
+        <exclude domain="sharedpref" path="WebViewChromiumPrefs.xml" />
+        <exclude domain="file" path="last_url_2.dat" />
+        <exclude domain="file" path="instant-run" />
+        <exclude domain="root" path="app_appcache" />
+        <exclude domain="root" path="app_tabs" />
+        <exclude domain="root" path="app_favicon" />
+        <exclude domain="root" path="app_webview" />
+        <exclude domain="root" path="app_textures" />
+        <exclude domain="root" path="app_dxmaker_cache" />
+        <exclude domain="root" path="app_adblock_filter" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="permission.xml" />
+        <exclude domain="sharedpref" path="AwOriginVisitLoggerPrefs.xml" />
+        <exclude domain="sharedpref" path="WebViewChromiumPrefs.xml" />
+        <exclude domain="file" path="last_url_2.dat" />
+        <exclude domain="file" path="instant-run" />
+        <exclude domain="root" path="app_appcache" />
+        <exclude domain="root" path="app_tabs" />
+        <exclude domain="root" path="app_favicon" />
+        <exclude domain="root" path="app_webview" />
+        <exclude domain="root" path="app_textures" />
+        <exclude domain="root" path="app_dxmaker_cache" />
+        <exclude domain="root" path="app_adblock_filter" />
+    </device-transfer>
+</data-extraction-rules>
