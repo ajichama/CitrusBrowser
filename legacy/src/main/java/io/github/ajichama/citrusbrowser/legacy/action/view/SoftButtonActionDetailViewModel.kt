@@ -24,6 +24,7 @@ import io.github.ajichama.citrusbrowser.core.lifecycle.LiveEvent
 import io.github.ajichama.citrusbrowser.legacy.R
 import io.github.ajichama.citrusbrowser.legacy.action.Action
 import io.github.ajichama.citrusbrowser.legacy.action.ActionIconMap
+import io.github.ajichama.citrusbrowser.legacy.action.ActionNameArray
 import io.github.ajichama.citrusbrowser.legacy.action.ActionNameMap
 import io.github.ajichama.citrusbrowser.legacy.action.manager.SoftButtonActionFile
 
@@ -32,6 +33,9 @@ class SoftButtonActionDetailViewModel(application: Application) : AndroidViewMod
     var icons: ActionIconMap? = null
 
     private val defaultName = application.getString(R.string.do_nothing)
+
+    /** カスタムアクションに付けた名前を出すための表（操作の一覧と同じ出し方にする、#43）。 */
+    private val nameArray by lazy { ActionNameArray(application) }
 
     val action = MutableLiveData<SoftButtonActionFile>()
 
@@ -44,7 +48,7 @@ class SoftButtonActionDetailViewModel(application: Application) : AndroidViewMod
     private fun getName(action: Action): String {
         val names = names!!
 
-        return names[action] ?: defaultName
+        return action.toString(nameArray) ?: names[action] ?: defaultName
     }
 
     fun getIcon(type: Int): Drawable? {

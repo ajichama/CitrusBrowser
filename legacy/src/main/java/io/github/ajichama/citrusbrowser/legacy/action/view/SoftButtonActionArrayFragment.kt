@@ -31,6 +31,7 @@ import com.google.android.material.snackbar.Snackbar
 import io.github.ajichama.citrusbrowser.legacy.R
 import io.github.ajichama.citrusbrowser.legacy.action.ActionIconMap
 import io.github.ajichama.citrusbrowser.legacy.action.ActionManager
+import io.github.ajichama.citrusbrowser.legacy.action.ActionNameArray
 import io.github.ajichama.citrusbrowser.legacy.action.ActionNameMap
 import io.github.ajichama.citrusbrowser.legacy.action.SoftButtonActionArrayManagerBase
 import io.github.ajichama.citrusbrowser.legacy.action.manager.SoftButtonActionArrayFile
@@ -74,7 +75,7 @@ class SoftButtonActionArrayFragment : RecyclerFabFragment(), OnRecyclerListener,
         val actionNames = activityViewModel.actionNames
         val actionIcons = activityViewModel.actionIcons
         val list = actionArray.list
-        adapter = ActionListAdapter(activity, list, actionNames, actionIcons, this)
+        adapter = ActionListAdapter(activity, list, ActionNameArray(activity), actionNames, actionIcons, this)
         setRecyclerViewAdapter(adapter)
         checkMax()
     }
@@ -187,6 +188,7 @@ class SoftButtonActionArrayFragment : RecyclerFabFragment(), OnRecyclerListener,
     private class ActionListAdapter(
         context: Context,
         list: MutableList<SoftButtonActionFile>,
+        private val nameArray: ActionNameArray,
         private val actionNames: ActionNameMap,
         private val actionIcons: ActionIconMap,
         listener: OnRecyclerListener
@@ -194,7 +196,8 @@ class SoftButtonActionArrayFragment : RecyclerFabFragment(), OnRecyclerListener,
 
         override fun onBindViewHolder(holder: ViewHolder, item: SoftButtonActionFile, position: Int) {
             holder.apply {
-                textView.text = actionNames[item.press]
+                // カスタムアクションは付けた名前を出す（クイックコントロールなどの一覧と同じ、#43）。
+                textView.text = item.press.toString(nameArray) ?: actionNames[item.press]
                 imageView.setImageDrawable(actionIcons[item.press])
             }
         }
